@@ -9,17 +9,15 @@ export interface Env {
 	DB: D1Database;
 }
 
-const app = new Hono<{ Bindings: Env }>();
+// アプリケーションファクトリ関数
+export const createApp = (env: Env) => {
+	const app = new Hono<{ Bindings: Env }>();
 
-// CORSの設定
-app.use("*", cors());
+	// CORSの設定
+	app.use("*", cors());
 
-// アプリケーションの初期化
-app.use("*", async (c, next) => {
-	// D1データベースの初期化
-	const db = drizzle(c.env.DB);
-
-	// リポジトリとサービスの初期化
+	// データベース、リポジトリ、サービスの初期化
+	const db = drizzle(env.DB);
 	const repository = new DrizzleBookmarkRepository(db);
 	const service = new DefaultBookmarkService(repository);
 
@@ -27,7 +25,13 @@ app.use("*", async (c, next) => {
 	const bookmarksRouter = createBookmarksRouter(service);
 	app.route("/api/bookmarks", bookmarksRouter);
 
-	await next();
-});
+	return app;
+};
 
-export default app;
+// デフォルトのエクスポート
+export default {
+	fetch: (request: Request, env: Env) => {
+		const app = createApp(env);
+		return app.fetch(request, env);
+	},
+};

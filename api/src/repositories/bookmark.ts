@@ -10,6 +10,20 @@ export class DrizzleBookmarkRepository implements BookmarkRepository {
 	constructor(private readonly db: DrizzleD1Database) {}
 
 	async createMany(newBookmarks: InsertBookmark[]): Promise<void> {
-		await this.db.insert(bookmarks).values(newBookmarks);
+		try {
+			if (newBookmarks.length === 0) {
+				return;
+			}
+
+			// 順次処理に変更
+			await Promise.all(
+				newBookmarks.map((bookmark) =>
+					this.db.insert(bookmarks).values(bookmark),
+				),
+			);
+		} catch (error) {
+			console.error("Failed to create bookmarks:", error);
+			throw error;
+		}
 	}
 }

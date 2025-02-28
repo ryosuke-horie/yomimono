@@ -6,8 +6,14 @@
 		"strict": true,
 		"skipLibCheck": true,
 		"lib": ["ESNext"],
-		"types": ["@cloudflare/workers-types/2023-07-01"],
+		"types": [
+			"@cloudflare/workers-types/2023-07-01",
+			"vitest/globals",
+			"vitest/importMeta"
+		],
 		"jsx": "react-jsx",
 		"jsxImportSource": "hono/jsx"
-	}
+	},
+	"include": ["src/**/*", "tests/**/*"],
+	"exclude": ["node_modules"]
 }
