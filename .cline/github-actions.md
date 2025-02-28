@@ -1,45 +1,111 @@
-# GitHub Actions設定
+# GitHub Actions設計ドキュメント
 
-## APIの静的解析ワークフロー
+## 概要
+APIの自動テストとカバレッジチェックを行うCIパイプラインの設計。
 
-### 概要
-- ワークフローファイル: `.github/workflows/api-lint.yml`
-- 目的: APIディレクトリ内のコードの品質維持
-- 使用ツール: Biome
+## トリガー条件
+- プッシュイベント
+  - mainブランチへのプッシュ
+  - apiディレクトリ配下の変更時のみ
+- プルリクエストイベント
+  - apiディレクトリ配下の変更時のみ
 
-### 実行タイミング
-- プッシュ時（apiディレクトリ内のファイル変更時のみ）
-- プルリクエスト時（apiディレクトリ内のファイル変更時のみ）
+## ジョブ構成
 
-### 実行環境
-- OS: Ubuntu Latest
-- Node.js: v22
-- 作業ディレクトリ: ./api
+### テストジョブ（test）
 
-### 実行手順
-1. リポジトリのチェックアウト
-2. Node.js v22のセットアップ
-   - npm cacheを有効化
-   - キャッシュパス: `./api/package-lock.json`
-3. 依存関係のインストール（`npm ci`）
-4. 静的解析の実行（`npm run lint`）
+#### 環境
+- runs-on: ubuntu-latest
+- Node.js: 20.x
 
-### キャッシュ戦略
-- Node.jsの依存関係をキャッシュ
-- package-lock.jsonの変更時にのみキャッシュを更新
-- ビルド時間の短縮とリソースの効率的な利用を実現
+#### ステップ
+1. チェックアウト
+```yaml
+- uses: actions/checkout@v4
+```
 
-### エラー時の対応
-1. 静的解析でエラーが発生した場合、ワークフローは失敗
-2. GitHub上でエラー内容を確認可能
-3. ローカルで`npm run lint`を実行して事前確認推奨
+2. Node.jsセットアップ
+```yaml
+- uses: actions/setup-node@v4
+  with:
+    node-version: 20.x
+    cache: npm
+    cache-dependency-path: api/package-lock.json
+```
 
-## 今後の拡張予定
-- Vitestによるユニットテストの追加
-- テストカバレッジレポートの生成と確認
-- dependabotによる依存関係の自動更新設定
+3. 依存関係インストール
+```yaml
+- run: |
+    cd api
+    npm ci
+```
+
+4. テスト実行とカバレッジ収集
+```yaml
+- name: Run tests with coverage
+  run: |
+    cd api
+    npm test -- --coverage
+```
+
+5. カバレッジチェック
+```yaml
+- name: Check coverage threshold
+  run: |
+    cd api
+    COVERAGE=$(cat coverage/coverage-summary.json | jq -r '.total.statements.pct')
+    if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+      echo "Coverage ($COVERAGE%) is below threshold (80%)"
+      exit 1
+    fi
+```
+
+6. PRコメント投稿
+```yaml
+- name: Post coverage comment
+  if: github.event_name == 'pull_request'
+  uses: marocchino/sticky-pull-request-comment@v2
+  with:
+    header: test-coverage
+    message: |
+      ### テストカバレッジレポート
+      
+      全体のカバレッジ: ${COVERAGE}%
+      
+      閾値: 80%
+      
+      ${COVERAGE_DETAIL}
+```
+
+## 必要な権限
+
+### GITHUB_TOKEN
+- `pull-requests: write`: PRへのコメント投稿権限
+- `contents: read`: リポジトリ内容の読み取り権限
+
+```yaml
+permissions:
+  pull-requests: write
+  contents: read
+```
+
+## エラー処理
+1. カバレッジが80%未満の場合
+   - ジョブを失敗させる
+   - PRの場合はコメントで詳細を通知
+
+2. テスト失敗時
+   - ジョブを失敗させる
+   - エラー内容をGitHub Actionsのログに出力
+   - PRの場合はコメントでテスト失敗を通知
+
+## 追加設定
+- Working Directory: api/
+- Node.js環境のキャッシュ設定
+- テスト結果とカバレッジレポートのアーティファクト保存
 
 ## 注意事項
-- プルリクエスト作成前に必ずローカルで静的解析を実行すること
-- `npm run format`でコードフォーマットを整えてからコミットすること
-- 静的解析のルールは`biome.json`で管理
+1. カバレッジチェックは statements coverage を基準とする
+2. PRコメントは既存のコメントを更新する形式で投稿（重複防止）
+3. mainブランチのプッシュ時はコメント投稿をスキップ
+4. テスト実行時はproduction環境の環境変数を使用
