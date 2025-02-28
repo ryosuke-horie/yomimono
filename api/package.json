@@ -7,6 +7,7 @@
 		"format": "npx @biomejs/biome check --write"
 	},
 	"dependencies": {
+		"dotenv": "^16.4.7",
 		"drizzle-orm": "^0.40.0",
 		"hono": "^4.7.2"
 	},
