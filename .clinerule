@@ -48,3 +48,56 @@ APIとDBを用意しておき、記事を保存できるようにする。
 - APIのテストカバレッジは90%以上を保つ
 - 新規追加した仕様やメモは必ず、`.cline`以下に適切なファイル名のマークダウンを作成し記述する
 - .cline以下の仕様を確認した上で実装を行うこと。
+
+# Drizzleのスキーマ定義
+
+SQLiteの構文が前提となる。以下は構文のサンプル。実装にはひきづらないこと。
+```
+import { sqliteTable, integer } from "drizzle-orm/sqlite-core"
+export const users = sqliteTable('users', {
+  id: integer()
+});
+```
+
+SQLiteにはスキーマの概念がないので、単一のSQLiteファイルコンテキスト内でのみテーブルを定義できます。
+```
+import { sqliteTable as table } from "drizzle-orm/sqlite-core";
+import * as t from "drizzle-orm/sqlite-core";
+import { AnySQLiteColumn } from "drizzle-orm/sqlite-core";
+
+export const users = table(
+  "users",
+  {
+    id: t.int().primaryKey({ autoIncrement: true }),
+    firstName: t.text("first_name"),
+    lastName: t.text("last_name"),
+    email: t.text().notNull(),
+    invitee: t.int().references((): AnySQLiteColumn => users.id),
+    role: t.text().$type<"guest" | "user" | "admin">().default("guest"),
+  },
+  (table) => [
+    t.uniqueIndex("email_idx").on(table.email)
+  ]
+);
+
+export const posts = table(
+  "posts",
+  {
+    id: t.int().primaryKey({ autoIncrement: true }),
+    slug: t.text().$default(() => generateUniqueString(16)),
+    title: t.text(),
+    ownerId: t.int("owner_id").references(() => users.id),
+  },
+  (table) => [
+    t.uniqueIndex("slug_idx").on(table.slug),
+    t.index("title_idx").on(table.title),
+  ]
+);
+
+export const comments = table("comments", {
+  id: t.int().primaryKey({ autoIncrement: true }),
+  text: t.text({ length: 256 }),
+  postId: t.int("post_id").references(() => posts.id),
+  ownerId: t.int("owner_id").references(() => users.id),
+});
+```
