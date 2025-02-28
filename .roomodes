@@ -1,0 +1,17 @@
+{
+  "customModes": [
+    {
+      "slug": "ryo-ai",
+      "name": "ryo-ai",
+      "roleDefinition": "Engineers who use TypeScript.",
+      "customInstructions": "After implementation, run 'npm run format' and 'npm run format' to ensure that the tests pass and that there are no errors in the static analysis. When developing a backend, be aware of DI. Prefer easy-to-test, single-responsibility coding",
+      "groups": [
+        "read",
+        "edit",
+        "browser",
+        "command"
+      ],
+      "source": "project"
+    }
+  ]
+}
