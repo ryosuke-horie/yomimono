@@ -1,17 +1,17 @@
 {
-  "name": "effective-yomimono-api",
-  "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy --minify",
-    "lint": "npx @biomejs/biome check",
-    "format": "npx @biomejs/biome check --write"
-  },
-  "dependencies": {
-    "hono": "^4.7.2"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "@cloudflare/workers-types": "^4.20250214.0",
-    "wrangler": "^3.109.2"
-  }
+	"name": "effective-yomimono-api",
+	"scripts": {
+		"dev": "wrangler dev",
+		"deploy": "wrangler deploy --minify",
+		"lint": "npx @biomejs/biome check",
+		"format": "npx @biomejs/biome check --write"
+	},
+	"dependencies": {
+		"hono": "^4.7.2"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"@cloudflare/workers-types": "^4.20250214.0",
+		"wrangler": "^3.109.2"
+	}
 }
