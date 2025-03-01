@@ -23,7 +23,10 @@ async function sendUrlsToApi(urlData) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                urls: urlData.map(data => data.url)
+                bookmarks: urlData.map(data => ({
+                    url: data.url,
+                    title: data.title || ''
+                }))
             }),
         });
 
