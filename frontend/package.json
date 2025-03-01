@@ -1,0 +1,30 @@
+{
+	"name": "effective-yomimono",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "next lint",
+		"deploy": "opennextjs-cloudflare && wrangler deploy",
+		"preview": "opennextjs-cloudflare && wrangler dev",
+		"cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+	},
+	"dependencies": {
+		"next": "14.2.23",
+		"react": "^18",
+		"react-dom": "^18"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20250224.0",
+		"@opennextjs/cloudflare": "^0.5.7",
+		"@types/node": "^20",
+		"@types/react": "^18",
+		"@types/react-dom": "^18",
+		"postcss": "^8",
+		"tailwindcss": "^3.4.1",
+		"typescript": "^5",
+		"wrangler": "^3.111.0"
+	}
+}
