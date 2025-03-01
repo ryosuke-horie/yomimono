@@ -32,7 +32,7 @@ Chromeで開いているタブのURLとタイトルを一括で取得し、API�
 1. Chromeブラウザで `chrome://extensions` を開く
 2. 右上の「デベロッパーモード」を有効にする
 3. 「パッケージ化されていない拡張機能を読み込む」をクリック
-4. `.cline/extension` ディレクトリを選択
+4. `extension` ディレクトリを選択
 
 ## 使用方法
 1. Chromeツールバーの拡張機能アイコンをクリック
@@ -55,7 +55,7 @@ Chromeで開いているタブのURLとタイトルを一括で取得し、API�
 
 ### ディレクトリ構造
 ```
-.cline/extension/
+extension/
 ├── manifest.json       # 拡張機能の設定
 ├── background.js      # バックグラウンド処理（タブ情報取得とAPI通信）
 ├── popup/
