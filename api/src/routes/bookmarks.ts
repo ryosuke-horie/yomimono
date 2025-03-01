@@ -19,10 +19,10 @@ export const createBookmarksRouter = (bookmarkService: BookmarkService) => {
 			}
 
 			if (bookmarks.length === 0) {
-			return c.json(
-			{ success: false, message: "bookmarks array cannot be empty" },
-			400,
-			);
+				return c.json(
+					{ success: false, message: "bookmarks array cannot be empty" },
+					400,
+				);
 			}
 
 			// URLの形式チェック
