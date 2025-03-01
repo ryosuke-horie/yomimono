@@ -11,7 +11,7 @@ APIとDBを用意しておき、記事を保存できるようにする。
 
 # ロードマップ
 
-- [ ] Cloudflare workersでAPIとDBを用意
+- [x] Cloudflare workersでAPIとDBを用意
     - HonoとDrizzleを利用
 - [ ] Chrome拡張機能を作成
     - [ ] タブを複数選択して一括で記事を保存
