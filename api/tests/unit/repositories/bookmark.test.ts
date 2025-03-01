@@ -13,6 +13,47 @@ describe("DrizzleBookmarkRepository", () => {
 		vi.clearAllMocks();
 	});
 
+	describe("findUnread", () => {
+		it("should return unread bookmarks", async () => {
+			const expectedBookmarks = [
+				{
+					id: 1,
+					url: "https://example.com",
+					title: "Example",
+					isRead: false,
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
+			];
+
+			mockD1Database.select.mockReturnValueOnce({
+				from: vi.fn().mockReturnValue({
+					where: vi.fn().mockReturnValue({
+						all: vi.fn().mockResolvedValue(expectedBookmarks),
+					}),
+				}),
+			});
+
+			const result = await repository.findUnread();
+
+			expect(result).toEqual(expectedBookmarks);
+			expect(mockD1Database.select).toHaveBeenCalled();
+		});
+
+		it("should handle database errors", async () => {
+			const error = new Error("Database error");
+			mockD1Database.select.mockReturnValueOnce({
+				from: vi.fn().mockReturnValue({
+					where: vi.fn().mockReturnValue({
+						all: vi.fn().mockRejectedValue(error),
+					}),
+				}),
+			});
+
+			await expect(repository.findUnread()).rejects.toThrow("Database error");
+		});
+	});
+
 	describe("createMany", () => {
 		it("should insert multiple bookmarks successfully", async () => {
 			const newBookmarks = [

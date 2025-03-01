@@ -19,7 +19,13 @@ interface RequestBody {
 // D1データベースのモック
 export const mockD1Database = {
 	insert: mockInsert,
-	select: vi.fn(),
+	select: vi.fn().mockReturnValue({
+		from: vi.fn().mockReturnValue({
+			where: vi.fn().mockReturnValue({
+				all: vi.fn().mockResolvedValue([]),
+			}),
+		}),
+	}),
 	delete: vi.fn(),
 	update: vi.fn(),
 	batch: vi.fn(),

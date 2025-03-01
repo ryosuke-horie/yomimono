@@ -5,14 +5,44 @@ import { DefaultBookmarkService } from "../../../src/services/bookmark";
 describe("DefaultBookmarkService", () => {
 	// リポジトリのモック
 	const mockCreateMany = vi.fn().mockImplementation(() => Promise.resolve());
+	const mockFindUnread = vi.fn().mockImplementation(() => Promise.resolve([]));
 	const mockRepository: BookmarkRepository = {
 		createMany: mockCreateMany,
+		findUnread: mockFindUnread,
 	};
 
 	const service = new DefaultBookmarkService(mockRepository);
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+	});
+
+	describe("getUnreadBookmarks", () => {
+		it("should return unread bookmarks successfully", async () => {
+			const expectedBookmarks = [
+				{
+					id: 1,
+					url: "https://example.com",
+					title: "Example",
+					isRead: false,
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
+			];
+			mockFindUnread.mockResolvedValueOnce(expectedBookmarks);
+
+			const result = await service.getUnreadBookmarks();
+
+			expect(result).toEqual(expectedBookmarks);
+			expect(mockRepository.findUnread).toHaveBeenCalled();
+		});
+
+		it("should handle repository errors", async () => {
+			const error = new Error("Database error");
+			mockFindUnread.mockRejectedValueOnce(error);
+
+			await expect(service.getUnreadBookmarks()).rejects.toThrow(error);
+		});
 	});
 
 	describe("createBookmarksFromData", () => {

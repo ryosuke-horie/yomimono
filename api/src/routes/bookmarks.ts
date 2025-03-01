@@ -4,6 +4,19 @@ import type { BookmarkService } from "../services/bookmark";
 export const createBookmarksRouter = (bookmarkService: BookmarkService) => {
 	const app = new Hono();
 
+	app.get("/unread", async (c) => {
+		try {
+			const bookmarks = await bookmarkService.getUnreadBookmarks();
+			return c.json({ success: true, bookmarks });
+		} catch (error) {
+			console.error("Failed to fetch unread bookmarks:", error);
+			return c.json(
+				{ success: false, message: "Failed to fetch unread bookmarks" },
+				500,
+			);
+		}
+	});
+
 	app.post("/bulk", async (c) => {
 		try {
 			const { bookmarks } = await c.req.json<{
