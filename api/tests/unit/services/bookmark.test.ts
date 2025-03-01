@@ -3,13 +3,10 @@ import type { BookmarkRepository } from "../../../src/repositories/bookmark";
 import { DefaultBookmarkService } from "../../../src/services/bookmark";
 
 describe("DefaultBookmarkService", () => {
-	// グローバルfetchのモック
-	const mockFetch = vi.fn();
-	global.fetch = mockFetch;
-
 	// リポジトリのモック
+	const mockCreateMany = vi.fn().mockImplementation(() => Promise.resolve());
 	const mockRepository: BookmarkRepository = {
-		createMany: vi.fn(),
+		createMany: mockCreateMany,
 	};
 
 	const service = new DefaultBookmarkService(mockRepository);
@@ -18,20 +15,14 @@ describe("DefaultBookmarkService", () => {
 		vi.clearAllMocks();
 	});
 
-	describe("createBookmarksFromUrls", () => {
-		it("should create bookmarks with titles successfully", async () => {
-			const urls = ["https://example.com", "https://example.org"];
+	describe("createBookmarksFromData", () => {
+		it("should create bookmarks successfully", async () => {
+			const bookmarks = [
+				{ url: "https://example.com", title: "Example Title" },
+				{ url: "https://example.org", title: "Example Org" },
+			];
 
-			// fetchのレスポンスをモック
-			mockFetch
-				.mockResolvedValueOnce({
-					text: () => Promise.resolve("<title>Example Title</title>"),
-				})
-				.mockResolvedValueOnce({
-					text: () => Promise.resolve("<title>Example Org</title>"),
-				});
-
-			await service.createBookmarksFromUrls(urls);
+			await service.createBookmarksFromData(bookmarks);
 
 			// リポジトリの呼び出しを検証
 			expect(mockRepository.createMany).toHaveBeenCalledWith(
@@ -50,32 +41,10 @@ describe("DefaultBookmarkService", () => {
 			);
 		});
 
-		it("should handle URLs without titles", async () => {
-			const urls = ["https://example.com"];
+		it("should handle bookmarks without titles", async () => {
+			const bookmarks = [{ url: "https://example.com", title: "" }];
 
-			mockFetch.mockResolvedValueOnce({
-				text: () => Promise.resolve("<html>No title</html>"),
-			});
-
-			await service.createBookmarksFromUrls(urls);
-
-			expect(mockRepository.createMany).toHaveBeenCalledWith(
-				expect.arrayContaining([
-					expect.objectContaining({
-						url: "https://example.com",
-						title: null,
-						isRead: false,
-					}),
-				]),
-			);
-		});
-
-		it("should handle fetch errors", async () => {
-			const urls = ["https://example.com"];
-
-			mockFetch.mockRejectedValueOnce(new Error("Network error"));
-
-			await service.createBookmarksFromUrls(urls);
+			await service.createBookmarksFromData(bookmarks);
 
 			expect(mockRepository.createMany).toHaveBeenCalledWith(
 				expect.arrayContaining([
@@ -89,16 +58,14 @@ describe("DefaultBookmarkService", () => {
 		});
 
 		it("should handle repository errors", async () => {
-			const urls = ["https://example.com"];
+			const bookmarks = [
+				{ url: "https://example.com", title: "Example Title" },
+			];
 			const error = new Error("Database error");
 
-			mockFetch.mockResolvedValueOnce({
-				text: () => Promise.resolve("<title>Example Title</title>"),
-			});
+			mockCreateMany.mockImplementationOnce(() => Promise.reject(error));
 
-			mockRepository.createMany.mockRejectedValueOnce(error);
-
-			await expect(service.createBookmarksFromUrls(urls)).rejects.toThrow(
+			await expect(service.createBookmarksFromData(bookmarks)).rejects.toThrow(
 				error,
 			);
 		});

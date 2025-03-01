@@ -6,19 +6,21 @@ export const createBookmarksRouter = (bookmarkService: BookmarkService) => {
 
 	app.post("/bulk", async (c) => {
 		try {
-			const { urls } = await c.req.json<{ urls: string[] }>();
+			const { bookmarks } = await c.req.json<{
+				bookmarks: Array<{ url: string; title: string }>;
+			}>();
 
 			// バリデーション
-			if (!Array.isArray(urls)) {
+			if (!Array.isArray(bookmarks)) {
 				return c.json(
-					{ success: false, message: "urls must be an array" },
+					{ success: false, message: "bookmarks must be an array" },
 					400,
 				);
 			}
 
-			if (urls.length === 0 || urls.length > 10) {
+			if (bookmarks.length === 0 || bookmarks.length > 10) {
 				return c.json(
-					{ success: false, message: "urls must contain 1-10 items" },
+					{ success: false, message: "bookmarks must contain 1-10 items" },
 					400,
 				);
 			}
@@ -33,11 +35,11 @@ export const createBookmarksRouter = (bookmarkService: BookmarkService) => {
 				}
 			};
 
-			if (!urls.every(isValidUrl)) {
+			if (!bookmarks.every((b) => isValidUrl(b.url))) {
 				return c.json({ success: false, message: "invalid URL format" }, 400);
 			}
 
-			await bookmarkService.createBookmarksFromUrls(urls);
+			await bookmarkService.createBookmarksFromData(bookmarks);
 			return c.json({ success: true });
 		} catch (error) {
 			console.error("Failed to create bookmarks:", error);
