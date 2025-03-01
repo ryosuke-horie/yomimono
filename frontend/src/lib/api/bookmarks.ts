@@ -2,15 +2,22 @@ import { Bookmark } from '@/types/bookmark';
 import { ApiResponse } from '@/types/api';
 import { API_BASE_URL } from './config';
 
+function getApiUrl() {
+  if (typeof window === 'undefined') {
+    // サーバーサイド
+    return `${API_BASE_URL}/api/bookmarks/unread`;
+  }
+  // クライアントサイド
+  return `${window.location.origin}/api/bookmarks/unread`;
+}
+
 export async function getUnreadBookmarks(): Promise<Bookmark[]> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/bookmarks/unread`, {
+    const response = await fetch(getApiUrl(), {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
-      credentials: 'include',
-      mode: 'cors'
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
