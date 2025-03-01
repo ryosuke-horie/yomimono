@@ -18,11 +18,11 @@ export const createBookmarksRouter = (bookmarkService: BookmarkService) => {
 				);
 			}
 
-			if (bookmarks.length === 0 || bookmarks.length > 10) {
-				return c.json(
-					{ success: false, message: "bookmarks must contain 1-10 items" },
-					400,
-				);
+			if (bookmarks.length === 0) {
+			return c.json(
+			{ success: false, message: "bookmarks array cannot be empty" },
+			400,
+			);
 			}
 
 			// URLの形式チェック
