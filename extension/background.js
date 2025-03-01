@@ -15,7 +15,7 @@ async function collectTabUrls() {
 
 // URLをAPIに送信する関数
 async function sendUrlsToApi(urlData) {
-    const API_ENDPOINT = 'https://effective-yomimono-api.ryosuke-horie37.workers.dev/bookmarks';
+    const API_ENDPOINT = 'https://effective-yomimono-api.ryosuke-horie37.workers.dev/api/bookmarks/bulk';
     try {
         const response = await fetch(API_ENDPOINT, {
             method: 'POST',
@@ -23,10 +23,7 @@ async function sendUrlsToApi(urlData) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                bookmarks: urlData.map(data => ({
-                    url: data.url,
-                    title: data.title
-                }))
+                urls: urlData.map(data => data.url)
             }),
         });
 
