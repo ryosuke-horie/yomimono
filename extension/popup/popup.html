@@ -10,7 +10,14 @@
 <body>
     <div class="container">
         <h1>Tab URL Collector</h1>
-        <button id="collectButton">URLを収集して送信</button>
+        <div id="tabList" class="tab-list">
+            <!-- タブ一覧がここに動的に追加されます -->
+        </div>
+        <div class="actions">
+            <button id="selectAllButton">全て選択</button>
+            <button id="deselectAllButton">選択解除</button>
+            <button id="collectButton">選択したURLを送信</button>
+        </div>
         <div id="status" class="status"></div>
         <div id="result" class="result"></div>
     </div>

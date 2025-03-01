@@ -1,18 +1,3 @@
-// タブのURLを収集する関数
-async function collectTabUrls() {
-    try {
-        const tabs = await chrome.tabs.query({ currentWindow: true });
-        const urls = tabs.map(tab => ({
-            url: tab.url,
-            title: tab.title || ''
-        }));
-        return urls;
-    } catch (error) {
-        console.error('タブのURL収集に失敗:', error);
-        throw error;
-    }
-}
-
 // URLをAPIに送信する関数
 async function sendUrlsToApi(urlData) {
     const API_ENDPOINT = 'https://effective-yomimono-api.ryosuke-horie37.workers.dev/api/bookmarks/bulk';
@@ -45,8 +30,8 @@ async function sendUrlsToApi(urlData) {
 // メッセージリスナーの設定
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'collectAndSendUrls') {
-        collectTabUrls()
-            .then(urls => sendUrlsToApi(urls))
+        // 選択されたタブの情報を使用
+        sendUrlsToApi(request.tabs)
             .then(result => {
                 sendResponse({ success: true, data: result });
             })

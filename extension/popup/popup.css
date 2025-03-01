@@ -1,5 +1,5 @@
 body {
-  width: 300px;
+  width: 400px;
   padding: 16px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
@@ -16,6 +16,50 @@ h1 {
   color: #333;
 }
 
+.tab-list {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.tab-item:last-child {
+  border-bottom: none;
+}
+
+.tab-item label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.tab-item input[type="checkbox"] {
+  margin: 0;
+}
+
+.tab-item .tab-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
 button {
   background-color: #4CAF50;
   color: white;
@@ -25,6 +69,17 @@ button {
   cursor: pointer;
   font-size: 14px;
   transition: background-color 0.3s;
+  flex: 1;
+}
+
+#selectAllButton,
+#deselectAllButton {
+  background-color: #2196F3;
+}
+
+#selectAllButton:hover,
+#deselectAllButton:hover {
+  background-color: #1976D2;
 }
 
 button:hover {
