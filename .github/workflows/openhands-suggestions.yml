@@ -1,0 +1,64 @@
+name: OpenHands Project Suggestions
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read       # リポジトリのコードを読む権限
+  issues: write        # Issue を作成する権限
+
+jobs:
+  suggest-improvements:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install OpenHands
+        run: |
+          python -m pip install --upgrade pip
+          pip install openhands-ai
+
+      - name: Export LLM settings
+        # 必要なAPIキー・モデルを環境変数に設定 [oai_citation_attribution:1‡docs.all-hands.dev](https://docs.all-hands.dev/modules/usage/how-to/headless-mode#:~:text=,sk_test_12345)
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_MODEL: ${{ secrets.LLM_MODEL || 'anthropic/claude-3-5-sonnet-20241022' }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || '' }}
+        run: |
+          echo "WORKSPACE_BASE=${{ github.workspace }}" >> $GITHUB_ENV
+          echo "SANDBOX_USER_ID=$(id -u)" >> $GITHUB_ENV
+
+      - name: Run OpenHands suggestion agent
+        # プロジェクト全体の改善提案を生成するようエージェントを実行
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_MODEL: ${{ secrets.LLM_MODEL || 'anthropic/claude-3-5-sonnet-20241022' }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || '' }}
+          WORKSPACE_BASE: ${{ env.WORKSPACE_BASE }}
+          SANDBOX_USER_ID: ${{ env.SANDBOX_USER_ID }}
+        run: |
+          python -m openhands.core.main -t "リポジトリ全体を確認し、コード品質やドキュメントなどあらゆる観点から改善できる点を提案してください。コードの修正は行わず、改善提案を箇条書きのMarkdown形式でまとめ、プロジェクトルートにSUGGESTIONS.mdファイルとして保存してください。" [oai_citation_attribution:2‡docs.all-hands.dev](https://docs.all-hands.dev/modules/usage/how-to/headless-mode#:~:text=poetry%20run%20python%20,bash%20script%20that%20prints%20hi)
+
+      - name: Create GitHub Issue for suggestions
+        # OpenHandsエージェントの出力結果（改善提案）をIssueとして作成
+        uses: actions/github-script@v7
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
+        with:
+          script: |
+            const fs = require('fs');
+            const suggestions = fs.existsSync('SUGGESTIONS.md')
+              ? fs.readFileSync('SUGGESTIONS.md', 'utf8')
+              : '*(エージェントからの提案内容が取得できませんでした)*';
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'OpenHandsによるプロジェクト改善提案',
+              body: suggestions
+            });
