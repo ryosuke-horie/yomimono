@@ -8,14 +8,14 @@
 	"files": {
 		"ignoreUnknown": false,
 		"ignore": [
-            ".next",
-            ".open-next",
-            ".wrangler",
-            "coverage",
-            "node_modules",
-            "*.json",
-            "*.mjs"
-        ]
+			".next",
+			".open-next",
+			".wrangler",
+			"coverage",
+			"node_modules",
+			"*.json",
+			"*.mjs"
+		]
 	},
 	"formatter": {
 		"enabled": true,
@@ -27,7 +27,10 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true
+			"recommended": true,
+			"a11y": {
+				"noSvgWithoutTitle": "off"
+			}
 		}
 	},
 	"javascript": {
