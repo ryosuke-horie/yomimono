@@ -6,6 +6,7 @@ import type { Bookmark, InsertBookmark } from "../db/schema";
 export interface BookmarkRepository {
 	createMany(bookmarks: InsertBookmark[]): Promise<void>;
 	findUnread(): Promise<Bookmark[]>;
+	markAsRead(id: number): Promise<boolean>;
 }
 
 export class DrizzleBookmarkRepository implements BookmarkRepository {
@@ -38,6 +39,35 @@ export class DrizzleBookmarkRepository implements BookmarkRepository {
 			);
 		} catch (error) {
 			console.error("Failed to create bookmarks:", error);
+			throw error;
+		}
+	}
+
+	async markAsRead(id: number): Promise<boolean> {
+		try {
+			// 存在確認
+			const bookmark = await this.db
+				.select()
+				.from(bookmarks)
+				.where(eq(bookmarks.id, id))
+				.get();
+
+			if (!bookmark) {
+				return false;
+			}
+
+			const result = await this.db
+				.update(bookmarks)
+				.set({
+					isRead: true,
+					updatedAt: new Date(),
+				})
+				.where(eq(bookmarks.id, id))
+				.run();
+
+			return true;
+		} catch (error) {
+			console.error("Failed to mark bookmark as read:", error);
 			throw error;
 		}
 	}

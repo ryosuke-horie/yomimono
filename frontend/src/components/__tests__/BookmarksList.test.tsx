@@ -7,6 +7,7 @@ import { BookmarksList } from "../BookmarksList";
 // モック用のレスポンス型
 type MockResponse = Response & {
 	json: () => Promise<ApiBookmarkResponse>;
+	text: () => Promise<string>;
 };
 
 // APIレスポンスのモック
@@ -48,6 +49,10 @@ describe("BookmarksList", () => {
 						() =>
 							resolve({
 								ok: true,
+								text: () =>
+									Promise.resolve(
+										JSON.stringify({ success: true, bookmarks: [] }),
+									),
 								json: async () => ({ success: true, bookmarks: [] }),
 							} as MockResponse),
 						100,
@@ -84,6 +89,13 @@ describe("BookmarksList", () => {
 		// fetchのモックを設定（成功レスポンスを返す）
 		global.fetch = vi.fn().mockResolvedValue({
 			ok: true,
+			text: () =>
+				Promise.resolve(
+					JSON.stringify({
+						success: true,
+						bookmarks: mockBookmarks,
+					}),
+				),
 			json: () =>
 				Promise.resolve({
 					success: true,
@@ -99,5 +111,101 @@ describe("BookmarksList", () => {
 		});
 
 		expect(screen.getByText("Example Title")).toBeDefined();
+	});
+
+	it("複数のブックマークを正しく表示する", async () => {
+		const multipleBookmarks = [
+			{
+				id: 1,
+				url: "https://example.com",
+				title: "Example Title 1",
+				isRead: false,
+				createdAt: "2024-03-01T00:00:00.000Z",
+				updatedAt: "2024-03-01T00:00:00.000Z",
+			},
+			{
+				id: 2,
+				url: "https://example.org",
+				title: "Example Title 2",
+				isRead: false,
+				createdAt: "2024-03-02T00:00:00.000Z",
+				updatedAt: "2024-03-02T00:00:00.000Z",
+			},
+		];
+
+		global.fetch = vi.fn().mockResolvedValue({
+			ok: true,
+			text: () =>
+				Promise.resolve(
+					JSON.stringify({
+						success: true,
+						bookmarks: multipleBookmarks,
+					}),
+				),
+			json: () =>
+				Promise.resolve({
+					success: true,
+					bookmarks: multipleBookmarks,
+				}),
+		} as MockResponse);
+
+		render(<BookmarksList initialBookmarks={[]} />);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(screen.getByText("Example Title 1")).toBeDefined();
+		expect(screen.getByText("Example Title 2")).toBeDefined();
+	});
+
+	it("最新のブックマークが先頭に表示される", async () => {
+		const sortedBookmarks = [
+			{
+				id: 2,
+				url: "https://example.org",
+				title: "Newer Bookmark",
+				isRead: false,
+				createdAt: "2024-03-02T00:00:00.000Z",
+				updatedAt: "2024-03-02T00:00:00.000Z",
+			},
+			{
+				id: 1,
+				url: "https://example.com",
+				title: "Older Bookmark",
+				isRead: false,
+				createdAt: "2024-03-01T00:00:00.000Z",
+				updatedAt: "2024-03-01T00:00:00.000Z",
+			},
+		];
+
+		global.fetch = vi.fn().mockResolvedValue({
+			ok: true,
+			text: () =>
+				Promise.resolve(
+					JSON.stringify({
+						success: true,
+						bookmarks: sortedBookmarks,
+					}),
+				),
+			json: () =>
+				Promise.resolve({
+					success: true,
+					bookmarks: sortedBookmarks,
+				}),
+		} as MockResponse);
+
+		render(<BookmarksList initialBookmarks={[]} />);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		const bookmarkItems = screen.getAllByTestId("bookmark-item");
+		const firstBookmark = bookmarkItems[0];
+		const secondBookmark = bookmarkItems[1];
+
+		expect(firstBookmark.textContent).toContain("Newer Bookmark");
+		expect(secondBookmark.textContent).toContain("Older Bookmark");
 	});
 });

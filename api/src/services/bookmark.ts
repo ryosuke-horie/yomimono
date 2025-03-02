@@ -6,6 +6,7 @@ export interface BookmarkService {
 		bookmarks: Array<{ url: string; title: string }>,
 	): Promise<void>;
 	getUnreadBookmarks(): Promise<Bookmark[]>;
+	markBookmarkAsRead(id: number): Promise<void>;
 }
 
 export class DefaultBookmarkService implements BookmarkService {
@@ -30,5 +31,12 @@ export class DefaultBookmarkService implements BookmarkService {
 		);
 
 		await this.repository.createMany(bookmarksToInsert);
+	}
+
+	async markBookmarkAsRead(id: number): Promise<void> {
+		const updated = await this.repository.markAsRead(id);
+		if (!updated) {
+			throw new Error("Bookmark not found");
+		}
 	}
 }

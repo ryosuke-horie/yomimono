@@ -63,5 +63,27 @@ export const createBookmarksRouter = (bookmarkService: BookmarkService) => {
 		}
 	});
 
+	// 既読機能
+	app.patch("/:id/read", async (c) => {
+		try {
+			const id = Number.parseInt(c.req.param("id"));
+			if (Number.isNaN(id)) {
+				return c.json({ success: false, message: "Invalid bookmark ID" }, 400);
+			}
+
+			await bookmarkService.markBookmarkAsRead(id);
+			return c.json({ success: true });
+		} catch (error) {
+			if (error instanceof Error && error.message === "Bookmark not found") {
+				return c.json({ success: false, message: "Bookmark not found" }, 404);
+			}
+			console.error("Failed to mark bookmark as read:", error);
+			return c.json(
+				{ success: false, message: "Failed to mark bookmark as read" },
+				500,
+			);
+		}
+	});
+
 	return app;
 };

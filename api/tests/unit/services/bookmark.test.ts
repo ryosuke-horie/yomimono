@@ -6,9 +6,13 @@ describe("DefaultBookmarkService", () => {
 	// リポジトリのモック
 	const mockCreateMany = vi.fn().mockImplementation(() => Promise.resolve());
 	const mockFindUnread = vi.fn().mockImplementation(() => Promise.resolve([]));
+	const mockMarkAsRead = vi
+		.fn()
+		.mockImplementation(() => Promise.resolve(true));
 	const mockRepository: BookmarkRepository = {
 		createMany: mockCreateMany,
 		findUnread: mockFindUnread,
+		markAsRead: mockMarkAsRead,
 	};
 
 	const service = new DefaultBookmarkService(mockRepository);
@@ -98,6 +102,39 @@ describe("DefaultBookmarkService", () => {
 			await expect(service.createBookmarksFromData(bookmarks)).rejects.toThrow(
 				error,
 			);
+		});
+
+		describe("markBookmarkAsRead", () => {
+			it("should mark a bookmark as read successfully", async () => {
+				const bookmarkId = 1;
+				mockMarkAsRead.mockResolvedValueOnce(true);
+
+				await service.markBookmarkAsRead(bookmarkId);
+
+				expect(mockRepository.markAsRead).toHaveBeenCalledWith(bookmarkId);
+			});
+
+			it("should throw an error when bookmark does not exist", async () => {
+				const bookmarkId = 999;
+				mockMarkAsRead.mockResolvedValueOnce(false);
+
+				await expect(service.markBookmarkAsRead(bookmarkId)).rejects.toThrow(
+					"Bookmark not found",
+				);
+
+				expect(mockRepository.markAsRead).toHaveBeenCalledWith(bookmarkId);
+			});
+
+			it("should handle repository errors", async () => {
+				const bookmarkId = 1;
+				const error = new Error("Database error");
+				mockMarkAsRead.mockRejectedValueOnce(error);
+
+				await expect(service.markBookmarkAsRead(bookmarkId)).rejects.toThrow(
+					error,
+				);
+				expect(mockRepository.markAsRead).toHaveBeenCalledWith(bookmarkId);
+			});
 		});
 	});
 });

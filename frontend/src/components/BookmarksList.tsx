@@ -1,8 +1,7 @@
 "use client";
 
 import { BookmarkCard } from "@/components/BookmarkCard";
-import { API_BASE_URL } from "@/lib/api/config";
-import type { ApiBookmarkResponse } from "@/types/api";
+import { useBookmarks } from "@/hooks/useBookmarks";
 import type { Bookmark } from "@/types/bookmark";
 import { useCallback, useEffect, useState } from "react";
 
@@ -10,11 +9,8 @@ interface BookmarksListProps {
 	initialBookmarks: Bookmark[];
 }
 
-interface FetchError extends Error {
-	status?: number;
-}
-
 export function BookmarksList({ initialBookmarks }: BookmarksListProps) {
+	const { getUnreadBookmarks } = useBookmarks();
 	const [bookmarks, setBookmarks] = useState<Bookmark[]>(initialBookmarks);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -23,29 +19,15 @@ export function BookmarksList({ initialBookmarks }: BookmarksListProps) {
 		try {
 			setIsLoading(true);
 			setError(null);
-			const response = await fetch(`${API_BASE_URL}/api/bookmarks/unread`);
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
-			const data: ApiBookmarkResponse = await response.json();
-			if (!data.success) {
-				const error = new Error(
-					data.message || "Failed to fetch bookmarks",
-				) as FetchError;
-				error.status = response.status;
-				throw error;
-			}
-			setBookmarks(data.bookmarks || []);
+			const data = await getUnreadBookmarks();
+			setBookmarks(data);
 		} catch (e) {
-			const error = e as FetchError;
-			setError(
-				`ブックマークの取得に失敗しました${error.status ? ` (${error.status})` : ""}`,
-			);
-			console.error("Error fetching bookmarks:", error);
+			setError("ブックマークの取得に失敗しました");
+			console.error("Error fetching bookmarks:", e);
 		} finally {
 			setIsLoading(false);
 		}
-	}, []);
+	}, [getUnreadBookmarks]);
 
 	useEffect(() => {
 		fetchBookmarks();
@@ -99,7 +81,9 @@ export function BookmarksList({ initialBookmarks }: BookmarksListProps) {
 			) : (
 				<div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
 					{bookmarks.map((bookmark) => (
-						<BookmarkCard key={bookmark.id} bookmark={bookmark} />
+						<div key={bookmark.id} data-testid="bookmark-item">
+							<BookmarkCard bookmark={bookmark} onUpdate={fetchBookmarks} />
+						</div>
 					))}
 				</div>
 			)}

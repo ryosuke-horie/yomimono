@@ -6,18 +6,9 @@ interface ApiError extends Error {
 	status?: number;
 }
 
-function getApiUrl() {
-	if (typeof window === "undefined") {
-		// サーバーサイド
-		return `${API_BASE_URL}/api/bookmarks/unread`;
-	}
-	// クライアントサイド
-	return `${window.location.origin}/api/bookmarks/unread`;
-}
-
 export async function getUnreadBookmarks(): Promise<Bookmark[]> {
 	try {
-		const response = await fetch(getApiUrl(), {
+		const response = await fetch("/api/bookmarks/unread", {
 			headers: {
 				Accept: "application/json",
 				"Content-Type": "application/json",
@@ -51,6 +42,46 @@ export async function getUnreadBookmarks(): Promise<Bookmark[]> {
 		}
 	} catch (error) {
 		console.error("API error:", error);
+		throw error;
+	}
+}
+
+export async function markBookmarkAsRead(id: number): Promise<void> {
+	try {
+		const response = await fetch(`/api/bookmarks/${id}/read`, {
+			method: "PATCH",
+			headers: {
+				Accept: "application/json",
+				"Content-Type": "application/json",
+			},
+		});
+
+		if (!response.ok) {
+			const errorText = await response.text();
+			console.error("API Response Error:", {
+				status: response.status,
+				statusText: response.statusText,
+				body: errorText,
+				url: `/api/bookmarks/${id}/read`,
+				method: "PATCH",
+			});
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+		const data = (await response.json()) as ApiBookmarkResponse;
+		console.log("API Response:", {
+			status: response.status,
+			data,
+		});
+		if (!data.success) {
+			throw new Error(data.message || "ブックマークの更新に失敗しました");
+		}
+	} catch (error) {
+		console.error("API error:", {
+			error,
+			url: `/api/bookmarks/${id}/read`,
+			method: "PATCH",
+		});
 		throw error;
 	}
 }

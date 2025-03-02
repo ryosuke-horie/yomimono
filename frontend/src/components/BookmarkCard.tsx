@@ -1,18 +1,63 @@
 "use client";
 
+import { useBookmarks } from "@/hooks/useBookmarks";
 import type { Bookmark } from "@/types/bookmark";
+import { useState } from "react";
 
 interface Props {
 	bookmark: Bookmark;
+	onUpdate?: () => void;
 }
 
-export function BookmarkCard({ bookmark }: Props) {
-	const { title, url, createdAt } = bookmark;
+export function BookmarkCard({ bookmark, onUpdate }: Props) {
+	const { markAsRead } = useBookmarks();
+	const { id, title, url, createdAt, isRead } = bookmark;
 	const formattedDate = new Date(createdAt).toLocaleDateString("ja-JP");
+	const [isMarking, setIsMarking] = useState(false);
+
+	const handleMarkAsRead = async () => {
+		try {
+			setIsMarking(true);
+			await markAsRead(id);
+			onUpdate?.();
+		} catch (error) {
+			console.error("Failed to mark as read:", error);
+		} finally {
+			setIsMarking(false);
+		}
+	};
 
 	return (
-		<div className="p-4 border rounded-lg hover:shadow-md transition-shadow">
-			<h2 className="font-bold mb-2">
+		<article
+			className={`p-4 border rounded-lg hover:shadow-md transition-shadow relative ${isRead ? "bg-gray-50" : ""}`}
+		>
+			<button
+				type="button"
+				onClick={handleMarkAsRead}
+				disabled={isRead || isMarking}
+				className={`absolute top-2 right-2 p-1 rounded-full ${
+					isRead
+						? "text-green-500 cursor-default"
+						: "text-gray-400 hover:text-green-500 hover:bg-green-50"
+				}`}
+				title={isRead ? "既読済み" : "既読にする"}
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					strokeWidth={1.5}
+					stroke="currentColor"
+					className="w-6 h-6"
+				>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+					/>
+				</svg>
+			</button>
+			<h2 className="font-bold mb-2 pr-8">
 				<a
 					href={url}
 					target="_blank"
@@ -24,6 +69,6 @@ export function BookmarkCard({ bookmark }: Props) {
 			</h2>
 			<p className="text-sm text-gray-600 truncate mb-2">{url}</p>
 			<p className="text-xs text-gray-500">{formattedDate}</p>
-		</div>
+		</article>
 	);
 }
