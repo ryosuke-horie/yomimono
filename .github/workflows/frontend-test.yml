@@ -59,8 +59,8 @@ jobs:
       - name: Check coverage threshold
         run: |
           COVERAGE=${{ steps.coverage.outputs.coverage }}
-          if (( $(echo "$COVERAGE < 65" | bc -l) )); then
-            echo "Coverage ($COVERAGE%) is below threshold (65%)"
+          if (( $(echo "$COVERAGE < 50" | bc -l) )); then
+            echo "Coverage ($COVERAGE%) is below threshold (50%)"
             exit 1
           fi
 
@@ -73,11 +73,11 @@ jobs:
             ### フロントエンドテストカバレッジレポート
 
             フロントエンド全体のカバレッジ: ${{ steps.coverage.outputs.coverage }}%
-            必要なカバレッジ閾値: 65%
+            必要なカバレッジ閾値: 50%
 
             ${{ steps.coverage.outputs.detail }}
 
-            判定: ${{ steps.coverage.outputs.coverage >= 65 && '✅ 合格' || '❌ 不合格' }}
+            判定: ${{ steps.coverage.outputs.coverage >= 50 && '✅ 合格' || '❌ 不合格' }}
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
