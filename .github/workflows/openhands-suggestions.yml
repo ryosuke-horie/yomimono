@@ -35,15 +35,14 @@ jobs:
           echo "SANDBOX_USER_ID=$(id -u)" >> $GITHUB_ENV
 
       - name: Run OpenHands suggestion agent
-        # プロジェクト全体の改善提案を生成するようエージェントを実行
         env:
-          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-          LLM_MODEL: ${{ secrets.LLM_MODEL || 'anthropic/claude-3-5-sonnet-20241022' }}
-          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || '' }}
-          WORKSPACE_BASE: ${{ env.WORKSPACE_BASE }}
-          SANDBOX_USER_ID: ${{ env.SANDBOX_USER_ID }}
+            LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+            LLM_MODEL: ${{ secrets.LLM_MODEL || 'anthropic/claude-3-5-sonnet-20241022' }}
+            LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || '' }}
+            WORKSPACE_BASE: ${{ env.WORKSPACE_BASE }}
+            SANDBOX_USER_ID: ${{ env.SANDBOX_USER_ID }}
         run: |
-          python -m openhands.core.main -t "リポジトリ全体を確認し、コード品質やドキュメントなどあらゆる観点から改善できる点を提案してください。コードの修正は行わず、改善提案を箇条書きのMarkdown形式でまとめ、プロジェクトルートにSUGGESTIONS.mdファイルとして保存してください。" [oai_citation_attribution:2‡docs.all-hands.dev](https://docs.all-hands.dev/modules/usage/how-to/headless-mode#:~:text=poetry%20run%20python%20,bash%20script%20that%20prints%20hi)
+            python -m openhands.core.main -t "リポジトリ全体を分析してコード品質やドキュメントの改善提案を行ってください。修正は行わず、提案を箇条書きのMarkdown形式でまとめ、SUGGESTIONS.mdとして保存してください。"
 
       - name: Create GitHub Issue for suggestions
         # OpenHandsエージェントの出力結果（改善提案）をIssueとして作成
