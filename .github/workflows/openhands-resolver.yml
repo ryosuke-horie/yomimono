@@ -30,4 +30,5 @@ jobs:
       PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
       PAT_USERNAME: ${{ secrets.PAT_USERNAME }}
       LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-      LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+      LLM_MODEL: openrouter/anthropic/claude-3-7-sonnet
+      LLM_BASE_URL: https://openrouter.ai/api/v1
