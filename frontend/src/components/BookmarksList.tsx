@@ -58,7 +58,7 @@ export function BookmarksList({ initialBookmarks }: BookmarksListProps) {
 				<button
 					type="button"
 					onClick={fetchBookmarks}
-					className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+					className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
 					disabled={isLoading}
 				>
 					{isLoading ? (
@@ -89,7 +89,7 @@ export function BookmarksList({ initialBookmarks }: BookmarksListProps) {
 			</div>
 
 			{error && (
-				<div className="bg-red-50 border-l-4 border-red-400 p-4 rounded mb-6">
+				<div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-sm mb-6">
 					<p className="text-red-700">{error}</p>
 				</div>
 			)}

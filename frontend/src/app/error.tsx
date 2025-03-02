@@ -15,9 +15,9 @@ export default function ErrorPage({
 
 	return (
 		<main className="container mx-auto px-4 py-8">
-			<div className="bg-red-50 border-l-4 border-red-400 p-4 rounded">
+			<div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-sm">
 				<div className="flex">
-					<div className="flex-shrink-0">
+					<div className="shrink-0">
 						<svg
 							className="h-5 w-5 text-red-400"
 							viewBox="0 0 20 20"
@@ -41,7 +41,7 @@ export default function ErrorPage({
 							<button
 								type="button"
 								onClick={reset}
-								className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+								className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
 							>
 								再試行
 							</button>
