@@ -1,0 +1,15 @@
+version: 2
+updates:
+  # Enable version updates for npm in the api directory
+  - package-ecosystem: "npm"
+    directory: "/api"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 10
+
+  # Enable version updates for npm in the frontend directory
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 10
