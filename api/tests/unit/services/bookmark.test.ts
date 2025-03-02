@@ -6,9 +6,11 @@ describe("DefaultBookmarkService", () => {
 	// リポジトリのモック
 	const mockCreateMany = vi.fn().mockImplementation(() => Promise.resolve());
 	const mockFindUnread = vi.fn().mockImplementation(() => Promise.resolve([]));
+	const mockMarkAsRead = vi.fn().mockImplementation(() => Promise.resolve());
 	const mockRepository: BookmarkRepository = {
-		createMany: mockCreateMany,
-		findUnread: mockFindUnread,
+	createMany: mockCreateMany,
+	findUnread: mockFindUnread,
+	markAsRead: mockMarkAsRead,
 	};
 
 	const service = new DefaultBookmarkService(mockRepository);
@@ -99,5 +101,24 @@ describe("DefaultBookmarkService", () => {
 				error,
 			);
 		});
-	});
+		
+		describe("markBookmarkAsRead", () => {
+		it("should mark a bookmark as read successfully", async () => {
+		const bookmarkId = 1;
+		
+		await service.markBookmarkAsRead(bookmarkId);
+		
+		expect(mockRepository.markAsRead).toHaveBeenCalledWith(bookmarkId);
+		});
+		
+		it("should handle repository errors", async () => {
+		const bookmarkId = 1;
+		const error = new Error("Database error");
+		mockMarkAsRead.mockRejectedValueOnce(error);
+		
+		await expect(service.markBookmarkAsRead(bookmarkId)).rejects.toThrow(error);
+		expect(mockRepository.markAsRead).toHaveBeenCalledWith(bookmarkId);
+		});
+		});
+		});
 });

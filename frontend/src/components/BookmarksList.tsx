@@ -99,7 +99,11 @@ export function BookmarksList({ initialBookmarks }: BookmarksListProps) {
 			) : (
 				<div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
 					{bookmarks.map((bookmark) => (
-						<BookmarkCard key={bookmark.id} bookmark={bookmark} />
+					<BookmarkCard
+					  key={bookmark.id}
+					  bookmark={bookmark}
+					  onUpdate={fetchBookmarks}
+					/>
 					))}
 				</div>
 			)}
