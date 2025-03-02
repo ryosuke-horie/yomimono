@@ -1,8 +1,5 @@
 # effective-yomimono
 
-# APIベースURL
-https://effective-yomimono-api.ryosuke-horie37.workers.dev
-
 ## APIリクエスト仕様
 - エンドポイント: `/bookmarks`
 - メソッド: `POST`
