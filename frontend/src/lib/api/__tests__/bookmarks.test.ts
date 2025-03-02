@@ -13,6 +13,7 @@ describe("bookmarks API client", () => {
 		it("正常に既読にできる", async () => {
 			const mockResponse = {
 				ok: true,
+				text: () => Promise.resolve(JSON.stringify({ success: true })),
 				json: () => Promise.resolve({ success: true }),
 			};
 			mockFetch.mockResolvedValueOnce(mockResponse);
@@ -31,6 +32,10 @@ describe("bookmarks API client", () => {
 		it("APIがエラーを返した場合、エラーをスローする", async () => {
 			const mockResponse = {
 				ok: true,
+				text: () =>
+					Promise.resolve(
+						JSON.stringify({ success: false, message: "API error" }),
+					),
 				json: () => Promise.resolve({ success: false, message: "API error" }),
 			};
 			mockFetch.mockResolvedValueOnce(mockResponse);
@@ -42,6 +47,8 @@ describe("bookmarks API client", () => {
 			const mockResponse = {
 				ok: false,
 				status: 500,
+				text: () => Promise.resolve("Internal Server Error"),
+				json: () => Promise.reject(new Error("Failed to parse JSON")),
 			};
 			mockFetch.mockResolvedValueOnce(mockResponse);
 
