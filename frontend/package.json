@@ -10,7 +10,7 @@
 		"deploy": "opennextjs-cloudflare && wrangler deploy",
 		"preview": "opennextjs-cloudflare && wrangler dev",
 		"cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
-		"test": "vitest"
+		"test": "vitest --run"
 	},
 	"dependencies": {
 		"@testing-library/react": "^16.2.0",
