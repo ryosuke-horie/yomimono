@@ -20,6 +20,7 @@
 		"react-dom": "^18"
 	},
 	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
 		"@cloudflare/workers-types": "^4.20250224.0",
 		"@opennextjs/cloudflare": "^0.5.7",
 		"@testing-library/dom": "^10.4.0",
