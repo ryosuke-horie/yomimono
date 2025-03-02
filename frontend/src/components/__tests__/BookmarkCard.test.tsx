@@ -1,17 +1,31 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
-import "@testing-library/jest-dom";
 import type { Bookmark } from "@/types/bookmark";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { BookmarkCard } from "../BookmarkCard";
+
+// モック関数を先に定義
+const mockMarkAsRead = vi.fn();
 
 // カスタムフックをモック化
 vi.mock("@/hooks/useBookmarks", () => ({
 	useBookmarks: () => ({
-		markAsRead: vi.fn(),
+		markAsRead: mockMarkAsRead,
 	}),
 }));
 
 describe("BookmarkCard", () => {
+	// 各テストの前にモックをリセット
+	beforeEach(() => {
+		vi.clearAllMocks();
+		mockMarkAsRead.mockReset();
+		// コンソールエラーのスパイを設定
+		vi.spyOn(console, "error").mockImplementation(() => {});
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
 	const mockBookmark: Bookmark = {
 		id: 1,
 		url: "https://example.com",
@@ -77,12 +91,7 @@ describe("BookmarkCard", () => {
 	});
 	it("既読マーク処理中にエラーが発生した場合、onUpdateは呼ばれない", async () => {
 		const mockError = new Error("Failed to mark as read");
-		const mockMarkAsRead = vi.fn().mockRejectedValue(mockError);
-		vi.mock("@/hooks/useBookmarks", () => ({
-			useBookmarks: () => ({
-				markAsRead: mockMarkAsRead,
-			}),
-		}));
+		mockMarkAsRead.mockRejectedValueOnce(mockError);
 
 		const onUpdate = vi.fn();
 		render(<BookmarkCard bookmark={mockBookmark} onUpdate={onUpdate} />);
@@ -104,13 +113,7 @@ describe("BookmarkCard", () => {
 		const markAsReadPromise = new Promise<void>((resolve) => {
 			resolvePromise = resolve;
 		});
-		const mockMarkAsRead = vi.fn().mockReturnValue(markAsReadPromise);
-
-		vi.mock("@/hooks/useBookmarks", () => ({
-			useBookmarks: () => ({
-				markAsRead: mockMarkAsRead,
-			}),
-		}));
+		mockMarkAsRead.mockReturnValueOnce(markAsReadPromise);
 
 		render(<BookmarkCard bookmark={mockBookmark} />);
 		const button = screen.getByTitle("既読にする");

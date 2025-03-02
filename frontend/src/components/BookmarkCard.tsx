@@ -2,6 +2,7 @@
 
 import { useBookmarks } from "@/hooks/useBookmarks";
 import type { Bookmark } from "@/types/bookmark";
+import { useState } from "react";
 
 interface Props {
 	bookmark: Bookmark;
@@ -12,13 +13,17 @@ export function BookmarkCard({ bookmark, onUpdate }: Props) {
 	const { markAsRead } = useBookmarks();
 	const { id, title, url, createdAt, isRead } = bookmark;
 	const formattedDate = new Date(createdAt).toLocaleDateString("ja-JP");
+	const [isMarking, setIsMarking] = useState(false);
 
 	const handleMarkAsRead = async () => {
 		try {
+			setIsMarking(true);
 			await markAsRead(id);
 			onUpdate?.();
 		} catch (error) {
 			console.error("Failed to mark as read:", error);
+		} finally {
+			setIsMarking(false);
 		}
 	};
 
@@ -29,7 +34,7 @@ export function BookmarkCard({ bookmark, onUpdate }: Props) {
 			<button
 				type="button"
 				onClick={handleMarkAsRead}
-				disabled={isRead}
+				disabled={isRead || isMarking}
 				className={`absolute top-2 right-2 p-1 rounded-full ${
 					isRead
 						? "text-green-500 cursor-default"
