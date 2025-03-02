@@ -103,33 +103,35 @@ describe("DrizzleBookmarkRepository", () => {
 			).rejects.toThrow("Database error");
 		});
 	});
-	
+
 	describe("markAsRead", () => {
-	it("should mark a bookmark as read", async () => {
-	const bookmarkId = 1;
-	
-	mockD1Database.update.mockReturnValueOnce({
-	set: vi.fn().mockReturnValue({
-	where: vi.fn().mockReturnValue(Promise.resolve()),
-	}),
+		it("should mark a bookmark as read", async () => {
+			const bookmarkId = 1;
+
+			mockD1Database.update.mockReturnValueOnce({
+				set: vi.fn().mockReturnValue({
+					where: vi.fn().mockReturnValue(Promise.resolve()),
+				}),
+			});
+
+			await repository.markAsRead(bookmarkId);
+
+			expect(mockD1Database.update).toHaveBeenCalled();
+		});
+
+		it("should handle database errors when marking as read", async () => {
+			const bookmarkId = 1;
+			const error = new Error("Database error");
+
+			mockD1Database.update.mockReturnValueOnce({
+				set: vi.fn().mockReturnValue({
+					where: vi.fn().mockRejectedValue(error),
+				}),
+			});
+
+			await expect(repository.markAsRead(bookmarkId)).rejects.toThrow(
+				"Database error",
+			);
+		});
 	});
-	
-	await repository.markAsRead(bookmarkId);
-	
-	expect(mockD1Database.update).toHaveBeenCalled();
-	});
-	
-	it("should handle database errors when marking as read", async () => {
-	const bookmarkId = 1;
-	const error = new Error("Database error");
-	
-	mockD1Database.update.mockReturnValueOnce({
-	set: vi.fn().mockReturnValue({
-	where: vi.fn().mockRejectedValue(error),
-	}),
-	});
-	
-	await expect(repository.markAsRead(bookmarkId)).rejects.toThrow("Database error");
-	});
-	});
-	});
+});

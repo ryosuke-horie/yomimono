@@ -4,9 +4,9 @@ import { bookmarks } from "../db/schema";
 import type { Bookmark, InsertBookmark } from "../db/schema";
 
 export interface BookmarkRepository {
-createMany(bookmarks: InsertBookmark[]): Promise<void>;
-findUnread(): Promise<Bookmark[]>;
-markAsRead(id: number): Promise<void>;
+	createMany(bookmarks: InsertBookmark[]): Promise<void>;
+	findUnread(): Promise<Bookmark[]>;
+	markAsRead(id: number): Promise<void>;
 }
 
 export class DrizzleBookmarkRepository implements BookmarkRepository {
@@ -26,35 +26,35 @@ export class DrizzleBookmarkRepository implements BookmarkRepository {
 	}
 
 	async createMany(newBookmarks: InsertBookmark[]): Promise<void> {
-	try {
-	if (newBookmarks.length === 0) {
-	return;
+		try {
+			if (newBookmarks.length === 0) {
+				return;
+			}
+
+			// 順次処理に変更
+			await Promise.all(
+				newBookmarks.map((bookmark) =>
+					this.db.insert(bookmarks).values(bookmark),
+				),
+			);
+		} catch (error) {
+			console.error("Failed to create bookmarks:", error);
+			throw error;
+		}
 	}
-	
-	// 順次処理に変更
-	await Promise.all(
-	newBookmarks.map((bookmark) =>
-	this.db.insert(bookmarks).values(bookmark),
-	),
-	);
-	} catch (error) {
-	console.error("Failed to create bookmarks:", error);
-	throw error;
-	}
-	}
-	
+
 	async markAsRead(id: number): Promise<void> {
-	try {
-	await this.db
-	.update(bookmarks)
-	.set({
-	isRead: true,
-	updatedAt: new Date(),
-	})
-	.where(eq(bookmarks.id, id));
-	} catch (error) {
-	console.error("Failed to mark bookmark as read:", error);
-	throw error;
-	}
+		try {
+			await this.db
+				.update(bookmarks)
+				.set({
+					isRead: true,
+					updatedAt: new Date(),
+				})
+				.where(eq(bookmarks.id, id));
+		} catch (error) {
+			console.error("Failed to mark bookmark as read:", error);
+			throw error;
+		}
 	}
 }
