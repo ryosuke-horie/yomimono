@@ -47,7 +47,7 @@ export function useBookmarks() {
   }, []);
 
   const markAsRead = useCallback(async (id: number): Promise<void> => {
-    const url = `${API_BASE_URL}/api/bookmarks/${id}/read`;
+    const url = `${API_BASE_URL}/bookmarks/${id}/read`;
     console.log("Marking as read:", url);
 
     try {

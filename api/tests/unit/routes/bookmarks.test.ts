@@ -7,10 +7,12 @@ describe("Bookmarks Router", () => {
 		.fn()
 		.mockImplementation(() => Promise.resolve());
 	const mockGetUnreadBookmarks = vi.fn();
+	const mockMarkBookmarkAsRead = vi.fn();
 
 	const bookmarkService = {
 		createBookmarksFromData: mockCreateBookmarksFromData,
 		getUnreadBookmarks: mockGetUnreadBookmarks,
+		markBookmarkAsRead: mockMarkBookmarkAsRead,
 	} satisfies BookmarkService;
 
 	const router = createBookmarksRouter(bookmarkService);
@@ -158,6 +160,73 @@ describe("Bookmarks Router", () => {
 			expect(json).toEqual({
 				success: false,
 				message: "Failed to create bookmarks",
+			});
+		});
+	});
+
+	describe("PATCH /:id/read", () => {
+		it("should mark a bookmark as read successfully", async () => {
+			const req = new Request("http://localhost/1/read", {
+				method: "PATCH",
+			});
+
+			mockMarkBookmarkAsRead.mockResolvedValue(true);
+
+			const res = await router.fetch(req);
+			const json = await res.json();
+
+			expect(res.status).toBe(200);
+			expect(json).toEqual({ success: true });
+			expect(mockMarkBookmarkAsRead).toHaveBeenCalledWith(1);
+		});
+
+		it("should handle invalid bookmark ID", async () => {
+			const req = new Request("http://localhost/invalid/read", {
+				method: "PATCH",
+			});
+
+			const res = await router.fetch(req);
+			const json = await res.json();
+
+			expect(res.status).toBe(400);
+			expect(json).toEqual({
+				success: false,
+				message: "Invalid bookmark ID",
+			});
+			expect(mockMarkBookmarkAsRead).not.toHaveBeenCalled();
+		});
+
+		it("should handle non-existent bookmark", async () => {
+			const req = new Request("http://localhost/1/read", {
+				method: "PATCH",
+			});
+
+			mockMarkBookmarkAsRead.mockRejectedValue(new Error("Bookmark not found"));
+
+			const res = await router.fetch(req);
+			const json = await res.json();
+
+			expect(res.status).toBe(404);
+			expect(json).toEqual({
+				success: false,
+				message: "Bookmark not found",
+			});
+		});
+
+		it("should handle service errors", async () => {
+			const req = new Request("http://localhost/1/read", {
+				method: "PATCH",
+			});
+
+			mockMarkBookmarkAsRead.mockRejectedValue(new Error("Service error"));
+
+			const res = await router.fetch(req);
+			const json = await res.json();
+
+			expect(res.status).toBe(500);
+			expect(json).toEqual({
+				success: false,
+				message: "Failed to mark bookmark as read",
 			});
 		});
 	});

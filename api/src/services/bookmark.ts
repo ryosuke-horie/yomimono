@@ -34,6 +34,9 @@ export class DefaultBookmarkService implements BookmarkService {
 	}
 
 	async markBookmarkAsRead(id: number): Promise<void> {
-		await this.repository.markAsRead(id);
+		const updated = await this.repository.markAsRead(id);
+		if (!updated) {
+			throw new Error("Bookmark not found");
+		}
 	}
 }

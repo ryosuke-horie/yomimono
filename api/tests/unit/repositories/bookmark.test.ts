@@ -105,27 +105,71 @@ describe("DrizzleBookmarkRepository", () => {
 	});
 
 	describe("markAsRead", () => {
-		it("should mark a bookmark as read", async () => {
+		it("should mark a bookmark as read when it exists", async () => {
 			const bookmarkId = 1;
+			const bookmark = {
+				id: bookmarkId,
+				url: "https://example.com",
+				title: "Example",
+				isRead: false,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
 
-			mockD1Database.update.mockReturnValueOnce({
-				set: vi.fn().mockReturnValue({
-					where: vi.fn().mockReturnValue(Promise.resolve()),
+			// 存在確認のモック
+			mockD1Database.select.mockReturnValueOnce({
+				from: vi.fn().mockReturnValue({
+					where: vi.fn().mockReturnValue({
+						get: vi.fn().mockResolvedValue(bookmark),
+					}),
 				}),
 			});
 
-			await repository.markAsRead(bookmarkId);
+			// 更新処理のモック
+			mockD1Database.update.mockReturnValueOnce({
+				set: vi.fn().mockReturnValue({
+					where: vi.fn().mockReturnValue({
+						run: vi.fn().mockResolvedValue(undefined),
+					}),
+				}),
+			});
 
+			const result = await repository.markAsRead(bookmarkId);
+
+			expect(result).toBe(true);
+			expect(mockD1Database.select).toHaveBeenCalled();
 			expect(mockD1Database.update).toHaveBeenCalled();
 		});
 
-		it("should handle database errors when marking as read", async () => {
+		it("should return false when bookmark does not exist", async () => {
+			const bookmarkId = 999;
+
+			// 存在確認のモック（存在しない場合）
+			mockD1Database.select.mockReturnValueOnce({
+				from: vi.fn().mockReturnValue({
+					where: vi.fn().mockReturnValue({
+						get: vi.fn().mockResolvedValue(null),
+					}),
+				}),
+			});
+
+			const result = await repository.markAsRead(bookmarkId);
+
+			expect(result).toBe(false);
+			expect(mockD1Database.select).toHaveBeenCalled();
+			expect(mockD1Database.update).not.toHaveBeenCalled();
+		});
+
+		it("should handle database errors", async () => {
 			const bookmarkId = 1;
 			const error = new Error("Database error");
 
-			mockD1Database.update.mockReturnValueOnce({
-				set: vi.fn().mockReturnValue({
-					where: vi.fn().mockRejectedValue(error),
+			// 存在確認でエラーが発生するケース
+			mockD1Database.select.mockReturnValueOnce({
+				from: vi.fn().mockReturnValue({
+					where: vi.fn().mockReturnValue({
+						get: vi.fn().mockRejectedValue(error),
+					}),
 				}),
 			});
 
