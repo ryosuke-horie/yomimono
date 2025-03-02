@@ -1,0 +1,108 @@
+import { renderHook, act } from "@testing-library/react";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+import { useBookmarks } from "../useBookmarks";
+
+// グローバルのfetchをモック化
+const mockFetch = vi.fn();
+global.fetch = mockFetch;
+
+describe("useBookmarks", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe("getUnreadBookmarks", () => {
+    it("未読ブックマークを取得できる", async () => {
+      const mockBookmarks = [
+        {
+          id: 1,
+          url: "https://example.com",
+          title: "Example",
+          isRead: false,
+          createdAt: "2024-03-01T00:00:00.000Z",
+          updatedAt: "2024-03-01T00:00:00.000Z",
+        },
+      ];
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ success: true, bookmarks: mockBookmarks }),
+      });
+
+      const { result } = renderHook(() => useBookmarks());
+
+      const bookmarks = await act(async () => {
+        return await result.current.getUnreadBookmarks();
+      });
+
+      expect(bookmarks).toEqual(mockBookmarks);
+    });
+
+    it("APIがエラーを返した場合、例外をスローする", async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ success: false, message: "API error" }),
+      });
+
+      const { result } = renderHook(() => useBookmarks());
+
+      await expect(result.current.getUnreadBookmarks()).rejects.toThrow(
+        "API error",
+      );
+    });
+
+    it("HTTPエラーの場合、例外をスローする", async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+      });
+
+      const { result } = renderHook(() => useBookmarks());
+
+      await expect(result.current.getUnreadBookmarks()).rejects.toThrow(
+        "Failed to fetch bookmarks: 500",
+      );
+    });
+  });
+
+  describe("markAsRead", () => {
+    it("ブックマークを既読にできる", async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ success: true }),
+      });
+
+      const { result } = renderHook(() => useBookmarks());
+
+      await act(async () => {
+        await result.current.markAsRead(1);
+      });
+
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("APIがエラーを返した場合、例外をスローする", async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ success: false, message: "API error" }),
+      });
+
+      const { result } = renderHook(() => useBookmarks());
+
+      await expect(result.current.markAsRead(1)).rejects.toThrow("API error");
+    });
+
+    it("HTTPエラーの場合、例外をスローする", async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+      });
+
+      const { result } = renderHook(() => useBookmarks());
+
+      await expect(result.current.markAsRead(1)).rejects.toThrow(
+        "Failed to mark as read: 500",
+      );
+    });
+  });
+});

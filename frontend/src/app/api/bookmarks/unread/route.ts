@@ -6,34 +6,53 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-	try {
-		const response = await fetch(`${API_BASE_URL}/api/bookmarks/unread`, {
-			headers: {
-				Accept: "application/json",
-				"Content-Type": "application/json",
-			},
-			cache: "no-store",
-		});
+  try {
+    console.log("Config API_BASE_URL:", API_BASE_URL);
+    const url = `${API_BASE_URL}/bookmarks/unread`;
+    const options = {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    } as const;
 
-		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`);
-		}
+    console.log("Request details:", {
+      url,
+      method: options.method,
+      headers: options.headers,
+    });
 
-		const data = (await response.json()) as ApiResponse<Bookmark>;
+    const response = await fetch(url, options);
 
-		if (!data.success) {
-			return NextResponse.json(
-				{ success: false, message: data.message || "API request failed" },
-				{ status: 400 },
-			);
-		}
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.log("Response error:", {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-		return NextResponse.json(data);
-	} catch (error) {
-		console.error("API error:", error);
-		return NextResponse.json(
-			{ success: false, message: "ブックマークの取得に失敗しました" },
-			{ status: 500 },
-		);
-	}
+    const data = (await response.json()) as ApiResponse<Bookmark>;
+
+    if (!data.success) {
+      return NextResponse.json(
+        { success: false, message: data.message || "API request failed" },
+        { status: 400 },
+      );
+    }
+
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("API error:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        message: "ブックマークの取得に失敗しました",
+      },
+      { status: 500 },
+    );
+  }
 }
