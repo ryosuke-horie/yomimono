@@ -1,3 +1,5 @@
+'use client';
+
 import { Bookmark } from '@/types/bookmark';
 
 interface Props {

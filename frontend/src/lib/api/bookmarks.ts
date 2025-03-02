@@ -18,6 +18,8 @@ export async function getUnreadBookmarks(): Promise<Bookmark[]> {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
+      cache: 'no-store',
+      next: { revalidate: 0 }
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
