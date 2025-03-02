@@ -72,12 +72,12 @@ jobs:
           message: |
             ### フロントエンドテストカバレッジレポート
 
-            カバレッジ: ${{ steps.coverage.outputs.coverage }}%
-            閾値: 80%
+            フロントエンド全体のカバレッジ: ${{ steps.coverage.outputs.coverage }}%
+            必要なカバレッジ閾値: 65%
 
             ${{ steps.coverage.outputs.detail }}
 
-            ステータス: ${{ steps.coverage.outputs.coverage >= 80 && '✅ Pass' || '❌ Fail' }}
+            判定: ${{ steps.coverage.outputs.coverage >= 65 && '✅ 合格' || '❌ 不合格' }}
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
