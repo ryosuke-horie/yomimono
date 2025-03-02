@@ -1,6 +1,10 @@
-import type { ApiResponse } from "@/types/api";
+import type { ApiBookmarkResponse } from "@/types/api";
 import type { Bookmark } from "@/types/bookmark";
 import { API_BASE_URL } from "./config";
+
+interface ApiError extends Error {
+	status?: number;
+}
 
 function getApiUrl() {
 	if (typeof window === "undefined") {
@@ -26,17 +30,24 @@ export async function getUnreadBookmarks(): Promise<Bookmark[]> {
 		}
 		const text = await response.text();
 		try {
-			const data: ApiResponse<Bookmark> = JSON.parse(text);
+			const data: ApiBookmarkResponse = JSON.parse(text);
 			console.log("API Response:", { status: response.status, data });
 			if (!data.success) {
-				throw new Error(data.message || "未読ブックマークの取得に失敗しました");
+				const error = new Error(
+					data.message || "未読ブックマークの取得に失敗しました",
+				);
+				Object.assign(error, { status: response.status });
+				throw error;
 			}
 			return data.bookmarks || [];
 		} catch (e) {
-			console.error("JSON parse error:", e);
-			console.error("Response text:", text);
-			console.error("Response status:", response.status);
-			throw new Error("レスポンスの解析に失敗しました");
+			if (e instanceof SyntaxError) {
+				console.error("JSON parse error:", e);
+				console.error("Response text:", text);
+				console.error("Response status:", response.status);
+				throw new Error("レスポンスの解析に失敗しました");
+			}
+			throw e;
 		}
 	} catch (error) {
 		console.error("API error:", error);

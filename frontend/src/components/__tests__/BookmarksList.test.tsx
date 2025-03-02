@@ -1,7 +1,13 @@
+import type { ApiBookmarkResponse } from "@/types/api";
 import type { Bookmark } from "@/types/bookmark";
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { Mock, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BookmarksList } from "../BookmarksList";
+
+// モック用のレスポンス型
+type MockResponse = Response & {
+	json: () => Promise<ApiBookmarkResponse>;
+};
 
 // APIレスポンスのモック
 const mockBookmarks: Bookmark[] = [
@@ -35,11 +41,19 @@ describe("BookmarksList", () => {
 
 	it("ローディング中は更新ボタンが無効になる", async () => {
 		// fetchのモックを設定
-		global.fetch = vi
-			.fn()
-			.mockImplementation(
-				() => new Promise((resolve) => setTimeout(resolve, 100)),
-			) as any;
+		global.fetch = vi.fn().mockImplementation(
+			() =>
+				new Promise<MockResponse>((resolve) =>
+					setTimeout(
+						() =>
+							resolve({
+								ok: true,
+								json: async () => ({ success: true, bookmarks: [] }),
+							} as MockResponse),
+						100,
+					),
+				),
+		);
 
 		render(<BookmarksList initialBookmarks={[]} />);
 
@@ -54,7 +68,7 @@ describe("BookmarksList", () => {
 
 	it("エラー時にエラーメッセージを表示する", async () => {
 		// fetchのモックを設定（エラーを返す）
-		global.fetch = vi.fn().mockRejectedValue(new Error("API Error")) as any;
+		global.fetch = vi.fn().mockRejectedValue(new Error("API Error"));
 
 		render(<BookmarksList initialBookmarks={[]} />);
 
@@ -75,7 +89,7 @@ describe("BookmarksList", () => {
 					success: true,
 					bookmarks: mockBookmarks,
 				}),
-		}) as any;
+		} as MockResponse);
 
 		render(<BookmarksList initialBookmarks={[]} />);
 

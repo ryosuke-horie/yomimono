@@ -2,12 +2,16 @@
 
 import { BookmarkCard } from "@/components/BookmarkCard";
 import { API_BASE_URL } from "@/lib/api/config";
-import type { ApiResponse } from "@/types/api";
+import type { ApiBookmarkResponse } from "@/types/api";
 import type { Bookmark } from "@/types/bookmark";
 import { useCallback, useEffect, useState } from "react";
 
 interface BookmarksListProps {
 	initialBookmarks: Bookmark[];
+}
+
+interface FetchError extends Error {
+	status?: number;
 }
 
 export function BookmarksList({ initialBookmarks }: BookmarksListProps) {
@@ -23,14 +27,21 @@ export function BookmarksList({ initialBookmarks }: BookmarksListProps) {
 			if (!response.ok) {
 				throw new Error(`HTTP error! status: ${response.status}`);
 			}
-			const data = (await response.json()) as ApiResponse<Bookmark>;
+			const data: ApiBookmarkResponse = await response.json();
 			if (!data.success) {
-				throw new Error(data.message || "Failed to fetch bookmarks");
+				const error = new Error(
+					data.message || "Failed to fetch bookmarks",
+				) as FetchError;
+				error.status = response.status;
+				throw error;
 			}
 			setBookmarks(data.bookmarks || []);
 		} catch (e) {
-			setError("ブックマークの取得に失敗しました");
-			console.error("Error fetching bookmarks:", e);
+			const error = e as FetchError;
+			setError(
+				`ブックマークの取得に失敗しました${error.status ? ` (${error.status})` : ""}`,
+			);
+			console.error("Error fetching bookmarks:", error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -45,13 +56,14 @@ export function BookmarksList({ initialBookmarks }: BookmarksListProps) {
 			<div className="flex justify-between items-center mb-6">
 				<h1 className="text-2xl font-bold">未読ブックマーク</h1>
 				<button
+					type="button"
 					onClick={fetchBookmarks}
 					className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
 					disabled={isLoading}
 				>
 					{isLoading ? (
 						<div className="flex items-center">
-							<div className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full"></div>
+							<div className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full" />
 							更新中...
 						</div>
 					) : (
