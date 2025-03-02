@@ -1,14 +1,19 @@
-import type { InsertBookmark } from "../db/schema";
+import type { Bookmark, InsertBookmark } from "../db/schema";
 import type { BookmarkRepository } from "../repositories/bookmark";
 
 export interface BookmarkService {
 	createBookmarksFromData(
 		bookmarks: Array<{ url: string; title: string }>,
 	): Promise<void>;
+	getUnreadBookmarks(): Promise<Bookmark[]>;
 }
 
 export class DefaultBookmarkService implements BookmarkService {
 	constructor(private readonly repository: BookmarkRepository) {}
+
+	async getUnreadBookmarks(): Promise<Bookmark[]> {
+		return await this.repository.findUnread();
+	}
 
 	async createBookmarksFromData(
 		bookmarks: Array<{ url: string; title: string }>,

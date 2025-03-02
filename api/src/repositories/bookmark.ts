@@ -1,13 +1,28 @@
+import { eq } from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { bookmarks } from "../db/schema";
-import type { InsertBookmark } from "../db/schema";
+import type { Bookmark, InsertBookmark } from "../db/schema";
 
 export interface BookmarkRepository {
 	createMany(bookmarks: InsertBookmark[]): Promise<void>;
+	findUnread(): Promise<Bookmark[]>;
 }
 
 export class DrizzleBookmarkRepository implements BookmarkRepository {
 	constructor(private readonly db: DrizzleD1Database) {}
+
+	async findUnread(): Promise<Bookmark[]> {
+		try {
+			return await this.db
+				.select()
+				.from(bookmarks)
+				.where(eq(bookmarks.isRead, false))
+				.all();
+		} catch (error) {
+			console.error("Failed to fetch unread bookmarks:", error);
+			throw error;
+		}
+	}
 
 	async createMany(newBookmarks: InsertBookmark[]): Promise<void> {
 		try {
