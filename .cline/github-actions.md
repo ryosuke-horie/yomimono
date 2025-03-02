@@ -1,111 +1,71 @@
-# GitHub Actions設計ドキュメント
+# GitHub Actions ワークフロー
 
-## 概要
-APIの自動テストとカバレッジチェックを行うCIパイプラインの設計。
+このプロジェクトでは、APIとフロントエンドそれぞれのテスト自動化のためにGitHub Actionsを使用しています。
 
-## トリガー条件
-- プッシュイベント
+## ワークフロー概要
+
+### 1. APIテスト（api-test.yml）
+
+- **トリガー**:
+  - `api/**` 配下のファイルが変更された場合
   - mainブランチへのプッシュ
-  - apiディレクトリ配下の変更時のみ
-- プルリクエストイベント
-  - apiディレクトリ配下の変更時のみ
+  - プルリクエスト
 
-## ジョブ構成
+- **実行内容**:
+  - Node.js環境のセットアップ
+  - 依存関係のインストール
+  - テストの実行（カバレッジレポート生成）
+  - カバレッジの閾値チェック（80%以上）
+  - PRへのカバレッジ情報コメント
+  - カバレッジレポートのアーティファクトアップロード
 
-### テストジョブ（test）
+### 2. フロントエンドテスト（frontend-test.yml）
 
-#### 環境
-- runs-on: ubuntu-latest
-- Node.js: 20.x
+- **トリガー**:
+  - `frontend/**` 配下のファイルが変更された場合
+  - mainブランチへのプッシュ
+  - プルリクエスト
 
-#### ステップ
-1. チェックアウト
-```yaml
-- uses: actions/checkout@v4
-```
+- **実行内容**:
+  - Node.js環境のセットアップ
+  - 依存関係のインストール
+  - Vitestによるテスト実行（カバレッジレポート生成）
+  - カバレッジの閾値チェック（80%以上）
+  - PRへのカバレッジ情報コメント
+  - カバレッジレポートのアーティファクトアップロード
 
-2. Node.jsセットアップ
-```yaml
-- uses: actions/setup-node@v4
-  with:
-    node-version: 20.x
-    cache: npm
-    cache-dependency-path: api/package-lock.json
-```
+## カバレッジレポート
 
-3. 依存関係インストール
-```yaml
-- run: |
-    cd api
-    npm ci
-```
+両ワークフローとも、以下の指標でコードカバレッジを計測します：
 
-4. テスト実行とカバレッジ収集
-```yaml
-- name: Run tests with coverage
-  run: |
-    cd api
-    npm test -- --coverage
-```
+- Statements（ステートメント）カバレッジ
+- Branches（分岐）カバレッジ
+- Functions（関数）カバレッジ
+- Lines（行）カバレッジ
 
-5. カバレッジチェック
-```yaml
-- name: Check coverage threshold
-  run: |
-    cd api
-    COVERAGE=$(cat coverage/coverage-summary.json | jq -r '.total.statements.pct')
-    if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-      echo "Coverage ($COVERAGE%) is below threshold (80%)"
-      exit 1
-    fi
-```
+閾値は80%に設定されており、これを下回るとワークフローが失敗します。
 
-6. PRコメント投稿
-```yaml
-- name: Post coverage comment
-  if: github.event_name == 'pull_request'
-  uses: marocchino/sticky-pull-request-comment@v2
-  with:
-    header: test-coverage
-    message: |
-      ### テストカバレッジレポート
-      
-      全体のカバレッジ: ${COVERAGE}%
-      
-      閾値: 80%
-      
-      ${COVERAGE_DETAIL}
-```
+## プルリクエストへのフィードバック
 
-## 必要な権限
+プルリクエスト時には、自動的に以下の情報がPRにコメントされます：
 
-### GITHUB_TOKEN
-- `pull-requests: write`: PRへのコメント投稿権限
-- `contents: read`: リポジトリ内容の読み取り権限
+- 全体のカバレッジ率
+- 各指標の詳細なカバレッジ率
+- 閾値との比較結果
+- 合否ステータス
 
-```yaml
-permissions:
-  pull-requests: write
-  contents: read
-```
+## アーティファクト
 
-## エラー処理
-1. カバレッジが80%未満の場合
-   - ジョブを失敗させる
-   - PRの場合はコメントで詳細を通知
-
-2. テスト失敗時
-   - ジョブを失敗させる
-   - エラー内容をGitHub Actionsのログに出力
-   - PRの場合はコメントでテスト失敗を通知
-
-## 追加設定
-- Working Directory: api/
-- Node.js環境のキャッシュ設定
-- テスト結果とカバレッジレポートのアーティファクト保存
+テスト実行後、カバレッジレポートは7日間保存されるアーティファクトとしてアップロードされます。これにより、詳細な分析が必要な場合に参照できます。
 
 ## 注意事項
-1. カバレッジチェックは statements coverage を基準とする
-2. PRコメントは既存のコメントを更新する形式で投稿（重複防止）
-3. mainブランチのプッシュ時はコメント投稿をスキップ
-4. テスト実行時はproduction環境の環境変数を使用
+
+1. カバレッジ閾値（80%）を下回る場合：
+   - ワークフローは失敗します
+   - PRにその旨が通知されます
+   - テストの追加または改善が必要です
+
+2. パスによるトリガー：
+   - APIとフロントエンドのワークフローは独立して動作します
+   - 関連するディレクトリの変更のみをトリガーとします
+   - これにより、不要なテスト実行を防ぎます
