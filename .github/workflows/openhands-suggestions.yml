@@ -25,7 +25,6 @@ jobs:
           pip install openhands-ai
 
       - name: Export LLM settings
-        # 必要なAPIキー・モデルを環境変数に設定 [oai_citation_attribution:1‡docs.all-hands.dev](https://docs.all-hands.dev/modules/usage/how-to/headless-mode#:~:text=,sk_test_12345)
         env:
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           LLM_MODEL: ${{ secrets.LLM_MODEL || 'anthropic/claude-3-5-sonnet-20241022' }}
@@ -36,65 +35,65 @@ jobs:
 
       - name: Run OpenHands suggestion agent
         env:
-            LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-            LLM_MODEL: openrouter/anthropic/claude-3-7-sonnet
-            LLM_BASE_URL: https://openrouter.ai/api/v1
-            WORKSPACE_BASE: ${{ env.WORKSPACE_BASE }}
-            SANDBOX_USER_ID: ${{ env.SANDBOX_USER_ID }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_MODEL: openrouter/anthropic/claude-3-7-sonnet
+          LLM_BASE_URL: https://openrouter.ai/api/v1
+          WORKSPACE_BASE: ${{ env.WORKSPACE_BASE }}
+          SANDBOX_USER_ID: ${{ env.SANDBOX_USER_ID }}
         run: |
-            python -m openhands.core.main -t "リポジトリ全体を分析してコード品質やドキュメントの改善提案を行ってください。修正は行わず、提案を箇条書きのMarkdown形式でまとめ、SUGGESTIONS.mdとして保存してください。"
+          python -m openhands.core.main -t "リポジトリ全体を分析してコード品質やドキュメントの改善提案を行ってください。修正は行わず、提案を箇条書きのMarkdown形式でまとめ、SUGGESTIONS.mdとして保存してください。"
 
-       - name: Create separate GitHub Issues for each suggestion
-         uses: actions/github-script@v7
-         env:
-           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
-         with:
-           script: |
-             const fs = require('fs');
-       
-             // SUGGESTIONS.mdファイルの読み込み
-             const suggestions = fs.existsSync('SUGGESTIONS.md')
-               ? fs.readFileSync('SUGGESTIONS.md', 'utf8')
-               : '';
-       
-             if (!suggestions) {
-               console.log('提案内容が見つかりませんでした。処理をスキップします。');
-               return;
-             }
-       
-             const issues = [];
-             let currentTitle = '';
-             let currentBody = [];
-       
-             // ファイルを行単位で分割して処理
-             suggestions.split('\n').forEach(line => {
-               if (line.startsWith('## ')) {
-                 // 新しいIssueグループを開始
-                 if (currentTitle && currentBody.length > 0) {
-                   issues.push({ title: currentTitle, body: currentBody.join('\n') });
-                 }
-                 currentTitle = line.replace('## ', '').trim();
-                 currentBody = [];
-               } else if (line.startsWith('1.') || line.startsWith('- ') || line.match(/^\d+\./)) {
-                 // 箇条書きをIssueの本文に追加
-                 currentBody.push(line);
-               } else if (line.trim() !== '' && currentBody.length > 0) {
-                 // 追加説明（箇条書きに紐づく）を追加
-                 currentBody.push(line);
-               }
-             });
-       
-             // 最後のグループを追加
-             if (currentTitle && currentBody.length > 0) {
-               issues.push({ title: currentTitle, body: currentBody.join('\n') });
-             }
-       
-             // GitHub APIで個別にIssueを作成
-             for (const issue of issues) {
-               await github.rest.issues.create({
-                 owner: context.repo.owner,
-                 repo: context.repo.repo,
-                 title: `[改善提案] ${issue.title}`,
-                 body: issue.body
-               });
-             }
+      - name: Create separate GitHub Issues for each suggestion
+        uses: actions/github-script@v7
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
+        with:
+          script: |
+            const fs = require('fs');
+
+            // SUGGESTIONS.mdファイルの読み込み
+            const suggestions = fs.existsSync('SUGGESTIONS.md')
+              ? fs.readFileSync('SUGGESTIONS.md', 'utf8')
+              : '';
+
+            if (!suggestions) {
+              console.log('提案内容が見つかりませんでした。処理をスキップします。');
+              return;
+            }
+
+            const issues = [];
+            let currentTitle = '';
+            let currentBody = [];
+
+            // ファイルを行単位で分割して処理
+            suggestions.split('\n').forEach(line => {
+              if (line.startsWith('## ')) {
+                // 新しいIssueグループを開始
+                if (currentTitle && currentBody.length > 0) {
+                  issues.push({ title: currentTitle, body: currentBody.join('\n') });
+                }
+                currentTitle = line.replace('## ', '').trim();
+                currentBody = [];
+              } else if (line.startsWith('1.') || line.startsWith('- ') || line.match(/^\d+\./)) {
+                // 箇条書きをIssueの本文に追加
+                currentBody.push(line);
+              } else if (line.trim() !== '' && currentBody.length > 0) {
+                // 追加説明（箇条書きに紐づく）を追加
+                currentBody.push(line);
+              }
+            });
+
+            // 最後のグループを追加
+            if (currentTitle && currentBody.length > 0) {
+              issues.push({ title: currentTitle, body: currentBody.join('\n') });
+            }
+
+            // GitHub APIで個別にIssueを作成
+            for (const issue of issues) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `[改善提案] ${issue.title}`,
+                body: issue.body
+              });
+            }
