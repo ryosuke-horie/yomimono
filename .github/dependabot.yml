@@ -1,15 +1,76 @@
 version: 2
 updates:
-  # Enable version updates for npm in the api directory
-  - package-ecosystem: "npm"
-    directory: "/api"
-    schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 10
-
-  # Enable version updates for npm in the frontend directory
+  # frontendディレクトリの依存関係を管理
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 10
+      interval: "daily"
+    commit-message:
+      prefix: "chore(frontend)"
+      prefix-development: "chore(frontend)"
+      include: "scope"
+    # ここで特定パッケージをグルーピング
+    groups:
+      next-react-deployment:
+        patterns:
+          # 依存パッケージ名ベースでの指定
+          - "next"
+          - "react"
+          - "react-dom"
+          - "wrangler"
+          - "@opennextjs/cloudflare"
+          - "@cloudflare/workers-types"
+          - "@types/node"
+          - "@types/react"
+          - "@types/react-dom"
+          - "@vitejs/plugin-react"
+          - "jsdom"
+      styles:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/postcss"
+          - "postcss"
+      tests:
+        patterns:
+          - "vitest"
+          - "@vitest/coverage-v8"
+          - "@testing-library/dom"
+          - "@testing-library/react"
+
+  # apiディレクトリの依存関係を管理
+  - package-ecosystem: "npm"
+    directory: "/backend"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "chore(api)"
+      prefix-development: "chore(api)"
+      include: "scope"
+    # ここで特定パッケージをグルーピング
+    groups:
+      hono-deployment:
+        patterns:
+          # 依存パッケージ名ベースでの指定
+          - "hono"
+          - "drizzle-orm"
+          - "dotenv"
+          - "@cloudflare/workers-types"
+          - "drizzle-kit"
+          - "wrangler"
+      testings:
+        patterns:
+          - "msw"
+          - "@biomejs/biome"
+          - "@vitest/coverage-v8"
+          - "happy-dom"
+          - "vitest"
+
+  # GitHub Actionsの依存関係を管理
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
