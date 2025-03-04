@@ -39,7 +39,7 @@ updates:
 
   # apiディレクトリの依存関係を管理
   - package-ecosystem: "npm"
-    directory: "/backend"
+    directory: "/api"
     schedule:
       interval: "daily"
     commit-message:
