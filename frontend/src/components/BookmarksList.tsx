@@ -35,6 +35,7 @@ export function BookmarksList({ initialBookmarks }: BookmarksListProps) {
 
 	return (
 		<div>
+			{/* タイトル + 更新ボタン */}
 			<div className="flex justify-between items-center mb-6">
 				<h1 className="text-2xl font-bold">未読ブックマーク</h1>
 				<button
@@ -70,18 +71,29 @@ export function BookmarksList({ initialBookmarks }: BookmarksListProps) {
 				</button>
 			</div>
 
+			{/* エラー表示 */}
 			{error && (
 				<div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-sm mb-6">
 					<p className="text-red-700">{error}</p>
 				</div>
 			)}
 
+			{/* ブックマーク一覧 */}
 			{bookmarks.length === 0 ? (
 				<p className="text-gray-600">未読のブックマークはありません。</p>
 			) : (
-				<div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+				// 1. grid gap-4 でグリッドレイアウト
+				// 2. sm:grid-cols-1 で「小さい画面(sm未満)では1カラム」に
+				// 3. md:grid-cols-2, lg:grid-cols-3 で画面が広がればカラム数を増やす
+				<div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
 					{bookmarks.map((bookmark) => (
-						<div key={bookmark.id} data-testid="bookmark-item">
+						// max-w-[400px] などでカードの最大幅を制限し、左右余白を自動化（mx-auto）
+						// → 大きな画面で「横に広がりすぎる」ことを防ぐ
+						<div
+							key={bookmark.id}
+							data-testid="bookmark-item"
+							className="mx-auto w-full max-w-sm"
+						>
 							<BookmarkCard bookmark={bookmark} onUpdate={fetchBookmarks} />
 						</div>
 					))}
