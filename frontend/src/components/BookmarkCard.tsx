@@ -22,7 +22,6 @@ export function BookmarkCard({ bookmark, onUpdate }: Props) {
 		try {
 			setIsMarking(true);
 			await markAsRead(id);
-			// 既読処理完了後、一覧を再取得して最新状態を反映
 			onUpdate?.();
 		} catch (error) {
 			console.error("Failed to mark as read:", error);
@@ -54,6 +53,7 @@ export function BookmarkCard({ bookmark, onUpdate }: Props) {
 						xmlns="http://www.w3.org/2000/svg"
 						fill="none"
 						viewBox="0 0 24 24"
+						role="status"
 					>
 						<circle
 							className="opacity-25"

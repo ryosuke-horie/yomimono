@@ -29,7 +29,8 @@
 		"rules": {
 			"recommended": true,
 			"a11y": {
-				"noSvgWithoutTitle": "off"
+				"noSvgWithoutTitle": "off",
+				"useSemanticElements": "off"
 			},
 			"suspicious": {
 				"noArrayIndexKey": "off",

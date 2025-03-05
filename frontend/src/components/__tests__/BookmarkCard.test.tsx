@@ -125,4 +125,40 @@ describe("BookmarkCard", () => {
 		resolvePromise();
 		await markAsReadPromise;
 	});
+
+	describe("ローディング状態の管理", () => {
+		it("既読マーク処理中はローディングアイコンが表示される", async () => {
+			let resolvePromise!: (value: void) => void;
+			const markAsReadPromise = new Promise<void>((resolve) => {
+				resolvePromise = resolve;
+			});
+			mockMarkAsRead.mockReturnValueOnce(markAsReadPromise);
+
+			render(<BookmarkCard bookmark={mockBookmark} />);
+
+			const button = screen.getByTitle("既読にする");
+			await fireEvent.click(button);
+
+			expect(screen.getByRole("status")).toBeDefined();
+
+			resolvePromise();
+			await markAsReadPromise;
+			await vi.waitFor(() => {
+				expect(screen.queryByRole("status")).toBeNull();
+			});
+		});
+
+		it("既読マーク処理中にエラーが発生してもローディング状態が解除される", async () => {
+			mockMarkAsRead.mockRejectedValueOnce(new Error("Failed to mark as read"));
+
+			render(<BookmarkCard bookmark={mockBookmark} />);
+
+			const button = screen.getByTitle("既読にする");
+			await fireEvent.click(button);
+
+			await vi.waitFor(() => {
+				expect(screen.queryByRole("status")).toBeNull();
+			});
+		});
+	});
 });
