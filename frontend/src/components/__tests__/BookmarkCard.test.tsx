@@ -1,6 +1,6 @@
 import type { Bookmark } from "@/types/bookmark";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BookmarkCard } from "../BookmarkCard";
 
 // モック関数を先に定義
