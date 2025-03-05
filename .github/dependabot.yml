@@ -30,6 +30,7 @@ updates:
           - "tailwindcss"
           - "@tailwindcss/postcss"
           - "postcss"
+          - "postcss-load-config"
       tests:
         patterns:
           - "vitest"
