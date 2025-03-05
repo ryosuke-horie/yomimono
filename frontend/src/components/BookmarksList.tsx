@@ -11,6 +11,7 @@ interface BookmarksListProps {
 
 export function BookmarksList({ initialBookmarks }: BookmarksListProps) {
 	const { getUnreadBookmarks } = useBookmarks();
+
 	const [bookmarks, setBookmarks] = useState<Bookmark[]>(initialBookmarks);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
