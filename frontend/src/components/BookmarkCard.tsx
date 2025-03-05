@@ -6,7 +6,7 @@ import { useState } from "react";
 
 interface Props {
 	bookmark: Bookmark;
-	onUpdate?: () => void; // 親コンポーネントで一覧を再取得するためのコールバック
+	onUpdate?: () => void;
 }
 
 export function BookmarkCard({ bookmark, onUpdate }: Props) {
@@ -15,7 +15,6 @@ export function BookmarkCard({ bookmark, onUpdate }: Props) {
 	const { id, title, url, createdAt, isRead } = bookmark;
 	const formattedDate = new Date(createdAt).toLocaleDateString("ja-JP");
 
-	// ローディング状態を管理し、重複クリックを防止
 	const [isMarking, setIsMarking] = useState(false);
 
 	const handleMarkAsRead = async () => {
@@ -32,7 +31,7 @@ export function BookmarkCard({ bookmark, onUpdate }: Props) {
 
 	return (
 		<article
-			className={`p-4 border rounded-lg hover:shadow-md transition-shadow relative ${isRead ? "bg-gray-50" : ""}`}
+			className={`p-4 border rounded-lg hover:shadow-md transition-shadow flex flex-col min-h-[150px] ${isRead ? "bg-gray-50" : ""}`}
 		>
 			<button
 				type="button"
@@ -86,7 +85,10 @@ export function BookmarkCard({ bookmark, onUpdate }: Props) {
 					</svg>
 				)}
 			</button>
-			<h2 className="font-bold mb-2 pr-8">
+			<h2
+				className="font-bold mb-2 pr-8 line-clamp-2"
+				title={title || "タイトルなし"}
+			>
 				<a
 					href={url}
 					target="_blank"
@@ -96,8 +98,10 @@ export function BookmarkCard({ bookmark, onUpdate }: Props) {
 					{title || "タイトルなし"}
 				</a>
 			</h2>
-			<p className="text-sm text-gray-600 truncate mb-2">{url}</p>
-			<p className="text-xs text-gray-500">{formattedDate}</p>
+			<p className="text-sm text-gray-600 line-clamp-1 mb-2" title={url}>
+				{url}
+			</p>
+			<p className="text-xs text-gray-500 mt-auto">{formattedDate}</p>
 		</article>
 	);
 }
