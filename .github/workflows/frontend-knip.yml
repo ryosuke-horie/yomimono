@@ -24,9 +24,7 @@ jobs:
         id: setup-node
         uses: actions/setup-node@v4
         with:
-          # リポジトリに .node-version がある場合は以下を利用し、
-          # そこに書かれたバージョンを自動的に使用
-          node-version-file: '.node-version'
+          node-version-file: '22'
           # NPM キャッシュを有効にする
           cache: 'npm'
 
@@ -62,9 +60,6 @@ jobs:
             // コメント本文
             const output = `
             ## フロントエンド Knip レポート
-
-            Knip により検知された未使用コードや依存関係があります。不要であれば対応をご検討ください。
-            \`npm run knip:fix\` というコマンドも利用可能です。
             
             <details>
               <summary>詳細レポート 📖</summary>
