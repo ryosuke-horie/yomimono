@@ -10,7 +10,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  build:
+  knip:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     defaults:
@@ -32,38 +32,4 @@ jobs:
 
       - name: Run Knip
         id: knip-check
-        # knip の実行結果を /tmp/knip-report へリダイレクト
-        # continue-on-error: true は「Knip で検知があってもジョブを fail させない」設定
-        run: npm run knip > /tmp/knip-report
-        continue-on-error: true
-
-      - name: Create PR comment
-        uses: actions/github-script@v6
-        if: steps.knip-check.outcome == 'failure'
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const fs = require('fs')
-            const knipReport = fs.readFileSync('/tmp/knip-report', 'utf8')
-
-            // コメント本文
-            const output = `
-            ## フロントエンド Knip レポート
-            
-            <details>
-              <summary>詳細レポート 📖</summary>
-              
-              \`\`\`
-              ${knipReport}
-              \`\`\`
-              
-            </details>
-            `
-
-            // Pull Request にコメントを投稿
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
+        run: npm run knip
