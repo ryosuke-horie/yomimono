@@ -1,0 +1,439 @@
+[*] Unresolved configuration (from CLI arguments)
+{
+  cacheLocation: [32m'/Users/r-horie/private/effective-yomimono/frontend/node_modules/.cache/knip'[39m,
+  cwd: [32m'/Users/r-horie/private/effective-yomimono/frontend'[39m,
+  excludedIssueTypes: [],
+  fixTypes: [],
+  gitignore: [33mtrue[39m,
+  includedIssueTypes: [],
+  isCache: [33mfalse[39m,
+  isDebug: [33mtrue[39m,
+  isDependenciesShorthand: [33mfalse[39m,
+  isExportsShorthand: [33mfalse[39m,
+  isFilesShorthand: [33mfalse[39m,
+  isFix: [33mfalse[39m,
+  isHideConfigHints: [33mfalse[39m,
+  isIncludeEntryExports: [33mfalse[39m,
+  isIncludeLibs: [33mfalse[39m,
+  isIsolateWorkspaces: [33mfalse[39m,
+  isProduction: [33mfalse[39m,
+  isRemoveFiles: [33mfalse[39m,
+  isShowProgress: [33mfalse[39m,
+  isStrict: [33mfalse[39m,
+  isWatch: [33mfalse[39m,
+  tags: [ [], [] ],
+  tsConfigFile: [90mundefined[39m,
+  workspace: [90mundefined[39m
+}
+[*] Included issue types
+{
+  files: [33mtrue[39m,
+  dependencies: [33mtrue[39m,
+  devDependencies: [33mtrue[39m,
+  optionalPeerDependencies: [33mtrue[39m,
+  unlisted: [33mtrue[39m,
+  binaries: [33mtrue[39m,
+  unresolved: [33mtrue[39m,
+  exports: [33mtrue[39m,
+  nsExports: [33mfalse[39m,
+  types: [33mtrue[39m,
+  nsTypes: [33mfalse[39m,
+  enumMembers: [33mtrue[39m,
+  classMembers: [33mfalse[39m,
+  duplicates: [33mtrue[39m
+}
+[*] Included workspaces
+[ [32m'effective-yomimono'[39m ]
+[*] Included workspace configs
+[
+  {
+    pkgName: [32m'effective-yomimono'[39m,
+    name: [32m'.'[39m,
+    config: {
+      entry: [
+        [32m'{index,cli,main}.{js,mjs,cjs,jsx,ts,tsx,mts,cts}!'[39m,
+        [32m'src/{index,cli,main}.{js,mjs,cjs,jsx,ts,tsx,mts,cts}!'[39m
+      ],
+      project: [ [32m'**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}!'[39m ],
+      paths: {},
+      ignore: [],
+      isIncludeEntryExports: [33mfalse[39m
+    },
+    ancestors: []
+  }
+]
+[*] Parsed gitignore files
+{ gitignoreFiles: [ [32m'../.gitignore'[39m, [32m'.gitignore'[39m ] }
+[.] Finding paths
+{
+  patterns: [ [32m'.travis.yml'[39m ],
+  cwd: [32m'/Users/r-horie/private/effective-yomimono/frontend'[39m,
+  gitignore: [33mtrue[39m,
+  absolute: [33mtrue[39m,
+  dot: [33mtrue[39m,
+  ignore: [],
+  paths: []
+}
+[.] Definition paths (3)
+[
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/.next/types/cache-life.d.ts'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/cloudflare-env.d.ts'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/next-env.d.ts'[39m
+]
+[.] Enabled plugins
+[
+  [32m'Next.js'[39m,    [32m'Node.js'[39m,
+  [32m'PostCSS'[39m,    [32m'Tailwind'[39m,
+  [32m'TypeScript'[39m, [32m'Vercel OG'[39m,
+  [32m'Vite'[39m,       [32m'Vitest'[39m,
+  [32m'Wrangler'[39m
+]
+[.] Finding config file paths
+{
+  patterns: [ [32m'package.json'[39m ],
+  cwd: [32m'/Users/r-horie/private/effective-yomimono/frontend'[39m,
+  gitignore: [33mfalse[39m,
+  absolute: [33mtrue[39m,
+  dot: [33mtrue[39m,
+  ignore: [ [32m'**/node_modules/**'[39m, [32m'.yarn'[39m ],
+  paths: [ [32m'/Users/r-horie/private/effective-yomimono/frontend/package.json'[39m ]
+}
+[.] Finding config file paths
+{
+  patterns: [
+    [32m'postcss.config.{js,cjs,mjs,ts,mts,cts}'[39m,
+    [32m'.postcssrc.{json,js,cjs,mjs,ts,mts,cts,yaml,yml}'[39m,
+    [32m'.postcssrc'[39m,
+    [32m'postcss.config.json'[39m,
+    [32m'package.json'[39m
+  ],
+  cwd: [32m'/Users/r-horie/private/effective-yomimono/frontend'[39m,
+  gitignore: [33mfalse[39m,
+  absolute: [33mtrue[39m,
+  dot: [33mtrue[39m,
+  ignore: [ [32m'**/node_modules/**'[39m, [32m'.yarn'[39m ],
+  paths: [
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/postcss.config.mjs'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/package.json'[39m
+  ]
+}
+[.] Finding config file paths
+{
+  patterns: [ [32m'tsconfig.json'[39m ],
+  cwd: [32m'/Users/r-horie/private/effective-yomimono/frontend'[39m,
+  gitignore: [33mfalse[39m,
+  absolute: [33mtrue[39m,
+  dot: [33mtrue[39m,
+  ignore: [ [32m'**/node_modules/**'[39m, [32m'.yarn'[39m ],
+  paths: [
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/tsconfig.json'[39m
+  ]
+}
+[.] Finding config file paths
+{
+  patterns: [ [32m'vite.config.{js,mjs,ts,cjs,mts,cts}'[39m ],
+  cwd: [32m'/Users/r-horie/private/effective-yomimono/frontend'[39m,
+  gitignore: [33mfalse[39m,
+  absolute: [33mtrue[39m,
+  dot: [33mtrue[39m,
+  ignore: [ [32m'**/node_modules/**'[39m, [32m'.yarn'[39m ],
+  paths: []
+}
+[.] Finding config file paths
+{
+  patterns: [
+    [32m'vitest.{workspace,projects}.{js,mjs,ts,cjs,mts,cts,json}'[39m,
+    [32m'vitest.config.{js,mjs,ts,cjs,mts,cts}'[39m
+  ],
+  cwd: [32m'/Users/r-horie/private/effective-yomimono/frontend'[39m,
+  gitignore: [33mfalse[39m,
+  absolute: [33mtrue[39m,
+  dot: [33mtrue[39m,
+  ignore: [ [32m'**/node_modules/**'[39m, [32m'.yarn'[39m ],
+  paths: [
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/vitest.config.ts'[39m
+  ]
+}
+[.] Finding config file paths
+{
+  patterns: [ [32m'wrangler.{json,toml}'[39m ],
+  cwd: [32m'/Users/r-horie/private/effective-yomimono/frontend'[39m,
+  gitignore: [33mfalse[39m,
+  absolute: [33mtrue[39m,
+  dot: [33mtrue[39m,
+  ignore: [ [32m'**/node_modules/**'[39m, [32m'.yarn'[39m ],
+  paths: []
+}
+[.] Plugin dependencies (40)
+[
+  [32m'binary:knip (package.json)'[39m,
+  [32m'binary:next (package.json)'[39m,
+  [32m'binary:opennextjs-cloudflare (package.json)'[39m,
+  [32m'binary:vitest (package.json)'[39m,
+  [32m'binary:wrangler (package.json)'[39m,
+  [32m'config:postcss.config.mjs'[39m,
+  [32m'config:tsconfig.json'[39m,
+  [32m'config:vitest.config.ts'[39m,
+  [32m'deferResolve:@cloudflare/workers-types/2023-07-01 (tsconfig.json)'[39m,
+  [32m'deferResolve:@tailwindcss/postcss (postcss.config.mjs)'[39m,
+  [32m'deferResolve:next (tsconfig.json)'[39m,
+  [32m'dependency:@biomejs/biome (package.json)'[39m,
+  [32m'dependency:@vitest/coverage-v8 (vitest.config.ts)'[39m,
+  [32m'dependency:jsdom (vitest.config.ts)'[39m,
+  [32m'entry:**/*.{bench,test,test-d,spec}.?(c|m)[jt]s?(x)'[39m,
+  [32m'entry:app/**/route.{js,jsx,ts,tsx}'[39m,
+  [32m'entry:app/**/{error,layout,loading,not-found,page,template,default}.{js,jsx,ts,tsx}'[39m,
+  [32m'entry:app/**/{icon,apple-icon}.{js,jsx,ts,tsx}'[39m,
+  [32m'entry:app/**/{opengraph,twitter}-image.{js,jsx,ts,tsx}'[39m,
+  [32m'entry:app/global-error.{js,jsx,ts,tsx}'[39m,
+  [32m'entry:app/{manifest,sitemap,robots}.{js,ts}'[39m,
+  [32m'entry:next.config.{js,ts,cjs,mjs}'[39m,
+  [32m'entry:pages/**/*.{js,jsx,ts,tsx}'[39m,
+  [32m'entry:postcss.config.mjs'[39m,
+  [32m'entry:server.js'[39m,
+  [32m'entry:src/app/**/route.{js,jsx,ts,tsx}'[39m,
+  [32m'entry:src/app/**/{error,layout,loading,not-found,page,template,default}.{js,jsx,ts,tsx}'[39m,
+  [32m'entry:src/app/**/{icon,apple-icon}.{js,jsx,ts,tsx}'[39m,
+  [32m'entry:src/app/**/{opengraph,twitter}-image.{js,jsx,ts,tsx}'[39m,
+  [32m'entry:src/app/global-error.{js,jsx,ts,tsx}'[39m,
+  [32m'entry:src/app/{manifest,sitemap,robots}.{js,ts}'[39m,
+  [32m'entry:src/pages/**/*.{js,jsx,ts,tsx}'[39m,
+  [32m'entry:src/vite-env.d.ts'[39m,
+  [32m'entry:src/{instrumentation,middleware}.{js,ts}'[39m,
+  [32m'entry:tailwind.config.{js,cjs,mjs,ts}'[39m,
+  [32m'entry:tsconfig.json'[39m,
+  [32m'entry:vitest.config.ts'[39m,
+  [32m'entry:{instrumentation,middleware}.{js,ts}'[39m,
+  [32m'entry:{src/,}app/api/og/route.{jsx,tsx}'[39m,
+  [32m'entry:{src/,}pages/api/og.{jsx,tsx}'[39m
+]
+[.] Finding entry paths
+{
+  patterns: [
+    [32m'src/{index,cli,main}.{js,mjs,cjs,jsx,ts,tsx,mts,cts}'[39m,
+    [32m'{index,cli,main}.{js,mjs,cjs,jsx,ts,tsx,mts,cts}'[39m
+  ],
+  cwd: [32m'/Users/r-horie/private/effective-yomimono/frontend'[39m,
+  gitignore: [33mfalse[39m,
+  absolute: [33mtrue[39m,
+  dot: [33mtrue[39m,
+  ignore: [ [32m'**/node_modules/**'[39m, [32m'.yarn'[39m ],
+  paths: []
+}
+[.] Finding project paths
+{
+  patterns: [
+    [32m'{src/,}app/api/og/route.{jsx,tsx}'[39m,
+    [32m'{src/,}pages/api/og.{jsx,tsx}'[39m,
+    [32m'src/pages/**/*.{js,jsx,ts,tsx}'[39m,
+    [32m'src/app/**/{opengraph,twitter}-image.{js,jsx,ts,tsx}'[39m,
+    [32m'src/app/**/{icon,apple-icon}.{js,jsx,ts,tsx}'[39m,
+    [32m'src/app/{manifest,sitemap,robots}.{js,ts}'[39m,
+    [32m'src/app/**/route.{js,jsx,ts,tsx}'[39m,
+    [32m'src/app/**/{error,layout,loading,not-found,page,template,default}.{js,jsx,ts,tsx}'[39m,
+    [32m'src/app/global-error.{js,jsx,ts,tsx}'[39m,
+    [32m'src/{instrumentation,middleware}.{js,ts}'[39m,
+    [32m'pages/**/*.{js,jsx,ts,tsx}'[39m,
+    [32m'app/**/{opengraph,twitter}-image.{js,jsx,ts,tsx}'[39m,
+    [32m'app/**/{icon,apple-icon}.{js,jsx,ts,tsx}'[39m,
+    [32m'app/{manifest,sitemap,robots}.{js,ts}'[39m,
+    [32m'app/**/route.{js,jsx,ts,tsx}'[39m,
+    [32m'app/**/{error,layout,loading,not-found,page,template,default}.{js,jsx,ts,tsx}'[39m,
+    [32m'app/global-error.{js,jsx,ts,tsx}'[39m,
+    [32m'{instrumentation,middleware}.{js,ts}'[39m,
+    [32m'.next/types/cache-life.d.ts'[39m,
+    [32m'cloudflare-env.d.ts'[39m,
+    [32m'next-env.d.ts'[39m,
+    [32m'**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}'[39m,
+    [32m'!package.json'[39m,
+    [32m'!postcss.config.json'[39m,
+    [32m'!.postcssrc'[39m,
+    [32m'!.postcssrc.{json,js,cjs,mjs,ts,mts,cts,yaml,yml}'[39m,
+    [32m'!postcss.config.{js,cjs,mjs,ts,mts,cts}'[39m,
+    [32m'!tsconfig.json'[39m,
+    [32m'!vite.config.{js,mjs,ts,cjs,mts,cts}'[39m,
+    [32m'!vitest.config.{js,mjs,ts,cjs,mts,cts}'[39m,
+    [32m'!vitest.{workspace,projects}.{js,mjs,ts,cjs,mts,cts,json}'[39m,
+    [32m'!wrangler.{json,toml}'[39m
+  ],
+  cwd: [32m'/Users/r-horie/private/effective-yomimono/frontend'[39m,
+  gitignore: [33mtrue[39m,
+  absolute: [33mtrue[39m,
+  dot: [33mtrue[39m,
+  ignore: [
+    [32m'.git'[39m,
+    [32m'**/node_modules/**'[39m,
+    [32m'.yarn'[39m,
+    [32m'node_modules'[39m,
+    [32m'node_modules/**'[39m,
+    [32m'.pnp'[39m,
+    [32m'.pnp/**'[39m,
+    [32m'**/.pnp.js'[39m,
+    [32m'**/.pnp.js/**'[39m,
+    [32m'**/.yarn/install-state.gz'[39m,
+    [32m'**/.yarn/install-state.gz/**'[39m,
+    [32m'coverage'[39m,
+    [32m'coverage/**'[39m,
+    [32m'.next'[39m,
+    [32m'.next/**'[39m,
+    [32m'out'[39m,
+    [32m'out/**'[39m,
+    [32m'build'[39m,
+    [32m'build/**'[39m,
+    [32m'**/.DS_Store'[39m,
+    [32m'**/.DS_Store/**'[39m,
+    [32m'**/*.pem'[39m,
+    [32m'**/*.pem/**'[39m,
+    [32m'**/npm-debug.log*'[39m,
+    [32m'**/npm-debug.log*/**'[39m,
+    [32m'**/yarn-debug.log*'[39m,
+    [32m'**/yarn-debug.log*/**'[39m,
+    [32m'**/yarn-error.log*'[39m,
+    [32m'**/yarn-error.log*/**'[39m,
+    [32m'**/.env*.local'[39m,
+    [32m'**/.env*.local/**'[39m,
+    [32m'**/.vercel'[39m,
+    [32m'**/.vercel/**'[39m,
+    [32m'**/*.tsbuildinfo'[39m,
+    [32m'**/*.tsbuildinfo/**'[39m,
+    [32m'**/next-env.d.ts'[39m,
+    [32m'**/next-env.d.ts/**'[39m,
+    [32m'.open-next'[39m,
+    [32m'.open-next/**'[39m,
+    [32m'**/.wrangler'[39m,
+    [32m'**/.wrangler/**'[39m,
+    [32m'**/.dev.vars'[39m,
+    [32m'**/.dev.vars/**'[39m
+  ],
+  paths: [
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/cloudflare-env.d.ts'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/knip.config.ts'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/next.config.mjs'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/open-next.config.ts'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/app/error.tsx'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/app/layout.tsx'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/app/loading.tsx'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/app/page.tsx'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/components/BookmarkCard.tsx'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/components/BookmarksList.tsx'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/components/Header.tsx'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/hooks/useBookmarks.ts'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/types/api.ts'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/types/bookmark.ts'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/components/__tests__/BookmarkCard.test.tsx'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/components/__tests__/BookmarksList.test.tsx'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/components/__tests__/Header.test.tsx'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/hooks/__tests__/useBookmarks.test.ts'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/lib/api/config.ts'[39m
+  ]
+}
+[.] Finding plugin entry paths
+{
+  patterns: [
+    [32m'{src/,}app/api/og/route.{jsx,tsx}'[39m,
+    [32m'{src/,}pages/api/og.{jsx,tsx}'[39m,
+    [32m'src/pages/**/*.{js,jsx,ts,tsx}'[39m,
+    [32m'src/app/**/{opengraph,twitter}-image.{js,jsx,ts,tsx}'[39m,
+    [32m'src/app/**/{icon,apple-icon}.{js,jsx,ts,tsx}'[39m,
+    [32m'src/app/{manifest,sitemap,robots}.{js,ts}'[39m,
+    [32m'src/app/**/route.{js,jsx,ts,tsx}'[39m,
+    [32m'src/app/**/{error,layout,loading,not-found,page,template,default}.{js,jsx,ts,tsx}'[39m,
+    [32m'src/app/global-error.{js,jsx,ts,tsx}'[39m,
+    [32m'src/{instrumentation,middleware}.{js,ts}'[39m,
+    [32m'pages/**/*.{js,jsx,ts,tsx}'[39m,
+    [32m'app/**/{opengraph,twitter}-image.{js,jsx,ts,tsx}'[39m,
+    [32m'app/**/{icon,apple-icon}.{js,jsx,ts,tsx}'[39m,
+    [32m'app/{manifest,sitemap,robots}.{js,ts}'[39m,
+    [32m'app/**/route.{js,jsx,ts,tsx}'[39m,
+    [32m'app/**/{error,layout,loading,not-found,page,template,default}.{js,jsx,ts,tsx}'[39m,
+    [32m'app/global-error.{js,jsx,ts,tsx}'[39m,
+    [32m'{instrumentation,middleware}.{js,ts}'[39m,
+    [32m'.next/types/cache-life.d.ts'[39m,
+    [32m'cloudflare-env.d.ts'[39m,
+    [32m'next-env.d.ts'[39m,
+    [32m'**/*.{bench,test,test-d,spec}.?(c|m)[jt]s?(x)'[39m,
+    [32m'src/vite-env.d.ts'[39m,
+    [32m'vitest.config.ts'[39m,
+    [32m'tsconfig.json'[39m,
+    [32m'tailwind.config.{js,cjs,mjs,ts}'[39m,
+    [32m'postcss.config.mjs'[39m,
+    [32m'server.js'[39m,
+    [32m'next.config.{js,ts,cjs,mjs}'[39m
+  ],
+  cwd: [32m'/Users/r-horie/private/effective-yomimono/frontend'[39m,
+  gitignore: [33mtrue[39m,
+  absolute: [33mtrue[39m,
+  dot: [33mtrue[39m,
+  ignore: [32m'// identical to /Users/r-horie/private/effective-yomimono/frontend'[39m,
+  paths: [
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/cloudflare-env.d.ts'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/vitest.config.ts'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/tsconfig.json'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/postcss.config.mjs'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/next.config.mjs'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/app/error.tsx'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/app/layout.tsx'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/app/loading.tsx'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/app/page.tsx'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/hooks/__tests__/useBookmarks.test.ts'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/components/__tests__/BookmarkCard.test.tsx'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/components/__tests__/BookmarksList.test.tsx'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/src/components/__tests__/Header.test.tsx'[39m
+  ]
+}
+[.] Finding plugin configuration paths
+{
+  patterns: [
+    [32m'wrangler.{json,toml}'[39m,
+    [32m'vitest.{workspace,projects}.{js,mjs,ts,cjs,mts,cts,json}'[39m,
+    [32m'vitest.config.{js,mjs,ts,cjs,mts,cts}'[39m,
+    [32m'vite.config.{js,mjs,ts,cjs,mts,cts}'[39m,
+    [32m'tsconfig.json'[39m,
+    [32m'postcss.config.{js,cjs,mjs,ts,mts,cts}'[39m,
+    [32m'.postcssrc.{json,js,cjs,mjs,ts,mts,cts,yaml,yml}'[39m,
+    [32m'.postcssrc'[39m,
+    [32m'postcss.config.json'[39m,
+    [32m'package.json'[39m
+  ],
+  cwd: [32m'/Users/r-horie/private/effective-yomimono/frontend'[39m,
+  gitignore: [33mtrue[39m,
+  absolute: [33mtrue[39m,
+  dot: [33mtrue[39m,
+  ignore: [32m'// identical to /Users/r-horie/private/effective-yomimono/frontend'[39m,
+  paths: [
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/vitest.config.ts'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/tsconfig.json'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/postcss.config.mjs'[39m,
+    [32m'/Users/r-horie/private/effective-yomimono/frontend/package.json'[39m
+  ]
+}
+[*] Created 1 programs for 1 workspaces
+[*] Analyzing used resolved files [P1/1] (20)
+[
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/cloudflare-env.d.ts'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/knip.config.ts'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/next.config.mjs'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/postcss.config.mjs'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/src/app/error.tsx'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/src/app/layout.tsx'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/src/app/loading.tsx'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/src/app/page.tsx'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/src/components/BookmarkCard.tsx'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/src/components/BookmarksList.tsx'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/src/components/Header.tsx'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/src/components/__tests__/BookmarkCard.test.tsx'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/src/components/__tests__/BookmarksList.test.tsx'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/src/components/__tests__/Header.test.tsx'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/src/hooks/__tests__/useBookmarks.test.ts'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/src/hooks/useBookmarks.ts'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/src/lib/api/config.ts'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/src/types/api.ts'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/src/types/bookmark.ts'[39m,
+  [32m'/Users/r-horie/private/effective-yomimono/frontend/vitest.config.ts'[39m
+]
+[*] Deleting principal at . (effective-yomimono)
+Unused files (1)
+open-next.config.ts
+Unused exported types (2)
+ApiError     interface  src/types/api.ts:3:18
+ApiResponse  interface  src/types/api.ts:8:18
