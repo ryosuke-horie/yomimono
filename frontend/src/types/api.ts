@@ -1,11 +1,11 @@
 import type { Bookmark } from "./bookmark";
 
-export interface ApiError {
+interface ApiError {
 	code: string;
 	message: string;
 }
 
-export interface ApiResponse<T> {
+interface ApiResponse<T> {
 	success: boolean;
 	bookmarks?: T[];
 	message?: string;
