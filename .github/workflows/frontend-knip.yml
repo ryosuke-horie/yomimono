@@ -20,25 +20,14 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        id: setup-node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: '22'
-          # NPM キャッシュを有効にする
+          node-version: '22'
           cache: 'npm'
-
-      # 追加のキャッシュ（node_modules）を利用する場合の例
-      - name: node modules cache
-        uses: actions/cache@v3
-        id: node-modules-cache
-        with:
-          path: './node_modules'
-          key: ${{ runner.os }}-build-${{ hashFiles('.node-version') }}-${{ hashFiles('package-lock.json') }}
+          cache-dependency-path: './frontend/package-lock.json'
 
       - name: Install dependencies
-        # 上のキャッシュがヒットしなかった場合にのみインストール実行
-        if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: npm ci
 
       - name: Run Knip
