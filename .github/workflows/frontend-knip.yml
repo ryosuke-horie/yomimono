@@ -1,0 +1,85 @@
+name: frontend-knip
+
+on:
+  pull_request:
+    paths:
+      - 'frontend/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        id: setup-node
+        uses: actions/setup-node@v4
+        with:
+          # リポジトリに .node-version がある場合は以下を利用し、
+          # そこに書かれたバージョンを自動的に使用
+          node-version-file: '.node-version'
+          # NPM キャッシュを有効にする
+          cache: 'npm'
+
+      # 追加のキャッシュ（node_modules）を利用する場合の例
+      - name: node modules cache
+        uses: actions/cache@v3
+        id: node-modules-cache
+        with:
+          path: './node_modules'
+          key: ${{ runner.os }}-build-${{ hashFiles('.node-version') }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        # 上のキャッシュがヒットしなかった場合にのみインストール実行
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Run Knip
+        id: knip-check
+        # knip の実行結果を /tmp/knip-report へリダイレクト
+        # continue-on-error: true は「Knip で検知があってもジョブを fail させない」設定
+        run: npm run knip > /tmp/knip-report
+        continue-on-error: true
+
+      - name: Create PR comment
+        uses: actions/github-script@v6
+        if: steps.knip-check.outcome == 'failure'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs')
+            const knipReport = fs.readFileSync('/tmp/knip-report', 'utf8')
+
+            // コメント本文
+            const output = `
+            ## フロントエンド Knip レポート
+
+            Knip により検知された未使用コードや依存関係があります。不要であれば対応をご検討ください。
+            \`npm run knip:fix\` というコマンドも利用可能です。
+            
+            <details>
+              <summary>詳細レポート 📖</summary>
+              
+              \`\`\`
+              ${knipReport}
+              \`\`\`
+              
+            </details>
+            `
+
+            // Pull Request にコメントを投稿
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
