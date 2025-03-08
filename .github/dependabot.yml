@@ -66,6 +66,21 @@ updates:
           - "happy-dom"
           - "vitest"
 
+  # Extensionディレクトリの依存関係を管理
+  - package-ecosystem: "npm"
+    directory: "/extension"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "chore(extension)"
+      prefix-development: "chore(extension)"
+      include: "scope"
+    # ここで特定パッケージをグルーピング
+    groups:
+      devdependencies:
+        patterns:
+          - "@biomejs/biome"
+
   # GitHub Actionsの依存関係を管理
   - package-ecosystem: "github-actions"
     directory: "/"
