@@ -22,7 +22,6 @@
 		"drizzle-kit": "^0.30.5",
 		"happy-dom": "^17.3.0",
 		"knip": "^5.45.0",
-		"msw": "^2.7.3",
 		"typescript": "^5.8.2",
 		"vitest": "3.0.8",
 		"wrangler": "^3.114.0"
