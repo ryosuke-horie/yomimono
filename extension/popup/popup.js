@@ -79,8 +79,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 			updateStatus("選択したURLを送信中...");
 			resultElement.textContent = "";
 
-			// デバッグ用：選択されたタブの情報を表示
-			console.log("選択されたタブ:", selectedTabs);
 			updateStatus(`送信するタブ数: ${selectedTabs.length}`);
 
 			const response = await chrome.runtime.sendMessage({

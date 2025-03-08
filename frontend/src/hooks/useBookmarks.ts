@@ -6,7 +6,6 @@ import { useCallback } from "react";
 export function useBookmarks() {
 	const getUnreadBookmarks = useCallback(async (): Promise<Bookmark[]> => {
 		const url = `${API_BASE_URL}/api/bookmarks/unread`;
-		console.log("Fetching unread bookmarks from:", url);
 
 		try {
 			const response = await fetch(url, {
@@ -17,11 +16,6 @@ export function useBookmarks() {
 			});
 
 			const responseText = await response.text();
-			console.log("Response:", {
-				status: response.status,
-				statusText: response.statusText,
-				body: responseText,
-			});
 
 			if (!response.ok) {
 				throw new Error(`Failed to fetch bookmarks: ${response.status}`);
@@ -51,7 +45,6 @@ export function useBookmarks() {
 
 	const markAsRead = useCallback(async (id: number): Promise<void> => {
 		const url = `${API_BASE_URL}/api/bookmarks/${id}/read`;
-		console.log("Marking as read:", url);
 
 		try {
 			const response = await fetch(url, {
@@ -63,11 +56,6 @@ export function useBookmarks() {
 			});
 
 			const responseText = await response.text();
-			console.log("Response:", {
-				status: response.status,
-				statusText: response.statusText,
-				body: responseText,
-			});
 
 			if (!response.ok) {
 				throw new Error(`Failed to mark as read: ${response.status}`);

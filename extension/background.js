@@ -31,9 +31,6 @@ async function sendUrlsToApi(urlData) {
 // メッセージリスナーの設定
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	if (request.action === "collectAndSendUrls") {
-		// デバッグ用：受信したデータを表示
-		console.log("background.jsが受信したタブデータ:", request.tabs);
-
 		// 選択されたタブの情報を使用
 		sendUrlsToApi(request.tabs)
 			.then((result) => {
