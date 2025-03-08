@@ -31,7 +31,7 @@ export function BookmarkCard({ bookmark, onUpdate }: Props) {
 
 	return (
 		<article
-			className={`p-4 border rounded-lg hover:shadow-md transition-shadow flex flex-col min-h-[150px] ${isRead ? "bg-gray-50" : ""}`}
+			className={`relative p-4 border rounded-lg hover:shadow-md transition-shadow flex flex-col min-h-[150px] ${isRead ? "bg-gray-50" : ""}`}
 		>
 			<button
 				type="button"
