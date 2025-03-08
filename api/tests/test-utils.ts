@@ -36,14 +36,3 @@ export const mockD1Database = {
 	dump: vi.fn(),
 	exec: vi.fn(),
 };
-
-// テストヘルパー
-export const createTestRequest = (method: string, body?: RequestBody) => {
-	return new Request("http://localhost/api/bookmarks/bulk", {
-		method,
-		headers: {
-			"Content-Type": "application/json",
-		},
-		...(body ? { body: JSON.stringify(body) } : {}),
-	});
-};
