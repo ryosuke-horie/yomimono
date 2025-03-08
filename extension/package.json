@@ -1,9 +1,14 @@
 {
-  "name": "ext-yomimono",
-  "version": "1.0.0",
-  "main": "background.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "private": true
+	"name": "ext-yomimono",
+	"version": "1.0.0",
+	"main": "background.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"lint": "npx @biomejs/biome check",
+		"format": "npx @biomejs/biome check --write"
+	},
+	"private": true,
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4"
+	}
 }
