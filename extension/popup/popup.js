@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 		const tabs = await chrome.tabs.query({ currentWindow: true });
 		tabList.innerHTML = "";
 
-		tabs.forEach((tab) => {
+		for (const tab of tabs) {
 			const tabItem = document.createElement("div");
 			tabItem.className = "tab-item";
 
@@ -40,15 +40,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 			label.appendChild(title);
 			tabItem.appendChild(label);
 			tabList.appendChild(tabItem);
-		});
+		}
 	}
 
 	// 全選択/解除の処理
 	function toggleAllCheckboxes(checked) {
 		const checkboxes = tabList.querySelectorAll('input[type="checkbox"]');
-		checkboxes.forEach((checkbox) => {
+		for (const checkbox of checkboxes) {
 			checkbox.checked = checked;
-		});
+		}
 	}
 
 	// 選択されたタブの情報を取得
