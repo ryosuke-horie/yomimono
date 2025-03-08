@@ -43,6 +43,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 					details: error.stack,
 				});
 			});
-		return true; // 非同期レスポンスのために必要
+		return true;
 	}
 });
