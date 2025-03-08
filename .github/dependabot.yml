@@ -80,6 +80,9 @@ updates:
       devdependencies:
         patterns:
           - "@biomejs/biome"
+          - "@types/node"
+          - "knip"
+          - "typescript"
 
   # GitHub Actionsの依存関係を管理
   - package-ecosystem: "github-actions"
