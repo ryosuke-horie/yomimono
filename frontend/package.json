@@ -22,8 +22,8 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
-		"@cloudflare/workers-types": "^4.20250303.0",
-		"@opennextjs/cloudflare": "^0.5.8",
+		"@cloudflare/workers-types": "^4.20250310.0",
+		"@opennextjs/cloudflare": "^0.5.10",
 		"@tailwindcss/postcss": "^4.0.12",
 		"@testing-library/dom": "^10.4.0",
 		"@testing-library/react": "^16.2.0",
