@@ -17,7 +17,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
 		"@cloudflare/workers-types": "^4.20250320.0",
-		"@types/node": "^22.13.10",
+		"@types/node": "^22.13.11",
 		"@vitest/coverage-v8": "3.0.9",
 		"drizzle-kit": "^0.30.5",
 		"happy-dom": "^17.4.4",
