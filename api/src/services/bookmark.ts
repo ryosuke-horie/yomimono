@@ -7,10 +7,15 @@ export interface BookmarkService {
 	): Promise<void>;
 	getUnreadBookmarks(): Promise<Bookmark[]>;
 	markBookmarkAsRead(id: number): Promise<void>;
+	getUnreadBookmarksCount(): Promise<number>;
 }
 
 export class DefaultBookmarkService implements BookmarkService {
 	constructor(private readonly repository: BookmarkRepository) {}
+
+	async getUnreadBookmarksCount(): Promise<number> {
+		return await this.repository.countUnread();
+	}
 
 	async getUnreadBookmarks(): Promise<Bookmark[]> {
 		return await this.repository.findUnread();
