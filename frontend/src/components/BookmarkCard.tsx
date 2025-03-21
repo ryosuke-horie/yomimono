@@ -21,6 +21,7 @@ export function BookmarkCard({ bookmark, onUpdate }: Props) {
 		try {
 			setIsMarking(true);
 			await markAsRead(id);
+			// 既読後のデータ更新を必ず実行
 			onUpdate?.();
 		} catch (error) {
 			console.error("Failed to mark as read:", error);

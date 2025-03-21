@@ -51,9 +51,17 @@ describe("BookmarksList", () => {
 								ok: true,
 								text: () =>
 									Promise.resolve(
-										JSON.stringify({ success: true, bookmarks: [] }),
+										JSON.stringify({
+											success: true,
+											bookmarks: [],
+											totalUnread: 0,
+										}),
 									),
-								json: async () => ({ success: true, bookmarks: [] }),
+								json: async () => ({
+									success: true,
+									bookmarks: [],
+									totalUnread: 0,
+								}),
 							} as MockResponse),
 						100,
 					),
@@ -94,12 +102,14 @@ describe("BookmarksList", () => {
 					JSON.stringify({
 						success: true,
 						bookmarks: mockBookmarks,
+						totalUnread: 1,
 					}),
 				),
 			json: () =>
 				Promise.resolve({
 					success: true,
 					bookmarks: mockBookmarks,
+					totalUnread: 1,
 				}),
 		} as MockResponse);
 
@@ -111,6 +121,37 @@ describe("BookmarksList", () => {
 		});
 
 		expect(screen.getByText("Example Title")).toBeDefined();
+	});
+
+	it("未読記事数を表示する", async () => {
+		// fetchのモックを設定（成功レスポンスを返す）
+		global.fetch = vi.fn().mockResolvedValue({
+			ok: true,
+			text: () =>
+				Promise.resolve(
+					JSON.stringify({
+						success: true,
+						bookmarks: mockBookmarks,
+						totalUnread: 42,
+					}),
+				),
+			json: () =>
+				Promise.resolve({
+					success: true,
+					bookmarks: mockBookmarks,
+					totalUnread: 42,
+				}),
+		} as MockResponse);
+
+		render(<BookmarksList initialBookmarks={[]} />);
+
+		await act(async () => {
+			// 非同期処理の完了を待つ
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		// 未読記事数が表示されているか確認
+		expect(screen.getByText("42")).toBeDefined();
 	});
 
 	it("複数のブックマークを正しく表示する", async () => {
@@ -140,12 +181,14 @@ describe("BookmarksList", () => {
 					JSON.stringify({
 						success: true,
 						bookmarks: multipleBookmarks,
+						totalUnread: 2,
 					}),
 				),
 			json: () =>
 				Promise.resolve({
 					success: true,
 					bookmarks: multipleBookmarks,
+					totalUnread: 2,
 				}),
 		} as MockResponse);
 
@@ -157,6 +200,7 @@ describe("BookmarksList", () => {
 
 		expect(screen.getByText("Example Title 1")).toBeDefined();
 		expect(screen.getByText("Example Title 2")).toBeDefined();
+		expect(screen.getByText("2")).toBeDefined();
 	});
 
 	it("最新のブックマークが先頭に表示される", async () => {
@@ -186,12 +230,14 @@ describe("BookmarksList", () => {
 					JSON.stringify({
 						success: true,
 						bookmarks: sortedBookmarks,
+						totalUnread: 2,
 					}),
 				),
 			json: () =>
 				Promise.resolve({
 					success: true,
 					bookmarks: sortedBookmarks,
+					totalUnread: 2,
 				}),
 		} as MockResponse);
 
