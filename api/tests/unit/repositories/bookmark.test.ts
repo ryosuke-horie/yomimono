@@ -1,4 +1,4 @@
-import { count, eq } from "drizzle-orm";
+import { count, eq, inArray } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { bookmarks } from "../../../src/db/schema";
 import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
@@ -165,6 +165,65 @@ describe("ブックマークリポジトリ", () => {
 
 			// Cleanup
 			Promise.all = originalPromiseAll;
+		});
+	});
+
+	describe("URLリストによるブックマーク取得", () => {
+		it("複数URLを指定して該当するブックマークを取得できること", async () => {
+			const urls = ["https://example.com", "https://example2.com"];
+			const mockBookmarks = [
+				{ id: 1, url: urls[0], title: "Example 1", isRead: false },
+				{ id: 2, url: urls[1], title: "Example 2", isRead: false },
+			];
+			mockDb.all.mockResolvedValue(mockBookmarks);
+
+			const result = await repository.findByUrls(urls);
+			expect(result).toEqual(mockBookmarks);
+			expect(mockDb.select).toHaveBeenCalled();
+			expect(mockDb.from).toHaveBeenCalledWith(bookmarks);
+			expect(mockDb.where).toHaveBeenCalledWith(inArray(bookmarks.url, urls));
+		});
+
+		it("1つのURLを指定して該当するブックマークを取得できること", async () => {
+			const url = "https://example.com";
+			const mockBookmark = { id: 1, url, title: "Example", isRead: false };
+			mockDb.all.mockResolvedValue([mockBookmark]);
+
+			const result = await repository.findByUrls([url]);
+			expect(result).toEqual([mockBookmark]);
+			expect(mockDb.where).toHaveBeenCalledWith(inArray(bookmarks.url, [url]));
+		});
+
+		it("空配列を渡した場合に空配列を返すこと", async () => {
+			const result = await repository.findByUrls([]);
+			expect(result).toEqual([]);
+			expect(mockDb.select).not.toHaveBeenCalled();
+		});
+
+		it("部分一致するURLは取得されないこと", async () => {
+			const urls = ["https://example.com"];
+			mockDb.all.mockResolvedValue([]);
+
+			const result = await repository.findByUrls(urls);
+			expect(result).toEqual([]);
+		});
+
+		it("URLの大文字小文字が異なっていてもマッチすること", async () => {
+			const urls = ["https://EXAMPLE.com"];
+			const mockBookmarks = [
+				{ id: 1, url: "https://example.com", title: "Match", isRead: false },
+			];
+			mockDb.all.mockResolvedValue(mockBookmarks);
+
+			const result = await repository.findByUrls(urls);
+			expect(result).toEqual(mockBookmarks);
+		});
+
+		it("DBクエリ失敗時にエラーをスローすること", async () => {
+			const urls = ["https://example.com"];
+			mockDb.all.mockRejectedValue(new Error("Database error"));
+
+			await expect(repository.findByUrls(urls)).rejects.toThrow();
 		});
 	});
 
