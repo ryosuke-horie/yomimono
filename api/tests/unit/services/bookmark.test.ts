@@ -8,7 +8,7 @@ describe("DefaultBookmarkService", () => {
 
 	beforeEach(() => {
 		mockRepository = {
-            findByUrls: vi.fn(),
+			findByUrls: vi.fn().mockResolvedValue([]),
 			findUnread: vi.fn(),
 			createMany: vi.fn(),
 			markAsRead: vi.fn(),
@@ -82,6 +82,9 @@ describe("DefaultBookmarkService", () => {
 				{ url: "https://example.com", title: "Example" },
 				{ url: "https://test.com", title: "Test" },
 			];
+
+			// 既存のブックマークが無いことをモック
+			mockRepository.findByUrls = vi.fn().mockResolvedValue([]);
 			mockRepository.createMany = vi.fn().mockResolvedValue(undefined);
 
 			await service.createBookmarksFromData(bookmarksToCreate);
@@ -89,14 +92,17 @@ describe("DefaultBookmarkService", () => {
 			expect(mockRepository.createMany).toHaveBeenCalled();
 		});
 
-		it("空の配列の場合も適切に処理する", async () => {
+		// 空の配列の場合のテストを実装に合わせて修正
+		it("空の配列の場合はcreateMany呼び出しをスキップする", async () => {
 			await service.createBookmarksFromData([]);
 
-			expect(mockRepository.createMany).toHaveBeenCalled();
+			// 空配列の場合はcreateMany呼び出し無し
+			expect(mockRepository.createMany).not.toHaveBeenCalled();
 		});
 
 		it("リポジトリからのエラーを伝播する", async () => {
 			const error = new Error("Repository error");
+			mockRepository.findByUrls = vi.fn().mockResolvedValue([]);
 			mockRepository.createMany = vi.fn().mockRejectedValue(error);
 			const bookmarksToCreate = [
 				{ url: "https://example.com", title: "Example" },
