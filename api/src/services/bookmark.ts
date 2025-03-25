@@ -24,18 +24,31 @@ export class DefaultBookmarkService implements BookmarkService {
 	async createBookmarksFromData(
 		bookmarks: Array<{ url: string; title: string }>,
 	): Promise<void> {
-		const bookmarksToInsert = bookmarks.map(
-			({ url, title }) =>
-				({
-					url,
-					title: title || null,
-					isRead: false,
-					createdAt: new Date(),
-					updatedAt: new Date(),
-				}) satisfies InsertBookmark,
+		// 既存のブックマークをURLで検索
+		const existingBookmarks = await this.repository.findByUrls(
+			bookmarks.map((b) => b.url),
 		);
 
-		await this.repository.createMany(bookmarksToInsert);
+		// 重複かつ未読の記事は除外して登録対象を決定
+		const bookmarksToInsert = bookmarks
+			.filter(({ url }) => {
+				const existing = existingBookmarks.find((b) => b.url === url);
+				return !existing || existing.isRead; // 存在しないか既読の場合のみ登録
+			})
+			.map(
+				({ url, title }) =>
+					({
+						url,
+						title: title || null,
+						isRead: false,
+						createdAt: new Date(),
+						updatedAt: new Date(),
+					}) satisfies InsertBookmark,
+			);
+
+		if (bookmarksToInsert.length > 0) {
+			await this.repository.createMany(bookmarksToInsert);
+		}
 	}
 
 	async markBookmarkAsRead(id: number): Promise<void> {

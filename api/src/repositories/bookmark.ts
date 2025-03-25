@@ -1,4 +1,4 @@
-import { count, eq } from "drizzle-orm";
+import { count, eq, inArray } from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { bookmarks } from "../db/schema";
 import type { Bookmark, InsertBookmark } from "../db/schema";
@@ -6,12 +6,29 @@ import type { Bookmark, InsertBookmark } from "../db/schema";
 export interface BookmarkRepository {
 	createMany(bookmarks: InsertBookmark[]): Promise<void>;
 	findUnread(): Promise<Bookmark[]>;
+	findByUrls(urls: string[]): Promise<Bookmark[]>;
 	markAsRead(id: number): Promise<boolean>;
 	countUnread(): Promise<number>;
 }
 
 export class DrizzleBookmarkRepository implements BookmarkRepository {
 	constructor(private readonly db: DrizzleD1Database) {}
+
+	async findByUrls(urls: string[]): Promise<Bookmark[]> {
+		try {
+			if (urls.length === 0) {
+				return [];
+			}
+			return await this.db
+				.select()
+				.from(bookmarks)
+				.where(inArray(bookmarks.url, urls))
+				.all();
+		} catch (error) {
+			console.error("Failed to find bookmarks by URLs:", error);
+			throw error;
+		}
+	}
 
 	async countUnread(): Promise<number> {
 		try {

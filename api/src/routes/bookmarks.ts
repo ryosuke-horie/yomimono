@@ -55,8 +55,12 @@ export const createBookmarksRouter = (bookmarkService: BookmarkService) => {
 				return c.json({ success: false, message: "invalid URL format" }, 400);
 			}
 
+			const totalCount = bookmarks.length;
 			await bookmarkService.createBookmarksFromData(bookmarks);
-			return c.json({ success: true });
+			return c.json({
+				success: true,
+				message: `Processed ${totalCount} bookmarks (duplicates skipped if unread)`,
+			});
 		} catch (error) {
 			console.error("Failed to create bookmarks:", error);
 			return c.json(
