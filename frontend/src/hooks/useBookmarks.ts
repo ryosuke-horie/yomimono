@@ -3,7 +3,7 @@ import type { ApiBookmarkResponse } from "@/types/api";
 import type { Bookmark } from "@/types/bookmark";
 import { useCallback } from "react";
 
-export interface BookmarksData {
+interface BookmarksData {
 	bookmarks: Bookmark[];
 	totalUnread: number;
 }
