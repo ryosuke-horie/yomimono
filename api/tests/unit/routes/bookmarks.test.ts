@@ -12,9 +12,9 @@ type HonoContext = {
 	};
 };
 
-describe("ブックマークルーター", () => {
+describe("BookMarkRouter", () => {
 	describe("GET /unread", () => {
-		it("未読ブックマークと総未読数を返すべき", async () => {
+		it("未読ブックマークと総未読数を返す", async () => {
 			// モックサービス
 			const mockService: BookmarkService = {
 				getUnreadBookmarks: vi.fn().mockResolvedValue([
@@ -60,7 +60,7 @@ describe("ブックマークルーター", () => {
 			});
 		});
 
-		it("エラーを適切に処理するべき", async () => {
+		it("エラーを適切に処理する", async () => {
 			// エラーを返すモックサービス
 			const mockService: BookmarkService = {
 				getUnreadBookmarks: vi.fn().mockRejectedValue(new Error("Test error")),
@@ -94,7 +94,7 @@ describe("ブックマークルーター", () => {
 	});
 
 	describe("POST /bulk", () => {
-		it("ブックマークを正常に作成するべき", async () => {
+		it("ブックマークを正常に作成する", async () => {
 			// モックサービス
 			const mockService: BookmarkService = {
 				getUnreadBookmarks: vi.fn(),
@@ -135,10 +135,65 @@ describe("ブックマークルーター", () => {
 
 			// レスポンスを確認
 			expect(response.status).toBe(200);
-			expect(data).toEqual({ success: true });
+			expect(data).toEqual({
+				success: true,
+				message: "Processed 2 bookmarks (duplicates skipped if unread)",
+			});
 		});
 
-		it("ブックマークが配列でない場合400を返すべき", async () => {
+		it("重複URLはスキップして処理する", async () => {
+			// モックサービス
+			const mockService: BookmarkService = {
+				getUnreadBookmarks: vi.fn(),
+				getUnreadBookmarksCount: vi.fn(),
+				markBookmarkAsRead: vi.fn(),
+				createBookmarksFromData: vi
+					.fn()
+					.mockImplementation(
+						async (bookmarks: Array<{ url: string; title: string }>) => {
+							// 重複URLをスキップする実装を模倣
+							const processedCount = bookmarks.filter(
+								(b) => b.url !== "https://example.com",
+							).length;
+							return processedCount;
+						},
+					),
+			};
+
+			// モックサービスでルーターを作成
+			const router = createBookmarksRouter(mockService);
+
+			// モックリクエスト (重複URLを含む)
+			const bookmarksData = [
+				{ url: "https://example.com", title: "Example" },
+				{ url: "https://test.com", title: "Test" },
+			];
+			const request = new Request("http://localhost/bulk", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ bookmarks: bookmarksData }),
+			});
+			const context: HonoContext = {
+				req: { path: "/bulk" },
+				env: {},
+				executionCtx: {},
+			};
+
+			// ハンドラー実行
+			const response = await router.fetch(request, context);
+			const data = await response.json();
+
+			// レスポンスを確認
+			expect(response.status).toBe(200);
+			expect(data).toEqual({
+				success: true,
+				message: "Processed 2 bookmarks (duplicates skipped if unread)",
+			});
+		});
+
+		it("ブックマークが配列でない場合400を返す", async () => {
 			// モックサービス
 			const mockService: BookmarkService = {
 				getUnreadBookmarks: vi.fn(),
@@ -179,7 +234,7 @@ describe("ブックマークルーター", () => {
 			});
 		});
 
-		it("ブックマーク配列が空の場合400を返すべき", async () => {
+		it("ブックマーク配列が空の場合400を返す", async () => {
 			// モックサービス
 			const mockService: BookmarkService = {
 				getUnreadBookmarks: vi.fn(),
@@ -220,7 +275,7 @@ describe("ブックマークルーター", () => {
 			});
 		});
 
-		it("URL形式が無効な場合400を返すべき", async () => {
+		it("URL形式が無効な場合400を返す", async () => {
 			// モックサービス
 			const mockService: BookmarkService = {
 				getUnreadBookmarks: vi.fn(),
@@ -263,7 +318,7 @@ describe("ブックマークルーター", () => {
 			});
 		});
 
-		it("サービスエラーを処理するべき", async () => {
+		it("サービスエラーを処理する", async () => {
 			// エラーを返すモックサービス
 			const mockService: BookmarkService = {
 				getUnreadBookmarks: vi.fn(),
@@ -307,7 +362,7 @@ describe("ブックマークルーター", () => {
 	});
 
 	describe("PATCH /:id/read", () => {
-		it("ブックマークを既読にマークするべき", async () => {
+		it("ブックマークを既読にマークする", async () => {
 			// モックサービス
 			const mockService: BookmarkService = {
 				getUnreadBookmarks: vi.fn(),
@@ -338,10 +393,12 @@ describe("ブックマークルーター", () => {
 
 			// レスポンスを確認
 			expect(response.status).toBe(200);
-			expect(data).toEqual({ success: true });
+			expect(data).toEqual({
+				success: true,
+			});
 		});
 
-		it("無効なブックマークIDの場合400を返すべき", async () => {
+		it("無効なブックマークIDの場合400を返す", async () => {
 			// モックサービス
 			const mockService: BookmarkService = {
 				getUnreadBookmarks: vi.fn(),
@@ -378,7 +435,7 @@ describe("ブックマークルーター", () => {
 			});
 		});
 
-		it("ブックマークが見つからない場合404を返すべき", async () => {
+		it("ブックマークが見つからない場合404を返す", async () => {
 			// エラーを返すモックサービス
 			const mockService: BookmarkService = {
 				getUnreadBookmarks: vi.fn(),
@@ -414,7 +471,7 @@ describe("ブックマークルーター", () => {
 			});
 		});
 
-		it("一般的なサービスエラーを処理するべき", async () => {
+		it("一般的なサービスエラーを処理する", async () => {
 			// エラーを返すモックサービス
 			const mockService: BookmarkService = {
 				getUnreadBookmarks: vi.fn(),
