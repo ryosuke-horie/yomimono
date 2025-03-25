@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { bookmarks } from "../../../src/db/schema";
 import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
 
-describe("BookmarkRepository", () => {
+describe("ブックマークリポジトリ", () => {
 	// モックDBオブジェクトを作成する関数
 	const createMockDb = () => {
 		// クエリビルダーチェーン用のベースモック
@@ -37,8 +37,8 @@ describe("BookmarkRepository", () => {
 		vi.clearAllMocks();
 	});
 
-	describe("findUnread", () => {
-		it("should find all unread bookmarks", async () => {
+	describe("未読ブックマークの取得", () => {
+		it("未読ブックマークを全て取得できること", async () => {
 			// Setup
 			const mockBookmarks = [
 				{ id: 1, url: "https://example.com", title: "Example", isRead: false },
@@ -61,7 +61,7 @@ describe("BookmarkRepository", () => {
 			expect(result).toEqual(mockBookmarks);
 		});
 
-		it("should throw an error when db query fails", async () => {
+		it("DBクエリ失敗時にエラーをスローすること", async () => {
 			// Setup
 			const mockError = new Error("Database error");
 			mockDb.all.mockRejectedValue(mockError);
@@ -71,8 +71,8 @@ describe("BookmarkRepository", () => {
 		});
 	});
 
-	describe("markAsRead", () => {
-		it("should mark a bookmark as read", async () => {
+	describe("既読マーク処理", () => {
+		it("ブックマークを既読状態に更新できること", async () => {
 			// Setup
 			const bookmarkId = 1;
 			const mockBookmark = { id: bookmarkId, isRead: false };
@@ -93,7 +93,7 @@ describe("BookmarkRepository", () => {
 			expect(result).toBe(true);
 		});
 
-		it("should return false when bookmark does not exist", async () => {
+		it("存在しないブックマークの場合falseを返すこと", async () => {
 			// Setup
 			const bookmarkId = 999;
 			mockDb.get.mockResolvedValue(null);
@@ -105,7 +105,7 @@ describe("BookmarkRepository", () => {
 			expect(result).toBe(false);
 		});
 
-		it("should throw an error when db update fails", async () => {
+		it("DB更新失敗時にエラーをスローすること", async () => {
 			// Setup
 			const bookmarkId = 1;
 			const mockBookmark = { id: bookmarkId, isRead: false };
@@ -117,8 +117,8 @@ describe("BookmarkRepository", () => {
 		});
 	});
 
-	describe("createMany", () => {
-		it("should create multiple bookmarks", async () => {
+	describe("複数ブックマーク作成", () => {
+		it("複数のブックマークを作成できること", async () => {
 			// Setup
 			const newBookmarks = [
 				{ url: "https://example.com", title: "Example" },
@@ -141,7 +141,7 @@ describe("BookmarkRepository", () => {
 			Promise.all = originalPromiseAll;
 		});
 
-		it("should handle empty array early return", async () => {
+		it("空配列の場合早期リターンすること", async () => {
 			// Setup
 			const emptyArray: { url: string; title: string }[] = [];
 
@@ -152,7 +152,7 @@ describe("BookmarkRepository", () => {
 			expect(mockDb.insert).not.toHaveBeenCalled();
 		});
 
-		it("should throw an error when db insertion fails", async () => {
+		it("DB挿入失敗時にエラーをスローすること", async () => {
 			// Setup
 			const newBookmarks = [{ url: "https://example.com", title: "Example" }];
 
@@ -168,8 +168,8 @@ describe("BookmarkRepository", () => {
 		});
 	});
 
-	describe("countUnread", () => {
-		it("should count unread bookmarks", async () => {
+	describe("未読ブックマーク数取得", () => {
+		it("未読ブックマーク数を取得できること", async () => {
 			// Setup
 			mockDb.get.mockResolvedValue({ count: 5 });
 
@@ -183,7 +183,7 @@ describe("BookmarkRepository", () => {
 			expect(result).toBe(5);
 		});
 
-		it("should return 0 when no result is found", async () => {
+		it("結果がない場合0を返すこと", async () => {
 			// Setup
 			mockDb.get.mockResolvedValue(null);
 
@@ -194,7 +194,7 @@ describe("BookmarkRepository", () => {
 			expect(result).toBe(0);
 		});
 
-		it("should throw an error when db query fails", async () => {
+		it("DBクエリ失敗時にエラーをスローすること", async () => {
 			// Setup
 			mockDb.get.mockRejectedValue(new Error("Database error"));
 
