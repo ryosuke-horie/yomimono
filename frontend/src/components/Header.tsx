@@ -13,7 +13,7 @@ export function Header() {
 	};
 
 	return (
-		<header className="bg-white shadow-sm">
+		<header className="shadow-sm">
 			<div className="container mx-auto px-4">
 				<div className="flex justify-between items-center h-16">
 					<div className="flex-shrink-0">
