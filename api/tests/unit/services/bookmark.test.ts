@@ -8,6 +8,7 @@ describe("DefaultBookmarkService", () => {
 
 	beforeEach(() => {
 		mockRepository = {
+            findByUrls: vi.fn(),
 			findUnread: vi.fn(),
 			createMany: vi.fn(),
 			markAsRead: vi.fn(),
