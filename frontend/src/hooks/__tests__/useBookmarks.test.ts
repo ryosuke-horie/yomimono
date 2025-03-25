@@ -12,7 +12,7 @@ describe("useBookmarks", () => {
 	});
 
 	describe("getUnreadBookmarks", () => {
-		it("未読ブックマークを取得できる", async () => {
+		it("未読ブックマークと総数を取得できる", async () => {
 			const mockBookmarks = [
 				{
 					id: 1,
@@ -28,19 +28,30 @@ describe("useBookmarks", () => {
 				ok: true,
 				text: () =>
 					Promise.resolve(
-						JSON.stringify({ success: true, bookmarks: mockBookmarks }),
+						JSON.stringify({
+							success: true,
+							bookmarks: mockBookmarks,
+							totalUnread: 5,
+						}),
 					),
 				json: () =>
-					Promise.resolve({ success: true, bookmarks: mockBookmarks }),
+					Promise.resolve({
+						success: true,
+						bookmarks: mockBookmarks,
+						totalUnread: 5,
+					}),
 			});
 
 			const { result } = renderHook(() => useBookmarks());
 
-			const bookmarks = await act(async () => {
+			const data = await act(async () => {
 				return await result.current.getUnreadBookmarks();
 			});
 
-			expect(bookmarks).toEqual(mockBookmarks);
+			expect(data).toEqual({
+				bookmarks: mockBookmarks,
+				totalUnread: 5,
+			});
 		});
 
 		it("APIがエラーを返した場合、例外をスローする", async () => {

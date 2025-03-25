@@ -8,6 +8,7 @@ interface ApiError {
 interface ApiResponse<T> {
 	success: boolean;
 	bookmarks?: T[];
+	totalUnread?: number;
 	message?: string;
 	error?: ApiError;
 }

@@ -3,8 +3,13 @@ import type { ApiBookmarkResponse } from "@/types/api";
 import type { Bookmark } from "@/types/bookmark";
 import { useCallback } from "react";
 
+interface BookmarksData {
+	bookmarks: Bookmark[];
+	totalUnread: number;
+}
+
 export function useBookmarks() {
-	const getUnreadBookmarks = useCallback(async (): Promise<Bookmark[]> => {
+	const getUnreadBookmarks = useCallback(async (): Promise<BookmarksData> => {
 		const url = `${API_BASE_URL}/api/bookmarks/unread`;
 
 		try {
@@ -26,7 +31,10 @@ export function useBookmarks() {
 				if (!data.success) {
 					throw new Error(data.message);
 				}
-				return data.bookmarks || [];
+				return {
+					bookmarks: data.bookmarks || [],
+					totalUnread: data.totalUnread || 0,
+				};
 			} catch (e) {
 				if (e instanceof Error) {
 					throw e;

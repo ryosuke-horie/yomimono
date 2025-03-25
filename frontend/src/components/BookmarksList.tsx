@@ -13,6 +13,7 @@ export function BookmarksList({ initialBookmarks }: BookmarksListProps) {
 	const { getUnreadBookmarks } = useBookmarks();
 
 	const [bookmarks, setBookmarks] = useState<Bookmark[]>(initialBookmarks);
+	const [totalUnread, setTotalUnread] = useState<number>(0);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -20,8 +21,10 @@ export function BookmarksList({ initialBookmarks }: BookmarksListProps) {
 		try {
 			setIsLoading(true);
 			setError(null);
-			const data = await getUnreadBookmarks();
-			setBookmarks(data);
+			const { bookmarks: fetchedBookmarks, totalUnread: fetchedTotal } =
+				await getUnreadBookmarks();
+			setBookmarks(fetchedBookmarks);
+			setTotalUnread(fetchedTotal);
 		} catch (e) {
 			setError("ブックマークの取得に失敗しました");
 			console.error("Error fetching bookmarks:", e);
@@ -38,7 +41,12 @@ export function BookmarksList({ initialBookmarks }: BookmarksListProps) {
 		<div>
 			{/* タイトル + 更新ボタン */}
 			<div className="flex justify-between items-center mb-6">
-				<h1 className="text-2xl font-bold">未読ブックマーク</h1>
+				<div className="flex items-center">
+					<h1 className="text-2xl font-bold">未読ブックマーク</h1>
+					<span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
+						{totalUnread}
+					</span>
+				</div>
 				<button
 					type="button"
 					onClick={fetchBookmarks}

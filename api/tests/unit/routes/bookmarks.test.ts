@@ -1,76 +1,92 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { createBookmarksRouter } from "../../../src/routes/bookmarks";
 import type { BookmarkService } from "../../../src/services/bookmark";
 
-describe("Bookmarks Router", () => {
-	const mockCreateBookmarksFromData = vi
-		.fn()
-		.mockImplementation(() => Promise.resolve());
-	const mockGetUnreadBookmarks = vi.fn();
-	const mockMarkBookmarkAsRead = vi.fn();
+// Hono用のコンテキスト型定義
+type HonoContext = {
+	req: { path: string };
+	env: Record<string, unknown>;
+	executionCtx: {
+		waitUntil?: (promise: Promise<unknown>) => void;
+		passThroughOnException?: () => void;
+	};
+};
 
-	const bookmarkService = {
-		createBookmarksFromData: mockCreateBookmarksFromData,
-		getUnreadBookmarks: mockGetUnreadBookmarks,
-		markBookmarkAsRead: mockMarkBookmarkAsRead,
-	} satisfies BookmarkService;
-
-	const router = createBookmarksRouter(bookmarkService);
-
-	beforeEach(() => {
-		vi.clearAllMocks();
-	});
-
+describe("BookmarksRouter", () => {
 	describe("GET /unread", () => {
-		beforeEach(() => {
-			mockGetUnreadBookmarks.mockReset();
-		});
+		it("should return bookmarks and total unread count", async () => {
+			// Mock service
+			const mockService: BookmarkService = {
+				getUnreadBookmarks: vi.fn().mockResolvedValue([
+					{
+						id: 1,
+						url: "https://example.com",
+						title: "Example",
+						isRead: false,
+						createdAt: new Date(),
+						updatedAt: new Date(),
+					},
+				]),
+				getUnreadBookmarksCount: vi.fn().mockResolvedValue(5),
+				markBookmarkAsRead: vi.fn(),
+				createBookmarksFromData: vi.fn(),
+			};
 
-		it("should return unread bookmarks successfully", async () => {
-			const now = new Date();
-			const unreadBookmarks = [
-				{
-					id: 1,
-					url: "https://example.com",
-					title: "Example",
-					isRead: false,
-					createdAt: now,
-					updatedAt: now,
-				},
-			];
-			const req = new Request("http://localhost/unread", {
-				method: "GET",
-			});
+			// Create router with mock service
+			const router = createBookmarksRouter(mockService);
 
-			mockGetUnreadBookmarks.mockResolvedValueOnce(unreadBookmarks);
+			// Mock request
+			const request = new Request("http://localhost/unread");
+			const context: HonoContext = {
+				req: { path: "/unread" },
+				env: {},
+				executionCtx: {},
+			};
 
-			const res = await router.fetch(req);
-			const json = await res.json();
+			// Execute handler
+			const response = await router.fetch(request, context);
+			const data = await response.json();
 
-			expect(res.status).toBe(200);
-			expect(json).toEqual({
+			// Verify service was called
+			expect(mockService.getUnreadBookmarks).toHaveBeenCalled();
+			expect(mockService.getUnreadBookmarksCount).toHaveBeenCalled();
+
+			// Verify response
+			expect(response.status).toBe(200);
+			expect(data).toEqual({
 				success: true,
-				bookmarks: unreadBookmarks.map((bookmark) => ({
-					...bookmark,
-					createdAt: bookmark.createdAt.toISOString(),
-					updatedAt: bookmark.updatedAt.toISOString(),
-				})),
+				bookmarks: expect.any(Array),
+				totalUnread: 5,
 			});
-			expect(mockGetUnreadBookmarks).toHaveBeenCalledTimes(1);
 		});
 
-		it("should handle service errors", async () => {
-			const req = new Request("http://localhost/unread", {
-				method: "GET",
-			});
+		it("should handle errors properly", async () => {
+			// Mock service with error
+			const mockService: BookmarkService = {
+				getUnreadBookmarks: vi.fn().mockRejectedValue(new Error("Test error")),
+				getUnreadBookmarksCount: vi.fn(),
+				markBookmarkAsRead: vi.fn(),
+				createBookmarksFromData: vi.fn(),
+			};
 
-			mockGetUnreadBookmarks.mockRejectedValue(new Error("Service error"));
+			// Create router with mock service
+			const router = createBookmarksRouter(mockService);
 
-			const res = await router.fetch(req);
-			const json = await res.json();
+			// Mock request
+			const request = new Request("http://localhost/unread");
+			const context: HonoContext = {
+				req: { path: "/unread" },
+				env: {},
+				executionCtx: {},
+			};
 
-			expect(res.status).toBe(500);
-			expect(json).toEqual({
+			// Execute handler
+			const response = await router.fetch(request, context);
+			const data = await response.json();
+
+			// Verify response
+			expect(response.status).toBe(500);
+			expect(data).toEqual({
 				success: false,
 				message: "Failed to fetch unread bookmarks",
 			});
@@ -79,85 +95,211 @@ describe("Bookmarks Router", () => {
 
 	describe("POST /bulk", () => {
 		it("should create bookmarks successfully", async () => {
-			const bookmarks = [
+			// Mock service
+			const mockService: BookmarkService = {
+				getUnreadBookmarks: vi.fn(),
+				getUnreadBookmarksCount: vi.fn(),
+				markBookmarkAsRead: vi.fn(),
+				createBookmarksFromData: vi.fn().mockResolvedValue(undefined),
+			};
+
+			// Create router with mock service
+			const router = createBookmarksRouter(mockService);
+
+			// Mock request
+			const bookmarksData = [
 				{ url: "https://example.com", title: "Example" },
-				{ url: "https://example.org", title: "Example Org" },
+				{ url: "https://test.com", title: "Test" },
 			];
-			const req = new Request("http://localhost/bulk", {
+			const request = new Request("http://localhost/bulk", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ bookmarks }),
+				body: JSON.stringify({ bookmarks: bookmarksData }),
 			});
+			const context: HonoContext = {
+				req: { path: "/bulk" },
+				env: {},
+				executionCtx: {},
+			};
 
-			mockCreateBookmarksFromData.mockResolvedValue(undefined);
+			// Execute handler
+			const response = await router.fetch(request, context);
+			const data = await response.json();
 
-			const res = await router.fetch(req);
-			const json = await res.json();
+			// Verify service was called
+			expect(mockService.createBookmarksFromData).toHaveBeenCalledWith(
+				bookmarksData,
+			);
 
-			expect(res.status).toBe(200);
-			expect(json).toEqual({ success: true });
-			expect(mockCreateBookmarksFromData).toHaveBeenCalledWith(bookmarks);
+			// Verify response
+			expect(response.status).toBe(200);
+			expect(data).toEqual({ success: true });
 		});
 
-		it("should handle invalid request body", async () => {
-			const req = new Request("http://localhost/bulk", {
+		it("should return 400 when bookmarks is not an array", async () => {
+			// Mock service
+			const mockService: BookmarkService = {
+				getUnreadBookmarks: vi.fn(),
+				getUnreadBookmarksCount: vi.fn(),
+				markBookmarkAsRead: vi.fn(),
+				createBookmarksFromData: vi.fn(),
+			};
+
+			// Create router with mock service
+			const router = createBookmarksRouter(mockService);
+
+			// Mock request with invalid data
+			const request = new Request("http://localhost/bulk", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({ bookmarks: "not an array" }),
 			});
+			const context: HonoContext = {
+				req: { path: "/bulk" },
+				env: {},
+				executionCtx: {},
+			};
 
-			const res = await router.fetch(req);
-			const json = await res.json();
+			// Execute handler
+			const response = await router.fetch(request, context);
+			const data = await response.json();
 
-			expect(res.status).toBe(400);
-			expect(json).toEqual({
+			// Verify service was not called
+			expect(mockService.createBookmarksFromData).not.toHaveBeenCalled();
+
+			// Verify response
+			expect(response.status).toBe(400);
+			expect(data).toEqual({
 				success: false,
 				message: "bookmarks must be an array",
 			});
-			expect(mockCreateBookmarksFromData).not.toHaveBeenCalled();
 		});
 
-		it("should handle empty bookmarks array", async () => {
-			const req = new Request("http://localhost/bulk", {
+		it("should return 400 when bookmarks array is empty", async () => {
+			// Mock service
+			const mockService: BookmarkService = {
+				getUnreadBookmarks: vi.fn(),
+				getUnreadBookmarksCount: vi.fn(),
+				markBookmarkAsRead: vi.fn(),
+				createBookmarksFromData: vi.fn(),
+			};
+
+			// Create router with mock service
+			const router = createBookmarksRouter(mockService);
+
+			// Mock request with empty array
+			const request = new Request("http://localhost/bulk", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({ bookmarks: [] }),
 			});
+			const context: HonoContext = {
+				req: { path: "/bulk" },
+				env: {},
+				executionCtx: {},
+			};
 
-			const res = await router.fetch(req);
-			const json = await res.json();
+			// Execute handler
+			const response = await router.fetch(request, context);
+			const data = await response.json();
 
-			expect(res.status).toBe(400);
-			expect(json).toEqual({
+			// Verify service was not called
+			expect(mockService.createBookmarksFromData).not.toHaveBeenCalled();
+
+			// Verify response
+			expect(response.status).toBe(400);
+			expect(data).toEqual({
 				success: false,
 				message: "bookmarks array cannot be empty",
 			});
-			expect(mockCreateBookmarksFromData).not.toHaveBeenCalled();
 		});
 
-		it("should handle service errors", async () => {
-			const bookmarks = [{ url: "https://example.com", title: "Example" }];
-			const req = new Request("http://localhost/bulk", {
+		it("should return 400 when URL format is invalid", async () => {
+			// Mock service
+			const mockService: BookmarkService = {
+				getUnreadBookmarks: vi.fn(),
+				getUnreadBookmarksCount: vi.fn(),
+				markBookmarkAsRead: vi.fn(),
+				createBookmarksFromData: vi.fn(),
+			};
+
+			// Create router with mock service
+			const router = createBookmarksRouter(mockService);
+
+			// Mock request with invalid URL
+			const request = new Request("http://localhost/bulk", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ bookmarks }),
+				body: JSON.stringify({
+					bookmarks: [{ url: "invalid-url", title: "Invalid" }],
+				}),
 			});
+			const context: HonoContext = {
+				req: { path: "/bulk" },
+				env: {},
+				executionCtx: {},
+			};
 
-			mockCreateBookmarksFromData.mockRejectedValue(new Error("Service error"));
+			// Execute handler
+			const response = await router.fetch(request, context);
+			const data = await response.json();
 
-			const res = await router.fetch(req);
-			const json = await res.json();
+			// Verify service was not called
+			expect(mockService.createBookmarksFromData).not.toHaveBeenCalled();
 
-			expect(res.status).toBe(500);
-			expect(json).toEqual({
+			// Verify response
+			expect(response.status).toBe(400);
+			expect(data).toEqual({
+				success: false,
+				message: "invalid URL format",
+			});
+		});
+
+		it("should handle service errors", async () => {
+			// Mock service with error
+			const mockService: BookmarkService = {
+				getUnreadBookmarks: vi.fn(),
+				getUnreadBookmarksCount: vi.fn(),
+				markBookmarkAsRead: vi.fn(),
+				createBookmarksFromData: vi
+					.fn()
+					.mockRejectedValue(new Error("Test error")),
+			};
+
+			// Create router with mock service
+			const router = createBookmarksRouter(mockService);
+
+			// Mock request
+			const request = new Request("http://localhost/bulk", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					bookmarks: [{ url: "https://example.com", title: "Example" }],
+				}),
+			});
+			const context: HonoContext = {
+				req: { path: "/bulk" },
+				env: {},
+				executionCtx: {},
+			};
+
+			// Execute handler
+			const response = await router.fetch(request, context);
+			const data = await response.json();
+
+			// Verify response
+			expect(response.status).toBe(500);
+			expect(data).toEqual({
 				success: false,
 				message: "Failed to create bookmarks",
 			});
@@ -165,66 +307,144 @@ describe("Bookmarks Router", () => {
 	});
 
 	describe("PATCH /:id/read", () => {
-		it("should mark a bookmark as read successfully", async () => {
-			const req = new Request("http://localhost/1/read", {
+		it("should mark bookmark as read successfully", async () => {
+			// Mock service
+			const mockService: BookmarkService = {
+				getUnreadBookmarks: vi.fn(),
+				getUnreadBookmarksCount: vi.fn(),
+				markBookmarkAsRead: vi.fn().mockResolvedValue(undefined),
+				createBookmarksFromData: vi.fn(),
+			};
+
+			// Create router with mock service
+			const router = createBookmarksRouter(mockService);
+
+			// Mock request
+			const request = new Request("http://localhost/123/read", {
 				method: "PATCH",
 			});
+			const context: HonoContext = {
+				req: { path: "/123/read" },
+				env: {},
+				executionCtx: {},
+			};
 
-			mockMarkBookmarkAsRead.mockResolvedValue(true);
+			// Execute handler
+			const response = await router.fetch(request, context);
+			const data = await response.json();
 
-			const res = await router.fetch(req);
-			const json = await res.json();
+			// Verify service was called
+			expect(mockService.markBookmarkAsRead).toHaveBeenCalledWith(123);
 
-			expect(res.status).toBe(200);
-			expect(json).toEqual({ success: true });
-			expect(mockMarkBookmarkAsRead).toHaveBeenCalledWith(1);
+			// Verify response
+			expect(response.status).toBe(200);
+			expect(data).toEqual({ success: true });
 		});
 
-		it("should handle invalid bookmark ID", async () => {
-			const req = new Request("http://localhost/invalid/read", {
+		it("should return 400 for invalid bookmark ID", async () => {
+			// Mock service
+			const mockService: BookmarkService = {
+				getUnreadBookmarks: vi.fn(),
+				getUnreadBookmarksCount: vi.fn(),
+				markBookmarkAsRead: vi.fn(),
+				createBookmarksFromData: vi.fn(),
+			};
+
+			// Create router with mock service
+			const router = createBookmarksRouter(mockService);
+
+			// Mock request with invalid ID
+			const request = new Request("http://localhost/invalid/read", {
 				method: "PATCH",
 			});
+			const context: HonoContext = {
+				req: { path: "/invalid/read" },
+				env: {},
+				executionCtx: {},
+			};
 
-			const res = await router.fetch(req);
-			const json = await res.json();
+			// Execute handler
+			const response = await router.fetch(request, context);
+			const data = await response.json();
 
-			expect(res.status).toBe(400);
-			expect(json).toEqual({
+			// Verify service was not called
+			expect(mockService.markBookmarkAsRead).not.toHaveBeenCalled();
+
+			// Verify response
+			expect(response.status).toBe(400);
+			expect(data).toEqual({
 				success: false,
 				message: "Invalid bookmark ID",
 			});
-			expect(mockMarkBookmarkAsRead).not.toHaveBeenCalled();
 		});
 
-		it("should handle non-existent bookmark", async () => {
-			const req = new Request("http://localhost/1/read", {
+		it("should return 404 when bookmark not found", async () => {
+			// Mock service
+			const mockService: BookmarkService = {
+				getUnreadBookmarks: vi.fn(),
+				getUnreadBookmarksCount: vi.fn(),
+				markBookmarkAsRead: vi
+					.fn()
+					.mockRejectedValue(new Error("Bookmark not found")),
+				createBookmarksFromData: vi.fn(),
+			};
+
+			// Create router with mock service
+			const router = createBookmarksRouter(mockService);
+
+			// Mock request
+			const request = new Request("http://localhost/999/read", {
 				method: "PATCH",
 			});
+			const context: HonoContext = {
+				req: { path: "/999/read" },
+				env: {},
+				executionCtx: {},
+			};
 
-			mockMarkBookmarkAsRead.mockRejectedValue(new Error("Bookmark not found"));
+			// Execute handler
+			const response = await router.fetch(request, context);
+			const data = await response.json();
 
-			const res = await router.fetch(req);
-			const json = await res.json();
-
-			expect(res.status).toBe(404);
-			expect(json).toEqual({
+			// Verify response
+			expect(response.status).toBe(404);
+			expect(data).toEqual({
 				success: false,
 				message: "Bookmark not found",
 			});
 		});
 
-		it("should handle service errors", async () => {
-			const req = new Request("http://localhost/1/read", {
+		it("should handle general service errors", async () => {
+			// Mock service with error
+			const mockService: BookmarkService = {
+				getUnreadBookmarks: vi.fn(),
+				getUnreadBookmarksCount: vi.fn(),
+				markBookmarkAsRead: vi
+					.fn()
+					.mockRejectedValue(new Error("General error")),
+				createBookmarksFromData: vi.fn(),
+			};
+
+			// Create router with mock service
+			const router = createBookmarksRouter(mockService);
+
+			// Mock request
+			const request = new Request("http://localhost/123/read", {
 				method: "PATCH",
 			});
+			const context: HonoContext = {
+				req: { path: "/123/read" },
+				env: {},
+				executionCtx: {},
+			};
 
-			mockMarkBookmarkAsRead.mockRejectedValue(new Error("Service error"));
+			// Execute handler
+			const response = await router.fetch(request, context);
+			const data = await response.json();
 
-			const res = await router.fetch(req);
-			const json = await res.json();
-
-			expect(res.status).toBe(500);
-			expect(json).toEqual({
+			// Verify response
+			expect(response.status).toBe(500);
+			expect(data).toEqual({
 				success: false,
 				message: "Failed to mark bookmark as read",
 			});

@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { bookmarks } from "../db/schema";
 import type { Bookmark, InsertBookmark } from "../db/schema";
@@ -7,10 +7,26 @@ export interface BookmarkRepository {
 	createMany(bookmarks: InsertBookmark[]): Promise<void>;
 	findUnread(): Promise<Bookmark[]>;
 	markAsRead(id: number): Promise<boolean>;
+	countUnread(): Promise<number>;
 }
 
 export class DrizzleBookmarkRepository implements BookmarkRepository {
 	constructor(private readonly db: DrizzleD1Database) {}
+
+	async countUnread(): Promise<number> {
+		try {
+			const result = await this.db
+				.select({ count: count() })
+				.from(bookmarks)
+				.where(eq(bookmarks.isRead, false))
+				.get();
+
+			return result?.count || 0;
+		} catch (error) {
+			console.error("Failed to count unread bookmarks:", error);
+			throw error;
+		}
+	}
 
 	async findUnread(): Promise<Bookmark[]> {
 		try {

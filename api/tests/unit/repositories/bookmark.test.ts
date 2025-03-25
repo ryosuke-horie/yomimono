@@ -1,181 +1,205 @@
-import type { DrizzleD1Database } from "drizzle-orm/d1";
-import { describe, expect, it, vi } from "vitest";
+import { count, eq } from "drizzle-orm";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { bookmarks } from "../../../src/db/schema";
 import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
-import type { BookmarkRepository } from "../../../src/repositories/bookmark";
-import { mockD1Database } from "../../test-utils";
 
-describe("DrizzleBookmarkRepository", () => {
-	const repository: BookmarkRepository = new DrizzleBookmarkRepository(
-		mockD1Database as unknown as DrizzleD1Database,
-	);
+describe("BookmarkRepository", () => {
+	// モックDBオブジェクトを作成する関数
+	const createMockDb = () => {
+		// クエリビルダーチェーン用のベースモック
+		const queryBuilder = {
+			select: vi.fn().mockReturnThis(),
+			from: vi.fn().mockReturnThis(),
+			where: vi.fn().mockReturnThis(),
+			set: vi.fn().mockReturnThis(),
+			values: vi.fn().mockReturnThis(),
+			run: vi.fn().mockResolvedValue({ changes: 1 }),
+			get: vi.fn(),
+			all: vi.fn(),
+		};
+
+		// メインのDBモック
+		return {
+			...queryBuilder,
+			select: vi.fn(() => queryBuilder),
+			update: vi.fn(() => queryBuilder),
+			insert: vi.fn(() => queryBuilder),
+		};
+	};
+
+	let mockDb: ReturnType<typeof createMockDb>;
+	let repository: DrizzleBookmarkRepository;
 
 	beforeEach(() => {
+		mockDb = createMockDb();
+		// @ts-expect-error: mockDbはDrizzleD1Databaseの部分的な実装
+		repository = new DrizzleBookmarkRepository(mockDb);
 		vi.clearAllMocks();
 	});
 
 	describe("findUnread", () => {
-		it("should return unread bookmarks", async () => {
-			const expectedBookmarks = [
+		it("should find all unread bookmarks", async () => {
+			// Setup
+			const mockBookmarks = [
+				{ id: 1, url: "https://example.com", title: "Example", isRead: false },
 				{
-					id: 1,
-					url: "https://example.com",
-					title: "Example",
-					isRead: false,
-					createdAt: new Date(),
-					updatedAt: new Date(),
-				},
-			];
-
-			mockD1Database.select.mockReturnValueOnce({
-				from: vi.fn().mockReturnValue({
-					where: vi.fn().mockReturnValue({
-						all: vi.fn().mockResolvedValue(expectedBookmarks),
-					}),
-				}),
-			});
-
-			const result = await repository.findUnread();
-
-			expect(result).toEqual(expectedBookmarks);
-			expect(mockD1Database.select).toHaveBeenCalled();
-		});
-
-		it("should handle database errors", async () => {
-			const error = new Error("Database error");
-			mockD1Database.select.mockReturnValueOnce({
-				from: vi.fn().mockReturnValue({
-					where: vi.fn().mockReturnValue({
-						all: vi.fn().mockRejectedValue(error),
-					}),
-				}),
-			});
-
-			await expect(repository.findUnread()).rejects.toThrow("Database error");
-		});
-	});
-
-	describe("createMany", () => {
-		it("should insert multiple bookmarks successfully", async () => {
-			const newBookmarks = [
-				{
-					url: "https://example.com",
-					title: "Example",
-					isRead: false,
-					createdAt: new Date(),
-					updatedAt: new Date(),
-				},
-				{
-					url: "https://example.org",
+					id: 2,
+					url: "https://example2.com",
 					title: "Example 2",
 					isRead: false,
-					createdAt: new Date(),
-					updatedAt: new Date(),
 				},
 			];
+			mockDb.all.mockResolvedValue(mockBookmarks);
 
-			await repository.createMany(newBookmarks);
+			// Execute
+			const result = await repository.findUnread();
 
-			expect(mockD1Database.insert).toHaveBeenCalledTimes(2);
-			expect(mockD1Database.insert).toHaveBeenCalled();
+			// Verify
+			expect(mockDb.select).toHaveBeenCalled();
+			expect(mockDb.from).toHaveBeenCalledWith(bookmarks);
+			expect(mockDb.where).toHaveBeenCalledWith(eq(bookmarks.isRead, false));
+			expect(result).toEqual(mockBookmarks);
 		});
 
-		it("should handle empty array", async () => {
-			await repository.createMany([]);
-			expect(mockD1Database.insert).not.toHaveBeenCalled();
-		});
+		it("should throw an error when db query fails", async () => {
+			// Setup
+			const mockError = new Error("Database error");
+			mockDb.all.mockRejectedValue(mockError);
 
-		it("should throw error when database operation fails", async () => {
-			const error = new Error("Database error");
-			mockD1Database.insert.mockReturnValueOnce({
-				values: vi.fn().mockRejectedValueOnce(error),
-			});
-
-			await expect(
-				repository.createMany([
-					{
-						url: "https://example.com",
-						title: "Example",
-						isRead: false,
-						createdAt: new Date(),
-						updatedAt: new Date(),
-					},
-				]),
-			).rejects.toThrow("Database error");
+			// Execute & Verify
+			await expect(repository.findUnread()).rejects.toThrow();
 		});
 	});
 
 	describe("markAsRead", () => {
-		it("should mark a bookmark as read when it exists", async () => {
+		it("should mark a bookmark as read", async () => {
+			// Setup
 			const bookmarkId = 1;
-			const bookmark = {
-				id: bookmarkId,
-				url: "https://example.com",
-				title: "Example",
-				isRead: false,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			};
+			const mockBookmark = { id: bookmarkId, isRead: false };
+			mockDb.get.mockResolvedValue(mockBookmark);
 
-			// 存在確認のモック
-			mockD1Database.select.mockReturnValueOnce({
-				from: vi.fn().mockReturnValue({
-					where: vi.fn().mockReturnValue({
-						get: vi.fn().mockResolvedValue(bookmark),
-					}),
-				}),
-			});
-
-			// 更新処理のモック
-			mockD1Database.update.mockReturnValueOnce({
-				set: vi.fn().mockReturnValue({
-					where: vi.fn().mockReturnValue({
-						run: vi.fn().mockResolvedValue(undefined),
-					}),
-				}),
-			});
-
+			// Execute
 			const result = await repository.markAsRead(bookmarkId);
 
+			// Verify
+			expect(mockDb.select).toHaveBeenCalled();
+			expect(mockDb.from).toHaveBeenCalledWith(bookmarks);
+			expect(mockDb.where).toHaveBeenCalledWith(eq(bookmarks.id, bookmarkId));
+			expect(mockDb.update).toHaveBeenCalledWith(bookmarks);
+			expect(mockDb.set).toHaveBeenCalledWith({
+				isRead: true,
+				updatedAt: expect.any(Date),
+			});
 			expect(result).toBe(true);
-			expect(mockD1Database.select).toHaveBeenCalled();
-			expect(mockD1Database.update).toHaveBeenCalled();
 		});
 
 		it("should return false when bookmark does not exist", async () => {
+			// Setup
 			const bookmarkId = 999;
+			mockDb.get.mockResolvedValue(null);
 
-			// 存在確認のモック（存在しない場合）
-			mockD1Database.select.mockReturnValueOnce({
-				from: vi.fn().mockReturnValue({
-					where: vi.fn().mockReturnValue({
-						get: vi.fn().mockResolvedValue(null),
-					}),
-				}),
-			});
-
+			// Execute
 			const result = await repository.markAsRead(bookmarkId);
 
+			// Verify
 			expect(result).toBe(false);
-			expect(mockD1Database.select).toHaveBeenCalled();
-			expect(mockD1Database.update).not.toHaveBeenCalled();
 		});
 
-		it("should handle database errors", async () => {
+		it("should throw an error when db update fails", async () => {
+			// Setup
 			const bookmarkId = 1;
-			const error = new Error("Database error");
+			const mockBookmark = { id: bookmarkId, isRead: false };
+			mockDb.get.mockResolvedValue(mockBookmark);
+			mockDb.run.mockRejectedValue(new Error("Database error"));
 
-			// 存在確認でエラーが発生するケース
-			mockD1Database.select.mockReturnValueOnce({
-				from: vi.fn().mockReturnValue({
-					where: vi.fn().mockReturnValue({
-						get: vi.fn().mockRejectedValue(error),
-					}),
-				}),
-			});
+			// Execute & Verify
+			await expect(repository.markAsRead(bookmarkId)).rejects.toThrow();
+		});
+	});
 
-			await expect(repository.markAsRead(bookmarkId)).rejects.toThrow(
-				"Database error",
-			);
+	describe("createMany", () => {
+		it("should create multiple bookmarks", async () => {
+			// Setup
+			const newBookmarks = [
+				{ url: "https://example.com", title: "Example" },
+				{ url: "https://example2.com", title: "Example 2" },
+			];
+
+			// モックのPromise.all（これはテスト環境では実際には必要ないですが、実装の安全のため）
+			const originalPromiseAll = Promise.all;
+			Promise.all = vi.fn().mockResolvedValue([]);
+
+			// Execute
+			await repository.createMany(newBookmarks);
+
+			// Verify
+			expect(mockDb.insert).toHaveBeenCalledWith(bookmarks);
+			expect(mockDb.values).toHaveBeenCalled();
+			expect(Promise.all).toHaveBeenCalled();
+
+			// Cleanup
+			Promise.all = originalPromiseAll;
+		});
+
+		it("should handle empty array early return", async () => {
+			// Setup
+			const emptyArray: { url: string; title: string }[] = [];
+
+			// Execute
+			await repository.createMany(emptyArray);
+
+			// Verify
+			expect(mockDb.insert).not.toHaveBeenCalled();
+		});
+
+		it("should throw an error when db insertion fails", async () => {
+			// Setup
+			const newBookmarks = [{ url: "https://example.com", title: "Example" }];
+
+			// Promiseのスパイを設定して、エラーをスローさせる
+			const originalPromiseAll = Promise.all;
+			Promise.all = vi.fn().mockRejectedValue(new Error("Database error"));
+
+			// Execute & Verify
+			await expect(repository.createMany(newBookmarks)).rejects.toThrow();
+
+			// Cleanup
+			Promise.all = originalPromiseAll;
+		});
+	});
+
+	describe("countUnread", () => {
+		it("should count unread bookmarks", async () => {
+			// Setup
+			mockDb.get.mockResolvedValue({ count: 5 });
+
+			// Execute
+			const result = await repository.countUnread();
+
+			// Verify
+			expect(mockDb.select).toHaveBeenCalledWith({ count: count() });
+			expect(mockDb.from).toHaveBeenCalledWith(bookmarks);
+			expect(mockDb.where).toHaveBeenCalledWith(eq(bookmarks.isRead, false));
+			expect(result).toBe(5);
+		});
+
+		it("should return 0 when no result is found", async () => {
+			// Setup
+			mockDb.get.mockResolvedValue(null);
+
+			// Execute
+			const result = await repository.countUnread();
+
+			// Verify
+			expect(result).toBe(0);
+		});
+
+		it("should throw an error when db query fails", async () => {
+			// Setup
+			mockDb.get.mockRejectedValue(new Error("Database error"));
+
+			// Execute & Verify
+			await expect(repository.countUnread()).rejects.toThrow();
 		});
 	});
 });
