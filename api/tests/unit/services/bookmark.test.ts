@@ -18,7 +18,7 @@ describe("DefaultBookmarkService", () => {
 	});
 
 	describe("getUnreadBookmarksCount：未読ブックマーク数の取得", () => {
-		it("リポジトリから未読ブックマークの数を返すべき", async () => {
+		it("リポジトリから未読ブックマークの数を返す", async () => {
 			mockRepository.countUnread = vi.fn().mockResolvedValue(5);
 
 			const result = await service.getUnreadBookmarksCount();
@@ -27,7 +27,7 @@ describe("DefaultBookmarkService", () => {
 			expect(result).toBe(5);
 		});
 
-		it("0件の場合も適切に処理するべき", async () => {
+		it("0件の場合も適切に処理する", async () => {
 			mockRepository.countUnread = vi.fn().mockResolvedValue(0);
 
 			const result = await service.getUnreadBookmarksCount();
@@ -36,7 +36,7 @@ describe("DefaultBookmarkService", () => {
 			expect(result).toBe(0);
 		});
 
-		it("リポジトリからのエラーを伝播するべき", async () => {
+		it("リポジトリからのエラーを伝播する", async () => {
 			const error = new Error("Repository error");
 			mockRepository.countUnread = vi.fn().mockRejectedValue(error);
 
@@ -45,7 +45,7 @@ describe("DefaultBookmarkService", () => {
 	});
 
 	describe("getUnreadBookmarks：未読ブックマークの取得", () => {
-		it("リポジトリから未読ブックマークを返すべき", async () => {
+		it("リポジトリから未読ブックマークを返す", async () => {
 			const mockBookmarks = [
 				{ id: 1, title: "Test Bookmark" },
 				{ id: 2, title: "Another Bookmark" },
@@ -58,7 +58,7 @@ describe("DefaultBookmarkService", () => {
 			expect(result).toEqual(mockBookmarks);
 		});
 
-		it("空の配列の場合も適切に処理するべき", async () => {
+		it("空の配列の場合も適切に処理する", async () => {
 			mockRepository.findUnread = vi.fn().mockResolvedValue([]);
 
 			const result = await service.getUnreadBookmarks();
@@ -67,7 +67,7 @@ describe("DefaultBookmarkService", () => {
 			expect(result).toEqual([]);
 		});
 
-		it("リポジトリからのエラーを伝播するべき", async () => {
+		it("リポジトリからのエラーを伝播する", async () => {
 			const error = new Error("Repository error");
 			mockRepository.findUnread = vi.fn().mockRejectedValue(error);
 
@@ -76,7 +76,7 @@ describe("DefaultBookmarkService", () => {
 	});
 
 	describe("createBookmarksFromData：ブックマークの作成", () => {
-		it("リポジトリを使用してブックマークを作成するべき", async () => {
+		it("リポジトリを使用してブックマークを作成する", async () => {
 			const bookmarksToCreate = [
 				{ url: "https://example.com", title: "Example" },
 				{ url: "https://test.com", title: "Test" },
@@ -88,13 +88,13 @@ describe("DefaultBookmarkService", () => {
 			expect(mockRepository.createMany).toHaveBeenCalled();
 		});
 
-		it("空の配列の場合も適切に処理するべき", async () => {
+		it("空の配列の場合も適切に処理する", async () => {
 			await service.createBookmarksFromData([]);
 
 			expect(mockRepository.createMany).toHaveBeenCalled();
 		});
 
-		it("リポジトリからのエラーを伝播するべき", async () => {
+		it("リポジトリからのエラーを伝播する", async () => {
 			const error = new Error("Repository error");
 			mockRepository.createMany = vi.fn().mockRejectedValue(error);
 			const bookmarksToCreate = [
@@ -108,7 +108,7 @@ describe("DefaultBookmarkService", () => {
 	});
 
 	describe("markBookmarkAsRead：ブックマークを既読としてマーク", () => {
-		it("リポジトリを使用してブックマークを既読としてマークするべき", async () => {
+		it("リポジトリを使用してブックマークを既読としてマークする", async () => {
 			const bookmarkId = 123;
 			// markAsReadは成功時にtrueを返すように修正
 			mockRepository.markAsRead = vi.fn().mockResolvedValue(true);
@@ -118,7 +118,7 @@ describe("DefaultBookmarkService", () => {
 			expect(mockRepository.markAsRead).toHaveBeenCalledWith(bookmarkId);
 		});
 
-		it("リポジトリからのエラーを伝播するべき", async () => {
+		it("リポジトリからのエラーを伝播する", async () => {
 			const error = new Error("Repository error");
 			mockRepository.markAsRead = vi.fn().mockRejectedValue(error);
 			const bookmarkId = 123;
@@ -128,7 +128,7 @@ describe("DefaultBookmarkService", () => {
 			);
 		});
 
-		it("ブックマークが見つからない場合はエラーを投げるべき", async () => {
+		it("ブックマークが見つからない場合はエラーを投げる", async () => {
 			const bookmarkId = 999;
 			// markAsReadはブックマークが見つからない場合falseを返す
 			mockRepository.markAsRead = vi.fn().mockResolvedValue(false);
