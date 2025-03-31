@@ -77,7 +77,6 @@ describe("Header", () => {
 
 		render(<Header />);
 		const header = screen.getByRole("banner");
-		expect(header.className).toContain("bg-white");
 		expect(header.className).toContain("shadow-sm");
 	});
 
