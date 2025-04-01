@@ -1,38 +1,39 @@
 {
-	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "effective-yomimono-api",
-	"main": "src/index.ts",
-	"compatibility_date": "2025-02-28",
-	// "compatibility_flags": [
-	//   "nodejs_compat"
-	// ],
-	// "vars": {
-	//   "MY_VAR": "my-variable"
-	// },
-	// "kv_namespaces": [
-	//   {
-	//     "binding": "MY_KV_NAMESPACE",
-	//     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	//   }
-	// ],
-	// "r2_buckets": [
-	//   {
-	//     "binding": "MY_BUCKET",
-	//     "bucket_name": "my-bucket"
-	//   }
-	// ],
-	"d1_databases": [
-		{
-			"binding": "DB",
-			"database_name": "yomimono-db",
-			"database_id": "729de7ac-2aab-47a5-a92f-6e30dd610c9c"
-		}
-	],
-	// "ai": {
-	//   "binding": "AI"
-	// },
-	"observability": {
-		"enabled": true,
-		"head_sampling_rate": 1
-	}
+    "$schema": "node_modules/wrangler/config-schema.json",
+    "name": "effective-yomimono-api",
+    "main": "src/index.ts",
+    "compatibility_date": "2025-02-28",
+    // "compatibility_flags": [
+    //   "nodejs_compat"
+    // ],
+    // "vars": {
+    //   "MY_VAR": "my-variable"
+    // },
+    // "kv_namespaces": [
+    //   {
+    //     "binding": "MY_KV_NAMESPACE",
+    //     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    //   }
+    // ],
+    // "r2_buckets": [
+    //   {
+    //     "binding": "MY_BUCKET",
+    //     "bucket_name": "my-bucket"
+    //   }
+    // ],
+    "d1_databases": [
+        {
+            "binding": "DB",
+            "database_name": "yomimono-db",
+            "database_id": "729de7ac-2aab-47a5-a92f-6e30dd610c9c",
+            "migrations_dir": "drizzle"
+        }
+    ],
+    // "ai": {
+    //   "binding": "AI"
+    // },
+    "observability": {
+        "enabled": true,
+        "head_sampling_rate": 1
+    }
 }
