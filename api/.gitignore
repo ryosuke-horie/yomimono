@@ -33,3 +33,6 @@ lerna-debug.log*
 .DS_Store
 
 coverage/
+
+# 本番から取得するデータSQL
+data.sql
