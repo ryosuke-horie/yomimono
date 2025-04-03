@@ -22,7 +22,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
-		"@cloudflare/workers-types": "^4.20250402.0",
+		"@cloudflare/workers-types": "^4.20250403.0",
 		"@opennextjs/cloudflare": "0.6.6",
 		"@tailwindcss/postcss": "^4.1.1",
 		"@testing-library/dom": "^10.4.0",
@@ -40,6 +40,6 @@
 		"typescript": "^5.8.2",
 		"vite": "^6.2.4",
 		"vitest": "^3.0.7",
-		"wrangler": "^4.3.0"
+		"wrangler": "^4.7.0"
 	}
 }
