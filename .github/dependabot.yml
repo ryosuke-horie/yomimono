@@ -4,7 +4,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     commit-message:
       prefix: "chore(frontend)"
       prefix-development: "chore(frontend)"
@@ -42,7 +42,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/api"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     commit-message:
       prefix: "chore(api)"
       prefix-development: "chore(api)"
@@ -70,7 +70,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/extension"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     commit-message:
       prefix: "chore(extension)"
       prefix-development: "chore(extension)"
@@ -88,7 +88,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     commit-message:
       prefix: "chore"
       prefix-development: "chore"
