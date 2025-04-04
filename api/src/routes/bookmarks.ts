@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { z } from "zod";
 import type { BookmarkService } from "../services/bookmark";
 
 export const createBookmarksRouter = (bookmarkService: BookmarkService) => {
@@ -65,6 +66,97 @@ export const createBookmarksRouter = (bookmarkService: BookmarkService) => {
 			console.error("Failed to create bookmarks:", error);
 			return c.json(
 				{ success: false, message: "Failed to create bookmarks" },
+				500,
+			);
+		}
+	});
+
+	// クエリパラメータのバリデーションスキーマ
+	const paginationSchema = z.object({
+		page: z.coerce.number().min(1).default(1),
+		limit: z.coerce.number().min(1).max(100).default(20),
+	});
+
+	// お気に入り機能のルーティングを追加
+	app.post("/:id/favorite", async (c) => {
+		try {
+			const id = Number.parseInt(c.req.param("id"));
+			if (Number.isNaN(id)) {
+				return c.json({ success: false, message: "Invalid bookmark ID" }, 400);
+			}
+
+			await bookmarkService.addToFavorites(id);
+			return c.json({ success: true });
+		} catch (error) {
+			if (error instanceof Error) {
+				if (error.message === "Bookmark not found") {
+					return c.json({ success: false, message: "Bookmark not found" }, 404);
+				}
+				if (error.message === "Already favorited") {
+					return c.json(
+						{ success: false, message: "Already added to favorites" },
+						409,
+					);
+				}
+			}
+			console.error("Failed to add to favorites:", error);
+			return c.json(
+				{ success: false, message: "Failed to add to favorites" },
+				500,
+			);
+		}
+	});
+
+	app.delete("/:id/favorite", async (c) => {
+		try {
+			const id = Number.parseInt(c.req.param("id"));
+			if (Number.isNaN(id)) {
+				return c.json({ success: false, message: "Invalid bookmark ID" }, 400);
+			}
+
+			await bookmarkService.removeFromFavorites(id);
+			return c.json({ success: true });
+		} catch (error) {
+			if (error instanceof Error) {
+				if (error.message === "Favorite not found") {
+					return c.json({ success: false, message: "Favorite not found" }, 404);
+				}
+			}
+			console.error("Failed to remove from favorites:", error);
+			return c.json(
+				{ success: false, message: "Failed to remove from favorites" },
+				500,
+			);
+		}
+	});
+
+	app.get("/favorites", async (c) => {
+		try {
+			const query = paginationSchema.parse({
+				page: c.req.query("page"),
+				limit: c.req.query("limit"),
+			});
+
+			const result = await bookmarkService.getFavoriteBookmarks(
+				query.page,
+				query.limit,
+			);
+
+			return c.json({ success: true, ...result });
+		} catch (error) {
+			if (error instanceof z.ZodError) {
+				return c.json(
+					{
+						success: false,
+						message: "Invalid pagination parameters",
+						errors: error.errors,
+					},
+					400,
+				);
+			}
+			console.error("Failed to fetch favorites:", error);
+			return c.json(
+				{ success: false, message: "Failed to fetch favorites" },
 				500,
 			);
 		}
