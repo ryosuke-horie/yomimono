@@ -13,6 +13,20 @@ export const bookmarks = sqliteTable("bookmarks", {
 		.default(new Date()),
 });
 
-// TypeScript type for the bookmarks table
+// favorites table
+export const favorites = sqliteTable("favorites", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  bookmarkId: integer("bookmark_id")
+    .notNull()
+    .unique()
+    .references(() => bookmarks.id, { onDelete: "cascade" }),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(new Date()),
+});
+
+// TypeScript types for database tables
 export type Bookmark = typeof bookmarks.$inferSelect;
 export type InsertBookmark = typeof bookmarks.$inferInsert;
+export type Favorite = typeof favorites.$inferSelect;
+export type InsertFavorite = typeof favorites.$inferInsert;
