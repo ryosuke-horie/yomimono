@@ -60,7 +60,7 @@ updates:
           - "vitest"
 
   # Extensionディレクトリの依存関係を管理
-  - package-ecosystem: "npm"
+  - package-ecosystem: "bun"
     directory: "/extension"
     schedule:
       interval: "weekly"
