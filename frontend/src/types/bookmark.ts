@@ -3,6 +3,7 @@ export interface Bookmark {
 	url: string;
 	title: string | null;
 	isRead: boolean;
+	isFavorite: boolean;
 	createdAt: string;
 	updatedAt: string;
 }

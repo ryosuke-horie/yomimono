@@ -13,9 +13,125 @@ describe("DefaultBookmarkService", () => {
 			createMany: vi.fn(),
 			markAsRead: vi.fn(),
 			countUnread: vi.fn(),
+			addToFavorites: vi.fn(),
+			removeFromFavorites: vi.fn(),
+			getFavoriteBookmarks: vi.fn(),
+			isFavorite: vi.fn(),
 		};
 
 		service = new DefaultBookmarkService(mockRepository);
+	});
+
+	describe("お気に入り機能", () => {
+		describe("addToFavorites", () => {
+			it("リポジトリを使用してお気に入りに追加できること", async () => {
+				const bookmarkId = 1;
+				mockRepository.addToFavorites = vi.fn().mockResolvedValue(undefined);
+
+				await service.addToFavorites(bookmarkId);
+
+				expect(mockRepository.addToFavorites).toHaveBeenCalledWith(bookmarkId);
+			});
+
+			it("エラーを適切に伝播すること", async () => {
+				const bookmarkId = 1;
+				const error = new Error("Already favorited");
+				mockRepository.addToFavorites = vi.fn().mockRejectedValue(error);
+
+				await expect(service.addToFavorites(bookmarkId)).rejects.toThrow(error);
+			});
+
+			it("エラーが Error インスタンスでない場合、デフォルトエラーメッセージを返すこと", async () => {
+				const bookmarkId = 1;
+				const error = "文字列エラー";
+				mockRepository.addToFavorites = vi.fn().mockRejectedValue(error);
+
+				await expect(service.addToFavorites(bookmarkId)).rejects.toThrow(
+					"Failed to add to favorites",
+				);
+			});
+		});
+
+		describe("removeFromFavorites", () => {
+			it("リポジトリを使用してお気に入りから削除できること", async () => {
+				const bookmarkId = 1;
+				mockRepository.removeFromFavorites = vi
+					.fn()
+					.mockResolvedValue(undefined);
+
+				await service.removeFromFavorites(bookmarkId);
+
+				expect(mockRepository.removeFromFavorites).toHaveBeenCalledWith(
+					bookmarkId,
+				);
+			});
+
+			it("エラーを適切に伝播すること", async () => {
+				const bookmarkId = 1;
+				const error = new Error("Favorite not found");
+				mockRepository.removeFromFavorites = vi.fn().mockRejectedValue(error);
+
+				await expect(service.removeFromFavorites(bookmarkId)).rejects.toThrow(
+					error,
+				);
+			});
+
+			it("エラーが Error インスタンスでない場合、デフォルトエラーメッセージを返すこと", async () => {
+				const bookmarkId = 1;
+				const error = "文字列エラー";
+				mockRepository.removeFromFavorites = vi.fn().mockRejectedValue(error);
+
+				await expect(service.removeFromFavorites(bookmarkId)).rejects.toThrow(
+					"Failed to remove from favorites",
+				);
+			});
+		});
+
+		describe("getFavoriteBookmarks", () => {
+			it("リポジトリからお気に入りブックマークを取得できること", async () => {
+				const mockBookmarks = [
+					{
+						id: 1,
+						url: "https://example.com",
+						title: "Example",
+						isRead: false,
+						isFavorite: true,
+						createdAt: new Date(),
+						updatedAt: new Date(),
+					},
+				];
+
+				const mockRepositoryResponse = {
+					bookmarks: mockBookmarks,
+					total: 1,
+				};
+
+				mockRepository.getFavoriteBookmarks = vi
+					.fn()
+					.mockResolvedValue(mockRepositoryResponse);
+
+				const result = await service.getFavoriteBookmarks(1, 10);
+
+				expect(mockRepository.getFavoriteBookmarks).toHaveBeenCalledWith(0, 10);
+				expect(result).toEqual({
+					bookmarks: mockBookmarks,
+					pagination: {
+						currentPage: 1,
+						totalPages: 1,
+						totalItems: 1,
+					},
+				});
+			});
+
+			it("エラーを適切に伝播すること", async () => {
+				const error = new Error("Database error");
+				mockRepository.getFavoriteBookmarks = vi.fn().mockRejectedValue(error);
+
+				await expect(service.getFavoriteBookmarks()).rejects.toThrow(
+					"Failed to get favorite bookmarks",
+				);
+			});
+		});
 	});
 
 	describe("getUnreadBookmarksCount：未読ブックマーク数の取得", () => {

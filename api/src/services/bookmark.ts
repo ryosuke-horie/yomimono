@@ -1,13 +1,29 @@
-import type { Bookmark, InsertBookmark } from "../db/schema";
-import type { BookmarkRepository } from "../repositories/bookmark";
+import type { InsertBookmark } from "../db/schema";
+import type {
+	BookmarkRepository,
+	BookmarkWithFavorite,
+} from "../repositories/bookmark";
 
 export interface BookmarkService {
 	createBookmarksFromData(
 		bookmarks: Array<{ url: string; title: string }>,
 	): Promise<void>;
-	getUnreadBookmarks(): Promise<Bookmark[]>;
+	getUnreadBookmarks(): Promise<BookmarkWithFavorite[]>;
 	markBookmarkAsRead(id: number): Promise<void>;
 	getUnreadBookmarksCount(): Promise<number>;
+	addToFavorites(bookmarkId: number): Promise<void>;
+	removeFromFavorites(bookmarkId: number): Promise<void>;
+	getFavoriteBookmarks(
+		page?: number,
+		limit?: number,
+	): Promise<{
+		bookmarks: BookmarkWithFavorite[];
+		pagination: {
+			currentPage: number;
+			totalPages: number;
+			totalItems: number;
+		};
+	}>;
 }
 
 export class DefaultBookmarkService implements BookmarkService {
@@ -17,8 +33,64 @@ export class DefaultBookmarkService implements BookmarkService {
 		return await this.repository.countUnread();
 	}
 
-	async getUnreadBookmarks(): Promise<Bookmark[]> {
+	async getUnreadBookmarks(): Promise<BookmarkWithFavorite[]> {
 		return await this.repository.findUnread();
+	}
+
+	async addToFavorites(bookmarkId: number): Promise<void> {
+		try {
+			await this.repository.addToFavorites(bookmarkId);
+		} catch (error) {
+			if (error instanceof Error) {
+				throw error;
+			}
+			throw new Error("Failed to add to favorites");
+		}
+	}
+
+	async removeFromFavorites(bookmarkId: number): Promise<void> {
+		try {
+			await this.repository.removeFromFavorites(bookmarkId);
+		} catch (error) {
+			if (error instanceof Error) {
+				throw error;
+			}
+			throw new Error("Failed to remove from favorites");
+		}
+	}
+
+	async getFavoriteBookmarks(
+		page = 1,
+		limit = 20,
+	): Promise<{
+		bookmarks: BookmarkWithFavorite[];
+		pagination: {
+			currentPage: number;
+			totalPages: number;
+			totalItems: number;
+		};
+	}> {
+		try {
+			const offset = (page - 1) * limit;
+			const { bookmarks, total } = await this.repository.getFavoriteBookmarks(
+				offset,
+				limit,
+			);
+
+			const totalPages = Math.ceil(total / limit);
+
+			return {
+				bookmarks,
+				pagination: {
+					currentPage: page,
+					totalPages,
+					totalItems: total,
+				},
+			};
+		} catch (error) {
+			console.error("Failed to get favorite bookmarks:", error);
+			throw new Error("Failed to get favorite bookmarks");
+		}
 	}
 
 	async createBookmarksFromData(

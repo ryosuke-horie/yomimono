@@ -29,6 +29,12 @@ export function Header() {
 						>
 							未読一覧
 						</Link>
+						<Link
+							href="/favorites"
+							className={`inline-flex items-center px-1 pt-1 ${isActive("/favorites")}`}
+						>
+							お気に入り
+						</Link>
 					</nav>
 				</div>
 			</div>
