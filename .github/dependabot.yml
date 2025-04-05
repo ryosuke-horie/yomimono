@@ -31,12 +31,6 @@ updates:
           - "@tailwindcss/postcss"
           - "postcss"
           - "postcss-load-config"
-      tests:
-        patterns:
-          - "vitest"
-          - "@vitest/coverage-v8"
-          - "@testing-library/dom"
-          - "@testing-library/react"
 
   # apiディレクトリの依存関係を管理
   - package-ecosystem: "npm"
