@@ -33,7 +33,7 @@ jobs:
           command: |
             cd ./api
             echo "CLOUDFLARE_ACCOUNT_ID=${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" > .env
-            echo "CLOUDFLARE_DATABASE_ID=${{ secrets.CLOUDFLARE_DATABASE_ID }}" > .env
+            echo "CLOUDFLARE_DATABASE_ID=${{ secrets.CLOUDFLARE_DATABASE_ID }}" >> .env
             echo "CLOUDFLARE_D1_TOKEN=${{ secrets.CLOUDFLARE_D1_TOKEN }}" >> .env
             bun deploy
             bun migrate:production
