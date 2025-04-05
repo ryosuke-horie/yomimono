@@ -1,5 +1,6 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
+// ブックマーク
 export const bookmarks = sqliteTable("bookmarks", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
 	url: text("url").notNull(),
@@ -13,7 +14,7 @@ export const bookmarks = sqliteTable("bookmarks", {
 		.default(new Date()),
 });
 
-// favorites table
+// お気に入り記事
 export const favorites = sqliteTable("favorites", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
 	bookmarkId: integer("bookmark_id")
@@ -25,7 +26,6 @@ export const favorites = sqliteTable("favorites", {
 		.default(new Date()),
 });
 
-// TypeScript types for database tables
 export type Bookmark = typeof bookmarks.$inferSelect;
 export type InsertBookmark = typeof bookmarks.$inferInsert;
 export type Favorite = typeof favorites.$inferSelect;
