@@ -1,190 +1,156 @@
 # API設計
 
-## 基本情報
-
-- ベースURL: `/api`
-- レスポンスフォーマット: JSON
-- エラーハンドリング: HTTPステータスコードとエラーメッセージを返却
-
 ## エンドポイント一覧
 
 ### 1. お気に入り登録
-
 ```
-POST /bookmarks/:id/favorite
+POST /api/bookmarks/:id/favorite
 ```
 
 #### リクエスト
 - パラメータ
-  - `id`: ブックマークID (数値)
+  - `id`: お気に入りに登録するブックマークのID (数値)
+- ヘッダー
+  ```
+  Content-Type: application/json
+  Accept: application/json
+  ```
 
 #### レスポンス
 - 成功時 (200 OK)
-```json
-{
-  "success": true
-}
-```
-
+  ```json
+  {
+    "success": true
+  }
+  ```
 - エラー時
   - 404: ブックマークが存在しない
+    ```json
+    {
+      "success": false,
+      "message": "Bookmark not found"
+    }
+    ```
   - 409: 既にお気に入り登録済み
-```json
-{
-  "success": false,
-  "message": "エラーメッセージ"
-}
-```
+    ```json
+    {
+      "success": false,
+      "message": "Already added to favorites"
+    }
+    ```
 
 ### 2. お気に入り解除
-
 ```
-DELETE /bookmarks/:id/favorite
+DELETE /api/bookmarks/:id/favorite
 ```
 
 #### リクエスト
 - パラメータ
-  - `id`: ブックマークID (数値)
+  - `id`: お気に入りから解除するブックマークのID (数値)
+- ヘッダー
+  ```
+  Content-Type: application/json
+  Accept: application/json
+  ```
 
 #### レスポンス
 - 成功時 (200 OK)
-```json
-{
-  "success": true
-}
-```
-
+  ```json
+  {
+    "success": true
+  }
+  ```
 - エラー時
-  - 404: ブックマークが存在しない、またはお気に入り登録されていない
-```json
-{
-  "success": false,
-  "message": "エラーメッセージ"
-}
-```
+  - 404: お気に入りが存在しない
+    ```json
+    {
+      "success": false,
+      "message": "Favorite not found"
+    }
+    ```
 
 ### 3. お気に入り一覧取得
-
 ```
-GET /bookmarks/favorites
+GET /api/bookmarks/favorites
 ```
 
 #### リクエスト
-- クエリパラメータ（オプション）
-  - `page`: ページ番号（デフォルト: 1）
-  - `limit`: 1ページあたりの件数（デフォルト: 20）
+- ヘッダー
+  ```
+  Accept: application/json
+  ```
 
 #### レスポンス
 - 成功時 (200 OK)
-```json
-{
-  "success": true,
-  "bookmarks": [
-    {
-      "id": 1,
-      "url": "https://example.com",
-      "title": "サンプルタイトル",
-      "isRead": false,
-      "isFavorite": true,
-      "createdAt": "2024-04-04T12:00:00Z",
-      "updatedAt": "2024-04-04T12:00:00Z"
-    }
-  ],
-  "pagination": {
-    "currentPage": 1,
-    "totalPages": 5,
-    "totalItems": 100
+  ```json
+  {
+    "success": true,
+    "bookmarks": [
+      {
+        "id": 1,
+        "url": "https://example.com",
+        "title": "サンプルタイトル",
+        "isRead": false,
+        "isFavorite": true,
+        "createdAt": "2024-04-04T12:00:00Z",
+        "updatedAt": "2024-04-04T12:00:00Z"
+      }
+    ]
   }
-}
-```
-
+  ```
 - エラー時
-  - 400: 不正なパラメータ
-```json
-{
-  "success": false,
-  "message": "エラーメッセージ"
-}
-```
+  - 500: サーバーエラー
+    ```json
+    {
+      "success": false,
+      "message": "Failed to fetch favorites"
+    }
+    ```
 
-## 実装方針
+## 実装詳細
 
-### ルーティング実装
-
+### 1. ルーティング実装（Hono）
 ```typescript
-// api/src/routes/bookmarks.ts
-
-// お気に入り機能のルーティングを追加
+// お気に入り登録
 app.post("/:id/favorite", async (c) => {
-  try {
-    const id = Number.parseInt(c.req.param("id"));
-    if (Number.isNaN(id)) {
-      return c.json({ success: false, message: "Invalid bookmark ID" }, 400);
-    }
-
-    await bookmarkService.addToFavorites(id);
-    return c.json({ success: true });
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === "Bookmark not found") {
-        return c.json({ success: false, message: "Bookmark not found" }, 404);
-      }
-      if (error.message === "Already favorited") {
-        return c.json(
-          { success: false, message: "Already added to favorites" },
-          409
-        );
-      }
-    }
-    console.error("Failed to add to favorites:", error);
-    return c.json(
-      { success: false, message: "Failed to add to favorites" },
-      500
-    );
+  const id = Number.parseInt(c.req.param("id"));
+  if (Number.isNaN(id)) {
+    return c.json({ success: false, message: "Invalid bookmark ID" }, 400);
   }
+  await bookmarkService.addToFavorites(id);
+  return c.json({ success: true });
 });
 
+// お気に入り解除
 app.delete("/:id/favorite", async (c) => {
-  // お気に入り解除の実装
+  const id = Number.parseInt(c.req.param("id"));
+  if (Number.isNaN(id)) {
+    return c.json({ success: false, message: "Invalid bookmark ID" }, 400);
+  }
+  await bookmarkService.removeFromFavorites(id);
+  return c.json({ success: true });
 });
 
+// お気に入り一覧取得
 app.get("/favorites", async (c) => {
-  // お気に入り一覧取得の実装
+  const result = await bookmarkService.getFavoriteBookmarks();
+  return c.json({ success: true, ...result });
 });
 ```
 
-### サービス層実装
+### 2. エラーハンドリング
+- バリデーションエラー
+  - 不正なID形式 → 400 Bad Request
+  - 存在しないブックマーク → 404 Not Found
+  - 重複登録 → 409 Conflict
+- サーバーエラー → 500 Internal Server Error
 
-```typescript
-// api/src/services/bookmark.ts
+### 3. レスポンスデータの整形
+- 日時は常にISO 8601形式（UTC）で返却
+- ブックマークデータにはisFavoriteフラグを追加
+- メッセージは適切な文言で返却
 
-export interface BookmarkService {
-  // 既存のメソッドに追加
-  addToFavorites(bookmarkId: number): Promise<void>;
-  removeFromFavorites(bookmarkId: number): Promise<void>;
-  getFavoriteBookmarks(page?: number, limit?: number): Promise<{
-    bookmarks: Array<Bookmark & { isFavorite: boolean }>;
-    pagination: {
-      currentPage: number;
-      totalPages: number;
-      totalItems: number;
-    };
-  }>;
-}
-```
-
-### リポジトリ層実装
-
-```typescript
-// api/src/repositories/bookmark.ts
-
-export interface BookmarkRepository {
-  // 既存のメソッドに追加
-  addToFavorites(bookmarkId: number): Promise<void>;
-  removeFromFavorites(bookmarkId: number): Promise<void>;
-  getFavoriteBookmarks(offset: number, limit: number): Promise<{
-    bookmarks: Array<Bookmark & { isFavorite: boolean }>;
-    total: number;
-  }>;
-  isFavorite(bookmarkId: number): Promise<boolean>;
-}
+### 4. セキュリティ
+- Content-TypeとAcceptヘッダーのバリデーション
+- パラメータの型チェックと値の検証
+- エラーメッセージは適切な粒度で開示
