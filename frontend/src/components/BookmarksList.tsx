@@ -6,16 +6,26 @@ import type { Bookmark } from "@/types/bookmark";
 import { useCallback, useEffect, useState } from "react";
 
 interface BookmarksListProps {
-	initialBookmarks: Bookmark[];
+	initialBookmarks?: Bookmark[];
+	mode?: "all" | "favorites";
 }
 
-export function BookmarksList({ initialBookmarks }: BookmarksListProps) {
-	const { getUnreadBookmarks } = useBookmarks();
+export function BookmarksList({
+	initialBookmarks = [],
+	mode = "all",
+}: BookmarksListProps) {
+	const {
+		getUnreadBookmarks,
+		favorites,
+		isLoading: isFavLoading,
+		fetchFavorites,
+	} = useBookmarks();
 
 	const [bookmarks, setBookmarks] = useState<Bookmark[]>(initialBookmarks);
 	const [totalUnread, setTotalUnread] = useState<number>(0);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [displayData, setDisplayData] = useState<Bookmark[]>([]);
 
 	const fetchBookmarks = useCallback(async () => {
 		try {
@@ -34,26 +44,40 @@ export function BookmarksList({ initialBookmarks }: BookmarksListProps) {
 	}, [getUnreadBookmarks]);
 
 	useEffect(() => {
-		fetchBookmarks();
-	}, [fetchBookmarks]);
+		if (mode === "all") {
+			fetchBookmarks();
+		}
+	}, [fetchBookmarks, mode]);
+
+	useEffect(() => {
+		setDisplayData(mode === "favorites" ? favorites : bookmarks);
+	}, [mode, favorites, bookmarks]);
+
+	const handleUpdate = mode === "favorites" ? fetchFavorites : fetchBookmarks;
 
 	return (
 		<div>
 			{/* タイトル + 更新ボタン */}
 			<div className="flex justify-between items-center mb-6">
 				<div className="flex items-center">
-					<h1 className="text-2xl font-bold">未読ブックマーク</h1>
-					<span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
-						{totalUnread}
-					</span>
+					{mode === "all" ? (
+						<>
+							<h1 className="text-2xl font-bold">未読ブックマーク</h1>
+							<span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
+								{totalUnread}
+							</span>
+						</>
+					) : (
+						<h1 className="text-2xl font-bold">お気に入り</h1>
+					)}
 				</div>
 				<button
 					type="button"
-					onClick={fetchBookmarks}
+					onClick={handleUpdate}
 					className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-					disabled={isLoading}
+					disabled={isLoading || isFavLoading}
 				>
-					{isLoading ? (
+					{isLoading || isFavLoading ? (
 						<div className="flex items-center">
 							<div className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full" />
 							更新中...
@@ -87,23 +111,26 @@ export function BookmarksList({ initialBookmarks }: BookmarksListProps) {
 				</div>
 			)}
 
-			{/* ブックマーク一覧 */}
-			{bookmarks.length === 0 ? (
-				<p className="text-gray-600">未読のブックマークはありません。</p>
+			{/* ローディング表示 */}
+			{isLoading || isFavLoading ? (
+				<div className="flex justify-center items-center p-8">
+					<div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full" />
+				</div>
+			) : displayData.length === 0 ? (
+				<p className="text-gray-600">
+					{mode === "favorites"
+						? "お気に入りのブックマークはありません"
+						: "未読のブックマークはありません"}
+				</p>
 			) : (
-				// 1. grid gap-4 でグリッドレイアウト
-				// 2. sm:grid-cols-1 で「小さい画面(sm未満)では1カラム」に
-				// 3. md:grid-cols-2, lg:grid-cols-3 で画面が広がればカラム数を増やす
 				<div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-					{bookmarks.map((bookmark) => (
-						// max-w-[400px] などでカードの最大幅を制限し、左右余白を自動化（mx-auto）
-						// → 大きな画面で「横に広がりすぎる」ことを防ぐ
+					{displayData.map((bookmark) => (
 						<div
 							key={bookmark.id}
 							data-testid="bookmark-item"
 							className="mx-auto w-full max-w-sm"
 						>
-							<BookmarkCard bookmark={bookmark} onUpdate={fetchBookmarks} />
+							<BookmarkCard bookmark={bookmark} onUpdate={handleUpdate} />
 						</div>
 					))}
 				</div>
