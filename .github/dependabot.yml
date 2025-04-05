@@ -23,8 +23,6 @@ updates:
           - "@types/node"
           - "@types/react"
           - "@types/react-dom"
-          - "@vitejs/plugin-react"
-          - "jsdom"
       styles:
         patterns:
           - "tailwindcss"
