@@ -14,16 +14,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: './frontend/package-lock.json'
+          bun-version: 1.2.8
 
       - name: Install dependencies
-        run: npm ci
+        run: bun install
 
       - name: Run lint
-        run: npm run lint
+        run: bun lint
+
+      - name: Run Knip
+        run: bun knip

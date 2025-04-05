@@ -1,7 +1,7 @@
 version: 2
 updates:
   # frontendディレクトリの依存関係を管理
-  - package-ecosystem: "npm"
+  - package-ecosystem: "bun"
     directory: "/frontend"
     schedule:
       interval: "weekly"
@@ -31,7 +31,7 @@ updates:
           - "postcss-load-config"
 
   # apiディレクトリの依存関係を管理
-  - package-ecosystem: "npm"
+  - package-ecosystem: "bun"
     directory: "/api"
     schedule:
       interval: "weekly"
@@ -60,7 +60,7 @@ updates:
           - "vitest"
 
   # Extensionディレクトリの依存関係を管理
-  - package-ecosystem: "npm"
+  - package-ecosystem: "bun"
     directory: "/extension"
     schedule:
       interval: "weekly"
