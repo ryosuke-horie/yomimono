@@ -1,9 +1,8 @@
-import { and, count, eq, inArray } from "drizzle-orm";
+import { count, eq, inArray } from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { bookmarks, favorites } from "../db/schema";
-import type { Bookmark, InsertBookmark, InsertFavorite } from "../db/schema";
+import type { Bookmark, InsertBookmark } from "../db/schema";
 
-// ブックマークの拡張型（お気に入り状態を含む）
 export type BookmarkWithFavorite = Bookmark & { isFavorite: boolean };
 
 export interface BookmarkRepository {
@@ -12,7 +11,6 @@ export interface BookmarkRepository {
 	findByUrls(urls: string[]): Promise<BookmarkWithFavorite[]>;
 	markAsRead(id: number): Promise<boolean>;
 	countUnread(): Promise<number>;
-	// お気に入り関連の新しいメソッド
 	addToFavorites(bookmarkId: number): Promise<void>;
 	removeFromFavorites(bookmarkId: number): Promise<void>;
 	getFavoriteBookmarks(

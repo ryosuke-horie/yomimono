@@ -1,4 +1,4 @@
-import type { Bookmark, InsertBookmark } from "../db/schema";
+import type { InsertBookmark } from "../db/schema";
 import type {
 	BookmarkRepository,
 	BookmarkWithFavorite,
@@ -11,7 +11,6 @@ export interface BookmarkService {
 	getUnreadBookmarks(): Promise<BookmarkWithFavorite[]>;
 	markBookmarkAsRead(id: number): Promise<void>;
 	getUnreadBookmarksCount(): Promise<number>;
-	// お気に入り関連の新しいメソッド
 	addToFavorites(bookmarkId: number): Promise<void>;
 	removeFromFavorites(bookmarkId: number): Promise<void>;
 	getFavoriteBookmarks(
