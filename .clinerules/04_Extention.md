@@ -1,4 +1,4 @@
-# Extention
+# Extension
 
 ## 概要
 
