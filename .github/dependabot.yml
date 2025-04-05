@@ -54,6 +54,7 @@ updates:
           # 依存パッケージ名ベースでの指定
           - "hono"
           - "drizzle-orm"
+          - "zod"
           - "dotenv"
           - "@cloudflare/workers-types"
           - "drizzle-kit"
