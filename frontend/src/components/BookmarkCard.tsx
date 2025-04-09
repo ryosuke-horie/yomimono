@@ -35,7 +35,7 @@ export function BookmarkCard({ bookmark, onUpdate }: Props) {
 	};
 
 	const handleShare = () => {
-		const tweetUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`;
+		const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title || "")}&url=${encodeURIComponent(url)}`;
 		window.open(tweetUrl, "_blank");
 	};
 
