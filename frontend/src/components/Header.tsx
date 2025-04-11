@@ -35,6 +35,12 @@ export function Header() {
 						>
 							お気に入り
 						</Link>
+						<Link
+							href="/recent"
+							className={`inline-flex items-center px-1 pt-1 ${isActive("/recent")}`}
+						>
+							最近読んだ記事
+						</Link>
 					</nav>
 				</div>
 			</div>

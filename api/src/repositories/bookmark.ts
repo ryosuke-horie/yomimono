@@ -249,4 +249,30 @@ export class DrizzleBookmarkRepository implements BookmarkRepository {
 			throw error;
 		}
 	}
+
+	async findRecentlyRead(): Promise<BookmarkWithFavorite[]> {
+		try {
+			const threeDaysAgo = new Date();
+			threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+			// UTC+9の考慮
+			threeDaysAgo.setHours(threeDaysAgo.getHours() - 9);
+
+			const results = await this.db
+				.select()
+				.from(bookmarks)
+				.where(
+					and(
+						eq(bookmarks.isRead, true),
+						gte(bookmarks.updatedAt, threeDaysAgo)
+					)
+				)
+				.orderBy(bookmarks.updatedAt)
+				.all();
+
+			return this.attachFavoriteStatus(results);
+		} catch (error) {
+			console.error("Failed to fetch recently read bookmarks:", error);
+			throw error;
+		}
+	}
 }

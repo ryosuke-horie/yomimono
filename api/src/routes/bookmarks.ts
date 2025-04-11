@@ -185,5 +185,18 @@ export const createBookmarksRouter = (bookmarkService: BookmarkService) => {
 		}
 	});
 
+	app.get("/recent", async (c) => {
+		try {
+			const recentlyReadBookmarks = await bookmarkService.getRecentlyReadBookmarks();
+			return c.json({ success: true, bookmarks: recentlyReadBookmarks });
+		} catch (error) {
+			console.error("Failed to fetch recently read bookmarks:", error);
+			return c.json(
+				{ success: false, message: "Failed to fetch recently read bookmarks" },
+				500,
+			);
+		}
+	});
+
 	return app;
 };

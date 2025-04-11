@@ -182,6 +182,47 @@ export function useBookmarks() {
 		fetchFavorites();
 	}, [fetchFavorites]);
 
+	const getRecentlyReadBookmarks = useCallback(async (): Promise<{
+		[date: string]: Bookmark[];
+	}> => {
+		const url = `${API_BASE_URL}/api/bookmarks/recent`;
+
+		try {
+			const response = await fetch(url, {
+				headers: {
+					Accept: "application/json",
+					"Content-Type": "application/json",
+				},
+			});
+
+			const responseText = await response.text();
+
+			if (!response.ok) {
+				throw new Error(`Failed to fetch recently read bookmarks: ${response.status}`);
+			}
+
+			try {
+				const data = JSON.parse(responseText);
+				if (!data.success) {
+					throw new Error(data.message);
+				}
+				return data.bookmarks || {};
+			} catch (e) {
+				if (e instanceof Error) {
+					throw e;
+				}
+				console.error("Failed to parse response:", e);
+				throw new Error("Invalid response format");
+			}
+		} catch (error) {
+			console.error("API error:", {
+				error,
+				url,
+			});
+			throw error;
+		}
+	}, []);
+
 	return {
 		getUnreadBookmarks,
 		markAsRead,
@@ -190,5 +231,6 @@ export function useBookmarks() {
 		favorites,
 		isLoading,
 		fetchFavorites,
+		getRecentlyReadBookmarks,
 	};
 }
