@@ -263,8 +263,8 @@ export class DrizzleBookmarkRepository implements BookmarkRepository {
 				.where(
 					and(
 						eq(bookmarks.isRead, true),
-						gte(bookmarks.updatedAt, threeDaysAgo)
-					)
+						gte(bookmarks.updatedAt, threeDaysAgo),
+					),
 				)
 				.orderBy(bookmarks.updatedAt)
 				.all();
