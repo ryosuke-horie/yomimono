@@ -23,6 +23,7 @@ export function BookmarksList({
 
 	const [bookmarks, setBookmarks] = useState<Bookmark[]>(initialBookmarks);
 	const [totalUnread, setTotalUnread] = useState<number>(0);
+	const [todayReadCount, setTodayReadCount] = useState<number>(0);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [displayData, setDisplayData] = useState<Bookmark[]>([]);
@@ -31,10 +32,14 @@ export function BookmarksList({
 		try {
 			setIsLoading(true);
 			setError(null);
-			const { bookmarks: fetchedBookmarks, totalUnread: fetchedTotal } =
-				await getUnreadBookmarks();
+			const {
+				bookmarks: fetchedBookmarks,
+				totalUnread: fetchedTotal,
+				todayReadCount: fetchedTodayRead,
+			} = await getUnreadBookmarks();
 			setBookmarks(fetchedBookmarks);
 			setTotalUnread(fetchedTotal);
+			setTodayReadCount(fetchedTodayRead);
 		} catch (e) {
 			setError("ブックマークの取得に失敗しました");
 			console.error("Error fetching bookmarks:", e);
@@ -63,9 +68,14 @@ export function BookmarksList({
 					{mode === "all" ? (
 						<>
 							<h1 className="text-2xl font-bold">未読ブックマーク</h1>
-							<span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
-								{totalUnread}
-							</span>
+							<div className="ml-2 flex gap-2">
+								<span className="px-2 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
+									{totalUnread}件
+								</span>
+								<span className="px-2 py-1 bg-green-100 text-green-800 text-sm font-semibold rounded-full">
+									今日{todayReadCount}件読了
+								</span>
+							</div>
 						</>
 					) : (
 						<h1 className="text-2xl font-bold">お気に入り</h1>

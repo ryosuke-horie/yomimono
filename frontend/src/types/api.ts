@@ -9,6 +9,7 @@ interface ApiResponse<T> {
 	success: boolean;
 	bookmarks?: T[];
 	totalUnread?: number;
+	todayReadCount?: number;
 	message?: string;
 	error?: ApiError;
 }

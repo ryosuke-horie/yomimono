@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 interface BookmarksData {
 	bookmarks: Bookmark[];
 	totalUnread: number;
+	todayReadCount: number;
 }
 
 export function useBookmarks() {
@@ -37,6 +38,7 @@ export function useBookmarks() {
 				return {
 					bookmarks: data.bookmarks || [],
 					totalUnread: data.totalUnread || 0,
+					todayReadCount: data.todayReadCount || 0,
 				};
 			} catch (e) {
 				if (e instanceof Error) {
