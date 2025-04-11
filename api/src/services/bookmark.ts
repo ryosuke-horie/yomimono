@@ -11,6 +11,7 @@ export interface BookmarkService {
 	getUnreadBookmarks(): Promise<BookmarkWithFavorite[]>;
 	markBookmarkAsRead(id: number): Promise<void>;
 	getUnreadBookmarksCount(): Promise<number>;
+	getTodayReadCount(): Promise<number>;
 	addToFavorites(bookmarkId: number): Promise<void>;
 	removeFromFavorites(bookmarkId: number): Promise<void>;
 	getFavoriteBookmarks(
@@ -31,6 +32,10 @@ export class DefaultBookmarkService implements BookmarkService {
 
 	async getUnreadBookmarksCount(): Promise<number> {
 		return await this.repository.countUnread();
+	}
+
+	async getTodayReadCount(): Promise<number> {
+		return await this.repository.countTodayRead();
 	}
 
 	async getUnreadBookmarks(): Promise<BookmarkWithFavorite[]> {

@@ -7,11 +7,12 @@ export const createBookmarksRouter = (bookmarkService: BookmarkService) => {
 
 	app.get("/unread", async (c) => {
 		try {
-			const [bookmarks, totalUnread] = await Promise.all([
+			const [bookmarks, totalUnread, todayReadCount] = await Promise.all([
 				bookmarkService.getUnreadBookmarks(),
 				bookmarkService.getUnreadBookmarksCount(),
+				bookmarkService.getTodayReadCount(),
 			]);
-			return c.json({ success: true, bookmarks, totalUnread });
+			return c.json({ success: true, bookmarks, totalUnread, todayReadCount });
 		} catch (error) {
 			console.error("Failed to fetch unread bookmarks:", error);
 			return c.json(
