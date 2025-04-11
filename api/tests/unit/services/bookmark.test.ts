@@ -13,6 +13,7 @@ describe("DefaultBookmarkService", () => {
 			createMany: vi.fn(),
 			markAsRead: vi.fn(),
 			countUnread: vi.fn(),
+			countTodayRead: vi.fn(),
 			addToFavorites: vi.fn(),
 			removeFromFavorites: vi.fn(),
 			getFavoriteBookmarks: vi.fn(),
@@ -131,6 +132,33 @@ describe("DefaultBookmarkService", () => {
 					"Failed to get favorite bookmarks",
 				);
 			});
+		});
+	});
+
+	describe("getTodayReadCount：当日の既読数の取得", () => {
+		it("リポジトリから当日の既読数を取得できること", async () => {
+			mockRepository.countTodayRead = vi.fn().mockResolvedValue(5);
+
+			const result = await service.getTodayReadCount();
+
+			expect(mockRepository.countTodayRead).toHaveBeenCalled();
+			expect(result).toBe(5);
+		});
+
+		it("0件の場合も適切に処理すること", async () => {
+			mockRepository.countTodayRead = vi.fn().mockResolvedValue(0);
+
+			const result = await service.getTodayReadCount();
+
+			expect(mockRepository.countTodayRead).toHaveBeenCalled();
+			expect(result).toBe(0);
+		});
+
+		it("リポジトリからのエラーを伝播すること", async () => {
+			const error = new Error("Repository error");
+			mockRepository.countTodayRead = vi.fn().mockRejectedValue(error);
+
+			await expect(service.getTodayReadCount()).rejects.toThrow(error);
 		});
 	});
 

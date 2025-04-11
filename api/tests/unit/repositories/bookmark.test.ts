@@ -1,4 +1,4 @@
-import { count, eq, inArray } from "drizzle-orm";
+import { and, count, eq, gte, inArray } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { bookmarks } from "../../../src/db/schema";
 import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
@@ -132,6 +132,48 @@ describe("ブックマークリポジトリ", () => {
 
 			// Execute & Verify
 			await expect(repository.markAsRead(bookmarkId)).rejects.toThrow();
+		});
+	});
+
+	describe("当日の既読数取得", () => {
+		it("当日の既読数を取得できること", async () => {
+			// Setup
+			const today = new Date();
+			today.setHours(0, 0, 0, 0);
+			today.setHours(today.getHours() - 9); // UTC+9の考慮
+
+			mockDb.get.mockResolvedValue({ count: 3 });
+
+			// Execute
+			const result = await repository.countTodayRead();
+
+			// Verify
+			expect(result).toBe(3);
+			expect(mockDb.select).toHaveBeenCalledWith({ count: count() });
+			expect(mockDb.from).toHaveBeenCalledWith(bookmarks);
+			expect(mockDb.where).toHaveBeenCalledWith(
+				and(eq(bookmarks.isRead, true), gte(bookmarks.updatedAt, today)),
+			);
+		});
+
+		it("0件の場合は0を返すこと", async () => {
+			// Setup
+			mockDb.get.mockResolvedValue(null);
+
+			// Execute
+			const result = await repository.countTodayRead();
+
+			// Verify
+			expect(result).toBe(0);
+			expect(mockDb.select).toHaveBeenCalledWith({ count: count() });
+		});
+
+		it("DBクエリ失敗時にエラーをスローすること", async () => {
+			// Setup
+			mockDb.get.mockRejectedValue(new Error("Database error"));
+
+			// Execute & Verify
+			await expect(repository.countTodayRead()).rejects.toThrow();
 		});
 	});
 

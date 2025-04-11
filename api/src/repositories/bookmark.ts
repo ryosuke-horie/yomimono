@@ -1,4 +1,4 @@
-import { count, eq, inArray } from "drizzle-orm";
+import { and, count, eq, gte, inArray } from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { bookmarks, favorites } from "../db/schema";
 import type { Bookmark, InsertBookmark } from "../db/schema";
@@ -11,6 +11,7 @@ export interface BookmarkRepository {
 	findByUrls(urls: string[]): Promise<BookmarkWithFavorite[]>;
 	markAsRead(id: number): Promise<boolean>;
 	countUnread(): Promise<number>;
+	countTodayRead(): Promise<number>;
 	addToFavorites(bookmarkId: number): Promise<void>;
 	removeFromFavorites(bookmarkId: number): Promise<void>;
 	getFavoriteBookmarks(
@@ -74,6 +75,27 @@ export class DrizzleBookmarkRepository implements BookmarkRepository {
 			return result?.count || 0;
 		} catch (error) {
 			console.error("Failed to count unread bookmarks:", error);
+			throw error;
+		}
+	}
+
+	async countTodayRead(): Promise<number> {
+		try {
+			// 日本時間の当日0時のタイムスタンプを取得
+			const today = new Date();
+			today.setHours(0, 0, 0, 0);
+			// UTC+9の考慮
+			today.setHours(today.getHours() - 9);
+
+			const result = await this.db
+				.select({ count: count() })
+				.from(bookmarks)
+				.where(and(eq(bookmarks.isRead, true), gte(bookmarks.updatedAt, today)))
+				.get();
+
+			return result?.count || 0;
+		} catch (error) {
+			console.error("Failed to count today's read bookmarks:", error);
 			throw error;
 		}
 	}

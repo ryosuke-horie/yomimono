@@ -19,6 +19,7 @@ describe("BookmarkRouter", () => {
 				const mockService: BookmarkService = {
 					getUnreadBookmarks: vi.fn(),
 					getUnreadBookmarksCount: vi.fn(),
+					getTodayReadCount: vi.fn(),
 					markBookmarkAsRead: vi.fn(),
 					createBookmarksFromData: vi.fn(),
 					addToFavorites: vi.fn().mockResolvedValue(undefined),
@@ -48,6 +49,7 @@ describe("BookmarkRouter", () => {
 				const mockService: BookmarkService = {
 					getUnreadBookmarks: vi.fn(),
 					getUnreadBookmarksCount: vi.fn(),
+					getTodayReadCount: vi.fn(),
 					markBookmarkAsRead: vi.fn(),
 					createBookmarksFromData: vi.fn(),
 					addToFavorites: vi.fn(),
@@ -79,6 +81,7 @@ describe("BookmarkRouter", () => {
 				const mockService: BookmarkService = {
 					getUnreadBookmarks: vi.fn(),
 					getUnreadBookmarksCount: vi.fn(),
+					getTodayReadCount: vi.fn(),
 					markBookmarkAsRead: vi.fn(),
 					createBookmarksFromData: vi.fn(),
 					addToFavorites: vi
@@ -114,6 +117,7 @@ describe("BookmarkRouter", () => {
 					getUnreadBookmarksCount: vi.fn(),
 					markBookmarkAsRead: vi.fn(),
 					createBookmarksFromData: vi.fn(),
+					getTodayReadCount: vi.fn(),
 					addToFavorites: vi
 						.fn()
 						.mockRejectedValue(new Error("Already favorited")),
@@ -150,6 +154,7 @@ describe("BookmarkRouter", () => {
 					markBookmarkAsRead: vi.fn(),
 					createBookmarksFromData: vi.fn(),
 					addToFavorites: vi.fn(),
+					getTodayReadCount: vi.fn(),
 					removeFromFavorites: vi.fn().mockResolvedValue(undefined),
 					getFavoriteBookmarks: vi.fn(),
 				};
@@ -176,6 +181,7 @@ describe("BookmarkRouter", () => {
 				const mockService: BookmarkService = {
 					getUnreadBookmarks: vi.fn(),
 					getUnreadBookmarksCount: vi.fn(),
+					getTodayReadCount: vi.fn(),
 					markBookmarkAsRead: vi.fn(),
 					createBookmarksFromData: vi.fn(),
 					addToFavorites: vi.fn(),
@@ -210,6 +216,7 @@ describe("BookmarkRouter", () => {
 					markBookmarkAsRead: vi.fn(),
 					createBookmarksFromData: vi.fn(),
 					addToFavorites: vi.fn(),
+					getTodayReadCount: vi.fn(),
 					removeFromFavorites: vi
 						.fn()
 						.mockRejectedValue(new Error("Favorite not found")),
@@ -257,6 +264,7 @@ describe("BookmarkRouter", () => {
 					createBookmarksFromData: vi.fn(),
 					addToFavorites: vi.fn(),
 					removeFromFavorites: vi.fn(),
+					getTodayReadCount: vi.fn(),
 					getFavoriteBookmarks: vi.fn().mockResolvedValue({
 						bookmarks: mockBookmarks,
 						pagination: {
@@ -294,6 +302,7 @@ describe("BookmarkRouter", () => {
 				const mockService: BookmarkService = {
 					getUnreadBookmarks: vi.fn(),
 					getUnreadBookmarksCount: vi.fn(),
+					getTodayReadCount: vi.fn(),
 					markBookmarkAsRead: vi.fn(),
 					createBookmarksFromData: vi.fn(),
 					addToFavorites: vi.fn(),
@@ -329,6 +338,7 @@ describe("BookmarkRouter", () => {
 					addToFavorites: vi.fn(),
 					removeFromFavorites: vi.fn(),
 					getFavoriteBookmarks: vi.fn(),
+					getTodayReadCount: vi.fn(),
 				};
 
 				const router = createBookmarksRouter(mockService);
@@ -355,6 +365,7 @@ describe("BookmarkRouter", () => {
 					getUnreadBookmarks: vi.fn(),
 					getUnreadBookmarksCount: vi.fn(),
 					markBookmarkAsRead: vi.fn(),
+					getTodayReadCount: vi.fn(),
 					createBookmarksFromData: vi.fn(),
 					addToFavorites: vi.fn(),
 					removeFromFavorites: vi.fn(),
@@ -384,7 +395,7 @@ describe("BookmarkRouter", () => {
 	});
 
 	describe("GET /unread", () => {
-		it("未読ブックマーク一覧と総数を取得できること", async () => {
+		it("未読ブックマーク一覧と総数、当日の既読数を取得できること", async () => {
 			const mockBookmarks = [
 				{
 					id: 1,
@@ -399,6 +410,7 @@ describe("BookmarkRouter", () => {
 			const mockService: BookmarkService = {
 				getUnreadBookmarks: vi.fn().mockResolvedValue(mockBookmarks),
 				getUnreadBookmarksCount: vi.fn().mockResolvedValue(1),
+				getTodayReadCount: vi.fn().mockResolvedValue(5),
 				markBookmarkAsRead: vi.fn(),
 				createBookmarksFromData: vi.fn(),
 				addToFavorites: vi.fn(),
@@ -422,6 +434,7 @@ describe("BookmarkRouter", () => {
 				success: true,
 				bookmarks: mockBookmarks,
 				totalUnread: 1,
+				todayReadCount: 5,
 			});
 		});
 
@@ -431,6 +444,9 @@ describe("BookmarkRouter", () => {
 					.fn()
 					.mockRejectedValue(new Error("Database error")),
 				getUnreadBookmarksCount: vi
+					.fn()
+					.mockRejectedValue(new Error("Database error")),
+				getTodayReadCount: vi
 					.fn()
 					.mockRejectedValue(new Error("Database error")),
 				markBookmarkAsRead: vi.fn(),
@@ -464,6 +480,7 @@ describe("BookmarkRouter", () => {
 			const mockService: BookmarkService = {
 				getUnreadBookmarks: vi.fn(),
 				getUnreadBookmarksCount: vi.fn(),
+				getTodayReadCount: vi.fn(),
 				markBookmarkAsRead: vi.fn(),
 				createBookmarksFromData: vi.fn().mockResolvedValue(undefined),
 				addToFavorites: vi.fn(),
@@ -508,6 +525,7 @@ describe("BookmarkRouter", () => {
 			const mockService: BookmarkService = {
 				getUnreadBookmarks: vi.fn(),
 				getUnreadBookmarksCount: vi.fn(),
+				getTodayReadCount: vi.fn(),
 				markBookmarkAsRead: vi.fn(),
 				createBookmarksFromData: vi.fn(),
 				addToFavorites: vi.fn(),
@@ -548,6 +566,7 @@ describe("BookmarkRouter", () => {
 				addToFavorites: vi.fn(),
 				removeFromFavorites: vi.fn(),
 				getFavoriteBookmarks: vi.fn(),
+				getTodayReadCount: vi.fn(),
 			};
 
 			const router = createBookmarksRouter(mockService);
@@ -585,6 +604,7 @@ describe("BookmarkRouter", () => {
 				addToFavorites: vi.fn(),
 				removeFromFavorites: vi.fn(),
 				getFavoriteBookmarks: vi.fn(),
+				getTodayReadCount: vi.fn(),
 			};
 
 			const router = createBookmarksRouter(mockService);
@@ -622,6 +642,7 @@ describe("BookmarkRouter", () => {
 				addToFavorites: vi.fn(),
 				removeFromFavorites: vi.fn(),
 				getFavoriteBookmarks: vi.fn(),
+				getTodayReadCount: vi.fn(),
 			};
 
 			const router = createBookmarksRouter(mockService);
@@ -661,6 +682,7 @@ describe("BookmarkRouter", () => {
 				addToFavorites: vi.fn(),
 				removeFromFavorites: vi.fn(),
 				getFavoriteBookmarks: vi.fn(),
+				getTodayReadCount: vi.fn(),
 			};
 
 			const router = createBookmarksRouter(mockService);
@@ -700,6 +722,7 @@ describe("BookmarkRouter", () => {
 				addToFavorites: vi.fn(),
 				removeFromFavorites: vi.fn(),
 				getFavoriteBookmarks: vi.fn(),
+				getTodayReadCount: vi.fn(),
 			};
 
 			const router = createBookmarksRouter(mockService);
@@ -729,6 +752,7 @@ describe("BookmarkRouter", () => {
 				addToFavorites: vi.fn(),
 				removeFromFavorites: vi.fn(),
 				getFavoriteBookmarks: vi.fn(),
+				getTodayReadCount: vi.fn(),
 			};
 
 			const router = createBookmarksRouter(mockService);
@@ -755,6 +779,7 @@ describe("BookmarkRouter", () => {
 			const mockService: BookmarkService = {
 				getUnreadBookmarks: vi.fn(),
 				getUnreadBookmarksCount: vi.fn(),
+				getTodayReadCount: vi.fn(),
 				markBookmarkAsRead: vi
 					.fn()
 					.mockRejectedValue(new Error("Bookmark not found")),
@@ -795,6 +820,7 @@ describe("BookmarkRouter", () => {
 				addToFavorites: vi.fn(),
 				removeFromFavorites: vi.fn(),
 				getFavoriteBookmarks: vi.fn(),
+				getTodayReadCount: vi.fn(),
 			};
 
 			const router = createBookmarksRouter(mockService);
