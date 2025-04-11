@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { z } from "zod";
-import type { BookmarkService } from "../services/bookmark";
+import type { BookmarkService } from "../interfaces/service/bookmark";
 
 export const createBookmarksRouter = (bookmarkService: BookmarkService) => {
 	const app = new Hono();

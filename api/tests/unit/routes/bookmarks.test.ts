@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
+import type { BookmarkService } from "../../../src/interfaces/service/bookmark";
 import { createBookmarksRouter } from "../../../src/routes/bookmarks";
-import type { BookmarkService } from "../../../src/services/bookmark";
 
 // Honoのコンテキスト型定義
 type HonoContext = {
