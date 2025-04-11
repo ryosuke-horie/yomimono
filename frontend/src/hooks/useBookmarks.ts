@@ -198,7 +198,9 @@ export function useBookmarks() {
 			const responseText = await response.text();
 
 			if (!response.ok) {
-				throw new Error(`Failed to fetch recently read bookmarks: ${response.status}`);
+				throw new Error(
+					`Failed to fetch recently read bookmarks: ${response.status}`,
+				);
 			}
 
 			try {
