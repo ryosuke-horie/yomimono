@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { BookmarkRepository } from "../../../src/repositories/bookmark";
+import type { BookmarkRepository } from "../../../src/interfaces/repository/bookmark";
 import { DefaultBookmarkService } from "../../../src/services/bookmark";
 
 describe("DefaultBookmarkService", () => {

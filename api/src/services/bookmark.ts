@@ -2,30 +2,8 @@ import type { InsertBookmark } from "../db/schema";
 import type {
 	BookmarkRepository,
 	BookmarkWithFavorite,
-} from "../repositories/bookmark";
-
-export interface BookmarkService {
-	createBookmarksFromData(
-		bookmarks: Array<{ url: string; title: string }>,
-	): Promise<void>;
-	getUnreadBookmarks(): Promise<BookmarkWithFavorite[]>;
-	markBookmarkAsRead(id: number): Promise<void>;
-	getUnreadBookmarksCount(): Promise<number>;
-	getTodayReadCount(): Promise<number>;
-	addToFavorites(bookmarkId: number): Promise<void>;
-	removeFromFavorites(bookmarkId: number): Promise<void>;
-	getFavoriteBookmarks(
-		page?: number,
-		limit?: number,
-	): Promise<{
-		bookmarks: BookmarkWithFavorite[];
-		pagination: {
-			currentPage: number;
-			totalPages: number;
-			totalItems: number;
-		};
-	}>;
-}
+} from "../interfaces/repository/bookmark";
+import type { BookmarkService } from "../interfaces/service/bookmark";
 
 export class DefaultBookmarkService implements BookmarkService {
 	constructor(private readonly repository: BookmarkRepository) {}
