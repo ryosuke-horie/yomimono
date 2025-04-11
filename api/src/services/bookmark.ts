@@ -112,4 +112,32 @@ export class DefaultBookmarkService implements BookmarkService {
 			throw new Error("Bookmark not found");
 		}
 	}
+
+	async getRecentlyReadBookmarks(): Promise<{
+		[date: string]: BookmarkWithFavorite[];
+	}> {
+		try {
+			const bookmarks = await this.repository.findRecentlyRead();
+
+			const groupedByDate: { [date: string]: BookmarkWithFavorite[] } = {};
+
+			for (const bookmark of bookmarks) {
+				const date = new Date(bookmark.updatedAt);
+				date.setHours(date.getHours() + 9);
+
+				const dateStr = date.toISOString().split("T")[0];
+
+				if (!groupedByDate[dateStr]) {
+					groupedByDate[dateStr] = [];
+				}
+
+				groupedByDate[dateStr].push(bookmark);
+			}
+
+			return groupedByDate;
+		} catch (error) {
+			console.error("Failed to get recently read bookmarks:", error);
+			throw new Error("Failed to get recently read bookmarks");
+		}
+	}
 }

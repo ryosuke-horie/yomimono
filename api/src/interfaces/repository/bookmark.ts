@@ -19,4 +19,5 @@ export interface BookmarkRepository {
 		total: number;
 	}>;
 	isFavorite(bookmarkId: number): Promise<boolean>;
+	findRecentlyRead(): Promise<BookmarkWithFavorite[]>;
 }

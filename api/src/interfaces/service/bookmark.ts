@@ -21,4 +21,7 @@ export interface BookmarkService {
 			totalItems: number;
 		};
 	}>;
+	getRecentlyReadBookmarks(): Promise<{
+		[date: string]: BookmarkWithFavorite[];
+	}>;
 }
