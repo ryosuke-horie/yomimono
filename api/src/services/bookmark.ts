@@ -118,22 +118,22 @@ export class DefaultBookmarkService implements BookmarkService {
 	}> {
 		try {
 			const bookmarks = await this.repository.findRecentlyRead();
-			
+
 			const groupedByDate: { [date: string]: BookmarkWithFavorite[] } = {};
-			
-			bookmarks.forEach((bookmark) => {
+
+			for (const bookmark of bookmarks) {
 				const date = new Date(bookmark.updatedAt);
 				date.setHours(date.getHours() + 9);
-				
-				const dateStr = date.toISOString().split('T')[0];
-				
+
+				const dateStr = date.toISOString().split("T")[0];
+
 				if (!groupedByDate[dateStr]) {
 					groupedByDate[dateStr] = [];
 				}
-				
+
 				groupedByDate[dateStr].push(bookmark);
-			});
-			
+			}
+
 			return groupedByDate;
 		} catch (error) {
 			console.error("Failed to get recently read bookmarks:", error);
