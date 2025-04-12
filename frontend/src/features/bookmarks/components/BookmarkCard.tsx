@@ -1,80 +1,67 @@
 "use client";
 
-import { useBookmarks } from "@/hooks/useBookmarks";
-import type { Bookmark } from "@/types/bookmark";
-import { useState } from "react";
+import { useMarkBookmarkAsRead } from "@/features/bookmarks/queries/useMarkBookmarkAsRead";
+import { useToggleFavoriteBookmark } from "@/features/bookmarks/queries/useToggleFavoriteBookmark";
+import type { Bookmark } from "@/features/bookmarks/types";
 
 interface Props {
 	bookmark: Bookmark;
-	onUpdate?: () => void;
+	// onUpdate は不要
 }
 
-export function BookmarkCard({ bookmark, onUpdate }: Props) {
-	const { markAsRead, addToFavorites, removeFromFavorites } = useBookmarks();
-	const [isFavoriting, setIsFavoriting] = useState(false);
-
-	const { id, title, url, createdAt, isRead } = bookmark;
+export function BookmarkCard({ bookmark }: Props) {
+	const { id, title, url, createdAt, isRead, isFavorite } = bookmark;
 	const formattedDate = new Date(createdAt).toLocaleDateString("ja-JP");
 
-	const [isMarking, setIsMarking] = useState(false);
+	// 新しいミューテーションフックを使用
+	const { mutate: toggleFavorite, isPending: isTogglingFavorite } =
+		useToggleFavoriteBookmark();
+	const { mutate: markAsReadMutate, isPending: isMarkingAsRead } =
+		useMarkBookmarkAsRead();
 
-	const handleFavoriteToggle = async () => {
-		try {
-			setIsFavoriting(true);
-			if (bookmark.isFavorite) {
-				await removeFromFavorites(bookmark.id);
-			} else {
-				await addToFavorites(bookmark.id);
-			}
-			onUpdate?.();
-		} catch (error) {
-			console.error("Failed to toggle favorite:", error);
-		} finally {
-			setIsFavoriting(false);
-		}
+	const handleFavoriteToggle = () => {
+		// mutate 関数を呼び出す
+		toggleFavorite({ id, isCurrentlyFavorite: isFavorite });
 	};
 
 	const handleShare = () => {
-		const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title || "")}&url=${encodeURIComponent(url)}`;
+		const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+			title || "",
+		)}&url=${encodeURIComponent(url)}`;
 		window.open(tweetUrl, "_blank");
 	};
 
-	const handleMarkAsRead = async () => {
-		try {
-			setIsMarking(true);
-			await markAsRead(id);
-			// 既読後のデータ更新を必ず実行
-			onUpdate?.();
-		} catch (error) {
-			console.error("Failed to mark as read:", error);
-		} finally {
-			setIsMarking(false);
-		}
+	const handleMarkAsRead = () => {
+		// mutate 関数を呼び出す
+		markAsReadMutate(id);
 	};
 
 	return (
 		<article
-			className={`relative p-4 border rounded-lg hover:shadow-md transition-shadow flex flex-col min-h-[150px] ${isRead ? "bg-gray-50" : ""}`}
+			className={`relative p-4 border rounded-lg hover:shadow-md transition-shadow flex flex-col min-h-[150px] ${
+				isRead ? "bg-gray-50" : ""
+			}`}
 		>
+			{/* お気に入りボタン */}
 			<button
 				type="button"
 				onClick={handleFavoriteToggle}
-				disabled={isFavoriting}
+				disabled={isTogglingFavorite} // isPending を使用
 				className={`absolute bottom-2 right-20 p-1 rounded-full ${
-					isFavoriting
+					isTogglingFavorite // isPending を使用
 						? "text-gray-400"
-						: bookmark.isFavorite
+						: isFavorite // isFavorite を使用
 							? "text-yellow-500 hover:text-yellow-600"
 							: "text-gray-400 hover:text-yellow-500"
 				}`}
-				title={bookmark.isFavorite ? "お気に入りから削除" : "お気に入りに追加"}
+				title={isFavorite ? "お気に入りから削除" : "お気に入りに追加"} // isFavorite を使用
 			>
-				{isFavoriting ? (
+				{isTogglingFavorite ? ( // isPending を使用
 					<div className="animate-spin h-6 w-6 border-2 border-current border-t-transparent rounded-full" />
 				) : (
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
-						fill={bookmark.isFavorite ? "currentColor" : "none"}
+						fill={isFavorite ? "currentColor" : "none"} // isFavorite を使用
 						viewBox="0 0 24 24"
 						strokeWidth={1.5}
 						stroke="currentColor"
@@ -88,6 +75,8 @@ export function BookmarkCard({ bookmark, onUpdate }: Props) {
 					</svg>
 				)}
 			</button>
+
+			{/* シェアボタン */}
 			<button
 				type="button"
 				onClick={handleShare}
@@ -107,20 +96,22 @@ export function BookmarkCard({ bookmark, onUpdate }: Props) {
 					/>
 				</svg>
 			</button>
+
+			{/* 既読ボタン */}
 			<button
 				type="button"
 				onClick={handleMarkAsRead}
-				disabled={isRead || isMarking}
+				disabled={isRead || isMarkingAsRead} // isPending を使用
 				className={`absolute bottom-2 right-2 p-1 rounded-full ${
 					isRead
 						? "text-green-500 cursor-default"
-						: isMarking
+						: isMarkingAsRead // isPending を使用
 							? "text-gray-400"
 							: "text-gray-400 hover:text-green-500 hover:bg-green-50"
 				}`}
 				title={isRead ? "既読済み" : "既読にする"}
 			>
-				{isMarking ? (
+				{isMarkingAsRead ? ( // isPending を使用
 					<svg
 						className="animate-spin w-6 h-6"
 						xmlns="http://www.w3.org/2000/svg"
@@ -159,6 +150,8 @@ export function BookmarkCard({ bookmark, onUpdate }: Props) {
 					</svg>
 				)}
 			</button>
+
+			{/* コンテンツ */}
 			<h2
 				className="font-bold mb-2 line-clamp-2"
 				title={title || "タイトルなし"}

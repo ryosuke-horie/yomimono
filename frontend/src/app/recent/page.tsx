@@ -1,36 +1,24 @@
 "use client";
 
-import { BookmarkCard } from "@/components/BookmarkCard";
-import { useBookmarks } from "@/hooks/useBookmarks";
-import type { Bookmark } from "@/types/bookmark";
-import React, { useEffect, useState } from "react";
+import { BookmarkCard } from "@/features/bookmarks/components/BookmarkCard";
+// import React, { useEffect, useState } from "react"; // 削除 (一部は react-query が提供)
+import { useGetRecentBookmarks } from "@/features/bookmarks/queries/useGetRecentBookmarks";
+// import { useBookmarks } from "@/features/bookmarks/hooks/useBookmarks"; // 削除
+import type { Bookmark } from "@/features/bookmarks/types";
 
 interface GroupedBookmarks {
 	[date: string]: Bookmark[];
 }
 
 export default function RecentPage() {
-	const [groupedBookmarks, setGroupedBookmarks] = useState<GroupedBookmarks>(
-		{},
-	);
-	const [isLoading, setIsLoading] = useState(true);
-	const { getRecentlyReadBookmarks } = useBookmarks();
-
-	useEffect(() => {
-		const fetchRecentlyReadBookmarks = async () => {
-			try {
-				setIsLoading(true);
-				const data = await getRecentlyReadBookmarks();
-				setGroupedBookmarks(data);
-			} catch (error) {
-				console.error("Failed to fetch recently read bookmarks:", error);
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		fetchRecentlyReadBookmarks();
-	}, [getRecentlyReadBookmarks]);
+	// --- 新しいクエリフックを使用 ---
+	const {
+		data: groupedBookmarks = {}, // デフォルト値を設定
+		isLoading,
+		isError,
+		error,
+	} = useGetRecentBookmarks();
+	// --- ここまで追加 ---
 
 	const formatDate = (dateStr: string) => {
 		const date = new Date(dateStr);
@@ -63,6 +51,7 @@ export default function RecentPage() {
 		return `${date.getMonth() + 1}月${date.getDate()}日`;
 	};
 
+	// groupedBookmarks は useQuery から取得するため、ソートロジックはそのまま
 	const sortedDates = Object.keys(groupedBookmarks).sort((a, b) => {
 		return new Date(b).getTime() - new Date(a).getTime();
 	});
@@ -70,7 +59,25 @@ export default function RecentPage() {
 	if (isLoading) {
 		return (
 			<main className="container mx-auto px-4 py-8">
-				<div className="text-center py-10">読み込み中...</div>
+				<div className="text-center py-10">
+					{/* より明確なローディング表示 */}
+					<div className="animate-spin h-8 w-8 mx-auto border-4 border-blue-500 border-t-transparent rounded-full" />
+				</div>
+			</main>
+		);
+	}
+
+	if (isError) {
+		return (
+			<main className="container mx-auto px-4 py-8">
+				{/* エラー表示を追加 */}
+				<div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-sm">
+					<p className="text-red-700">
+						{error instanceof Error
+							? error.message
+							: "最近読んだ記事の取得に失敗しました"}
+					</p>
+				</div>
 			</main>
 		);
 	}
@@ -94,7 +101,7 @@ export default function RecentPage() {
 								<BookmarkCard
 									key={bookmark.id}
 									bookmark={bookmark}
-									onUpdate={() => {}}
+									// onUpdate は削除済み
 								/>
 							))}
 						</div>

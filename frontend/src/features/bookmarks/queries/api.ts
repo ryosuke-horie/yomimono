@@ -1,0 +1,114 @@
+import type { Bookmark } from "@/features/bookmarks/types";
+import { API_BASE_URL } from "@/lib/api/config";
+import type { ApiBookmarkResponse, ApiFavoriteResponse } from "@/types/api";
+
+// --- Query Functions ---
+
+export interface BookmarksData {
+	// export を追加
+	bookmarks: Bookmark[];
+	totalUnread: number;
+	todayReadCount: number;
+}
+
+export const getUnreadBookmarks = async (): Promise<BookmarksData> => {
+	const url = `${API_BASE_URL}/api/bookmarks/unread`;
+	const response = await fetch(url, {
+		headers: { Accept: "application/json", "Content-Type": "application/json" },
+	});
+	const responseText = await response.text();
+	if (!response.ok)
+		throw new Error(`Failed to fetch bookmarks: ${response.status}`);
+	try {
+		const data = JSON.parse(responseText) as ApiBookmarkResponse;
+		if (!data.success) throw new Error(data.message);
+		return {
+			bookmarks: data.bookmarks || [],
+			totalUnread: data.totalUnread || 0,
+			todayReadCount: data.todayReadCount || 0,
+		};
+	} catch (e) {
+		console.error("Failed to parse response:", e, { responseText });
+		throw new Error("Invalid response format");
+	}
+};
+
+export const getFavoriteBookmarks = async (): Promise<Bookmark[]> => {
+	const url = `${API_BASE_URL}/api/bookmarks/favorites`;
+	const response = await fetch(url, {
+		headers: { Accept: "application/json", "Content-Type": "application/json" },
+	});
+	if (!response.ok)
+		throw new Error(`Failed to fetch favorites: ${response.status}`);
+	const data = (await response.json()) as ApiFavoriteResponse;
+	if (!data.success) throw new Error(data.message);
+	return data.bookmarks || [];
+};
+
+export const getRecentlyReadBookmarks = async (): Promise<{
+	[date: string]: Bookmark[];
+}> => {
+	const url = `${API_BASE_URL}/api/bookmarks/recent`;
+	const response = await fetch(url, {
+		headers: { Accept: "application/json", "Content-Type": "application/json" },
+	});
+	const responseText = await response.text();
+	if (!response.ok)
+		throw new Error(
+			`Failed to fetch recently read bookmarks: ${response.status}`,
+		);
+	try {
+		const data = JSON.parse(responseText);
+		if (!data.success) throw new Error(data.message);
+		return data.bookmarks || {};
+	} catch (e) {
+		console.error("Failed to parse response:", e, { responseText });
+		throw new Error("Invalid response format");
+	}
+};
+
+// --- Mutation Functions ---
+
+export const markBookmarkAsRead = async (id: number): Promise<void> => {
+	const url = `${API_BASE_URL}/api/bookmarks/${id}/read`;
+	const response = await fetch(url, {
+		method: "PATCH",
+		headers: { Accept: "application/json", "Content-Type": "application/json" },
+	});
+	const responseText = await response.text();
+	if (!response.ok)
+		throw new Error(`Failed to mark as read: ${response.status}`);
+	try {
+		const data = JSON.parse(responseText) as ApiBookmarkResponse;
+		if (!data.success) throw new Error(data.message);
+	} catch (e) {
+		console.error("Failed to parse response:", e, { responseText });
+		throw new Error("Invalid response format");
+	}
+};
+
+export const addBookmarkToFavorites = async (id: number): Promise<void> => {
+	const url = `${API_BASE_URL}/api/bookmarks/${id}/favorite`;
+	const response = await fetch(url, {
+		method: "POST",
+		headers: { Accept: "application/json", "Content-Type": "application/json" },
+	});
+	if (!response.ok)
+		throw new Error(`Failed to add to favorites: ${response.status}`);
+	const data = (await response.json()) as ApiBookmarkResponse;
+	if (!data.success) throw new Error(data.message);
+};
+
+export const removeBookmarkFromFavorites = async (
+	id: number,
+): Promise<void> => {
+	const url = `${API_BASE_URL}/api/bookmarks/${id}/favorite`;
+	const response = await fetch(url, {
+		method: "DELETE",
+		headers: { Accept: "application/json", "Content-Type": "application/json" },
+	});
+	if (!response.ok)
+		throw new Error(`Failed to remove from favorites: ${response.status}`);
+	const data = (await response.json()) as ApiBookmarkResponse;
+	if (!data.success) throw new Error(data.message);
+};

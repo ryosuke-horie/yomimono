@@ -1,4 +1,4 @@
-import type { Bookmark } from "./bookmark";
+import type { Bookmark } from "@/features/bookmarks/types";
 
 interface ApiError {
 	code: string;
