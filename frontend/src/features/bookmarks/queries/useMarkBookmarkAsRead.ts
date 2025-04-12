@@ -11,16 +11,27 @@ export const useMarkBookmarkAsRead = () => {
 		mutationFn: markBookmarkAsRead,
 		// --- 楽観的更新 ---
 		onMutate: async (bookmarkId: number) => {
-			// 進行中のクエリをキャンセル
-			await queryClient.cancelQueries({ queryKey: bookmarkKeys.list("unread") });
+			// 進行中の関連クエリ (未読とお気に入り) をキャンセル
+			await queryClient.cancelQueries({
+				queryKey: bookmarkKeys.list("unread"),
+			});
+			await queryClient.cancelQueries({
+				queryKey: bookmarkKeys.list("favorites"),
+			});
 
 			// ロールバック用に現在のキャッシュデータを保存
-			const previousData = queryClient.getQueryData<BookmarksData>(
+			const previousUnreadData = queryClient.getQueryData<BookmarksData>(
+				// 変数名を変更
 				bookmarkKeys.list("unread"),
+			);
+			const previousFavoriteData = queryClient.getQueryData<Bookmark[]>(
+				// お気に入りのスナップショット取得を追加
+				bookmarkKeys.list("favorites"),
 			);
 
 			// キャッシュを即時更新 (isRead を true に)
-			if (previousData) {
+			if (previousUnreadData) {
+				// 変数名を修正
 				queryClient.setQueryData<BookmarksData | undefined>(
 					bookmarkKeys.list("unread"),
 					(oldData: BookmarksData | undefined) => {
@@ -39,17 +50,39 @@ export const useMarkBookmarkAsRead = () => {
 				);
 			}
 
+			// ★ お気に入りリストのキャッシュも更新 (ここから追加)
+			if (previousFavoriteData) {
+				queryClient.setQueryData<Bookmark[] | undefined>(
+					bookmarkKeys.list("favorites"),
+					(oldData: Bookmark[] | undefined) =>
+						oldData?.map((bookmark) =>
+							bookmark.id === bookmarkId
+								? { ...bookmark, isRead: true }
+								: bookmark,
+						),
+				);
+			}
+			// ★ ここまで追加
+
 			// ロールバック用データをコンテキストとして返す
-			return { previousData };
+			return { previousUnreadData, previousFavoriteData }; // 変数名を修正し、お気に入りデータも返す
 		},
 		// エラー発生時の処理
 		onError: (err, bookmarkId, context) => {
 			console.error(`Failed to mark bookmark ${bookmarkId} as read:`, err);
 			// 保存しておいたデータでキャッシュを元に戻す (ロールバック)
-			if (context?.previousData) {
+			if (context?.previousUnreadData) {
+				// 変数名を修正
 				queryClient.setQueryData(
 					bookmarkKeys.list("unread"),
-					context.previousData,
+					context.previousUnreadData, // 変数名を修正
+				);
+			}
+			// ★ お気に入りリストのキャッシュもロールバック
+			if (context?.previousFavoriteData) {
+				queryClient.setQueryData(
+					bookmarkKeys.list("favorites"),
+					context.previousFavoriteData,
 				);
 			}
 			// TODO: ユーザーへのエラー通知を実装 (例: react-hot-toast)
@@ -58,6 +91,10 @@ export const useMarkBookmarkAsRead = () => {
 		onSettled: () => {
 			// 関連クエリを無効化し、サーバーと再同期
 			queryClient.invalidateQueries({ queryKey: bookmarkKeys.list("unread") });
+			// ★ お気に入りリストのクエリも無効化
+			queryClient.invalidateQueries({
+				queryKey: bookmarkKeys.list("favorites"),
+			});
 			// 必要に応じて他の関連クエリも無効化 (例: 最近読んだリスト)
 			// queryClient.invalidateQueries({ queryKey: bookmarkKeys.list("recent") });
 		},

@@ -71,8 +71,8 @@ export const useToggleFavoriteBookmark = () => {
 							// お気に入りリストに追加
 							return [...oldData, { ...bookmarkToAdd, isFavorite: true }];
 						}
-							// お気に入りから削除する場合: 該当ブックマークをリストから除外
-							return oldData.filter((bookmark) => bookmark.id !== id);
+						// お気に入りから削除する場合: 該当ブックマークをリストから除外
+						return oldData.filter((bookmark) => bookmark.id !== id);
 					},
 				);
 			}
