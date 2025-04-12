@@ -50,7 +50,7 @@ export const useMarkBookmarkAsRead = () => {
 				);
 			}
 
-			// ★ お気に入りリストのキャッシュも更新 (ここから追加)
+			// お気に入りリストのキャッシュも更新
 			if (previousFavoriteData) {
 				queryClient.setQueryData<Bookmark[] | undefined>(
 					bookmarkKeys.list("favorites"),
@@ -62,7 +62,6 @@ export const useMarkBookmarkAsRead = () => {
 						),
 				);
 			}
-			// ★ ここまで追加
 
 			// ロールバック用データをコンテキストとして返す
 			return { previousUnreadData, previousFavoriteData }; // 変数名を修正し、お気に入りデータも返す
@@ -78,7 +77,7 @@ export const useMarkBookmarkAsRead = () => {
 					context.previousUnreadData, // 変数名を修正
 				);
 			}
-			// ★ お気に入りリストのキャッシュもロールバック
+			// お気に入りリストのキャッシュもロールバック
 			if (context?.previousFavoriteData) {
 				queryClient.setQueryData(
 					bookmarkKeys.list("favorites"),
@@ -91,7 +90,7 @@ export const useMarkBookmarkAsRead = () => {
 		onSettled: () => {
 			// 関連クエリを無効化し、サーバーと再同期
 			queryClient.invalidateQueries({ queryKey: bookmarkKeys.list("unread") });
-			// ★ お気に入りリストのクエリも無効化
+			// お気に入りリストのクエリも無効化
 			queryClient.invalidateQueries({
 				queryKey: bookmarkKeys.list("favorites"),
 			});

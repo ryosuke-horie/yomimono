@@ -34,10 +34,10 @@ export const useToggleFavoriteBookmark = () => {
 			const previousFavoriteData = queryClient.getQueryData<Bookmark[]>(
 				bookmarkKeys.list("favorites"),
 			);
-			// ★ ロールバック用に最近読んだ記事リストキャッシュを保存
-			const previousRecentData = queryClient.getQueryData<{ [date: string]: Bookmark[] }>(
-				bookmarkKeys.list("recent"),
-			);
+			// ロールバック用に最近読んだ記事リストキャッシュを保存
+			const previousRecentData = queryClient.getQueryData<{
+				[date: string]: Bookmark[];
+			}>(bookmarkKeys.list("recent"));
 
 			// 未読リストキャッシュを即時更新 (isFavorite を反転)
 			if (previousUnreadData) {
@@ -82,7 +82,7 @@ export const useToggleFavoriteBookmark = () => {
 				);
 			}
 
-			// ★ 最近読んだ記事リストキャッシュも即時更新 (isFavorite を反転)
+			// 最近読んだ記事リストキャッシュも即時更新 (isFavorite を反転)
 			if (previousRecentData) {
 				queryClient.setQueryData<{ [date: string]: Bookmark[] } | undefined>(
 					bookmarkKeys.list("recent"),
@@ -124,7 +124,7 @@ export const useToggleFavoriteBookmark = () => {
 					context.previousFavoriteData,
 				);
 			}
-			// ★ 最近読んだ記事リストのキャッシュもロールバック
+			// 最近読んだ記事リストのキャッシュもロールバック
 			if (context?.previousRecentData) {
 				queryClient.setQueryData(
 					bookmarkKeys.list("recent"),
@@ -141,7 +141,7 @@ export const useToggleFavoriteBookmark = () => {
 			queryClient.invalidateQueries({
 				queryKey: bookmarkKeys.list("favorites"),
 			});
-			// ★ 最近読んだ記事リストのクエリも無効化
+			// 最近読んだ記事リストのクエリも無効化
 			queryClient.invalidateQueries({ queryKey: bookmarkKeys.list("recent") });
 		},
 	});
