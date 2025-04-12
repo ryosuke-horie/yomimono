@@ -1,6 +1,6 @@
 "use client";
 
-import { BookmarksList } from "@/components/BookmarksList";
+import { BookmarksList } from "@/features/bookmarks/components/BookmarksList";
 export default function FavoritesPage() {
 	return (
 		<main className="container mx-auto px-4 py-8">
