@@ -23,13 +23,22 @@ export const useToggleFavoriteBookmark = () => {
 		onMutate: async ({ id, isCurrentlyFavorite }: ToggleFavoriteVariables) => {
 			const newIsFavorite = !isCurrentlyFavorite;
 
-			// 関連する可能性のあるクエリ (未読リストとお気に入りリスト) をキャンセル
-			await queryClient.cancelQueries({ queryKey: bookmarkKeys.lists() });
+			// 関連する可能性のあるクエリ (未読、お気に入り、最近読んだ) をキャンセル
+			await queryClient.cancelQueries({ queryKey: bookmarkKeys.lists() }); // lists() は unread, favorites, recent を含む想定
 
 			// ロールバック用に現在の未読リストキャッシュを保存
 			const previousUnreadData = queryClient.getQueryData<BookmarksData>(
 				bookmarkKeys.list("unread"),
 			);
+			// ロールバック用にお気に入りリストキャッシュを保存
+			const previousFavoriteData = queryClient.getQueryData<Bookmark[]>(
+				bookmarkKeys.list("favorites"),
+			);
+			// ★ ロールバック用に最近読んだ記事リストキャッシュを保存
+			const previousRecentData = queryClient.getQueryData<{ [date: string]: Bookmark[] }>(
+				bookmarkKeys.list("recent"),
+			);
+
 			// 未読リストキャッシュを即時更新 (isFavorite を反転)
 			if (previousUnreadData) {
 				queryClient.setQueryData<BookmarksData | undefined>(
@@ -48,10 +57,6 @@ export const useToggleFavoriteBookmark = () => {
 				);
 			}
 
-			// ロールバック用にお気に入りリストキャッシュを保存
-			const previousFavoriteData = queryClient.getQueryData<Bookmark[]>(
-				bookmarkKeys.list("favorites"),
-			);
 			// お気に入りリストキャッシュを即時更新
 			if (previousFavoriteData) {
 				queryClient.setQueryData<Bookmark[] | undefined>(
@@ -77,8 +82,27 @@ export const useToggleFavoriteBookmark = () => {
 				);
 			}
 
-			// ロールバック用に両方のスナップショットをコンテキストとして返す
-			return { previousUnreadData, previousFavoriteData };
+			// ★ 最近読んだ記事リストキャッシュも即時更新 (isFavorite を反転)
+			if (previousRecentData) {
+				queryClient.setQueryData<{ [date: string]: Bookmark[] } | undefined>(
+					bookmarkKeys.list("recent"),
+					(oldData) => {
+						if (!oldData) return undefined;
+						const newData = { ...oldData };
+						for (const date in newData) {
+							newData[date] = newData[date].map((bookmark) =>
+								bookmark.id === id
+									? { ...bookmark, isFavorite: newIsFavorite }
+									: bookmark,
+							);
+						}
+						return newData;
+					},
+				);
+			}
+
+			// ロールバック用に全てのスナップショットをコンテキストとして返す
+			return { previousUnreadData, previousFavoriteData, previousRecentData };
 		},
 
 		// エラー発生時の処理
@@ -100,6 +124,13 @@ export const useToggleFavoriteBookmark = () => {
 					context.previousFavoriteData,
 				);
 			}
+			// ★ 最近読んだ記事リストのキャッシュもロールバック
+			if (context?.previousRecentData) {
+				queryClient.setQueryData(
+					bookmarkKeys.list("recent"),
+					context.previousRecentData,
+				);
+			}
 			// TODO: ユーザーへのエラー通知を実装 (例: react-hot-toast)
 		},
 
@@ -110,6 +141,8 @@ export const useToggleFavoriteBookmark = () => {
 			queryClient.invalidateQueries({
 				queryKey: bookmarkKeys.list("favorites"),
 			});
+			// ★ 最近読んだ記事リストのクエリも無効化
+			queryClient.invalidateQueries({ queryKey: bookmarkKeys.list("recent") });
 		},
 	});
 };
