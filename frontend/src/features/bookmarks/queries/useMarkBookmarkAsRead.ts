@@ -94,8 +94,8 @@ export const useMarkBookmarkAsRead = () => {
 			queryClient.invalidateQueries({
 				queryKey: bookmarkKeys.list("favorites"),
 			});
-			// 必要に応じて他の関連クエリも無効化 (例: 最近読んだリスト)
-			// queryClient.invalidateQueries({ queryKey: bookmarkKeys.list("recent") });
+			// 最近読んだリストのクエリも無効化
+			queryClient.invalidateQueries({ queryKey: bookmarkKeys.list("recent") });
 		},
 	});
 };
