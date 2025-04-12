@@ -1,72 +1,64 @@
 import type { Bookmark } from "@/features/bookmarks/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { markBookmarkAsRead } from "./api";
-import type { BookmarksData } from "./api"; // getUnreadBookmarks の戻り値型
+import type { BookmarksData } from "./api";
 import { bookmarkKeys } from "./queryKeys";
 
 export const useMarkBookmarkAsRead = () => {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: markBookmarkAsRead, // APIリクエスト関数
+		mutationFn: markBookmarkAsRead,
+		// --- 楽観的更新 ---
 		onMutate: async (bookmarkId: number) => {
-			// 1. 関連クエリのキャンセル (楽観的更新が上書きされないように)
-			await queryClient.cancelQueries({
-				queryKey: bookmarkKeys.list("unread"),
-			});
+			// 進行中のクエリをキャンセル
+			await queryClient.cancelQueries({ queryKey: bookmarkKeys.list("unread") });
 
-			// 2. 現在のキャッシュデータのスナップショット取得
+			// ロールバック用に現在のキャッシュデータを保存
 			const previousData = queryClient.getQueryData<BookmarksData>(
 				bookmarkKeys.list("unread"),
 			);
 
-			// 3. キャッシュの楽観的更新
+			// キャッシュを即時更新 (isRead を true に)
 			if (previousData) {
 				queryClient.setQueryData<BookmarksData | undefined>(
-					// undefined の可能性を考慮
 					bookmarkKeys.list("unread"),
 					(oldData: BookmarksData | undefined) => {
-						// 型を追加
-						if (!oldData) return undefined; // oldDataがない場合は何もしない
+						if (!oldData) return undefined;
 						return {
 							...oldData,
-							// bookmarks配列から該当IDを見つけてisReadをtrueにする
-							bookmarks: oldData.bookmarks.map(
-								(
-									bookmark: Bookmark, // 型を追加
-								) =>
-									bookmark.id === bookmarkId
-										? { ...bookmark, isRead: true }
-										: bookmark,
+							bookmarks: oldData.bookmarks.map((bookmark: Bookmark) =>
+								bookmark.id === bookmarkId
+									? { ...bookmark, isRead: true }
+									: bookmark,
 							),
-							// 必要であれば totalUnread や todayReadCount も楽観的に更新
-							// totalUnread: oldData.totalUnread - 1,
-							// todayReadCount: oldData.todayReadCount + 1,
-							// ※ 正確なカウントは invalidate 後にサーバーから取得される
+							// Note: totalUnread や todayReadCount の楽観的更新は省略。
+							// invalidateQueries で最終的に同期されるため。
 						};
 					},
 				);
 			}
 
-			// 4. ロールバック用にスナップショットを返す
+			// ロールバック用データをコンテキストとして返す
 			return { previousData };
 		},
-		// 5. エラー発生時のロールバック
+		// エラー発生時の処理
 		onError: (err, bookmarkId, context) => {
-			console.error("Failed to mark as read:", err);
-			// onMutateから返されたスナップショットでキャッシュを元に戻す
+			console.error(`Failed to mark bookmark ${bookmarkId} as read:`, err);
+			// 保存しておいたデータでキャッシュを元に戻す (ロールバック)
 			if (context?.previousData) {
 				queryClient.setQueryData(
 					bookmarkKeys.list("unread"),
 					context.previousData,
 				);
 			}
-			// TODO: ユーザーへのエラー通知 (例: トースト表示)
+			// TODO: ユーザーへのエラー通知を実装 (例: react-hot-toast)
 		},
-		// 6. 成功/失敗に関わらず、最終的にサーバーと同期
+		// 成功/失敗に関わらず実行される処理
 		onSettled: () => {
+			// 関連クエリを無効化し、サーバーと再同期
 			queryClient.invalidateQueries({ queryKey: bookmarkKeys.list("unread") });
-			// 必要であれば関連する他のクエリも無効化する
+			// 必要に応じて他の関連クエリも無効化 (例: 最近読んだリスト)
 			// queryClient.invalidateQueries({ queryKey: bookmarkKeys.list("recent") });
 		},
 	});
