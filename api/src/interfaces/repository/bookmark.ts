@@ -1,6 +1,6 @@
 import type { Bookmark, InsertBookmark, Label } from "../../db/schema";
 
-export type BookmarkWithFavorite = Bookmark & { isFavorite: boolean };
+type BookmarkWithFavorite = Bookmark & { isFavorite: boolean };
 export type BookmarkWithLabel = BookmarkWithFavorite & {
 	label: Label | null; // ラベルは存在しない場合もあるためnull許容
 };
