@@ -13,7 +13,8 @@
         ], // Keep Bun types, remove CF/Vitest/Hono specifics
         // Remove jsx/jsxImportSource as they are not needed
         "esModuleInterop": true, // Recommended for compatibility
-        "forceConsistentCasingInFileNames": true // Recommended for consistency
+        "forceConsistentCasingInFileNames": true, // Recommended for consistency
+        "outDir": "./build" // Specify output directory
     },
     "include": [
         "src/**/*"

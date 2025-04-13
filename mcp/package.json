@@ -11,6 +11,9 @@
   "peerDependencies": {
     "typescript": "^5"
   },
+  "scripts": {
+    "build": "tsc"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.9.0",
     "zod": "^3.24.2"

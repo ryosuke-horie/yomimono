@@ -2,41 +2,49 @@
 
 This directory contains the MCP (Model Context Protocol) server responsible for automatically labeling saved articles in the Effective Yomimono application. It interacts with the backend API to fetch unlabeled articles and assign labels based on predefined logic (currently placeholder, intended for LLM integration).
 
-## Overview
+## 概要
 
-The server exposes a single tool:
+このサーバーは以下の3つのツールを公開します：
 
-- **`autoLabelArticles`**: Fetches unlabeled articles from the API, determines appropriate labels (using placeholder logic for now), and updates the articles via the API.
-
-## Setup
-
-1.  **Install Dependencies**:
-    ```bash
-    cd mcp
-    bun install
-    ```
-2.  **Environment Variables**:
-    - Create a `.env` file in the `mcp` directory (or set environment variables directly).
-    - Define the backend API base URL:
-      ```
-      API_BASE_URL=https://your-api-endpoint.com
-      ```
-      Replace `https://your-api-endpoint.com` with the actual URL of your deployed API (e.g., `https://effective-yomimono-api.ryosuke-horie37.workers.dev`).
-
-## Running the Server
-
-```bash
-# Ensure API_BASE_URL is set (e.g., via .env or export)
-bun run src/index.ts
-```
-
-The server will start and listen for MCP messages via standard input/output (stdio).
+- **`getUnlabeledArticles`**: ラベル付けされていない記事をAPIから取得します。（引数なし）
+- **`getLabels`**: 既存のラベル一覧をAPIから取得します。（引数なし）
+- **`assignLabel`**: 指定された記事IDに指定されたラベル名をAPI経由で割り当てます。（引数: `articleId`, `labelName`）
 
 ## Connecting with a Client
 
-You can use an MCP client like the [MCP Inspector](https://github.com/modelcontextprotocol/inspector) to connect to the running server and interact with the `autoLabelArticles` tool.
+### ローカル開発 / MCP Inspector
+[MCP Inspector](https://github.com/modelcontextprotocol/inspector) のようなMCPクライアントを使用して、ローカルで実行中のサーバー（`bun run src/index.ts` で起動）に接続し、`autoLabelArticles` ツールと対話できます。
 
-## Development
+### Claude Desktop 連携
+このサーバーをClaude Desktopと連携させるには：
 
-- **Linting/Formatting**: Uses Biome. Run `bun run biome check .` or `bun run biome format --write .`.
-- **Static Analysis**: Uses knip. Run `bun run knip`.
+1.  **サーバーのビルド**: TypeScriptコードをJavaScriptにコンパイルします。
+    ```bash
+    cd mcp
+    bun run build
+    ```
+    これにより、コンパイルされたコード（例：`build/index.js`）を含む `build` ディレクトリが作成されます。
+
+2.  **Claude Desktopの設定**: Claude Desktopの設定ファイル（通常、macOSでは `~/Library/Application Support/Claude/claude_desktop_config.json` にあります）を編集します。`mcpServers` オブジェクト内に以下のエントリを追加します。
+
+    ```json
+    "effective-yomimono-mcp": {
+      "command": "node",
+      "args": ["/プロジェクトへの絶対パス/effective-yomimono/mcp/build/index.js"],
+      "env": {
+        "API_BASE_URL": "https://effective-yomimono-api.ryosuke-horie37.workers.dev"
+      },
+      "disabled": false,
+      "autoApprove": []
+    }
+    ```
+    - `/プロジェクトへの絶対パス/effective-yomimono` を実際のプロジェクトディレクトリへの絶対パスに置き換えてください。
+    - `API_BASE_URL` がデプロイ済みのバックエンドAPIエンドポイントと一致していることを確認してください。
+
+3.  **Claude Desktopの再起動**: 変更を有効にするためにClaude Desktopを再起動します。サーバーがClaude内で利用可能になるはずです。
+
+## 開発
+
+- **ビルド**: `bun run build` （TypeScriptを `build/` ディレクトリ内のJavaScriptにコンパイルします）
+- **Lint/フォーマット**: Biomeを使用。`bun run biome check .` または `bun run biome format --write .` を実行。
+- **静的解析**: knipを使用。`bun run knip` を実行。
