@@ -4,13 +4,24 @@
 
 ```mermaid
 graph TD
-    Chrome[Chrome Extension]
-    Frontend[Frontend - Next.js]
-    API[API - Hono]
-    DB[(Database - D1)]
+    subgraph User Interaction
+        direction LR
+        User --> Chrome[Chrome Extension]
+        User --> Frontend[Frontend - Next.js]
+        User --> Claude[Claude Desktop]
+    end
 
-    Chrome -->|POST| API
-    Frontend -->|GET/POST| API
+    subgraph Backend System
+        direction LR
+        API[API - Hono] --> DB[(Database - D1)]
+    end
+
+    Chrome -->|POST /api/bookmarks/bulk| API
+    Frontend -->|GET/POST/PATCH/DELETE /api/bookmarks/*| API
+    Frontend -->|GET /api/labels| API
+    Claude -->|GET /api/articles/unlabeled| API
+    Claude -->|GET /api/labels| API
+    Claude -->|PUT /api/articles/:id/label| API
     API -->|CRUD| DB
 ```
 
@@ -43,11 +54,27 @@ graph TD
 ```mermaid
 graph TD
     subgraph Backend
-        Routes[Routes]
-        Services[Services]
-        Repositories[Repositories]
-        Schema[DB Schema]
-        
+        subgraph Routes
+            BookmarksRoute[/api/bookmarks]
+            LabelsRoute[/api/labels]
+        end
+        subgraph Services
+            BookmarkService
+            LabelService
+        end
+        subgraph Repositories
+            BookmarkRepository
+            LabelRepository
+            ArticleLabelRepository
+            FavoriteRepository
+        end
+        subgraph Schema
+            BookmarksTable[bookmarks]
+            FavoritesTable[favorites]
+            LabelsTable[labels]
+            ArticleLabelsTable[article_labels]
+        end
+
         Routes -->|uses| Services
         Services -->|uses| Repositories
         Repositories -->|uses| Schema
@@ -55,10 +82,10 @@ graph TD
 ```
 
 - **レイヤー構造**
-  - Routes: エンドポイント定義
-  - Services: ビジネスロジック
-  - Repositories: データアクセス
-  - Schema: データモデル定義
+  - Routes: エンドポイント定義 (`/api/bookmarks`, `/api/labels`)
+  - Services: ビジネスロジック (`BookmarkService`, `LabelService`)
+  - Repositories: データアクセス (`BookmarkRepository`, `LabelRepository`, `ArticleLabelRepository`, `FavoriteRepository`)
+  - Schema: データモデル定義 (`bookmarks`, `favorites`, `labels`, `article_labels` テーブル)
 
 ### 拡張機能（Chrome Extension）
 
@@ -92,16 +119,26 @@ graph TD
 
 ## データフロー
 
-### ブックマーク保存フロー
+### ブックマーク保存フロー (Extension)
 1. 拡張機能がタブ情報を収集
-2. APIにPOSTリクエスト
-3. Repositoryがデータを保存
-4. フロントエンドに反映
+2. API (`POST /api/bookmarks/bulk`) にリクエスト
+3. `BookmarkService` が重複チェック等を行い `BookmarkRepository` を呼び出す
+4. `BookmarkRepository` が `bookmarks` テーブルにデータを保存
 
-### ブックマーク取得フロー
-1. フロントエンドがAPIにリクエスト
-2. Serviceがデータを処理
-3. UIに表示
+### ブックマーク取得フロー (Frontend)
+1. フロントエンドがAPI (`GET /api/bookmarks` or `GET /api/bookmarks/favorites` etc.) にリクエスト
+2. `BookmarkService` がリクエストに応じて `BookmarkRepository` を呼び出す
+3. `BookmarkRepository` が `bookmarks`, `favorites`, `labels`, `article_labels` テーブルを結合してデータを取得
+4. Serviceがデータを整形してフロントエンドに返す
+5. UIに表示
+
+### ラベリングフロー (Claude Desktop)
+1. Claude DesktopがAPI (`GET /api/bookmarks/unlabeled`, `GET /api/labels`) にリクエスト
+2. APIが未ラベル記事と既存ラベル一覧を返す
+3. Claude Desktopが各記事に対してラベルを判断
+4. Claude DesktopがAPI (`PUT /api/bookmarks/:id/label`) にリクエスト
+5. `LabelService` がラベルの存在確認・新規作成、`ArticleLabelRepository` を呼び出し紐付け
+6. `ArticleLabelRepository` が `article_labels` テーブルにデータを保存
 
 ## テスト戦略
 
