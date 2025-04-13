@@ -36,27 +36,30 @@ export class LabelService implements ILabelService {
 		if (!bookmark) {
 			throw new Error(`Bookmark with id ${articleId} not found`);
 		}
-		// TODOコメント削除
 
-		// 2. 既存ラベルチェックを削除 (1記事複数ラベル仕様のため)
-
-		// 3. ラベル名を正規化
+		// 2. ラベル名を正規化
 		const normalizedName = normalizeLabelName(labelName);
 		if (!normalizedName) {
 			throw new Error("Label name cannot be empty after normalization");
 		}
 
-		// 4. 正規化された名前でラベルを検索
+		// 3. 正規化された名前でラベルを検索
 		let label = await this.labelRepository.findByName(normalizedName);
 
-		// 5. ラベルが存在しなければ新規作成
+		// 4. ラベルが存在しなければ新規作成
 		if (!label) {
 			label = await this.labelRepository.create({ name: normalizedName });
 		}
 
+		// 5. 同じラベルが既に付与されていないか確認
+		const existingArticleLabel = await this.articleLabelRepository.findByArticleId(articleId);
+		if (existingArticleLabel && existingArticleLabel.labelId === label.id) {
+			throw new Error(`Label "${normalizedName}" is already assigned to article ${articleId}`);
+		}
+
 		// 6. 記事とラベルを紐付け
 		await this.articleLabelRepository.create({
-			articleId: bookmark.id, // bookmarkオブジェクトのIDを使用
+			articleId: bookmark.id,
 			labelId: label.id,
 		});
 

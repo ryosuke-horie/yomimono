@@ -6,16 +6,13 @@ import type { BookmarkWithLabel } from "../../../src/interfaces/repository/bookm
 import type { ILabelRepository } from "../../../src/interfaces/repository/label";
 import { LabelService } from "../../../src/services/label";
 
-// --- Mock Repository Methods ---
 const mockFindAllWithArticleCount = vi.fn();
 const mockFindLabelByName = vi.fn();
 const mockCreateLabel = vi.fn();
 const mockFindByArticleId = vi.fn();
 const mockCreateArticleLabel = vi.fn();
 const mockFindBookmarkById = vi.fn();
-// --- End Mock Repository Methods ---
 
-// Mock Repositories using mocked methods
 const mockLabelRepository: ILabelRepository = {
 	findAllWithArticleCount: mockFindAllWithArticleCount,
 	findByName: mockFindLabelByName,
@@ -27,10 +24,8 @@ const mockArticleLabelRepository: IArticleLabelRepository = {
 	create: mockCreateArticleLabel,
 };
 
-// BookmarkRepositoryのモックも必要 (LabelServiceで使うのはfindByIdのみ)
 const mockBookmarkRepository: IBookmarkRepository = {
 	findById: mockFindBookmarkById,
-	// Fill other methods with vi.fn() to satisfy the type, though they won't be called in these tests
 	createMany: vi.fn(),
 	findUnread: vi.fn(),
 	findByUrls: vi.fn(),
@@ -50,9 +45,7 @@ describe("LabelService", () => {
 	let labelService: LabelService;
 
 	beforeEach(() => {
-		// Clear mocks on the functions themselves
 		vi.clearAllMocks();
-		// Recreate service instance
 		labelService = new LabelService(
 			mockLabelRepository,
 			mockArticleLabelRepository,
@@ -78,7 +71,6 @@ describe("LabelService", () => {
 					articleCount: 10,
 				},
 			];
-			// Use the specific mock function instance
 			mockFindAllWithArticleCount.mockResolvedValue(mockLabelsWithCount);
 
 			const result = await labelService.getLabels();
@@ -116,10 +108,9 @@ describe("LabelService", () => {
 		};
 
 		it("既存のラベルを記事に付与できること", async () => {
-			// Use the specific mock function instances
 			mockFindBookmarkById.mockResolvedValue(mockBookmark);
-			mockFindByArticleId.mockResolvedValue(undefined); // Not labeled yet
-			mockFindLabelByName.mockResolvedValue(existingLabel); // Label exists
+			mockFindByArticleId.mockResolvedValue(undefined);
+			mockFindLabelByName.mockResolvedValue(existingLabel);
 
 			const result = await labelService.assignLabel(articleId, labelNameInput);
 
@@ -127,20 +118,18 @@ describe("LabelService", () => {
 			expect(mockFindBookmarkById).toHaveBeenCalledWith(articleId);
 			expect(mockFindByArticleId).toHaveBeenCalledWith(articleId);
 			expect(mockFindLabelByName).toHaveBeenCalledWith(normalizedLabelName);
-			expect(mockCreateLabel).not.toHaveBeenCalled(); // Check the specific mock
+			expect(mockCreateLabel).not.toHaveBeenCalled();
 			expect(mockCreateArticleLabel).toHaveBeenCalledWith({
-				// Check the specific mock
 				articleId: articleId,
 				labelId: existingLabel.id,
 			});
 		});
 
 		it("新しいラベルを作成して記事に付与できること", async () => {
-			// Use the specific mock function instances
 			mockFindBookmarkById.mockResolvedValue(mockBookmark);
-			mockFindByArticleId.mockResolvedValue(undefined); // Not labeled yet
-			mockFindLabelByName.mockResolvedValue(undefined); // Label does not exist
-			mockCreateLabel.mockResolvedValue(newLabel); // Mock creation
+			mockFindByArticleId.mockResolvedValue(undefined);
+			mockFindLabelByName.mockResolvedValue(undefined);
+			mockCreateLabel.mockResolvedValue(newLabel);
 
 			const result = await labelService.assignLabel(articleId, labelNameInput);
 
@@ -157,6 +146,66 @@ describe("LabelService", () => {
 			});
 		});
 
+		it("同じ記事に複数のラベルを付与できること", async () => {
+			// 最初のラベル付与のモック設定
+			const firstLabel: Label = {
+				id: 10,
+				name: "typescript",
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+			
+			// 2つ目のラベル付与のモック設定
+			const secondLabel: Label = {
+				id: 11,
+				name: "frontend",
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+
+			mockFindBookmarkById.mockResolvedValue(mockBookmark);
+			// 既存のラベルが存在する状態をモック
+			mockFindByArticleId.mockResolvedValue({
+				id: 1,
+				articleId: articleId,
+				labelId: firstLabel.id,
+				createdAt: new Date(),
+			});
+			mockFindLabelByName.mockResolvedValue(secondLabel);
+
+			const result = await labelService.assignLabel(articleId, "frontend");
+
+			expect(result).toEqual(secondLabel);
+			expect(mockCreateArticleLabel).toHaveBeenCalledWith({
+				articleId: articleId,
+				labelId: secondLabel.id,
+			});
+		});
+
+		it("同じラベルを同じ記事に重複して付与できないこと", async () => {
+			const existingLabel: Label = {
+				id: 10,
+				name: "typescript",
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+
+			mockFindBookmarkById.mockResolvedValue(mockBookmark);
+			mockFindByArticleId.mockResolvedValue({
+				id: 1,
+				articleId: articleId,
+				labelId: existingLabel.id,
+				createdAt: new Date(),
+			});
+			mockFindLabelByName.mockResolvedValue(existingLabel);
+
+			await expect(
+				labelService.assignLabel(articleId, "typescript")
+			).rejects.toThrow(`Label "typescript" is already assigned to article ${articleId}`);
+
+			expect(mockCreateArticleLabel).not.toHaveBeenCalled();
+		});
+
 		it("存在しない記事IDの場合エラーをスローすること", async () => {
 			// Use the specific mock function instance
 			mockFindBookmarkById.mockResolvedValue(undefined); // Bookmark not found
@@ -167,24 +216,6 @@ describe("LabelService", () => {
 
 			expect(mockFindByArticleId).not.toHaveBeenCalled();
 			expect(mockFindLabelByName).not.toHaveBeenCalled();
-		});
-
-		it("既にラベルが付与されている記事の場合エラーをスローすること", async () => {
-			// Use the specific mock function instances
-			mockFindBookmarkById.mockResolvedValue(mockBookmark);
-			mockFindByArticleId.mockResolvedValue({
-				id: 1,
-				articleId: articleId,
-				labelId: 10,
-				createdAt: new Date(),
-			}); // Already labeled
-
-			await expect(
-				labelService.assignLabel(articleId, labelNameInput),
-			).rejects.toThrow(`Article ${articleId} is already labeled`);
-
-			expect(mockFindLabelByName).not.toHaveBeenCalled();
-			expect(mockCreateArticleLabel).not.toHaveBeenCalled();
 		});
 
 		it("正規化後にラベル名が空になる場合エラーをスローすること", async () => {
