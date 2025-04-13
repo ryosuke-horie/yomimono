@@ -68,4 +68,24 @@ export class LabelService implements ILabelService {
 
 		return label;
 	}
+
+	async createLabel(name: string): Promise<Label> {
+		// 1. ラベル名を正規化
+		const normalizedName = normalizeLabelName(name);
+		if (!normalizedName) {
+			throw new Error("Label name cannot be empty after normalization");
+		}
+
+		// 2. 正規化された名前でラベルを検索（重複チェック）
+		const existingLabel = await this.labelRepository.findByName(normalizedName);
+		if (existingLabel) {
+			throw new Error(`Label "${normalizedName}" already exists`);
+		}
+
+		// 3. 新しいラベルを作成
+		const newLabel = await this.labelRepository.create({
+			name: normalizedName,
+		});
+		return newLabel;
+	}
 }

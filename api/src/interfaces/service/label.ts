@@ -18,4 +18,14 @@ export interface ILabelService {
 	 * @throws Error 記事が既にラベリング済みの場合
 	 */
 	assignLabel(articleId: number, labelName: string): Promise<Label>;
+
+	/**
+	 * 新しいラベルを作成します。
+	 * ラベル名は正規化されます。
+	 * @param name 作成するラベル名（正規化前でも可）
+	 * @returns 作成されたラベルオブジェクト
+	 * @throws Error 正規化後のラベル名が空の場合
+	 * @throws Error 同じ名前（正規化後）のラベルが既に存在する場合
+	 */
+	createLabel(name: string): Promise<Label>;
 }

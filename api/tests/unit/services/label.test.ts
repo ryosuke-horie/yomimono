@@ -232,4 +232,52 @@ describe("LabelService", () => {
 			expect(mockCreateArticleLabel).not.toHaveBeenCalled();
 		});
 	});
+
+	describe("createLabel", () => {
+		const labelNameInput = " New Label ";
+		const normalizedLabelName = "new label";
+		const newLabel: Label = {
+			id: 12,
+			name: normalizedLabelName,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		};
+		const existingLabel: Label = {
+			id: 13,
+			name: normalizedLabelName,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		};
+
+		it("新しいラベルを作成できること", async () => {
+			mockFindLabelByName.mockResolvedValue(undefined); // Label does not exist
+			mockCreateLabel.mockResolvedValue(newLabel);
+
+			const result = await labelService.createLabel(labelNameInput);
+
+			expect(result).toEqual(newLabel);
+			expect(mockFindLabelByName).toHaveBeenCalledWith(normalizedLabelName);
+			expect(mockCreateLabel).toHaveBeenCalledWith({
+				name: normalizedLabelName,
+			});
+		});
+
+		it("正規化後にラベル名が空になる場合エラーをスローすること", async () => {
+			await expect(labelService.createLabel("  ")).rejects.toThrow(
+				"Label name cannot be empty after normalization",
+			);
+			expect(mockFindLabelByName).not.toHaveBeenCalled();
+			expect(mockCreateLabel).not.toHaveBeenCalled();
+		});
+
+		it("同じ名前（正規化後）のラベルが既に存在する場合エラーをスローすること", async () => {
+			mockFindLabelByName.mockResolvedValue(existingLabel); // Label already exists
+
+			await expect(labelService.createLabel(labelNameInput)).rejects.toThrow(
+				`Label "${normalizedLabelName}" already exists`,
+			);
+			expect(mockFindLabelByName).toHaveBeenCalledWith(normalizedLabelName);
+			expect(mockCreateLabel).not.toHaveBeenCalled();
+		});
+	});
 });
