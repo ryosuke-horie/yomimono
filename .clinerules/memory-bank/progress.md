@@ -20,11 +20,10 @@
 
 ### ラベリング機能の実装
 1. **MCPサーバー実装**
-   - [x] プロジェクトセットアップ (ディレクトリ作成、依存関係、設定ファイル)
-   - [x] 基本サーバー実装 (`McpServer`, `StdioTransport`)
-   - [x] APIクライアント実装 (`apiClient.ts`)
-   - [x] `autoLabelArticles` Tool実装 (ダミーロジック)
-   - [ ] LLM連携 (Claude API呼び出し)
+   - [✅] プロジェクトセットアップ (ディレクトリ作成、依存関係、設定ファイル)
+   - [✅] 基本サーバー実装 (`McpServer`, `StdioTransport`)
+   - [✅] APIクライアント実装 (`apiClient.ts`)
+   - [✅] `autoLabelArticles` Tool実装 (API経由でのラベル登録処理のみ。LLM判断はクライアント側で行う想定)
    - [ ] Transport検討 (Stdio -> SSE?)
    - [ ] テスト実装
 2. **フロントエンド実装**

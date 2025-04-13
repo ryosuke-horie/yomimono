@@ -38,13 +38,7 @@ export class LabelService implements ILabelService {
 		}
 		// TODOコメント削除
 
-		// 2. 既にラベルが付与されていないか確認 (一時的にコメントアウトして500エラーの原因を特定)
-		// const existingArticleLabel =
-		// 	await this.articleLabelRepository.findByArticleId(articleId);
-		// if (existingArticleLabel) {
-		// 	// Note: このチェックは「1記事1ラベル」前提。複数ラベル許容なら削除または変更が必要。
-		// 	throw new Error(`Article ${articleId} is already labeled`);
-		// }
+		// 2. 既存ラベルチェックを削除 (1記事複数ラベル仕様のため)
 
 		// 3. ラベル名を正規化
 		const normalizedName = normalizeLabelName(labelName);

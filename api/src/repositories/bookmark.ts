@@ -349,17 +349,17 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository { // Imple
 				label: result.label ? { ...result.label } : null,
 			};
 
-			// Add a log to check if id is present after mapping
-			if (mappedResult.id === undefined || mappedResult.id === null) {
-				console.error(
-					`[DEBUG] BookmarkRepository.findById: Mapped bookmark is missing id! articleId=${id}, Original result: ${JSON.stringify(result)}`,
-				);
-				// Optionally return undefined or throw an error if id is crucial and missing
-				return undefined; // Or throw new Error(...)
-			}
+			// Remove the debug log added previously
+			// if (mappedResult.id === undefined || mappedResult.id === null) {
+			// 	console.error(
+			// 		`[DEBUG] BookmarkRepository.findById: Mapped bookmark is missing id! articleId=${id}, Original result: ${JSON.stringify(result)}`,
+			// 	);
+			// 	return undefined;
+			// }
 
 			return mappedResult;
 		} catch (error) {
+			// Restore original error logging format if needed, or keep as is
 			console.error(`[ERROR] BookmarkRepository.findById: Failed to fetch bookmark by id ${id}:`, error);
 			throw error;
 		}

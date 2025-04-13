@@ -23,11 +23,15 @@
 
 ### ラベリング機能の実装
 1. **MCPサーバー実装**:
-   - ラベリングTool (`autoLabelArticles`) を持つMCPサーバーの基本実装 (進行中)。
-   - APIクライアントの実装 (完了)。
-   - Tool内でのAPI呼び出しとダミーラベリングロジックの実装 (完了)。
-   - **今後のステップ**: LLM連携、Transport検討、テスト実装。
-2. **フロントエンド実装**:
+   - ✅ 基本的なMCPサーバー (`mcp/` ディレクトリ) のセットアップ完了。
+   - ✅ `StdioTransport` を使用したサーバー起動実装完了 (`mcp/src/index.ts`)。
+   - ✅ バックエンドAPIクライアント実装完了 (`mcp/src/lib/apiClient.ts`)。
+   - ✅ `autoLabelArticles` Tool実装完了（API経由でのラベル登録処理のみ。LLM判断はクライアント側で行う想定）。
+   - ✅ MCP Inspector経由での接続・Tool実行を確認済み。
+   - **今後のステップ**: Transport検討 (Stdio -> SSE?)、テスト実装。
+2. **API修正**:
+   - ✅ `LabelService` (`api/src/services/label.ts`) の既存ラベルチェックを削除し、「1記事複数ラベル」仕様に対応。
+3. **フロントエンド実装**:
    - 記事カードへのラベル表示。
    - ラベルによるフィルタリング機能の実装。
 
@@ -44,11 +48,11 @@
 1. レイヤー分離の徹底
    - Repository パターンの採用
    - ビジネスロジックの集約
-   - **ラベリング用APIエンドポイント追加**:
-     - `GET /api/labels`
-     - `GET /api/bookmarks/unlabeled`
-     - `PUT /api/bookmarks/:id/label`
-     - `GET /api/bookmarks?label=` (既存API拡張)
+   - **ラベリング用APIエンドポイント**:
+     - `GET /api/labels` (実装済み)
+     - `GET /api/bookmarks/unlabeled` (実装済み)
+     - `PUT /api/bookmarks/:id/label` (実装済み、複数ラベル対応に修正済み)
+     - `GET /api/bookmarks?label=` (実装済み)
 
 2. フロントエンド設計
    - カスタムフックによる状態管理
@@ -87,8 +91,8 @@
 
 ### 短期目標 (現在進行中)
 1. **ラベリング機能**:
-   - MCPサーバー連携の実装 (Claude Desktop側)
-   - フロントエンドへのラベル表示・フィルタリング機能の組み込み
+   - Claude Desktop側でのMCP Tool呼び出しとLLM連携実装。
+   - フロントエンドへのラベル表示・フィルタリング機能の組み込み。
 2. **その他機能強化 (並行または後続)**:
    - 未読記事数の表示機能実装
    - UI/UXの改善 (継続)
