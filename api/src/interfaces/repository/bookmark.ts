@@ -1,11 +1,15 @@
-import type { Bookmark, InsertBookmark } from "../../db/schema";
+import type { Bookmark, InsertBookmark, Label } from "../../db/schema";
 
-export type BookmarkWithFavorite = Bookmark & { isFavorite: boolean };
+type BookmarkWithFavorite = Bookmark & { isFavorite: boolean };
+export type BookmarkWithLabel = BookmarkWithFavorite & {
+	label: Label | null; // ラベルは存在しない場合もあるためnull許容
+};
 
-export interface BookmarkRepository {
+export interface IBookmarkRepository {
+	// Interface名も I プレフィックスに統一
 	createMany(bookmarks: InsertBookmark[]): Promise<void>;
-	findUnread(): Promise<BookmarkWithFavorite[]>;
-	findByUrls(urls: string[]): Promise<BookmarkWithFavorite[]>;
+	findUnread(): Promise<BookmarkWithLabel[]>; // 戻り値もラベル付きに
+	findByUrls(urls: string[]): Promise<BookmarkWithLabel[]>; // 戻り値もラベル付きに
 	markAsRead(id: number): Promise<boolean>;
 	countUnread(): Promise<number>;
 	countTodayRead(): Promise<number>;
@@ -15,9 +19,29 @@ export interface BookmarkRepository {
 		offset: number,
 		limit: number,
 	): Promise<{
-		bookmarks: BookmarkWithFavorite[];
+		bookmarks: BookmarkWithLabel[]; // 戻り値もラベル付きに
 		total: number;
 	}>;
 	isFavorite(bookmarkId: number): Promise<boolean>;
-	findRecentlyRead(): Promise<BookmarkWithFavorite[]>;
+	findRecentlyRead(): Promise<BookmarkWithLabel[]>; // 戻り値もラベル付きに
+
+	/**
+	 * ラベルが付与されていないブックマークを取得します。
+	 * @returns 未ラベルのブックマーク配列
+	 */
+	findUnlabeled(): Promise<Bookmark[]>; // 未ラベルなのでBookmark型でOK
+
+	/**
+	 * 指定されたラベル名に紐づくブックマークを取得します。
+	 * @param labelName ラベル名（正規化済み）
+	 * @returns ラベルに紐づくブックマーク配列（ラベル情報付き）
+	 */ // Add newline after comment block
+	findByLabelName(labelName: string): Promise<BookmarkWithLabel[]>;
+
+	/**
+	 * 指定されたIDのブックマークを取得します。
+	 * @param id ブックマークID
+	 * @returns ブックマークオブジェクト（ラベル・お気に入り情報付き）、存在しない場合はundefined
+	 */
+	findById(id: number): Promise<BookmarkWithLabel | undefined>;
 }

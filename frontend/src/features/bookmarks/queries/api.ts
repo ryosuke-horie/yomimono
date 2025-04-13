@@ -1,6 +1,10 @@
-import type { Bookmark } from "@/features/bookmarks/types";
+import type { Bookmark, BookmarkWithLabel } from "@/features/bookmarks/types"; // BookmarkWithLabel をインポート
 import { API_BASE_URL } from "@/lib/api/config";
-import type { ApiBookmarkResponse, ApiFavoriteResponse } from "@/types/api";
+import type {
+	ApiBookmarkResponse,
+	ApiFavoriteResponse,
+	ApiResponse, // 汎用レスポンス型をインポート
+} from "@/types/api";
 
 // --- Query Functions ---
 
@@ -11,42 +15,14 @@ export interface BookmarksData {
 	todayReadCount: number;
 }
 
-export const getUnreadBookmarks = async (): Promise<BookmarksData> => {
-	const url = `${API_BASE_URL}/api/bookmarks/unread`;
-	const response = await fetch(url, {
-		headers: { Accept: "application/json", "Content-Type": "application/json" },
-	});
-	const responseText = await response.text();
-	if (!response.ok)
-		throw new Error(`Failed to fetch bookmarks: ${response.status}`);
-	try {
-		const data = JSON.parse(responseText) as ApiBookmarkResponse;
-		if (!data.success) throw new Error(data.message);
-		return {
-			bookmarks: data.bookmarks || [],
-			totalUnread: data.totalUnread || 0,
-			todayReadCount: data.todayReadCount || 0,
-		};
-	} catch (e) {
-		console.error("Failed to parse response:", e, { responseText });
-		throw new Error("Invalid response format");
-	}
-};
-
-export const getFavoriteBookmarks = async (): Promise<Bookmark[]> => {
-	const url = `${API_BASE_URL}/api/bookmarks/favorites`;
-	const response = await fetch(url, {
-		headers: { Accept: "application/json", "Content-Type": "application/json" },
-	});
-	if (!response.ok)
-		throw new Error(`Failed to fetch favorites: ${response.status}`);
-	const data = (await response.json()) as ApiFavoriteResponse;
-	if (!data.success) throw new Error(data.message);
-	return data.bookmarks || [];
-};
+// APIレスポンスの型定義を追加
+interface RecentBookmarksApiResponse {
+	success: boolean;
+	bookmarks: { [date: string]: BookmarkWithLabel[] }; // 型を BookmarkWithLabel に修正
+}
 
 export const getRecentlyReadBookmarks = async (): Promise<{
-	[date: string]: Bookmark[];
+	[date: string]: BookmarkWithLabel[]; // 戻り値の型を修正
 }> => {
 	const url = `${API_BASE_URL}/api/bookmarks/recent`;
 	const response = await fetch(url, {
@@ -59,8 +35,17 @@ export const getRecentlyReadBookmarks = async (): Promise<{
 		);
 	try {
 		const data = JSON.parse(responseText);
-		if (!data.success) throw new Error(data.message);
-		return data.bookmarks || {};
+		// success フラグで成功/失敗を判断
+		if (!data.success) {
+			// エラーレスポンスとして型アサーション (ApiResponse<unknown> を使用)
+			const errorData = data as ApiResponse<unknown>;
+			throw new Error(
+				errorData.message || "Unknown error fetching recent bookmarks",
+			);
+		}
+		// 成功レスポンスとして型アサーション
+		const successData = data as RecentBookmarksApiResponse;
+		return successData.bookmarks || {};
 	} catch (e) {
 		console.error("Failed to parse response:", e, { responseText });
 		throw new Error("Invalid response format");

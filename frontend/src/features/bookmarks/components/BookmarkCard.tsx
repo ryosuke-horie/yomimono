@@ -2,15 +2,17 @@
 
 import { useMarkBookmarkAsRead } from "@/features/bookmarks/queries/useMarkBookmarkAsRead";
 import { useToggleFavoriteBookmark } from "@/features/bookmarks/queries/useToggleFavoriteBookmark";
-import type { Bookmark } from "@/features/bookmarks/types";
+import type { BookmarkWithLabel } from "@/features/bookmarks/types"; // BookmarkWithLabel をインポート
+import { LabelDisplay } from "@/features/labels/components/LabelDisplay";
 
 interface Props {
-	bookmark: Bookmark;
-	// onUpdate は不要
+	bookmark: BookmarkWithLabel; // 型を BookmarkWithLabel に変更
+	onLabelClick?: (labelName: string) => void; // ラベルクリック時のハンドラを追加
 }
 
-export function BookmarkCard({ bookmark }: Props) {
-	const { id, title, url, createdAt, isRead, isFavorite } = bookmark;
+export function BookmarkCard({ bookmark, onLabelClick }: Props) {
+	// onLabelClick を受け取る
+	const { id, title, url, createdAt, isRead, isFavorite, label } = bookmark; // label を分割代入
 	const formattedDate = new Date(createdAt).toLocaleDateString("ja-JP");
 
 	// 新しいミューテーションフックを使用
@@ -42,6 +44,15 @@ export function BookmarkCard({ bookmark }: Props) {
 				isRead ? "bg-gray-50" : ""
 			}`}
 		>
+			{/* ラベル表示 */}
+			{label && (
+				<div className="absolute top-2 right-2 z-10">
+					{" "}
+					{/* z-indexを追加してボタンより手前に */}
+					<LabelDisplay label={label} onClick={onLabelClick} />
+				</div>
+			)}
+
 			{/* お気に入りボタン */}
 			<button
 				type="button"

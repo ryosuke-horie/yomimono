@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "strict": true,
+        "skipLibCheck": true,
+        "lib": [
+            "ESNext"
+        ],
+        "types": [
+            "@types/bun"
+        ], // Keep Bun types, remove CF/Vitest/Hono specifics
+        // Remove jsx/jsxImportSource as they are not needed
+        "esModuleInterop": true, // Recommended for compatibility
+        "forceConsistentCasingInFileNames": true // Recommended for consistency
+    },
+    "include": [
+        "src/**/*"
+    ], // Initially include only src
+    "exclude": [
+        "node_modules"
+    ]
+}
