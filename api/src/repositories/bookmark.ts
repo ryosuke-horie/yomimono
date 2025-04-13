@@ -317,7 +317,12 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 				.innerJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId)) // Must have a label association
 				.innerJoin(labels, eq(articleLabels.labelId, labels.id)) // Must have a label
 				.leftJoin(favorites, eq(bookmarks.id, favorites.bookmarkId)) // Favorite is optional
-				.where(eq(labels.name, labelName)) // Filter by label name
+				.where(
+					and(
+						eq(labels.name, labelName), // Filter by label name
+						eq(bookmarks.isRead, false), // 未読記事のみを取得
+					),
+				)
 				.all();
 
 			// Manually map the results to the BookmarkWithLabel structure
