@@ -8,20 +8,22 @@ graph TD
         direction LR
         User --> Chrome[Chrome Extension]
         User --> Frontend[Frontend - Next.js]
-        User --> Claude[Claude Desktop]
+        User --> MCPClient[MCP Client e.g., Claude Desktop]
     end
 
     subgraph Backend System
         direction LR
-        API[API - Hono] --> DB[(Database - D1)]
+        MCPServer[MCP Server - Labeler] --> API[API - Hono]
+        API --> DB[(Database - D1)]
     end
 
     Chrome -->|POST /api/bookmarks/bulk| API
     Frontend -->|GET/POST/PATCH/DELETE /api/bookmarks/*| API
     Frontend -->|GET /api/labels| API
-    Claude -->|GET /api/articles/unlabeled| API
-    Claude -->|GET /api/labels| API
-    Claude -->|PUT /api/articles/:id/label| API
+    MCPClient -->|callTool autoLabelArticles| MCPServer
+    MCPServer -->|GET /api/articles/unlabeled| API
+    MCPServer -->|GET /api/labels| API
+    MCPServer -->|PUT /api/articles/:id/label| API
     API -->|CRUD| DB
 ```
 
@@ -132,13 +134,15 @@ graph TD
 4. Serviceがデータを整形してフロントエンドに返す
 5. UIに表示
 
-### ラベリングフロー (Claude Desktop)
-1. Claude DesktopがAPI (`GET /api/bookmarks/unlabeled`, `GET /api/labels`) にリクエスト
-2. APIが未ラベル記事と既存ラベル一覧を返す
-3. Claude Desktopが各記事に対してラベルを判断
-4. Claude DesktopがAPI (`PUT /api/bookmarks/:id/label`) にリクエスト
-5. `LabelService` がラベルの存在確認・新規作成、`ArticleLabelRepository` を呼び出し紐付け
-6. `ArticleLabelRepository` が `article_labels` テーブルにデータを保存
+### ラベリングフロー (MCP Server)
+1. MCP Client (e.g., Claude Desktop) が MCP Server の `autoLabelArticles` Tool を呼び出す
+2. MCP Server が API (`GET /api/articles/unlabeled`, `GET /api/labels`) にリクエスト
+3. API が未ラベル記事と既存ラベル一覧を返す
+4. MCP Server が各記事に対してラベルを判断 (現在はダミーロジック、将来的にはLLM連携)
+5. MCP Server が API (`PUT /api/articles/:id/label`) にリクエスト
+6. API の `LabelService` がラベルの存在確認・新規作成、`ArticleLabelRepository` を呼び出し紐付け
+7. `ArticleLabelRepository` が `article_labels` テーブルにデータを保存
+8. MCP Server が処理結果を MCP Client に返す
 
 ## テスト戦略
 

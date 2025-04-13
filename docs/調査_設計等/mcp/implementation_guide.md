@@ -130,7 +130,6 @@ server.addTool("mark_as_read", MarkAsReadTool);
 
 // サーバーの起動
 server.listen(3000, () => {
-  console.log("MCP Server running on port 3000");
 });
 ```
 

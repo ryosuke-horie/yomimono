@@ -324,15 +324,43 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository { // Imple
 
 	async findById(id: number): Promise<BookmarkWithLabel | undefined> {
 		try {
-			const query = this.db
-				.select()
+			// Explicitly select columns and use .get() for single result
+			const result = await this.db
+				.select({
+					bookmark: bookmarks, // Select all bookmark fields
+					favorite: favorites, // Select favorite fields (or null)
+					label: labels,       // Select label fields (or null)
+				})
 				.from(bookmarks)
-				.where(eq(bookmarks.id, id));
+				.where(eq(bookmarks.id, id))
+				.leftJoin(favorites, eq(bookmarks.id, favorites.bookmarkId))
+				.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
+				.leftJoin(labels, eq(articleLabels.labelId, labels.id))
+				.get(); // Use .get() for single result
 
-			const results = await this.attachLabelAndFavoriteStatus(query); // Use helper
-			return results.length > 0 ? results[0] : undefined;
+			if (!result) {
+				return undefined;
+			}
+
+			// Map the single result
+			const mappedResult: BookmarkWithLabel = {
+				...result.bookmark,
+				isFavorite: !!result.favorite,
+				label: result.label ? { ...result.label } : null,
+			};
+
+			// Add a log to check if id is present after mapping
+			if (mappedResult.id === undefined || mappedResult.id === null) {
+				console.error(
+					`[DEBUG] BookmarkRepository.findById: Mapped bookmark is missing id! articleId=${id}, Original result: ${JSON.stringify(result)}`,
+				);
+				// Optionally return undefined or throw an error if id is crucial and missing
+				return undefined; // Or throw new Error(...)
+			}
+
+			return mappedResult;
 		} catch (error) {
-			console.error(`Failed to fetch bookmark by id ${id}:`, error);
+			console.error(`[ERROR] BookmarkRepository.findById: Failed to fetch bookmark by id ${id}:`, error);
 			throw error;
 		}
 	}
