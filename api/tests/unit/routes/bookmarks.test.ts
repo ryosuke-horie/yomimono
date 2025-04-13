@@ -272,7 +272,7 @@ describe("BookmarkRouter", () => {
 		});
 
 		it("サービスがAlready labeledエラーを投げた場合409を返すこと", async () => {
-			const error = new Error(`Article ${bookmarkId} is already labeled`);
+			const error = new Error(`Label "test-label" is already assigned to article ${bookmarkId}`);
 			mockAssignLabel.mockRejectedValue(error);
 
 			const res = await app.request(`/api/bookmarks/${bookmarkId}/label`, {
