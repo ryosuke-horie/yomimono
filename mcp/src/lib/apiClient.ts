@@ -21,7 +21,14 @@ const LabelSchema = z.object({
 	name: z.string(),
 });
 const LabelsResponseSchema = z.object({
+	success: z.literal(true), // Assuming the GET /labels also returns success: true
 	labels: z.array(LabelSchema),
+});
+
+// Schema for the POST /api/labels response
+const CreateLabelResponseSchema = z.object({
+	success: z.literal(true),
+	label: LabelSchema,
 });
 
 // Get API base URL from environment variable
@@ -61,10 +68,17 @@ export async function getLabels() {
 	if (!response.ok) {
 		throw new Error(`Failed to fetch labels: ${response.statusText}`);
 	}
-	const data = await response.json();
+	const data: unknown = await response.json(); // Explicitly type as unknown
 	const parsed = LabelsResponseSchema.safeParse(data);
 	if (!parsed.success) {
-		throw new Error(`Invalid API response for labels: ${parsed.error}`);
+		// Use parsed.error for detailed Zod errors
+		throw new Error(`Invalid API response for labels: ${parsed.error.message}`);
+	}
+	// Access success property safely through parsed data
+	if (!parsed.data.success) {
+		throw new Error(
+			`API indicated failure when fetching labels: ${JSON.stringify(parsed.data)}`,
+		);
 	}
 	return parsed.data.labels;
 }
@@ -92,4 +106,62 @@ export async function assignLabelToArticle(articleId: number, labelName: string)
 		);
 	}
 	// Assuming the API returns no content or confirmation on success
+	// Check for specific success status codes if applicable (e.g., 200 OK, 204 No Content)
+}
+
+/**
+ * Creates a new label via the API.
+ * @param labelName - The name of the label to create.
+ * @returns A promise that resolves to the newly created label object.
+ */
+export async function createLabel(labelName: string) {
+	const response = await fetch(`${API_BASE_URL}/api/labels`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({ name: labelName }),
+	});
+
+	let data: unknown;
+	try {
+		// Check content type before parsing, or handle potential empty body for 201/204
+		const contentType = response.headers.get("content-type");
+		if (response.ok && (!contentType || !contentType.includes("application/json"))) {
+			// If response is OK but not JSON (e.g., 201 with empty body or wrong content type)
+			// We might assume success based on status code, or throw an error if JSON is expected.
+			// Let's assume the API *should* return JSON on success based on its route handler.
+			// If parsing fails below, it indicates an issue.
+		}
+		data = await response.json(); // Attempt to parse JSON
+	} catch (parseError: any) {
+		// Handle JSON parsing error
+		if (!response.ok) {
+			// If the request failed and JSON parsing failed, throw an error including status
+			throw new Error(`Failed to create label "${labelName}". Status: ${response.status} ${response.statusText}. Response body could not be parsed: ${parseError.message}`);
+		} else {
+			// If the request succeeded (e.g., 201) but parsing failed (unexpected)
+			throw new Error(`Successfully created label "${labelName}" (Status: ${response.status}) but received an invalid or empty JSON response: ${parseError.message}`);
+		}
+	}
+
+
+	if (!response.ok) {
+		// If response is not ok, but JSON parsing succeeded, try to extract error message
+		let errorMessage = `Failed to create label "${labelName}"`;
+		if (typeof data === "object" && data !== null && "message" in data && typeof data.message === "string") {
+			errorMessage = data.message;
+		}
+		throw new Error(`${errorMessage}: ${response.statusText} (Status: ${response.status})`);
+	}
+
+	// If response.ok and JSON parsing succeeded, validate with Zod
+	const parsed = CreateLabelResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response after creating label. Zod errors: ${parsed.error.message}`, // Use .message for cleaner Zod error
+		);
+	}
+
+	return parsed.data.label;
 }

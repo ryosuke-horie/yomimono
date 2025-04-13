@@ -99,6 +99,43 @@ server.tool(
 	},
 );
 
+// 4. Tool to create a new label
+server.tool(
+	"createLabel",
+	// Define input arguments schema using Zod
+	{
+		labelName: z.string().min(1, "Label name cannot be empty"),
+	},
+	async ({ labelName }) => { // Destructure arguments
+		try {
+			const newLabel = await apiClient.createLabel(labelName);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Successfully created label: ${JSON.stringify(newLabel, null, 2)}`,
+					},
+				],
+				isError: false,
+			};
+		} catch (error: any) {
+			console.error(
+				`Error in createLabel tool (labelName: ${labelName}):`,
+				error.message,
+			);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Failed to create label: ${error.message}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
 // --- End Tool Definition ---
 
 async function main() {
