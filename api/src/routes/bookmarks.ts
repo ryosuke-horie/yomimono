@@ -110,7 +110,7 @@ export const createBookmarksRouter = (
 				if (error.message.includes("not found")) {
 					return c.json({ success: false, message: error.message }, 404);
 				}
-				if (error.message.includes("already labeled")) {
+				if (error.message.includes("already assigned")) {
 					return c.json({ success: false, message: error.message }, 409);
 				}
 				if (error.message.includes("cannot be empty")) {
