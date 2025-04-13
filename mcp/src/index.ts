@@ -10,69 +10,87 @@ const server = new McpServer({
 	version: "0.1.0", // Initial version
 });
 
-// --- Tool Definition ---
+// --- Tool Definitions ---
 
+// 1. Tool to get unlabeled articles
 server.tool(
-	"autoLabelArticles",
-	{}, // Pass an empty object literal for no parameters, instead of z.object({})
-	async (args) => {
-		let processedCount = 0;
-		let errorCount = 0;
-		const errors: string[] = []; // Restore errors array
-
-		// --- Restore Original Logic ---
+	"getUnlabeledArticles",
+	{}, // No input arguments
+	async () => {
 		try {
-			const [articles, labels] = await Promise.all([ // Restore fetching labels
-				apiClient.getUnlabeledArticles(),
-				apiClient.getLabels(),
-			]);
-
-			for (const article of articles) { // Restore loop
-				try {
-					// --- Placeholder Labeling Logic ---
-					// TODO: Replace with actual LLM call or more sophisticated logic
-					let determinedLabel = "needs-review"; // Default dummy label
-					const titleLower = article.title.toLowerCase();
-					if (titleLower.includes("typescript") || titleLower.includes("ts")) {
-						determinedLabel = "typescript";
-					} else if (titleLower.includes("react")) {
-						determinedLabel = "react";
-					} else if (titleLower.includes("cloudflare")) {
-						determinedLabel = "cloudflare";
-					}
-					// --- End Placeholder Logic ---
-
-					await apiClient.assignLabelToArticle(article.id, determinedLabel); // Restore API call
-					processedCount++;
-				} catch (labelError: any) {
-					console.error( // Keep error logging
-						`Error assigning label to article ${article.id}:`,
-						labelError.message,
-					);
-					errors.push( // Restore error tracking
-						`Article ${article.id} (${article.title}): ${labelError.message}`,
-					);
-					errorCount++;
-				}
-			}
-
-			const summary = `Labeling process completed. Processed: ${processedCount}, Errors: ${errorCount}.`; // Restore summary
-			if (errors.length > 0) {
-				// Keep console.error for actual errors (goes to stderr)
-				console.error("Errors encountered:\n- ", errors.join("\n- "));
-			}
-
-			return { // Restore original return object
-				content: [{ type: "text", text: summary }],
-				isError: errorCount > 0, // Indicate error if any labeling failed
+			const articles = await apiClient.getUnlabeledArticles();
+			// Return the list of articles directly. Client needs to handle the structure.
+			// We'll stringify it here for simple text output, but a structured format might be better.
+			return {
+				content: [
+					{ type: "text", text: JSON.stringify(articles, null, 2) },
+				],
+				isError: false,
 			};
-		} catch (fetchError: any) {
-			console.error("Error fetching data for labeling:", fetchError.message); // Keep fetch error logging
+		} catch (error: any) {
+			console.error("Error in getUnlabeledArticles tool:", error.message);
+			return {
+				content: [
+					{ type: "text", text: `Error fetching unlabeled articles: ${error.message}` },
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
+// 2. Tool to get existing labels
+server.tool(
+	"getLabels",
+	{}, // No input arguments
+	async () => {
+		try {
+			const labels = await apiClient.getLabels();
+			// Return the list of labels directly.
+			return {
+				content: [{ type: "text", text: JSON.stringify(labels, null, 2) }],
+				isError: false,
+			};
+		} catch (error: any) {
+			console.error("Error in getLabels tool:", error.message);
+			return {
+				content: [{ type: "text", text: `Error fetching labels: ${error.message}` }],
+				isError: true,
+			};
+		}
+	},
+);
+
+// 3. Tool to assign a label to an article
+server.tool(
+	"assignLabel",
+	// Define input arguments schema using Zod
+	{
+		articleId: z.number().int().positive(),
+		labelName: z.string().min(1),
+	},
+	async ({ articleId, labelName }) => { // Destructure arguments
+		try {
+			await apiClient.assignLabelToArticle(articleId, labelName);
 			return {
 				content: [
 					{
 						type: "text",
-						text: `Failed to start labeling process: ${fetchError.message}`,
+						text: `Successfully assigned label "${labelName}" to article ID ${articleId}.`,
+					},
+				],
+				isError: false,
+			};
+		} catch (error: any) {
+			console.error(
+				`Error in assignLabel tool (articleId: ${articleId}, labelName: ${labelName}):`,
+				error.message,
+			);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Failed to assign label: ${error.message}`, // Use 'error' instead of 'fetchError'
 					},
 				],
 				isError: true,
