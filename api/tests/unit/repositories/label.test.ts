@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { LabelRepository } from "../../../src/repositories/label";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Label } from "../../../src/db/schema";
+import { LabelRepository } from "../../../src/repositories/label";
 
 // Mock Drizzle D1Database instance and its methods
 const mockDb = {
@@ -37,8 +37,20 @@ describe("LabelRepository", () => {
 	describe("findAllWithArticleCount", () => {
 		it("全てのラベルとそれに対応する記事数を取得できること", async () => {
 			const mockLabels = [
-				{ id: 1, name: "go", createdAt: new Date(), updatedAt: new Date(), articleCount: "5" },
-				{ id: 2, name: "typescript", createdAt: new Date(), updatedAt: new Date(), articleCount: "10" },
+				{
+					id: 1,
+					name: "go",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+					articleCount: "5",
+				},
+				{
+					id: 2,
+					name: "typescript",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+					articleCount: "10",
+				},
 			];
 			mockDb.all.mockResolvedValue(mockLabels);
 
@@ -65,7 +77,12 @@ describe("LabelRepository", () => {
 
 	describe("findByName", () => {
 		it("指定された名前のラベルを取得できること", async () => {
-			const mockLabel: Label = { id: 1, name: "typescript", createdAt: new Date(), updatedAt: new Date() };
+			const mockLabel: Label = {
+				id: 1,
+				name: "typescript",
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
 			mockDb.get.mockResolvedValue(mockLabel);
 
 			const result = await labelRepository.findByName("typescript");
@@ -90,14 +107,21 @@ describe("LabelRepository", () => {
 	describe("create", () => {
 		it("新しいラベルを作成できること", async () => {
 			const newLabelData = { name: "react" };
-			const createdLabel: Label = { id: 3, ...newLabelData, createdAt: new Date(), updatedAt: new Date() };
+			const createdLabel: Label = {
+				id: 3,
+				...newLabelData,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
 			mockDb.get.mockResolvedValue(createdLabel); // .returning().get()
 
 			const result = await labelRepository.create(newLabelData);
 
 			expect(result).toEqual(createdLabel);
 			expect(mockDb.insert).toHaveBeenCalledWith(expect.anything()); // Check table schema
-			expect(mockDb.values).toHaveBeenCalledWith(expect.objectContaining(newLabelData));
+			expect(mockDb.values).toHaveBeenCalledWith(
+				expect.objectContaining(newLabelData),
+			);
 			expect(mockDb.returning).toHaveBeenCalled();
 			expect(mockDb.get).toHaveBeenCalledOnce();
 		});

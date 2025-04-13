@@ -1,19 +1,54 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { IBookmarkRepository, BookmarkWithLabel } from "../../../src/interfaces/repository/bookmark"; // Use IBookmarkRepository, import BookmarkWithLabel
 import type { Bookmark, Label } from "../../../src/db/schema"; // Import Bookmark and Label
-import { DefaultBookmarkService } from "../../../src/services/bookmark";
+import type {
+	BookmarkWithLabel,
+	IBookmarkRepository,
+} from "../../../src/interfaces/repository/bookmark"; // Use IBookmarkRepository, import BookmarkWithLabel
 import type { IBookmarkService } from "../../../src/interfaces/service/bookmark"; // Use IBookmarkService
+import { DefaultBookmarkService } from "../../../src/services/bookmark";
 
 describe("DefaultBookmarkService", () => {
 	let service: IBookmarkService; // Use IBookmarkService
 
 	// --- Mock Data ---
-	const mockBookmark1: Bookmark = { id: 1, url: "https://example.com/1", title: "Example 1", isRead: false, createdAt: new Date(), updatedAt: new Date() };
-	const mockBookmark2: Bookmark = { id: 2, url: "https://example.com/2", title: "Example 2", isRead: false, createdAt: new Date(), updatedAt: new Date() }; // Add mockBookmark2
-	const mockLabel1: Label = { id: 10, name: "typescript", createdAt: new Date(), updatedAt: new Date() };
-	const mockLabel2: Label = { id: 11, name: "react", createdAt: new Date(), updatedAt: new Date() }; // Add mockLabel2
-	const expectedResult1: BookmarkWithLabel = { ...mockBookmark1, isFavorite: true, label: mockLabel1 };
-	const expectedResult2: BookmarkWithLabel = { ...mockBookmark2, isFavorite: false, label: mockLabel2 }; // Define expectedResult2
+	const mockBookmark1: Bookmark = {
+		id: 1,
+		url: "https://example.com/1",
+		title: "Example 1",
+		isRead: false,
+		createdAt: new Date(),
+		updatedAt: new Date(),
+	};
+	const mockBookmark2: Bookmark = {
+		id: 2,
+		url: "https://example.com/2",
+		title: "Example 2",
+		isRead: false,
+		createdAt: new Date(),
+		updatedAt: new Date(),
+	}; // Add mockBookmark2
+	const mockLabel1: Label = {
+		id: 10,
+		name: "typescript",
+		createdAt: new Date(),
+		updatedAt: new Date(),
+	};
+	const mockLabel2: Label = {
+		id: 11,
+		name: "react",
+		createdAt: new Date(),
+		updatedAt: new Date(),
+	}; // Add mockLabel2
+	const expectedResult1: BookmarkWithLabel = {
+		...mockBookmark1,
+		isFavorite: true,
+		label: mockLabel1,
+	};
+	const expectedResult2: BookmarkWithLabel = {
+		...mockBookmark2,
+		isFavorite: false,
+		label: mockLabel2,
+	}; // Define expectedResult2
 	// --- End Mock Data ---
 
 	// --- Mock Repository Methods ---
@@ -50,7 +85,6 @@ describe("DefaultBookmarkService", () => {
 		findByLabelName: mockFindByLabelName,
 		findById: mockFindById,
 	};
-
 
 	beforeEach(() => {
 		// Clear mocks on the functions themselves
@@ -198,7 +232,10 @@ describe("DefaultBookmarkService", () => {
 	});
 	describe("getUnreadBookmarks：未読ブックマークの取得", () => {
 		it("リポジトリから未読ブックマークをラベル情報付きで返す", async () => {
-			const mockBookmarks: BookmarkWithLabel[] = [expectedResult1, expectedResult2];
+			const mockBookmarks: BookmarkWithLabel[] = [
+				expectedResult1,
+				expectedResult2,
+			];
 			mockFindUnread.mockResolvedValue(mockBookmarks); // Use specific mock
 
 			const result = await service.getUnreadBookmarks();
@@ -234,7 +271,9 @@ describe("DefaultBookmarkService", () => {
 
 			await service.createBookmarksFromData(bookmarksToCreate);
 
-			expect(mockFindByUrls).toHaveBeenCalledWith(bookmarksToCreate.map(b => b.url));
+			expect(mockFindByUrls).toHaveBeenCalledWith(
+				bookmarksToCreate.map((b) => b.url),
+			);
 			expect(mockCreateMany).toHaveBeenCalled();
 		});
 
@@ -243,17 +282,25 @@ describe("DefaultBookmarkService", () => {
 				{ url: mockBookmark1.url, title: "Existing Unread" },
 				{ url: "https://new.com", title: "New" },
 			];
-			const existingUnread: BookmarkWithLabel = { ...mockBookmark1, isFavorite: false, label: null };
+			const existingUnread: BookmarkWithLabel = {
+				...mockBookmark1,
+				isFavorite: false,
+				label: null,
+			};
 			mockFindByUrls.mockResolvedValue([existingUnread]); // Use specific mock
 			mockCreateMany.mockResolvedValue(undefined); // Use specific mock
 
 			await service.createBookmarksFromData(bookmarksToCreate);
 
 			expect(mockCreateMany).toHaveBeenCalledWith(
-				expect.arrayContaining([expect.objectContaining({ url: "https://new.com" })])
+				expect.arrayContaining([
+					expect.objectContaining({ url: "https://new.com" }),
+				]),
 			);
 			expect(mockCreateMany).not.toHaveBeenCalledWith(
-				expect.arrayContaining([expect.objectContaining({ url: mockBookmark1.url })])
+				expect.arrayContaining([
+					expect.objectContaining({ url: mockBookmark1.url }),
+				]),
 			);
 		});
 
@@ -266,9 +313,13 @@ describe("DefaultBookmarkService", () => {
 			const error = new Error("Repository error");
 			mockFindByUrls.mockResolvedValue([]); // Use specific mock
 			mockCreateMany.mockRejectedValue(error); // Use specific mock
-			const bookmarksToCreate = [{ url: "https://example.com", title: "Example" }];
+			const bookmarksToCreate = [
+				{ url: "https://example.com", title: "Example" },
+			];
 
-			await expect(service.createBookmarksFromData(bookmarksToCreate)).rejects.toThrow(error);
+			await expect(
+				service.createBookmarksFromData(bookmarksToCreate),
+			).rejects.toThrow(error);
 		});
 	});
 	describe("markBookmarkAsRead：ブックマークを既読としてマーク", () => {
@@ -286,14 +337,18 @@ describe("DefaultBookmarkService", () => {
 			mockMarkAsRead.mockRejectedValue(error); // Use specific mock
 			const bookmarkId = 123;
 
-			await expect(service.markBookmarkAsRead(bookmarkId)).rejects.toThrow(error);
+			await expect(service.markBookmarkAsRead(bookmarkId)).rejects.toThrow(
+				error,
+			);
 		});
 
 		it("ブックマークが見つからない場合はエラーを投げる", async () => {
 			const bookmarkId = 999;
 			mockMarkAsRead.mockResolvedValue(false); // Use specific mock
 
-			await expect(service.markBookmarkAsRead(bookmarkId)).rejects.toThrow("Bookmark not found");
+			await expect(service.markBookmarkAsRead(bookmarkId)).rejects.toThrow(
+				"Bookmark not found",
+			);
 			expect(mockMarkAsRead).toHaveBeenCalledWith(bookmarkId);
 		});
 	});
@@ -317,7 +372,9 @@ describe("DefaultBookmarkService", () => {
 			const error = new Error("Repository error");
 			mockFindRecentlyRead.mockRejectedValue(error); // Use specific mock
 
-			await expect(service.getRecentlyReadBookmarks()).rejects.toThrow("Failed to get recently read bookmarks");
+			await expect(service.getRecentlyReadBookmarks()).rejects.toThrow(
+				"Failed to get recently read bookmarks",
+			);
 		});
 	});
 
@@ -337,7 +394,9 @@ describe("DefaultBookmarkService", () => {
 			const error = new Error("Repository error");
 			mockFindUnlabeled.mockRejectedValue(error); // Use specific mock
 
-			await expect(service.getUnlabeledBookmarks()).rejects.toThrow("Failed to get unlabeled bookmarks");
+			await expect(service.getUnlabeledBookmarks()).rejects.toThrow(
+				"Failed to get unlabeled bookmarks",
+			);
 		});
 	});
 
@@ -358,7 +417,9 @@ describe("DefaultBookmarkService", () => {
 			const error = new Error("Repository error");
 			mockFindByLabelName.mockRejectedValue(error); // Use specific mock
 
-			await expect(service.getBookmarksByLabel(labelName)).rejects.toThrow("Failed to get bookmarks by label");
+			await expect(service.getBookmarksByLabel(labelName)).rejects.toThrow(
+				"Failed to get bookmarks by label",
+			);
 		});
 	});
 });

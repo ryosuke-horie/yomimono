@@ -1,4 +1,4 @@
-import type { Label, InsertLabel } from "../../db/schema";
+import type { InsertLabel, Label } from "../../db/schema";
 
 export interface ILabelRepository {
 	/**

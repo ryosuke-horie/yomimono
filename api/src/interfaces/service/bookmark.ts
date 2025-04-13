@@ -1,7 +1,8 @@
 import type { Bookmark } from "../../db/schema"; // Import Bookmark
 import type { BookmarkWithLabel } from "../repository/bookmark"; // Corrected import path again
 
-export interface IBookmarkService { // Rename to IBookmarkService
+export interface IBookmarkService {
+	// Rename to IBookmarkService
 	createBookmarksFromData(
 		bookmarks: Array<{ url: string; title: string }>,
 	): Promise<void>;

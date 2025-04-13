@@ -1,11 +1,12 @@
 import type { Bookmark, InsertBookmark } from "../db/schema"; // Import Bookmark
 import type {
-	IBookmarkRepository, // Use IBookmarkRepository
 	BookmarkWithLabel, // Use BookmarkWithLabel
+	IBookmarkRepository, // Use IBookmarkRepository
 } from "../interfaces/repository/bookmark";
 import type { IBookmarkService } from "../interfaces/service/bookmark"; // Use IBookmarkService
 
-export class DefaultBookmarkService implements IBookmarkService { // Implement IBookmarkService
+export class DefaultBookmarkService implements IBookmarkService {
+	// Implement IBookmarkService
 	constructor(private readonly repository: IBookmarkRepository) {} // Use IBookmarkRepository
 
 	async getUnreadBookmarksCount(): Promise<number> {
@@ -16,7 +17,8 @@ export class DefaultBookmarkService implements IBookmarkService { // Implement I
 		return await this.repository.countTodayRead();
 	}
 
-	async getUnreadBookmarks(): Promise<BookmarkWithLabel[]> { // Update return type
+	async getUnreadBookmarks(): Promise<BookmarkWithLabel[]> {
+		// Update return type
 		return await this.repository.findUnread();
 	}
 

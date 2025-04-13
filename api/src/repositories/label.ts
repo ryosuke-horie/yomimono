@@ -1,6 +1,11 @@
+import { count, eq } from "drizzle-orm";
 import { type DrizzleD1Database, drizzle } from "drizzle-orm/d1";
-import { eq, count } from "drizzle-orm";
-import { labels, articleLabels, type Label, type InsertLabel } from "../db/schema";
+import {
+	type InsertLabel,
+	type Label,
+	articleLabels,
+	labels,
+} from "../db/schema";
 import type { ILabelRepository } from "../interfaces/repository/label";
 
 export class LabelRepository implements ILabelRepository {
@@ -10,7 +15,9 @@ export class LabelRepository implements ILabelRepository {
 		this.db = drizzle(db);
 	}
 
-	async findAllWithArticleCount(): Promise<(Label & { articleCount: number })[]> {
+	async findAllWithArticleCount(): Promise<
+		(Label & { articleCount: number })[]
+	> {
 		const results = await this.db
 			.select({
 				id: labels.id,

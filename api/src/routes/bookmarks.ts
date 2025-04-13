@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { z } from "zod";
+import type { BookmarkWithLabel } from "../interfaces/repository/bookmark";
 import type { IBookmarkService } from "../interfaces/service/bookmark"; // Use IBookmarkService
 import type { ILabelService } from "../interfaces/service/label"; // Import ILabelService
 // Removed unused import of normalizeLabelName
@@ -16,7 +17,7 @@ export const createBookmarksRouter = (
 		const labelQuery = c.req.query("label");
 
 		try {
-			let bookmarks;
+			let bookmarks: BookmarkWithLabel[];
 			if (labelQuery) {
 				// ラベルによるフィルタリング
 				// Note: サービス層で正規化するか、ここで正規化するか要検討。
@@ -28,7 +29,12 @@ export const createBookmarksRouter = (
 					bookmarkService.getUnreadBookmarksCount(),
 					bookmarkService.getTodayReadCount(),
 				]);
-				return c.json({ success: true, bookmarks, totalUnread, todayReadCount });
+				return c.json({
+					success: true,
+					bookmarks,
+					totalUnread,
+					todayReadCount,
+				});
 			}
 			// 通常の未読取得
 			const [unreadBookmarks, totalUnread, todayReadCount] = await Promise.all([
@@ -82,9 +88,16 @@ export const createBookmarksRouter = (
 
 			const labelName = body?.labelName;
 
-			if (!labelName || typeof labelName !== "string" || labelName.trim() === "") {
+			if (
+				!labelName ||
+				typeof labelName !== "string" ||
+				labelName.trim() === ""
+			) {
 				return c.json(
-					{ success: false, message: "labelName is required and must be a non-empty string" },
+					{
+						success: false,
+						message: "labelName is required and must be a non-empty string",
+					},
 					400,
 				);
 			}
@@ -92,7 +105,6 @@ export const createBookmarksRouter = (
 			// labelServiceを使ってラベルを付与 (正規化はサービス内で行う)
 			const assignedLabel = await labelService.assignLabel(id, labelName);
 			return c.json({ success: true, label: assignedLabel });
-
 		} catch (error) {
 			if (error instanceof Error) {
 				if (error.message.includes("not found")) {
@@ -106,10 +118,7 @@ export const createBookmarksRouter = (
 				}
 			}
 			console.error("Failed to assign label:", error);
-			return c.json(
-				{ success: false, message: "Failed to assign label" },
-				500,
-			);
+			return c.json({ success: false, message: "Failed to assign label" }, 500);
 		}
 	});
 	// --- End New Endpoints ---

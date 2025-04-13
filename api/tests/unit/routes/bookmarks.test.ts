@@ -1,11 +1,21 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Hono } from "hono";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Bookmark, Label } from "../../../src/db/schema"; // Import types
+import type { Env } from "../../../src/index"; // Import Env
+import type { BookmarkWithLabel } from "../../../src/interfaces/repository/bookmark"; // Import type
 import type { IBookmarkService } from "../../../src/interfaces/service/bookmark"; // Use IBookmarkService
 import type { ILabelService } from "../../../src/interfaces/service/label"; // Import ILabelService
 import { createBookmarksRouter } from "../../../src/routes/bookmarks";
-import type { Bookmark, Label } from "../../../src/db/schema"; // Import types
-import type { BookmarkWithLabel } from "../../../src/interfaces/repository/bookmark"; // Import type
-import type { Env } from "../../../src/index"; // Import Env
+
+interface PaginationResponse {
+	success: boolean;
+	bookmarks: BookmarkWithLabel[];
+	pagination: {
+		currentPage: number;
+		totalPages: number;
+		totalItems: number;
+	};
+}
 
 // --- Mock Service Methods ---
 const mockGetUnreadBookmarks = vi.fn();
@@ -45,9 +55,25 @@ describe("BookmarkRouter", () => {
 	let app: Hono<{ Bindings: Env }>;
 
 	// --- Mock Data ---
-	const mockBookmark1: Bookmark = { id: 1, url: "https://example.com/1", title: "Example 1", isRead: false, createdAt: new Date(), updatedAt: new Date() };
-	const mockLabel1: Label = { id: 10, name: "typescript", createdAt: new Date(), updatedAt: new Date() };
-	const expectedResult1: BookmarkWithLabel = { ...mockBookmark1, isFavorite: true, label: mockLabel1 };
+	const mockBookmark1: Bookmark = {
+		id: 1,
+		url: "https://example.com/1",
+		title: "Example 1",
+		isRead: false,
+		createdAt: new Date(),
+		updatedAt: new Date(),
+	};
+	const mockLabel1: Label = {
+		id: 10,
+		name: "typescript",
+		createdAt: new Date(),
+		updatedAt: new Date(),
+	};
+	const expectedResult1: BookmarkWithLabel = {
+		...mockBookmark1,
+		isFavorite: true,
+		label: mockLabel1,
+	};
 	// --- End Mock Data ---
 
 	beforeEach(() => {
@@ -58,7 +84,8 @@ describe("BookmarkRouter", () => {
 		app.route("/api/bookmarks", router); // Mount under /api/bookmarks
 	});
 
-	describe("GET /api/bookmarks/", () => { // Updated path
+	describe("GET /api/bookmarks/", () => {
+		// Updated path
 		it("クエリパラメータなしの場合、未読ブックマーク一覧と総数、当日の既読数を取得できること", async () => {
 			const mockBookmarks: BookmarkWithLabel[] = [expectedResult1];
 			mockGetUnreadBookmarks.mockResolvedValue(mockBookmarks);
@@ -66,7 +93,12 @@ describe("BookmarkRouter", () => {
 			mockGetTodayReadCount.mockResolvedValue(5);
 
 			const res = await app.request("/api/bookmarks"); // Use app.request
-			const data = await res.json() as { success: boolean, bookmarks: BookmarkWithLabel[], totalUnread: number, todayReadCount: number };
+			const data = (await res.json()) as {
+				success: boolean;
+				bookmarks: BookmarkWithLabel[];
+				totalUnread: number;
+				todayReadCount: number;
+			};
 
 			expect(res.status).toBe(200);
 			expect(data.success).toBe(true);
@@ -89,7 +121,12 @@ describe("BookmarkRouter", () => {
 			mockGetTodayReadCount.mockResolvedValue(2);
 
 			const res = await app.request(`/api/bookmarks?label=${labelName}`);
-			const data = await res.json() as { success: boolean, bookmarks: BookmarkWithLabel[], totalUnread: number, todayReadCount: number };
+			const data = (await res.json()) as {
+				success: boolean;
+				bookmarks: BookmarkWithLabel[];
+				totalUnread: number;
+				todayReadCount: number;
+			};
 
 			expect(res.status).toBe(200);
 			expect(data.success).toBe(true);
@@ -101,13 +138,12 @@ describe("BookmarkRouter", () => {
 			expect(mockGetUnreadBookmarks).not.toHaveBeenCalled();
 		});
 
-
 		it("サービスでエラーが発生した場合、500エラーレスポンスを返すこと", async () => {
 			const error = new Error("Service error");
 			mockGetUnreadBookmarks.mockRejectedValue(error); // Mock error for the no-query case
 
 			const res = await app.request("/api/bookmarks");
-			const data = await res.json() as { success: boolean, message: string };
+			const data = (await res.json()) as { success: boolean; message: string };
 
 			expect(res.status).toBe(500);
 			expect(data.success).toBe(false);
@@ -120,7 +156,7 @@ describe("BookmarkRouter", () => {
 			mockGetBookmarksByLabel.mockRejectedValue(error); // Mock error for the label filter case
 
 			const res = await app.request(`/api/bookmarks?label=${labelName}`);
-			const data = await res.json() as { success: boolean, message: string };
+			const data = (await res.json()) as { success: boolean; message: string };
 
 			expect(res.status).toBe(500);
 			expect(data.success).toBe(false);
@@ -134,7 +170,10 @@ describe("BookmarkRouter", () => {
 			mockGetUnlabeledBookmarks.mockResolvedValue(mockUnlabeled);
 
 			const res = await app.request("/api/bookmarks/unlabeled");
-			const data = await res.json() as { success: boolean, bookmarks: Bookmark[] };
+			const data = (await res.json()) as {
+				success: boolean;
+				bookmarks: Bookmark[];
+			};
 
 			expect(res.status).toBe(200);
 			expect(data.success).toBe(true);
@@ -150,7 +189,7 @@ describe("BookmarkRouter", () => {
 			mockGetUnlabeledBookmarks.mockRejectedValue(error);
 
 			const res = await app.request("/api/bookmarks/unlabeled");
-			const data = await res.json() as { success: boolean, message: string };
+			const data = (await res.json()) as { success: boolean; message: string };
 
 			expect(res.status).toBe(500);
 			expect(data.success).toBe(false);
@@ -164,7 +203,12 @@ describe("BookmarkRouter", () => {
 		const requestBody = { labelName };
 
 		it("指定したブックマークにラベルを付与できること", async () => {
-			const assignedLabel: Label = { id: 1, name: labelName, createdAt: new Date(), updatedAt: new Date() };
+			const assignedLabel: Label = {
+				id: 1,
+				name: labelName,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
 			mockAssignLabel.mockResolvedValue(assignedLabel);
 
 			const res = await app.request(`/api/bookmarks/${bookmarkId}/label`, {
@@ -172,7 +216,7 @@ describe("BookmarkRouter", () => {
 				body: JSON.stringify(requestBody),
 				headers: { "Content-Type": "application/json" },
 			});
-			const data = await res.json() as { success: boolean, label: Label };
+			const data = (await res.json()) as { success: boolean; label: Label };
 
 			expect(res.status).toBe(200);
 			expect(data.success).toBe(true);
@@ -186,7 +230,7 @@ describe("BookmarkRouter", () => {
 				body: JSON.stringify(requestBody),
 				headers: { "Content-Type": "application/json" },
 			});
-			const data = await res.json() as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
 
 			expect(res.status).toBe(400);
 			expect(data).toEqual({ success: false, message: "Invalid bookmark ID" });
@@ -198,7 +242,7 @@ describe("BookmarkRouter", () => {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
 			});
-			const data = await res.json() as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
 
 			expect(res.status).toBe(400);
 			// Expect the message returned when JSON parsing fails
@@ -212,13 +256,15 @@ describe("BookmarkRouter", () => {
 				body: JSON.stringify({ labelName: "  " }),
 				headers: { "Content-Type": "application/json" },
 			});
-			const data = await res.json() as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
 
 			expect(res.status).toBe(400);
-			expect(data).toEqual({ success: false, message: "labelName is required and must be a non-empty string" });
+			expect(data).toEqual({
+				success: false,
+				message: "labelName is required and must be a non-empty string",
+			});
 			expect(mockAssignLabel).not.toHaveBeenCalled();
 		});
-
 
 		it("サービスがBookmark not foundエラーを投げた場合404を返すこと", async () => {
 			const error = new Error("Bookmark with id 123 not found");
@@ -229,7 +275,7 @@ describe("BookmarkRouter", () => {
 				body: JSON.stringify(requestBody),
 				headers: { "Content-Type": "application/json" },
 			});
-			const data = await res.json() as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
 
 			expect(res.status).toBe(404);
 			expect(data).toEqual({ success: false, message: error.message });
@@ -244,7 +290,7 @@ describe("BookmarkRouter", () => {
 				body: JSON.stringify(requestBody),
 				headers: { "Content-Type": "application/json" },
 			});
-			const data = await res.json() as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
 
 			expect(res.status).toBe(409);
 			expect(data).toEqual({ success: false, message: error.message });
@@ -259,10 +305,13 @@ describe("BookmarkRouter", () => {
 				body: JSON.stringify(requestBody),
 				headers: { "Content-Type": "application/json" },
 			});
-			const data = await res.json() as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
 
 			expect(res.status).toBe(500);
-			expect(data).toEqual({ success: false, message: "Failed to assign label" });
+			expect(data).toEqual({
+				success: false,
+				message: "Failed to assign label",
+			});
 		});
 	});
 
@@ -271,8 +320,10 @@ describe("BookmarkRouter", () => {
 		describe("POST /api/bookmarks/:id/favorite", () => {
 			it("お気に入りに追加できること", async () => {
 				mockAddToFavorites.mockResolvedValue(undefined);
-				const res = await app.request("/api/bookmarks/123/favorite", { method: "POST" });
-				const data = await res.json() as { success: boolean }; // Add type assertion
+				const res = await app.request("/api/bookmarks/123/favorite", {
+					method: "POST",
+				});
+				const data = (await res.json()) as { success: boolean }; // Add type assertion
 
 				expect(mockAddToFavorites).toHaveBeenCalledWith(123);
 				expect(res.status).toBe(200);
@@ -281,8 +332,13 @@ describe("BookmarkRouter", () => {
 
 			it("存在しないブックマークの場合404を返すこと", async () => {
 				mockAddToFavorites.mockRejectedValue(new Error("Bookmark not found"));
-				const res = await app.request("/api/bookmarks/999/favorite", { method: "POST" });
-				const data = await res.json() as { success: boolean; message: string }; // Add type assertion
+				const res = await app.request("/api/bookmarks/999/favorite", {
+					method: "POST",
+				});
+				const data = (await res.json()) as {
+					success: boolean;
+					message: string;
+				}; // Add type assertion
 				expect(res.status).toBe(404);
 				expect(data).toEqual({ success: false, message: "Bookmark not found" });
 			});
@@ -292,17 +348,26 @@ describe("BookmarkRouter", () => {
 		describe("DELETE /api/bookmarks/:id/favorite", () => {
 			it("お気に入りから削除できること", async () => {
 				mockRemoveFromFavorites.mockResolvedValue(undefined);
-				const res = await app.request("/api/bookmarks/123/favorite", { method: "DELETE" });
-				const data = await res.json() as { success: boolean }; // Add type assertion
+				const res = await app.request("/api/bookmarks/123/favorite", {
+					method: "DELETE",
+				});
+				const data = (await res.json()) as { success: boolean }; // Add type assertion
 				expect(mockRemoveFromFavorites).toHaveBeenCalledWith(123);
 				expect(res.status).toBe(200);
 				expect(data).toEqual({ success: true });
 			});
 			// Add assertions for error cases (400, 404, 500) similarly if needed
 			it("存在しないお気に入りの場合404を返すこと", async () => {
-				mockRemoveFromFavorites.mockRejectedValue(new Error("Favorite not found"));
-				const res = await app.request("/api/bookmarks/999/favorite", { method: "DELETE" });
-				const data = await res.json() as { success: boolean; message: string }; // Add type assertion
+				mockRemoveFromFavorites.mockRejectedValue(
+					new Error("Favorite not found"),
+				);
+				const res = await app.request("/api/bookmarks/999/favorite", {
+					method: "DELETE",
+				});
+				const data = (await res.json()) as {
+					success: boolean;
+					message: string;
+				}; // Add type assertion
 				expect(res.status).toBe(404);
 				expect(data).toEqual({ success: false, message: "Favorite not found" });
 			});
@@ -311,11 +376,16 @@ describe("BookmarkRouter", () => {
 		describe("GET /api/bookmarks/favorites", () => {
 			it("お気に入り一覧を取得できること", async () => {
 				const mockBookmarks: BookmarkWithLabel[] = [expectedResult1];
-				const mockResponse = { bookmarks: mockBookmarks, pagination: { currentPage: 1, totalPages: 1, totalItems: 1 } };
+				const mockResponse = {
+					bookmarks: mockBookmarks,
+					pagination: { currentPage: 1, totalPages: 1, totalItems: 1 },
+				};
 				mockGetFavoriteBookmarks.mockResolvedValue(mockResponse);
 
-				const res = await app.request("/api/bookmarks/favorites?page=1&limit=10");
-				const data = await res.json() as { success: boolean; bookmarks: BookmarkWithLabel[]; pagination: any }; // Add type assertion
+				const res = await app.request(
+					"/api/bookmarks/favorites?page=1&limit=10",
+				);
+				const data = (await res.json()) as PaginationResponse;
 
 				expect(res.status).toBe(200);
 				expect(data.success).toBe(true);
@@ -327,13 +397,18 @@ describe("BookmarkRouter", () => {
 			it("エラー時に500を返すこと", async () => {
 				mockGetFavoriteBookmarks.mockRejectedValue(new Error("Database error"));
 				const res = await app.request("/api/bookmarks/favorites");
-				const data = await res.json() as { success: boolean; message: string }; // Add type assertion
+				const data = (await res.json()) as {
+					success: boolean;
+					message: string;
+				}; // Add type assertion
 				expect(res.status).toBe(500);
-				expect(data).toEqual({ success: false, message: "Failed to fetch favorites" });
+				expect(data).toEqual({
+					success: false,
+					message: "Failed to fetch favorites",
+				});
 			});
 		});
 	});
-
 
 	describe("POST /api/bookmarks/bulk", () => {
 		it("複数のブックマークを作成できること", async () => {
@@ -348,31 +423,45 @@ describe("BookmarkRouter", () => {
 				body: JSON.stringify({ bookmarks: bookmarksPayload }),
 				headers: { "Content-Type": "application/json" },
 			});
-			const data = await res.json() as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
 
 			expect(res.status).toBe(200);
-			expect(mockCreateBookmarksFromData).toHaveBeenCalledWith(bookmarksPayload);
-			expect(data).toEqual({ success: true, message: "Processed 2 bookmarks (duplicates skipped if unread)" });
+			expect(mockCreateBookmarksFromData).toHaveBeenCalledWith(
+				bookmarksPayload,
+			);
+			expect(data).toEqual({
+				success: true,
+				message: "Processed 2 bookmarks (duplicates skipped if unread)",
+			});
 		});
 		// Add assertions for error cases (400, 500) similarly if needed
 		it("エラー時に500を返すこと", async () => {
-			mockCreateBookmarksFromData.mockRejectedValue(new Error("Database error"));
+			mockCreateBookmarksFromData.mockRejectedValue(
+				new Error("Database error"),
+			);
 			const res = await app.request("/api/bookmarks/bulk", {
 				method: "POST",
-				body: JSON.stringify({ bookmarks: [{ url: "https://example.com", title: "Fail" }] }),
+				body: JSON.stringify({
+					bookmarks: [{ url: "https://example.com", title: "Fail" }],
+				}),
 				headers: { "Content-Type": "application/json" },
 			});
-			const data = await res.json() as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
 			expect(res.status).toBe(500);
-			expect(data).toEqual({ success: false, message: "Failed to create bookmarks" });
+			expect(data).toEqual({
+				success: false,
+				message: "Failed to create bookmarks",
+			});
 		});
 	});
 
 	describe("PATCH /api/bookmarks/:id/read", () => {
 		it("ブックマークを既読にできること", async () => {
 			mockMarkBookmarkAsRead.mockResolvedValue(undefined);
-			const res = await app.request("/api/bookmarks/123/read", { method: "PATCH" });
-			const data = await res.json() as { success: boolean }; // Add type assertion
+			const res = await app.request("/api/bookmarks/123/read", {
+				method: "PATCH",
+			});
+			const data = (await res.json()) as { success: boolean }; // Add type assertion
 
 			expect(mockMarkBookmarkAsRead).toHaveBeenCalledWith(123);
 			expect(res.status).toBe(200);
@@ -381,28 +470,40 @@ describe("BookmarkRouter", () => {
 
 		it("存在しないブックマークの場合404を返すこと", async () => {
 			mockMarkBookmarkAsRead.mockRejectedValue(new Error("Bookmark not found"));
-			const res = await app.request("/api/bookmarks/999/read", { method: "PATCH" });
-			const data = await res.json() as { success: boolean; message: string }; // Add type assertion
+			const res = await app.request("/api/bookmarks/999/read", {
+				method: "PATCH",
+			});
+			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
 			expect(res.status).toBe(404);
 			expect(data).toEqual({ success: false, message: "Bookmark not found" });
 		});
 		// Add assertions for other error cases (400, 500) similarly if needed
 		it("エラー時に500を返すこと", async () => {
 			mockMarkBookmarkAsRead.mockRejectedValue(new Error("Database error"));
-			const res = await app.request("/api/bookmarks/123/read", { method: "PATCH" });
-			const data = await res.json() as { success: boolean; message: string }; // Add type assertion
+			const res = await app.request("/api/bookmarks/123/read", {
+				method: "PATCH",
+			});
+			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
 			expect(res.status).toBe(500);
-			expect(data).toEqual({ success: false, message: "Failed to mark bookmark as read" });
+			expect(data).toEqual({
+				success: false,
+				message: "Failed to mark bookmark as read",
+			});
 		});
 	});
 
 	describe("GET /api/bookmarks/recent", () => {
 		it("最近読んだブックマークを取得できること", async () => {
-			const mockRecent: { [date: string]: BookmarkWithLabel[] } = { "2025-04-13": [expectedResult1] };
+			const mockRecent: { [date: string]: BookmarkWithLabel[] } = {
+				"2025-04-13": [expectedResult1],
+			};
 			mockGetRecentlyReadBookmarks.mockResolvedValue(mockRecent);
 
 			const res = await app.request("/api/bookmarks/recent");
-			const data = await res.json() as { success: boolean; bookmarks: { [date: string]: BookmarkWithLabel[] } }; // Add type assertion
+			const data = (await res.json()) as {
+				success: boolean;
+				bookmarks: { [date: string]: BookmarkWithLabel[] };
+			}; // Add type assertion
 
 			expect(res.status).toBe(200);
 			expect(data.success).toBe(true);
@@ -411,11 +512,16 @@ describe("BookmarkRouter", () => {
 		});
 		// Add assertions for error case (500) similarly if needed
 		it("エラー時に500を返すこと", async () => {
-			mockGetRecentlyReadBookmarks.mockRejectedValue(new Error("Database error"));
+			mockGetRecentlyReadBookmarks.mockRejectedValue(
+				new Error("Database error"),
+			);
 			const res = await app.request("/api/bookmarks/recent");
-			const data = await res.json() as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
 			expect(res.status).toBe(500);
-			expect(data).toEqual({ success: false, message: "Failed to fetch recently read bookmarks" });
+			expect(data).toEqual({
+				success: false,
+				message: "Failed to fetch recently read bookmarks",
+			});
 		});
 	});
 });

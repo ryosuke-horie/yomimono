@@ -1,9 +1,9 @@
-import { type DrizzleD1Database, drizzle } from "drizzle-orm/d1";
 import { eq } from "drizzle-orm";
+import { type DrizzleD1Database, drizzle } from "drizzle-orm/d1";
 import {
-	articleLabels,
 	type ArticleLabel,
 	type InsertArticleLabel,
+	articleLabels,
 } from "../db/schema";
 import type { IArticleLabelRepository } from "../interfaces/repository/articleLabel";
 

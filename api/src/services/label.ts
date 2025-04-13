@@ -1,7 +1,7 @@
 import type { Label } from "../db/schema";
-import type { ILabelRepository } from "../interfaces/repository/label";
 import type { IArticleLabelRepository } from "../interfaces/repository/articleLabel";
 import type { IBookmarkRepository } from "../interfaces/repository/bookmark";
+import type { ILabelRepository } from "../interfaces/repository/label";
 import type { ILabelService } from "../interfaces/service/label";
 
 /**

@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ArticleLabelRepository } from "../../../src/repositories/articleLabel";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ArticleLabel } from "../../../src/db/schema";
+import { ArticleLabelRepository } from "../../../src/repositories/articleLabel";
 
 // Mock Drizzle D1Database instance and its methods (similar to label.test.ts)
 const mockDb = {

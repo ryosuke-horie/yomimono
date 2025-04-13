@@ -1,15 +1,15 @@
 import { and, count, eq, gte, inArray, isNull } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+	type Bookmark,
+	type Label,
+	articleLabels,
 	bookmarks,
 	favorites,
 	labels,
-	articleLabels,
-	type Bookmark,
-	type Label,
 } from "../../../src/db/schema";
-import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
 import type { BookmarkWithLabel } from "../../../src/interfaces/repository/bookmark";
+import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
 
 // Mock Drizzle D1Database instance and its methods used by the repository
 const mockDbClient = {
@@ -38,26 +38,80 @@ vi.mock("drizzle-orm/d1", () => ({
 	drizzle: vi.fn(() => mockDbClient),
 }));
 
-
 describe("ブックマークリポジトリ", () => {
 	let repository: DrizzleBookmarkRepository;
 
 	// --- Mock Data ---
-	const mockBookmark1: Bookmark = { id: 1, url: "https://example.com/1", title: "Example 1", isRead: false, createdAt: new Date(), updatedAt: new Date() };
-	const mockBookmark2: Bookmark = { id: 2, url: "https://example.com/2", title: "Example 2", isRead: false, createdAt: new Date(), updatedAt: new Date() };
-	const mockBookmark3: Bookmark = { id: 3, url: "https://example.com/3", title: "Example 3", isRead: true, createdAt: new Date(), updatedAt: new Date() };
-	const mockLabel1: Label = { id: 10, name: "typescript", createdAt: new Date(), updatedAt: new Date() };
-	const mockLabel2: Label = { id: 11, name: "react", createdAt: new Date(), updatedAt: new Date() };
+	const mockBookmark1: Bookmark = {
+		id: 1,
+		url: "https://example.com/1",
+		title: "Example 1",
+		isRead: false,
+		createdAt: new Date(),
+		updatedAt: new Date(),
+	};
+	const mockBookmark2: Bookmark = {
+		id: 2,
+		url: "https://example.com/2",
+		title: "Example 2",
+		isRead: false,
+		createdAt: new Date(),
+		updatedAt: new Date(),
+	};
+	const mockBookmark3: Bookmark = {
+		id: 3,
+		url: "https://example.com/3",
+		title: "Example 3",
+		isRead: true,
+		createdAt: new Date(),
+		updatedAt: new Date(),
+	};
+	const mockLabel1: Label = {
+		id: 10,
+		name: "typescript",
+		createdAt: new Date(),
+		updatedAt: new Date(),
+	};
+	const mockLabel2: Label = {
+		id: 11,
+		name: "react",
+		createdAt: new Date(),
+		updatedAt: new Date(),
+	};
 
 	// Simulate the structure returned by the query with joins (using correct keys)
-	const mockQueryResult1 = { bookmark: mockBookmark1, favorite: { id: 1, bookmarkId: 1, createdAt: new Date() }, label: mockLabel1 }; // Removed articleLabels as it's implicitly joined
-	const mockQueryResult2 = { bookmark: mockBookmark2, favorite: null, label: mockLabel2 };
-	const mockQueryResult3 = { bookmark: mockBookmark3, favorite: null, label: null }; // No label, no favorite
+	const mockQueryResult1 = {
+		bookmark: mockBookmark1,
+		favorite: { id: 1, bookmarkId: 1, createdAt: new Date() },
+		label: mockLabel1,
+	}; // Removed articleLabels as it's implicitly joined
+	const mockQueryResult2 = {
+		bookmark: mockBookmark2,
+		favorite: null,
+		label: mockLabel2,
+	};
+	const mockQueryResult3 = {
+		bookmark: mockBookmark3,
+		favorite: null,
+		label: null,
+	}; // No label, no favorite
 
 	// Expected results after processing by the helper method
-	const expectedResult1: BookmarkWithLabel = { ...mockBookmark1, isFavorite: true, label: mockLabel1 };
-	const expectedResult2: BookmarkWithLabel = { ...mockBookmark2, isFavorite: false, label: mockLabel2 };
-	const expectedResult3: BookmarkWithLabel = { ...mockBookmark3, isFavorite: false, label: null };
+	const expectedResult1: BookmarkWithLabel = {
+		...mockBookmark1,
+		isFavorite: true,
+		label: mockLabel1,
+	};
+	const expectedResult2: BookmarkWithLabel = {
+		...mockBookmark2,
+		isFavorite: false,
+		label: mockLabel2,
+	};
+	const expectedResult3: BookmarkWithLabel = {
+		...mockBookmark3,
+		isFavorite: false,
+		label: null,
+	};
 	// --- End Mock Data ---
 
 	beforeEach(() => {
@@ -76,7 +130,9 @@ describe("ブックマークリポジトリ", () => {
 			// Check the initial query builder calls before the helper takes over
 			expect(mockDbClient.select).toHaveBeenCalled();
 			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
-			expect(mockDbClient.where).toHaveBeenCalledWith(eq(bookmarks.isRead, false));
+			expect(mockDbClient.where).toHaveBeenCalledWith(
+				eq(bookmarks.isRead, false),
+			);
 			// Check the joins added by the helper
 			expect(mockDbClient.leftJoin).toHaveBeenCalledTimes(3);
 			expect(mockDbClient.all).toHaveBeenCalledOnce();
@@ -97,7 +153,9 @@ describe("ブックマークリポジトリ", () => {
 			expect(result).toEqual([expectedResult1, expectedResult2]);
 			expect(mockDbClient.select).toHaveBeenCalled();
 			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
-			expect(mockDbClient.where).toHaveBeenCalledWith(inArray(bookmarks.url, urls));
+			expect(mockDbClient.where).toHaveBeenCalledWith(
+				inArray(bookmarks.url, urls),
+			);
 			expect(mockDbClient.leftJoin).toHaveBeenCalledTimes(3);
 			expect(mockDbClient.all).toHaveBeenCalledOnce();
 		});
@@ -124,7 +182,10 @@ describe("ブックマークリポジトリ", () => {
 			expect(result).toEqual({ bookmarks: [expectedResult1], total: 1 });
 			expect(mockDbClient.select).toHaveBeenCalledTimes(2); // Count + Main query select
 			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks); // Called for main query
-			expect(mockDbClient.innerJoin).toHaveBeenCalledWith(favorites, expect.anything());
+			expect(mockDbClient.innerJoin).toHaveBeenCalledWith(
+				favorites,
+				expect.anything(),
+			);
 			expect(mockDbClient.leftJoin).toHaveBeenCalledTimes(3); // Helper joins
 			expect(mockDbClient.limit).toHaveBeenCalledWith(10);
 			expect(mockDbClient.offset).toHaveBeenCalledWith(0);
@@ -142,14 +203,18 @@ describe("ブックマークリポジトリ", () => {
 		it("DBクエリ失敗時にエラーをスローすること (count)", async () => {
 			const mockError = new Error("Count error");
 			mockDbClient.get.mockRejectedValue(mockError);
-			await expect(repository.getFavoriteBookmarks(0, 10)).rejects.toThrow(mockError);
+			await expect(repository.getFavoriteBookmarks(0, 10)).rejects.toThrow(
+				mockError,
+			);
 		});
 
 		it("DBクエリ失敗時にエラーをスローすること (main query)", async () => {
 			const mockError = new Error("Main query error");
 			mockDbClient.get.mockResolvedValue({ count: 1 });
 			mockDbClient.all.mockRejectedValue(mockError); // Mock final .all() in helper
-			await expect(repository.getFavoriteBookmarks(0, 10)).rejects.toThrow(mockError);
+			await expect(repository.getFavoriteBookmarks(0, 10)).rejects.toThrow(
+				mockError,
+			);
 		});
 	});
 
@@ -179,9 +244,14 @@ describe("ブックマークリポジトリ", () => {
 			mockDbClient.all.mockResolvedValue([{ bookmarks: mockBookmark3 }]);
 			const result = await repository.findUnlabeled();
 			expect(result).toEqual([mockBookmark3]);
-			expect(mockDbClient.select).toHaveBeenCalledWith({ bookmarks: bookmarks });
+			expect(mockDbClient.select).toHaveBeenCalledWith({
+				bookmarks: bookmarks,
+			});
 			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
-			expect(mockDbClient.leftJoin).toHaveBeenCalledWith(articleLabels, expect.anything());
+			expect(mockDbClient.leftJoin).toHaveBeenCalledWith(
+				articleLabels,
+				expect.anything(),
+			);
 			expect(mockDbClient.where).toHaveBeenCalledWith(isNull(articleLabels.id));
 			expect(mockDbClient.all).toHaveBeenCalledOnce();
 		});
@@ -205,7 +275,11 @@ describe("ブックマークリポジトリ", () => {
 			const labelName = "typescript";
 			// This method now handles joins and mapping internally
 			mockDbClient.all.mockResolvedValue([
-				{ bookmark: mockBookmark1, favorite: { id: 1, bookmarkId: 1, createdAt: new Date() }, label: mockLabel1 }
+				{
+					bookmark: mockBookmark1,
+					favorite: { id: 1, bookmarkId: 1, createdAt: new Date() },
+					label: mockLabel1,
+				},
 			]);
 			const result = await repository.findByLabelName(labelName);
 			expect(result).toEqual([expectedResult1]);
@@ -215,10 +289,21 @@ describe("ブックマークリポジトリ", () => {
 				label: labels,
 			});
 			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
-			expect(mockDbClient.innerJoin).toHaveBeenCalledWith(articleLabels, expect.anything());
-			expect(mockDbClient.innerJoin).toHaveBeenCalledWith(labels, expect.anything());
-			expect(mockDbClient.leftJoin).toHaveBeenCalledWith(favorites, expect.anything()); // Only one leftJoin here
-			expect(mockDbClient.where).toHaveBeenCalledWith(eq(labels.name, labelName));
+			expect(mockDbClient.innerJoin).toHaveBeenCalledWith(
+				articleLabels,
+				expect.anything(),
+			);
+			expect(mockDbClient.innerJoin).toHaveBeenCalledWith(
+				labels,
+				expect.anything(),
+			);
+			expect(mockDbClient.leftJoin).toHaveBeenCalledWith(
+				favorites,
+				expect.anything(),
+			); // Only one leftJoin here
+			expect(mockDbClient.where).toHaveBeenCalledWith(
+				eq(labels.name, labelName),
+			);
 			expect(mockDbClient.all).toHaveBeenCalledOnce();
 		});
 
@@ -234,7 +319,9 @@ describe("ブックマークリポジトリ", () => {
 			const labelName = "typescript";
 			const mockError = new Error("Database error");
 			mockDbClient.all.mockRejectedValue(mockError);
-			await expect(repository.findByLabelName(labelName)).rejects.toThrow(mockError);
+			await expect(repository.findByLabelName(labelName)).rejects.toThrow(
+				mockError,
+			);
 		});
 	});
 
@@ -246,7 +333,9 @@ describe("ブックマークリポジトリ", () => {
 			expect(result).toEqual(expectedResult2);
 			expect(mockDbClient.select).toHaveBeenCalled();
 			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
-			expect(mockDbClient.where).toHaveBeenCalledWith(eq(bookmarks.id, bookmarkId));
+			expect(mockDbClient.where).toHaveBeenCalledWith(
+				eq(bookmarks.id, bookmarkId),
+			);
 			expect(mockDbClient.leftJoin).toHaveBeenCalledTimes(3); // Helper joins
 			expect(mockDbClient.all).toHaveBeenCalledOnce();
 		});
@@ -273,9 +362,13 @@ describe("ブックマークリポジトリ", () => {
 			mockDbClient.get.mockResolvedValue({ count: 5 });
 			const result = await repository.countUnread();
 			expect(result).toBe(5);
-			expect(mockDbClient.select).toHaveBeenCalledWith({ count: expect.anything() });
+			expect(mockDbClient.select).toHaveBeenCalledWith({
+				count: expect.anything(),
+			});
 			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
-			expect(mockDbClient.where).toHaveBeenCalledWith(eq(bookmarks.isRead, false));
+			expect(mockDbClient.where).toHaveBeenCalledWith(
+				eq(bookmarks.isRead, false),
+			);
 			expect(mockDbClient.get).toHaveBeenCalledOnce();
 		});
 	});

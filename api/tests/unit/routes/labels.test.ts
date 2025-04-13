@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Hono } from "hono";
-import labelsRouter from "../../../src/routes/labels"; // Import the router itself
-import type { ILabelService } from "../../../src/interfaces/service/label";
-import type { Env } from "../../../src/index"; // Import Env for context typing
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Label } from "../../../src/db/schema"; // Import Label for typing
+import type { Env } from "../../../src/index"; // Import Env for context typing
+import type { ILabelService } from "../../../src/interfaces/service/label";
+import labelsRouter from "../../../src/routes/labels"; // Import the router itself
 
 // --- Mock Service Methods ---
 const mockGetLabels = vi.fn();
@@ -65,9 +65,22 @@ describe("Labels Route", () => {
 
 	describe("GET /api/labels", () => {
 		it("全てのラベルを取得し、成功レスポンスを返すこと", async () => {
-			const mockLabelsResult = [ // Use a different name to avoid conflict
-				{ id: 1, name: "go", createdAt: new Date(), updatedAt: new Date(), articleCount: 5 },
-				{ id: 2, name: "typescript", createdAt: new Date(), updatedAt: new Date(), articleCount: 10 },
+			const mockLabelsResult = [
+				// Use a different name to avoid conflict
+				{
+					id: 1,
+					name: "go",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+					articleCount: 5,
+				},
+				{
+					id: 2,
+					name: "typescript",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+					articleCount: 10,
+				},
 			];
 			mockGetLabels.mockResolvedValue(mockLabelsResult); // Use specific mock
 
@@ -76,14 +89,19 @@ describe("Labels Route", () => {
 
 			const res = await app.request("/api/labels", {}, mockEnv);
 			// Add type assertion for the response body
-			const body = await res.json() as { success: boolean; labels: (Label & { articleCount: number })[] };
+			const body = (await res.json()) as {
+				success: boolean;
+				labels: (Label & { articleCount: number })[];
+			};
 
 			expect(res.status).toBe(200);
 			expect(body.success).toBe(true);
 			// Dates will be serialized, compare relevant fields or use custom matcher
 			expect(body.labels).toHaveLength(mockLabelsResult.length);
 			expect(body.labels[0].name).toBe(mockLabelsResult[0].name);
-			expect(body.labels[0].articleCount).toBe(mockLabelsResult[0].articleCount);
+			expect(body.labels[0].articleCount).toBe(
+				mockLabelsResult[0].articleCount,
+			);
 			expect(mockGetLabels).toHaveBeenCalledOnce(); // Check specific mock
 		});
 
@@ -94,7 +112,7 @@ describe("Labels Route", () => {
 			const mockEnv: Env = { DB: {} as D1Database };
 			const res = await app.request("/api/labels", {}, mockEnv);
 			// Add type assertion for the error response body
-			const body = await res.json() as { success: boolean; message: string };
+			const body = (await res.json()) as { success: boolean; message: string };
 
 			expect(res.status).toBe(500);
 			expect(body.success).toBe(false);

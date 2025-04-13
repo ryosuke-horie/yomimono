@@ -5,7 +5,8 @@ export type BookmarkWithLabel = BookmarkWithFavorite & {
 	label: Label | null; // ラベルは存在しない場合もあるためnull許容
 };
 
-export interface IBookmarkRepository { // Interface名も I プレフィックスに統一
+export interface IBookmarkRepository {
+	// Interface名も I プレフィックスに統一
 	createMany(bookmarks: InsertBookmark[]): Promise<void>;
 	findUnread(): Promise<BookmarkWithLabel[]>; // 戻り値もラベル付きに
 	findByUrls(urls: string[]): Promise<BookmarkWithLabel[]>; // 戻り値もラベル付きに

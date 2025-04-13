@@ -1,9 +1,9 @@
 import { drizzle } from "drizzle-orm/d1"; // Keep only one import
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { ArticleLabelRepository } from "./repositories/articleLabel"; // Import ArticleLabelRepository
 import { DrizzleBookmarkRepository } from "./repositories/bookmark";
 import { LabelRepository } from "./repositories/label"; // Import LabelRepository
-import { ArticleLabelRepository } from "./repositories/articleLabel"; // Import ArticleLabelRepository
 import { createBookmarksRouter } from "./routes/bookmarks";
 import labelsRouter from "./routes/labels"; // Import labels router
 import { DefaultBookmarkService } from "./services/bookmark";

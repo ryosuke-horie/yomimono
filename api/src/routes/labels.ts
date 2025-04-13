@@ -1,10 +1,10 @@
 import { Hono } from "hono";
-// Envの直接インポートは不要になる
-import { LabelService } from "../services/label";
-import { LabelRepository } from "../repositories/label";
+import type { Env } from "../index"; // Env型はHonoのジェネリクスで使用
 import { ArticleLabelRepository } from "../repositories/articleLabel";
 import { DrizzleBookmarkRepository } from "../repositories/bookmark"; // BookmarkRepositoryも必要
-import type { Env } from "../index"; // Env型はHonoのジェネリクスで使用
+import { LabelRepository } from "../repositories/label";
+// Envの直接インポートは不要になる
+import { LabelService } from "../services/label";
 
 const labels = new Hono<{ Bindings: Env }>(); // HonoのジェネリクスでBindingsを指定
 
