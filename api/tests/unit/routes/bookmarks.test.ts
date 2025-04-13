@@ -1,10 +1,10 @@
 import { Hono } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Bookmark, Label } from "../../../src/db/schema"; // Import types
-import type { Env } from "../../../src/index"; // Import Env
-import type { BookmarkWithLabel } from "../../../src/interfaces/repository/bookmark"; // Import type
-import type { IBookmarkService } from "../../../src/interfaces/service/bookmark"; // Use IBookmarkService
-import type { ILabelService } from "../../../src/interfaces/service/label"; // Import ILabelService
+import type { Bookmark, Label } from "../../../src/db/schema";
+import type { Env } from "../../../src/index";
+import type { BookmarkWithLabel } from "../../../src/interfaces/repository/bookmark";
+import type { IBookmarkService } from "../../../src/interfaces/service/bookmark";
+import type { ILabelService } from "../../../src/interfaces/service/label";
 import { createBookmarksRouter } from "../../../src/routes/bookmarks";
 
 interface PaginationResponse {
@@ -17,7 +17,6 @@ interface PaginationResponse {
 	};
 }
 
-// --- Mock Service Methods ---
 const mockGetUnreadBookmarks = vi.fn();
 const mockGetUnreadBookmarksCount = vi.fn();
 const mockGetTodayReadCount = vi.fn();
@@ -29,10 +28,8 @@ const mockGetFavoriteBookmarks = vi.fn();
 const mockGetRecentlyReadBookmarks = vi.fn();
 const mockGetUnlabeledBookmarks = vi.fn();
 const mockGetBookmarksByLabel = vi.fn();
-const mockAssignLabel = vi.fn(); // From LabelService
-// --- End Mock Service Methods ---
+const mockAssignLabel = vi.fn();
 
-// Mock Services
 const mockBookmarkService: IBookmarkService = {
 	getUnreadBookmarks: mockGetUnreadBookmarks,
 	getUnreadBookmarksCount: mockGetUnreadBookmarksCount,
@@ -47,14 +44,13 @@ const mockBookmarkService: IBookmarkService = {
 	getBookmarksByLabel: mockGetBookmarksByLabel,
 };
 const mockLabelService: ILabelService = {
-	getLabels: vi.fn(), // Not used in this router, but needed for type
+	getLabels: vi.fn(),
 	assignLabel: mockAssignLabel,
 };
 
 describe("BookmarkRouter", () => {
 	let app: Hono<{ Bindings: Env }>;
 
-	// --- Mock Data ---
 	const mockBookmark1: Bookmark = {
 		id: 1,
 		url: "https://example.com/1",
@@ -74,25 +70,22 @@ describe("BookmarkRouter", () => {
 		isFavorite: true,
 		label: mockLabel1,
 	};
-	// --- End Mock Data ---
 
 	beforeEach(() => {
 		vi.clearAllMocks();
 		app = new Hono<{ Bindings: Env }>();
-		// Pass mock services to the router factory
 		const router = createBookmarksRouter(mockBookmarkService, mockLabelService);
-		app.route("/api/bookmarks", router); // Mount under /api/bookmarks
+		app.route("/api/bookmarks", router);
 	});
 
 	describe("GET /api/bookmarks/", () => {
-		// Updated path
 		it("クエリパラメータなしの場合、未読ブックマーク一覧と総数、当日の既読数を取得できること", async () => {
 			const mockBookmarks: BookmarkWithLabel[] = [expectedResult1];
 			mockGetUnreadBookmarks.mockResolvedValue(mockBookmarks);
 			mockGetUnreadBookmarksCount.mockResolvedValue(1);
 			mockGetTodayReadCount.mockResolvedValue(5);
 
-			const res = await app.request("/api/bookmarks"); // Use app.request
+			const res = await app.request("/api/bookmarks");
 			const data = (await res.json()) as {
 				success: boolean;
 				bookmarks: BookmarkWithLabel[];
@@ -102,7 +95,6 @@ describe("BookmarkRouter", () => {
 
 			expect(res.status).toBe(200);
 			expect(data.success).toBe(true);
-			// Dates might be serialized, check relevant fields
 			expect(data.bookmarks).toHaveLength(1);
 			expect(data.bookmarks[0].id).toBe(expectedResult1.id);
 			expect(data.totalUnread).toBe(1);
@@ -117,7 +109,7 @@ describe("BookmarkRouter", () => {
 			const labelName = "typescript";
 			const mockBookmarks: BookmarkWithLabel[] = [expectedResult1];
 			mockGetBookmarksByLabel.mockResolvedValue(mockBookmarks);
-			mockGetUnreadBookmarksCount.mockResolvedValue(10); // These might still be returned
+			mockGetUnreadBookmarksCount.mockResolvedValue(10);
 			mockGetTodayReadCount.mockResolvedValue(2);
 
 			const res = await app.request(`/api/bookmarks?label=${labelName}`);
@@ -132,7 +124,7 @@ describe("BookmarkRouter", () => {
 			expect(data.success).toBe(true);
 			expect(data.bookmarks).toHaveLength(1);
 			expect(data.bookmarks[0].id).toBe(expectedResult1.id);
-			expect(data.totalUnread).toBe(10); // Check if these counts are expected when filtering
+			expect(data.totalUnread).toBe(10);
 			expect(data.todayReadCount).toBe(2);
 			expect(mockGetBookmarksByLabel).toHaveBeenCalledWith(labelName);
 			expect(mockGetUnreadBookmarks).not.toHaveBeenCalled();
@@ -140,7 +132,7 @@ describe("BookmarkRouter", () => {
 
 		it("サービスでエラーが発生した場合、500エラーレスポンスを返すこと", async () => {
 			const error = new Error("Service error");
-			mockGetUnreadBookmarks.mockRejectedValue(error); // Mock error for the no-query case
+			mockGetUnreadBookmarks.mockRejectedValue(error);
 
 			const res = await app.request("/api/bookmarks");
 			const data = (await res.json()) as { success: boolean; message: string };
@@ -153,7 +145,7 @@ describe("BookmarkRouter", () => {
 		it("ラベルフィルタリング時にサービスでエラーが発生した場合、500エラーレスポンスを返すこと", async () => {
 			const labelName = "error-label";
 			const error = new Error("Service error on filter");
-			mockGetBookmarksByLabel.mockRejectedValue(error); // Mock error for the label filter case
+			mockGetBookmarksByLabel.mockRejectedValue(error);
 
 			const res = await app.request(`/api/bookmarks?label=${labelName}`);
 			const data = (await res.json()) as { success: boolean; message: string };
@@ -177,7 +169,6 @@ describe("BookmarkRouter", () => {
 
 			expect(res.status).toBe(200);
 			expect(data.success).toBe(true);
-			// Compare relevant fields instead of deep equality due to date serialization
 			expect(data.bookmarks).toHaveLength(mockUnlabeled.length);
 			expect(data.bookmarks[0].id).toEqual(mockUnlabeled[0].id);
 			expect(data.bookmarks[0].url).toEqual(mockUnlabeled[0].url);
@@ -220,7 +211,7 @@ describe("BookmarkRouter", () => {
 
 			expect(res.status).toBe(200);
 			expect(data.success).toBe(true);
-			expect(data.label.name).toBe(assignedLabel.name); // Compare relevant fields
+			expect(data.label.name).toBe(assignedLabel.name);
 			expect(mockAssignLabel).toHaveBeenCalledWith(bookmarkId, labelName);
 		});
 
@@ -230,7 +221,7 @@ describe("BookmarkRouter", () => {
 				body: JSON.stringify(requestBody),
 				headers: { "Content-Type": "application/json" },
 			});
-			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string };
 
 			expect(res.status).toBe(400);
 			expect(data).toEqual({ success: false, message: "Invalid bookmark ID" });
@@ -242,10 +233,9 @@ describe("BookmarkRouter", () => {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
 			});
-			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string };
 
 			expect(res.status).toBe(400);
-			// Expect the message returned when JSON parsing fails
 			expect(data).toEqual({ success: false, message: "Invalid request body" });
 			expect(mockAssignLabel).not.toHaveBeenCalled();
 		});
@@ -256,7 +246,7 @@ describe("BookmarkRouter", () => {
 				body: JSON.stringify({ labelName: "  " }),
 				headers: { "Content-Type": "application/json" },
 			});
-			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string };
 
 			expect(res.status).toBe(400);
 			expect(data).toEqual({
@@ -275,7 +265,7 @@ describe("BookmarkRouter", () => {
 				body: JSON.stringify(requestBody),
 				headers: { "Content-Type": "application/json" },
 			});
-			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string };
 
 			expect(res.status).toBe(404);
 			expect(data).toEqual({ success: false, message: error.message });
@@ -290,7 +280,7 @@ describe("BookmarkRouter", () => {
 				body: JSON.stringify(requestBody),
 				headers: { "Content-Type": "application/json" },
 			});
-			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string };
 
 			expect(res.status).toBe(409);
 			expect(data).toEqual({ success: false, message: error.message });
@@ -305,7 +295,7 @@ describe("BookmarkRouter", () => {
 				body: JSON.stringify(requestBody),
 				headers: { "Content-Type": "application/json" },
 			});
-			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string };
 
 			expect(res.status).toBe(500);
 			expect(data).toEqual({
@@ -423,7 +413,7 @@ describe("BookmarkRouter", () => {
 				body: JSON.stringify({ bookmarks: bookmarksPayload }),
 				headers: { "Content-Type": "application/json" },
 			});
-			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string };
 
 			expect(res.status).toBe(200);
 			expect(mockCreateBookmarksFromData).toHaveBeenCalledWith(
@@ -446,7 +436,7 @@ describe("BookmarkRouter", () => {
 				}),
 				headers: { "Content-Type": "application/json" },
 			});
-			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string };
 			expect(res.status).toBe(500);
 			expect(data).toEqual({
 				success: false,
@@ -461,7 +451,7 @@ describe("BookmarkRouter", () => {
 			const res = await app.request("/api/bookmarks/123/read", {
 				method: "PATCH",
 			});
-			const data = (await res.json()) as { success: boolean }; // Add type assertion
+			const data = (await res.json()) as { success: boolean };
 
 			expect(mockMarkBookmarkAsRead).toHaveBeenCalledWith(123);
 			expect(res.status).toBe(200);
@@ -473,7 +463,7 @@ describe("BookmarkRouter", () => {
 			const res = await app.request("/api/bookmarks/999/read", {
 				method: "PATCH",
 			});
-			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string };
 			expect(res.status).toBe(404);
 			expect(data).toEqual({ success: false, message: "Bookmark not found" });
 		});
@@ -483,7 +473,7 @@ describe("BookmarkRouter", () => {
 			const res = await app.request("/api/bookmarks/123/read", {
 				method: "PATCH",
 			});
-			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string };
 			expect(res.status).toBe(500);
 			expect(data).toEqual({
 				success: false,
@@ -503,7 +493,7 @@ describe("BookmarkRouter", () => {
 			const data = (await res.json()) as {
 				success: boolean;
 				bookmarks: { [date: string]: BookmarkWithLabel[] };
-			}; // Add type assertion
+			};
 
 			expect(res.status).toBe(200);
 			expect(data.success).toBe(true);
@@ -516,7 +506,7 @@ describe("BookmarkRouter", () => {
 				new Error("Database error"),
 			);
 			const res = await app.request("/api/bookmarks/recent");
-			const data = (await res.json()) as { success: boolean; message: string }; // Add type assertion
+			const data = (await res.json()) as { success: boolean; message: string };
 			expect(res.status).toBe(500);
 			expect(data).toEqual({
 				success: false,
