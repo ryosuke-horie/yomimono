@@ -1,52 +1,62 @@
-import { and, count, eq, gte, inArray } from "drizzle-orm";
+import { and, count, eq, gte, inArray, isNull } from "drizzle-orm"; // Removed leftJoin from import
 import type { DrizzleD1Database } from "drizzle-orm/d1";
-import { bookmarks, favorites } from "../db/schema";
-import type { Bookmark, InsertBookmark } from "../db/schema";
+import {
+	bookmarks,
+	favorites,
+	labels,
+	articleLabels,
+	type Bookmark,
+	type InsertBookmark,
+	type Label,
+} from "../db/schema";
 import type {
-	BookmarkRepository,
+	IBookmarkRepository, // Updated interface name
 	BookmarkWithFavorite,
+	BookmarkWithLabel, // New type
 } from "../interfaces/repository/bookmark";
+import { drizzle } from "drizzle-orm/d1"; // Import drizzle on its own line
 
-export class DrizzleBookmarkRepository implements BookmarkRepository {
-	constructor(private readonly db: DrizzleD1Database) {}
+export class DrizzleBookmarkRepository implements IBookmarkRepository { // Implement updated interface
+	private readonly db: DrizzleD1Database; // Keep internal db as DrizzleD1Database
 
-	// お気に入りフラグを含むブックマーク情報を取得するヘルパーメソッド
-	private async attachFavoriteStatus<T extends Bookmark[]>(
-		bookmarks: T,
-	): Promise<(T[number] & { isFavorite: boolean })[]> {
-		if (bookmarks.length === 0) return [];
+	constructor(db: D1Database) { // Accept D1Database in constructor
+		this.db = drizzle(db); // Wrap with drizzle
+	}
 
-		const bookmarkIds = bookmarks.map((b) => b.id);
-		const favoriteRows = await this.db
-			.select()
-			.from(favorites)
-			.where(inArray(favorites.bookmarkId, bookmarkIds))
+	// お気に入りフラグとラベル情報を含むブックマーク情報を取得するヘルパーメソッド
+	private async attachLabelAndFavoriteStatus(
+		baseQuery: any, // DrizzleのSelectQueryBuilderを受け取る想定
+	): Promise<BookmarkWithLabel[]> {
+		const results = await baseQuery
+			.leftJoin(favorites, eq(bookmarks.id, favorites.bookmarkId))
+			.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
+			.leftJoin(labels, eq(articleLabels.labelId, labels.id))
 			.all();
 
-		const favoriteIds = new Set(favoriteRows.map((f) => f.bookmarkId));
-		return bookmarks.map((bookmark) => ({
-			...bookmark,
-			isFavorite: favoriteIds.has(bookmark.id),
+		// Use the keys defined in the select clause ('bookmark', 'favorite', 'label')
+		return results.map((row: any) => ({
+			...row.bookmark, // Use singular 'bookmark'
+			isFavorite: !!row.favorite, // Use singular 'favorite'
+			label: row.label ? { ...row.label } : null, // Use singular 'label'
 		}));
 	}
 
-	async findByUrls(urls: string[]): Promise<BookmarkWithFavorite[]> {
+	async findByUrls(urls: string[]): Promise<BookmarkWithLabel[]> { // Return type updated
 		try {
 			if (urls.length === 0) {
 				return [];
 			}
-			const results = await this.db
+			const query = this.db
 				.select()
 				.from(bookmarks)
-				.where(inArray(bookmarks.url, urls))
-				.all();
-			return this.attachFavoriteStatus(results);
+				.where(inArray(bookmarks.url, urls));
+			return this.attachLabelAndFavoriteStatus(query); // Use new helper
 		} catch (error) {
 			console.error("Failed to find bookmarks by URLs:", error);
 			throw error;
 		}
 	}
-
+	// countUnread, countTodayReadは変更なし
 	async countUnread(): Promise<number> {
 		try {
 			const result = await this.db
@@ -83,20 +93,19 @@ export class DrizzleBookmarkRepository implements BookmarkRepository {
 		}
 	}
 
-	async findUnread(): Promise<BookmarkWithFavorite[]> {
+	async findUnread(): Promise<BookmarkWithLabel[]> { // Return type updated
 		try {
-			const results = await this.db
+			const query = this.db
 				.select()
 				.from(bookmarks)
-				.where(eq(bookmarks.isRead, false))
-				.all();
-			return this.attachFavoriteStatus(results);
+				.where(eq(bookmarks.isRead, false));
+			return this.attachLabelAndFavoriteStatus(query); // Use new helper
 		} catch (error) {
 			console.error("Failed to fetch unread bookmarks:", error);
 			throw error;
 		}
 	}
-
+	// createMany, markAsRead, addToFavorites, removeFromFavorites, isFavoriteは変更なし
 	async createMany(newBookmarks: InsertBookmark[]): Promise<void> {
 		try {
 			if (newBookmarks.length === 0) {
@@ -199,34 +208,28 @@ export class DrizzleBookmarkRepository implements BookmarkRepository {
 		offset: number,
 		limit: number,
 	): Promise<{
-		bookmarks: BookmarkWithFavorite[];
+		bookmarks: BookmarkWithLabel[]; // Return type updated
 		total: number;
 	}> {
 		try {
-			const [total, favoriteBookmarks] = await Promise.all([
-				this.db
-					.select({ count: count() })
-					.from(favorites)
-					.get()
-					.then((result) => result?.count || 0),
-				this.db
-					.select({
-						bookmarks: bookmarks,
-					})
-					.from(bookmarks)
-					.innerJoin(favorites, eq(bookmarks.id, favorites.bookmarkId))
-					.limit(limit)
-					.offset(offset)
-					.all(),
-			]);
+			const total = await this.db
+				.select({ count: count() })
+				.from(favorites)
+				.get()
+				.then((result) => result?.count || 0);
 
-			const bookmarksWithFavorites = favoriteBookmarks.map((row) => ({
-				...row.bookmarks,
-				isFavorite: true,
-			}));
+			const query = this.db
+				.select()
+				.from(bookmarks)
+				.innerJoin(favorites, eq(bookmarks.id, favorites.bookmarkId)) // favoritesは必須
+				.limit(limit)
+				.offset(offset);
+
+			const bookmarksWithLabelAndFavorite =
+				await this.attachLabelAndFavoriteStatus(query); // Use new helper
 
 			return {
-				bookmarks: bookmarksWithFavorites,
+				bookmarks: bookmarksWithLabelAndFavorite,
 				total,
 			};
 		} catch (error) {
@@ -250,14 +253,14 @@ export class DrizzleBookmarkRepository implements BookmarkRepository {
 		}
 	}
 
-	async findRecentlyRead(): Promise<BookmarkWithFavorite[]> {
+	async findRecentlyRead(): Promise<BookmarkWithLabel[]> { // Return type updated
 		try {
 			const threeDaysAgo = new Date();
 			threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 			// UTC+9の考慮
 			threeDaysAgo.setHours(threeDaysAgo.getHours() - 9);
 
-			const results = await this.db
+			const query = this.db
 				.select()
 				.from(bookmarks)
 				.where(
@@ -266,12 +269,70 @@ export class DrizzleBookmarkRepository implements BookmarkRepository {
 						gte(bookmarks.updatedAt, threeDaysAgo),
 					),
 				)
-				.orderBy(bookmarks.updatedAt)
-				.all();
+				.orderBy(bookmarks.updatedAt);
 
-			return this.attachFavoriteStatus(results);
+			return this.attachLabelAndFavoriteStatus(query); // Use new helper
 		} catch (error) {
 			console.error("Failed to fetch recently read bookmarks:", error);
+			throw error;
+		}
+	}
+
+	// --- New methods ---
+	async findUnlabeled(): Promise<Bookmark[]> {
+		try {
+			const results = await this.db
+				.select({ bookmarks: bookmarks }) // Select only bookmark fields
+				.from(bookmarks)
+				.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
+				.where(isNull(articleLabels.id)) // Filter where no label exists
+				.all();
+			return results.map(r => r.bookmarks); // Extract bookmark data
+		} catch (error) {
+			console.error("Failed to fetch unlabeled bookmarks:", error);
+			throw error;
+		}
+	}
+
+	async findByLabelName(labelName: string): Promise<BookmarkWithLabel[]> {
+		try {
+			// Perform all necessary joins directly here
+			const results = await this.db
+				.select({ // Select specific fields from each table
+					bookmark: bookmarks,
+					favorite: favorites, // Select the whole favorite object (or null)
+					label: labels,       // Select the whole label object
+				})
+				.from(bookmarks)
+				.innerJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId)) // Must have a label association
+				.innerJoin(labels, eq(articleLabels.labelId, labels.id))          // Must have a label
+				.leftJoin(favorites, eq(bookmarks.id, favorites.bookmarkId))      // Favorite is optional
+				.where(eq(labels.name, labelName)) // Filter by label name
+				.all();
+
+			// Manually map the results to the BookmarkWithLabel structure
+			return results.map(row => ({
+				...row.bookmark,
+				isFavorite: !!row.favorite, // Check if favorite exists
+				label: row.label,          // Label is guaranteed by inner join
+			}));
+		} catch (error) {
+			console.error("Failed to fetch bookmarks by label name:", error);
+			throw error;
+		}
+	}
+
+	async findById(id: number): Promise<BookmarkWithLabel | undefined> {
+		try {
+			const query = this.db
+				.select()
+				.from(bookmarks)
+				.where(eq(bookmarks.id, id));
+
+			const results = await this.attachLabelAndFavoriteStatus(query); // Use helper
+			return results.length > 0 ? results[0] : undefined;
+		} catch (error) {
+			console.error(`Failed to fetch bookmark by id ${id}:`, error);
 			throw error;
 		}
 	}

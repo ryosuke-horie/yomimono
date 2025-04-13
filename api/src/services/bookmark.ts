@@ -1,12 +1,12 @@
-import type { InsertBookmark } from "../db/schema";
+import type { Bookmark, InsertBookmark } from "../db/schema"; // Import Bookmark
 import type {
-	BookmarkRepository,
-	BookmarkWithFavorite,
+	IBookmarkRepository, // Use IBookmarkRepository
+	BookmarkWithLabel, // Use BookmarkWithLabel
 } from "../interfaces/repository/bookmark";
-import type { BookmarkService } from "../interfaces/service/bookmark";
+import type { IBookmarkService } from "../interfaces/service/bookmark"; // Use IBookmarkService
 
-export class DefaultBookmarkService implements BookmarkService {
-	constructor(private readonly repository: BookmarkRepository) {}
+export class DefaultBookmarkService implements IBookmarkService { // Implement IBookmarkService
+	constructor(private readonly repository: IBookmarkRepository) {} // Use IBookmarkRepository
 
 	async getUnreadBookmarksCount(): Promise<number> {
 		return await this.repository.countUnread();
@@ -16,7 +16,7 @@ export class DefaultBookmarkService implements BookmarkService {
 		return await this.repository.countTodayRead();
 	}
 
-	async getUnreadBookmarks(): Promise<BookmarkWithFavorite[]> {
+	async getUnreadBookmarks(): Promise<BookmarkWithLabel[]> { // Update return type
 		return await this.repository.findUnread();
 	}
 
@@ -46,7 +46,7 @@ export class DefaultBookmarkService implements BookmarkService {
 		page = 1,
 		limit = 20,
 	): Promise<{
-		bookmarks: BookmarkWithFavorite[];
+		bookmarks: BookmarkWithLabel[]; // Update return type
 		pagination: {
 			currentPage: number;
 			totalPages: number;
@@ -75,7 +75,7 @@ export class DefaultBookmarkService implements BookmarkService {
 			throw new Error("Failed to get favorite bookmarks");
 		}
 	}
-
+	// createBookmarksFromDataは変更なし (findByUrlsの戻り値型が変わったが、ロジックは影響なし)
 	async createBookmarksFromData(
 		bookmarks: Array<{ url: string; title: string }>,
 	): Promise<void> {
@@ -105,7 +105,7 @@ export class DefaultBookmarkService implements BookmarkService {
 			await this.repository.createMany(bookmarksToInsert);
 		}
 	}
-
+	// markBookmarkAsReadは変更なし
 	async markBookmarkAsRead(id: number): Promise<void> {
 		const updated = await this.repository.markAsRead(id);
 		if (!updated) {
@@ -114,12 +114,12 @@ export class DefaultBookmarkService implements BookmarkService {
 	}
 
 	async getRecentlyReadBookmarks(): Promise<{
-		[date: string]: BookmarkWithFavorite[];
+		[date: string]: BookmarkWithLabel[]; // Update return type in map value
 	}> {
 		try {
 			const bookmarks = await this.repository.findRecentlyRead();
 
-			const groupedByDate: { [date: string]: BookmarkWithFavorite[] } = {};
+			const groupedByDate: { [date: string]: BookmarkWithLabel[] } = {}; // Update type
 
 			for (const bookmark of bookmarks) {
 				const date = new Date(bookmark.updatedAt);
@@ -138,6 +138,27 @@ export class DefaultBookmarkService implements BookmarkService {
 		} catch (error) {
 			console.error("Failed to get recently read bookmarks:", error);
 			throw new Error("Failed to get recently read bookmarks");
+		}
+	}
+
+	// --- New methods ---
+	async getUnlabeledBookmarks(): Promise<Bookmark[]> {
+		try {
+			return await this.repository.findUnlabeled();
+		} catch (error) {
+			console.error("Failed to get unlabeled bookmarks:", error);
+			throw new Error("Failed to get unlabeled bookmarks");
+		}
+	}
+
+	async getBookmarksByLabel(labelName: string): Promise<BookmarkWithLabel[]> {
+		try {
+			// Note: labelName should be normalized before calling this service method if needed.
+			// The repository expects a normalized name.
+			return await this.repository.findByLabelName(labelName);
+		} catch (error) {
+			console.error("Failed to get bookmarks by label:", error);
+			throw new Error("Failed to get bookmarks by label");
 		}
 	}
 }

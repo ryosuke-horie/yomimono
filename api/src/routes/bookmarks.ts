@@ -1,26 +1,118 @@
 import { Hono } from "hono";
 import { z } from "zod";
-import type { BookmarkService } from "../interfaces/service/bookmark";
+import type { IBookmarkService } from "../interfaces/service/bookmark"; // Use IBookmarkService
+import type { ILabelService } from "../interfaces/service/label"; // Import ILabelService
+// Removed unused import of normalizeLabelName
 
-export const createBookmarksRouter = (bookmarkService: BookmarkService) => {
+// Accept both services
+export const createBookmarksRouter = (
+	bookmarkService: IBookmarkService,
+	labelService: ILabelService,
+) => {
 	const app = new Hono();
 
-	app.get("/unread", async (c) => {
+	// GET /unread と GET /?label=... を統合 (ルートパスに変更)
+	app.get("/", async (c) => {
+		const labelQuery = c.req.query("label");
+
 		try {
-			const [bookmarks, totalUnread, todayReadCount] = await Promise.all([
+			let bookmarks;
+			if (labelQuery) {
+				// ラベルによるフィルタリング
+				// Note: サービス層で正規化するか、ここで正規化するか要検討。
+				//       ここではサービス層が正規化済みを期待すると仮定。
+				// const normalizedLabel = normalizeLabelName(labelQuery);
+				bookmarks = await bookmarkService.getBookmarksByLabel(labelQuery);
+				// ラベルフィルタリング時はカウント不要かもしれないが、一旦そのまま
+				const [totalUnread, todayReadCount] = await Promise.all([
+					bookmarkService.getUnreadBookmarksCount(),
+					bookmarkService.getTodayReadCount(),
+				]);
+				return c.json({ success: true, bookmarks, totalUnread, todayReadCount });
+			}
+			// 通常の未読取得
+			const [unreadBookmarks, totalUnread, todayReadCount] = await Promise.all([
 				bookmarkService.getUnreadBookmarks(),
 				bookmarkService.getUnreadBookmarksCount(),
 				bookmarkService.getTodayReadCount(),
 			]);
-			return c.json({ success: true, bookmarks, totalUnread, todayReadCount });
+			return c.json({
+				success: true,
+				bookmarks: unreadBookmarks,
+				totalUnread,
+				todayReadCount,
+			});
 		} catch (error) {
-			console.error("Failed to fetch unread bookmarks:", error);
+			console.error("Failed to fetch bookmarks:", error);
 			return c.json(
-				{ success: false, message: "Failed to fetch unread bookmarks" },
+				{ success: false, message: "Failed to fetch bookmarks" },
 				500,
 			);
 		}
 	});
+
+	// --- New Endpoints ---
+	app.get("/unlabeled", async (c) => {
+		try {
+			const bookmarks = await bookmarkService.getUnlabeledBookmarks();
+			return c.json({ success: true, bookmarks });
+		} catch (error) {
+			console.error("Failed to fetch unlabeled bookmarks:", error);
+			return c.json(
+				{ success: false, message: "Failed to fetch unlabeled bookmarks" },
+				500,
+			);
+		}
+	});
+
+	app.put("/:id/label", async (c) => {
+		try {
+			const id = Number.parseInt(c.req.param("id"));
+			if (Number.isNaN(id)) {
+				return c.json({ success: false, message: "Invalid bookmark ID" }, 400);
+			}
+
+			let body: { labelName?: string };
+			try {
+				body = await c.req.json<{ labelName?: string }>();
+			} catch (e) {
+				// JSON parsing failed (e.g., empty body)
+				return c.json({ success: false, message: "Invalid request body" }, 400);
+			}
+
+			const labelName = body?.labelName;
+
+			if (!labelName || typeof labelName !== "string" || labelName.trim() === "") {
+				return c.json(
+					{ success: false, message: "labelName is required and must be a non-empty string" },
+					400,
+				);
+			}
+
+			// labelServiceを使ってラベルを付与 (正規化はサービス内で行う)
+			const assignedLabel = await labelService.assignLabel(id, labelName);
+			return c.json({ success: true, label: assignedLabel });
+
+		} catch (error) {
+			if (error instanceof Error) {
+				if (error.message.includes("not found")) {
+					return c.json({ success: false, message: error.message }, 404);
+				}
+				if (error.message.includes("already labeled")) {
+					return c.json({ success: false, message: error.message }, 409);
+				}
+				if (error.message.includes("cannot be empty")) {
+					return c.json({ success: false, message: error.message }, 400);
+				}
+			}
+			console.error("Failed to assign label:", error);
+			return c.json(
+				{ success: false, message: "Failed to assign label" },
+				500,
+			);
+		}
+	});
+	// --- End New Endpoints ---
 
 	app.post("/bulk", async (c) => {
 		try {
