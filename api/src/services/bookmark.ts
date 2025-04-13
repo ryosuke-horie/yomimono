@@ -122,8 +122,30 @@ export class DefaultBookmarkService implements IBookmarkService { // Implement I
 			const groupedByDate: { [date: string]: BookmarkWithLabel[] } = {}; // Update type
 
 			for (const bookmark of bookmarks) {
+				// Check if updatedAt is a valid Date object before processing
+				if (
+					!(bookmark.updatedAt instanceof Date) ||
+					Number.isNaN(bookmark.updatedAt.getTime())
+				) {
+					console.warn(
+						`Invalid updatedAt value found for bookmark ID ${bookmark.id}:`,
+						bookmark.updatedAt,
+					);
+					continue; // Skip this bookmark if the date is invalid
+				}
+
+				// Create a new Date object to avoid modifying the original
 				const date = new Date(bookmark.updatedAt);
-				date.setHours(date.getHours() + 9);
+				date.setHours(date.getHours() + 9); // Apply timezone offset
+
+				// Check again after timezone adjustment (though unlikely to become invalid here)
+				if (Number.isNaN(date.getTime())) {
+					console.warn(
+						`Invalid date after timezone adjustment for bookmark ID ${bookmark.id}:`,
+						bookmark.updatedAt,
+					);
+					continue;
+				}
 
 				const dateStr = date.toISOString().split("T")[0];
 

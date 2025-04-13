@@ -33,13 +33,13 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository { // Imple
 			.leftJoin(labels, eq(articleLabels.labelId, labels.id))
 			.all();
 
-		// Use the keys defined in the select clause ('bookmark', 'favorite', 'label')
-		return results.map((row: any) => ({
-			...row.bookmark, // Use singular 'bookmark'
-			isFavorite: !!row.favorite, // Use singular 'favorite'
-			label: row.label ? { ...row.label } : null, // Use singular 'label'
-		}));
-	}
+  // Drizzleのデフォルトの挙動に合わせてキーを複数形に修正
+  return results.map((row: any) => ({
+    ...row.bookmarks, // 正しいキーを使用 (bookmarks)
+    isFavorite: !!row.favorites, // 正しいキーを使用 (favorites)
+    label: row.labels ? { ...row.labels } : null, // 正しいキーを使用 (labels)
+  }));
+}
 
 	async findByUrls(urls: string[]): Promise<BookmarkWithLabel[]> { // Return type updated
 		try {
@@ -223,13 +223,24 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository { // Imple
 				.from(bookmarks)
 				.innerJoin(favorites, eq(bookmarks.id, favorites.bookmarkId)) // favoritesは必須
 				.limit(limit)
-				.offset(offset);
+				.offset(offset)
+				// favorites テーブルは既に innerJoin されているので、ここでは labels のみ leftJoin する
+				.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
+				.leftJoin(labels, eq(articleLabels.labelId, labels.id));
+				// .all() をここで呼び出さず、await する
 
-			const bookmarksWithLabelAndFavorite =
-				await this.attachLabelAndFavoriteStatus(query); // Use new helper
+			// 結果を await で取得
+			const results = await query.all();
+
+			// 結果を手動でマッピング
+			const mappedBookmarks = results.map((row: any) => ({
+				...row.bookmarks,
+				isFavorite: true, // innerJoin しているので必ず true
+				label: row.labels ? { ...row.labels } : null,
+			}));
 
 			return {
-				bookmarks: bookmarksWithLabelAndFavorite,
+				bookmarks: mappedBookmarks,
 				total,
 			};
 		} catch (error) {

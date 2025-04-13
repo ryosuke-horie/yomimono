@@ -1,3 +1,5 @@
+import type { Label } from "../labels/types";
+
 export interface Bookmark {
 	id: number;
 	url: string;
@@ -6,4 +8,8 @@ export interface Bookmark {
 	isFavorite: boolean;
 	createdAt: string;
 	updatedAt: string;
+}
+
+export interface BookmarkWithLabel extends Bookmark {
+	label: Label | null;
 }
