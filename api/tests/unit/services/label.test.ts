@@ -154,7 +154,7 @@ describe("LabelService", () => {
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			};
-			
+
 			// 2つ目のラベル付与のモック設定
 			const secondLabel: Label = {
 				id: 11,
@@ -200,8 +200,10 @@ describe("LabelService", () => {
 			mockFindLabelByName.mockResolvedValue(existingLabel);
 
 			await expect(
-				labelService.assignLabel(articleId, "typescript")
-			).rejects.toThrow(`Label "typescript" is already assigned to article ${articleId}`);
+				labelService.assignLabel(articleId, "typescript"),
+			).rejects.toThrow(
+				`Label "typescript" is already assigned to article ${articleId}`,
+			);
 
 			expect(mockCreateArticleLabel).not.toHaveBeenCalled();
 		});

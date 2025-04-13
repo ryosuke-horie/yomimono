@@ -52,9 +52,12 @@ export class LabelService implements ILabelService {
 		}
 
 		// 5. 同じラベルが既に付与されていないか確認
-		const existingArticleLabel = await this.articleLabelRepository.findByArticleId(articleId);
+		const existingArticleLabel =
+			await this.articleLabelRepository.findByArticleId(articleId);
 		if (existingArticleLabel && existingArticleLabel.labelId === label.id) {
-			throw new Error(`Label "${normalizedName}" is already assigned to article ${articleId}`);
+			throw new Error(
+				`Label "${normalizedName}" is already assigned to article ${articleId}`,
+			);
 		}
 
 		// 6. 記事とラベルを紐付け
