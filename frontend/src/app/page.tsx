@@ -53,6 +53,10 @@ export default function HomePage() {
     staleTime: 1 * 60 * 1000, // 1分間キャッシュを有効にする
   });
 
+  // responseData から totalUnread と todayReadCount を取得
+  const totalUnread = responseData?.totalUnread;
+  const todayReadCount = responseData?.todayReadCount;
+
   // 取得したデータからブックマークリストを抽出 (変数名を修正)
   const bookmarksToDisplay = responseData?.bookmarks ?? [];
 
@@ -74,6 +78,14 @@ export default function HomePage() {
 
   return (
     <main className="container mx-auto px-4 py-8">
+      {/* 未読数と既読数を表示 */}
+      {!isLoadingBookmarks && totalUnread !== undefined && todayReadCount !== undefined && (
+        <div className="mb-4 text-sm text-gray-600">
+          <span>未読: {totalUnread}件</span>
+          <span className="ml-4">本日既読: {todayReadCount}件</span>
+        </div>
+      )}
+
       {/* ラベルフィルター */}
       {isLoadingLabels ? (
         <div className="mb-4 text-gray-500">ラベルを読み込み中...</div>
