@@ -73,7 +73,9 @@ export const getRecentlyReadBookmarks = async (): Promise<{
 		if (!data.success) {
 			// エラーレスポンスとして型アサーション (ApiResponse<unknown> を使用)
 			const errorData = data as ApiResponse<unknown>;
-			throw new Error(errorData.message || "Unknown error fetching recent bookmarks");
+			throw new Error(
+				errorData.message || "Unknown error fetching recent bookmarks",
+			);
 		}
 		// 成功レスポンスとして型アサーション
 		const successData = data as RecentBookmarksApiResponse;

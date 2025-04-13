@@ -5,7 +5,8 @@ interface ApiError {
 	message: string;
 }
 
-export interface ApiResponse<T> { // export を追加
+export interface ApiResponse<T> {
+	// export を追加
 	success: boolean;
 	bookmarks?: T[];
 	totalUnread?: number;

@@ -8,10 +8,7 @@ interface BookmarksListProps {
 	onLabelClick?: (labelName: string) => void; // ラベルクリックハンドラを受け取る
 }
 
-export function BookmarksList({
-	bookmarks,
-	onLabelClick,
-}: BookmarksListProps) {
+export function BookmarksList({ bookmarks, onLabelClick }: BookmarksListProps) {
 	// 内部でのデータ取得ロジックは削除
 
 	if (bookmarks.length === 0) {

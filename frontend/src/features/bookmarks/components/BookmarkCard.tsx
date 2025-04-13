@@ -1,16 +1,17 @@
 "use client";
 
-import { LabelDisplay } from "@/features/labels/components/LabelDisplay";
 import { useMarkBookmarkAsRead } from "@/features/bookmarks/queries/useMarkBookmarkAsRead";
 import { useToggleFavoriteBookmark } from "@/features/bookmarks/queries/useToggleFavoriteBookmark";
 import type { BookmarkWithLabel } from "@/features/bookmarks/types"; // BookmarkWithLabel をインポート
+import { LabelDisplay } from "@/features/labels/components/LabelDisplay";
 
 interface Props {
 	bookmark: BookmarkWithLabel; // 型を BookmarkWithLabel に変更
 	onLabelClick?: (labelName: string) => void; // ラベルクリック時のハンドラを追加
 }
 
-export function BookmarkCard({ bookmark, onLabelClick }: Props) { // onLabelClick を受け取る
+export function BookmarkCard({ bookmark, onLabelClick }: Props) {
+	// onLabelClick を受け取る
 	const { id, title, url, createdAt, isRead, isFavorite, label } = bookmark; // label を分割代入
 	const formattedDate = new Date(createdAt).toLocaleDateString("ja-JP");
 
@@ -45,7 +46,9 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) { // onLabelClic
 		>
 			{/* ラベル表示 */}
 			{label && (
-				<div className="absolute top-2 right-2 z-10"> {/* z-indexを追加してボタンより手前に */}
+				<div className="absolute top-2 right-2 z-10">
+					{" "}
+					{/* z-indexを追加してボタンより手前に */}
 					<LabelDisplay label={label} onClick={onLabelClick} />
 				</div>
 			)}
