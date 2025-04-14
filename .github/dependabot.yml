@@ -1,34 +1,39 @@
 version: 2
 updates:
-  # frontendディレクトリの依存関係を管理
   - package-ecosystem: "bun"
     directory: "/frontend"
     schedule:
       interval: "weekly"
     commit-message:
       prefix: "chore(frontend)"
-      prefix-development: "chore(frontend)"
+      prefix-development: "chore(frontend-dev)"
       include: "scope"
-    # ここで特定パッケージをグルーピング
     groups:
-      next-react-deployment:
+      core-dependencies:
         patterns:
-          # 依存パッケージ名ベースでの指定
+          # Reactとそのエコシステム
           - "next"
           - "react"
           - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+          - "@tanstack/react-query"
+          - "typescript"
+          - "@types/node"
+          # Cloudflareデプロイメント関連
           - "wrangler"
           - "@opennextjs/cloudflare"
           - "@cloudflare/workers-types"
-          - "@types/node"
-          - "@types/react"
-          - "@types/react-dom"
-      styles:
-        patterns:
+          # スタイリング関連
           - "tailwindcss"
           - "@tailwindcss/postcss"
           - "postcss"
           - "postcss-load-config"
+      dev-tools:
+        patterns:
+          # 開発ツール関連
+          - "@biomejs/biome"
+          - "knip"
 
   # apiディレクトリの依存関係を管理
   - package-ecosystem: "bun"
@@ -37,19 +42,23 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "chore(api)"
-      prefix-development: "chore(api)"
+      prefix-development: "chore(api-dev)"
       include: "scope"
+    # ここで特定パッケージをグルーピング
     groups:
       core-dependencies:
         patterns:
+          # コアとなる実行時依存パッケージ
           - "hono"
           - "drizzle-orm"
           - "dotenv"
-          - "wrangler"
-          - "@cloudflare/workers-types"
-          - "drizzle-kit"
           - "typescript"
           - "@types/node"
+          # Cloudflare関連のデプロイメント
+          - "wrangler"
+          - "@cloudflare/workers-types"
+          # データベース関連ツール
+          - "drizzle-kit"
       testing-frameworks:
         patterns:
           # テスト関連パッケージ
@@ -69,7 +78,7 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "chore(extension)"
-      prefix-development: "chore(extension)"
+      prefix-development: "chore(extension-dev)"
       include: "scope"
     # ここで特定パッケージをグルーピング
     groups:
@@ -86,6 +95,6 @@ updates:
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: "chore"
-      prefix-development: "chore"
+      prefix: "chore(actions)"
+      prefix-development: "chore(actions)"
       include: "scope"
