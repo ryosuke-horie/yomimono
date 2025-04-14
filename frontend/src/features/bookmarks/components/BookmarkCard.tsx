@@ -2,27 +2,24 @@
 
 import { useMarkBookmarkAsRead } from "@/features/bookmarks/queries/useMarkBookmarkAsRead";
 import { useToggleFavoriteBookmark } from "@/features/bookmarks/queries/useToggleFavoriteBookmark";
-import type { BookmarkWithLabel } from "@/features/bookmarks/types"; // BookmarkWithLabel をインポート
+import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 import { LabelDisplay } from "@/features/labels/components/LabelDisplay";
 
 interface Props {
-	bookmark: BookmarkWithLabel; // 型を BookmarkWithLabel に変更
-	onLabelClick?: (labelName: string) => void; // ラベルクリック時のハンドラを追加
+	bookmark: BookmarkWithLabel;
+	onLabelClick?: (labelName: string) => void;
 }
 
 export function BookmarkCard({ bookmark, onLabelClick }: Props) {
-	// onLabelClick を受け取る
-	const { id, title, url, createdAt, isRead, isFavorite, label } = bookmark; // label を分割代入
+	const { id, title, url, createdAt, isRead, isFavorite, label } = bookmark;
 	const formattedDate = new Date(createdAt).toLocaleDateString("ja-JP");
 
-	// 新しいミューテーションフックを使用
 	const { mutate: toggleFavorite, isPending: isTogglingFavorite } =
 		useToggleFavoriteBookmark();
 	const { mutate: markAsReadMutate, isPending: isMarkingAsRead } =
 		useMarkBookmarkAsRead();
 
 	const handleFavoriteToggle = () => {
-		// mutate 関数を呼び出す
 		toggleFavorite({ id, isCurrentlyFavorite: isFavorite });
 	};
 
@@ -34,7 +31,6 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 	};
 
 	const handleMarkAsRead = () => {
-		// mutate 関数を呼び出す
 		markAsReadMutate(id);
 	};
 
@@ -46,9 +42,7 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 		>
 			{/* ラベル表示 */}
 			{label && (
-				<div className="absolute top-2 right-2 z-10">
-					{" "}
-					{/* z-indexを追加してボタンより手前に */}
+				<div className="absolute bottom-2 left-2 z-10">
 					<LabelDisplay label={label} onClick={onLabelClick} />
 				</div>
 			)}
@@ -57,22 +51,22 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 			<button
 				type="button"
 				onClick={handleFavoriteToggle}
-				disabled={isTogglingFavorite} // isPending を使用
+				disabled={isTogglingFavorite}
 				className={`absolute bottom-2 right-20 p-1 rounded-full ${
-					isTogglingFavorite // isPending を使用
+					isTogglingFavorite
 						? "text-gray-400"
-						: isFavorite // isFavorite を使用
+						: isFavorite
 							? "text-yellow-500 hover:text-yellow-600"
 							: "text-gray-400 hover:text-yellow-500"
 				}`}
-				title={isFavorite ? "お気に入りから削除" : "お気に入りに追加"} // isFavorite を使用
+				title={isFavorite ? "お気に入りから削除" : "お気に入りに追加"}
 			>
-				{isTogglingFavorite ? ( // isPending を使用
+				{isTogglingFavorite ? (
 					<div className="animate-spin h-6 w-6 border-2 border-current border-t-transparent rounded-full" />
 				) : (
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
-						fill={isFavorite ? "currentColor" : "none"} // isFavorite を使用
+						fill={isFavorite ? "currentColor" : "none"}
 						viewBox="0 0 24 24"
 						strokeWidth={1.5}
 						stroke="currentColor"
@@ -112,17 +106,17 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 			<button
 				type="button"
 				onClick={handleMarkAsRead}
-				disabled={isRead || isMarkingAsRead} // isPending を使用
+				disabled={isRead || isMarkingAsRead}
 				className={`absolute bottom-2 right-2 p-1 rounded-full ${
 					isRead
 						? "text-green-500 cursor-default"
-						: isMarkingAsRead // isPending を使用
+						: isMarkingAsRead
 							? "text-gray-400"
 							: "text-gray-400 hover:text-green-500 hover:bg-green-50"
 				}`}
 				title={isRead ? "既読済み" : "既読にする"}
 			>
-				{isMarkingAsRead ? ( // isPending を使用
+				{isMarkingAsRead ? (
 					<svg
 						className="animate-spin w-6 h-6"
 						xmlns="http://www.w3.org/2000/svg"
