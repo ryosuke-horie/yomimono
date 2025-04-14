@@ -46,6 +46,7 @@ const mockBookmarkService: IBookmarkService = {
 const mockLabelService: ILabelService = {
 	getLabels: vi.fn(),
 	assignLabel: mockAssignLabel,
+    createLabel: vi.fn(),
 };
 
 describe("BookmarkRouter", () => {
@@ -307,7 +308,6 @@ describe("BookmarkRouter", () => {
 		});
 	});
 
-	// --- Existing tests adapted for app.request ---
 	describe("お気に入り機能 (app.request)", () => {
 		describe("POST /api/bookmarks/:id/favorite", () => {
 			it("お気に入りに追加できること", async () => {
@@ -315,7 +315,7 @@ describe("BookmarkRouter", () => {
 				const res = await app.request("/api/bookmarks/123/favorite", {
 					method: "POST",
 				});
-				const data = (await res.json()) as { success: boolean }; // Add type assertion
+				const data = (await res.json()) as { success: boolean };
 
 				expect(mockAddToFavorites).toHaveBeenCalledWith(123);
 				expect(res.status).toBe(200);
@@ -330,11 +330,10 @@ describe("BookmarkRouter", () => {
 				const data = (await res.json()) as {
 					success: boolean;
 					message: string;
-				}; // Add type assertion
+				};
 				expect(res.status).toBe(404);
 				expect(data).toEqual({ success: false, message: "Bookmark not found" });
 			});
-			// Add assertions for other error cases (400, 409, 500) similarly if needed
 		});
 
 		describe("DELETE /api/bookmarks/:id/favorite", () => {
@@ -343,12 +342,12 @@ describe("BookmarkRouter", () => {
 				const res = await app.request("/api/bookmarks/123/favorite", {
 					method: "DELETE",
 				});
-				const data = (await res.json()) as { success: boolean }; // Add type assertion
+				const data = (await res.json()) as { success: boolean };
 				expect(mockRemoveFromFavorites).toHaveBeenCalledWith(123);
 				expect(res.status).toBe(200);
 				expect(data).toEqual({ success: true });
 			});
-			// Add assertions for error cases (400, 404, 500) similarly if needed
+
 			it("存在しないお気に入りの場合404を返すこと", async () => {
 				mockRemoveFromFavorites.mockRejectedValue(
 					new Error("Favorite not found"),
@@ -370,29 +369,25 @@ describe("BookmarkRouter", () => {
 				const mockBookmarks: BookmarkWithLabel[] = [expectedResult1];
 				const mockResponse = {
 					bookmarks: mockBookmarks,
-					pagination: { currentPage: 1, totalPages: 1, totalItems: 1 },
 				};
 				mockGetFavoriteBookmarks.mockResolvedValue(mockResponse);
 
-				const res = await app.request(
-					"/api/bookmarks/favorites?page=1&limit=10",
-				);
-				const data = (await res.json()) as PaginationResponse;
+				const res = await app.request("/api/bookmarks/favorites");
+				const data = (await res.json()) as { success: boolean; bookmarks: BookmarkWithLabel[] };
 
 				expect(res.status).toBe(200);
 				expect(data.success).toBe(true);
 				expect(data.bookmarks).toHaveLength(1);
-				expect(data.pagination).toEqual(mockResponse.pagination);
-				expect(mockGetFavoriteBookmarks).toHaveBeenCalledWith(1, 10); // Assert page and limit
+				expect(mockGetFavoriteBookmarks).toHaveBeenCalledWith(); // 引数なしで呼び出されることを確認
 			});
-			// Add assertions for error cases (400, 500) similarly if needed
+			
 			it("エラー時に500を返すこと", async () => {
 				mockGetFavoriteBookmarks.mockRejectedValue(new Error("Database error"));
 				const res = await app.request("/api/bookmarks/favorites");
 				const data = (await res.json()) as {
 					success: boolean;
 					message: string;
-				}; // Add type assertion
+				};
 				expect(res.status).toBe(500);
 				expect(data).toEqual({
 					success: false,
@@ -426,7 +421,7 @@ describe("BookmarkRouter", () => {
 				message: "Processed 2 bookmarks (duplicates skipped if unread)",
 			});
 		});
-		// Add assertions for error cases (400, 500) similarly if needed
+
 		it("エラー時に500を返すこと", async () => {
 			mockCreateBookmarksFromData.mockRejectedValue(
 				new Error("Database error"),
@@ -469,7 +464,7 @@ describe("BookmarkRouter", () => {
 			expect(res.status).toBe(404);
 			expect(data).toEqual({ success: false, message: "Bookmark not found" });
 		});
-		// Add assertions for other error cases (400, 500) similarly if needed
+
 		it("エラー時に500を返すこと", async () => {
 			mockMarkBookmarkAsRead.mockRejectedValue(new Error("Database error"));
 			const res = await app.request("/api/bookmarks/123/read", {
@@ -502,7 +497,7 @@ describe("BookmarkRouter", () => {
 			expect(Object.keys(data.bookmarks)).toEqual(Object.keys(mockRecent));
 			expect(mockGetRecentlyReadBookmarks).toHaveBeenCalledOnce();
 		});
-		// Add assertions for error case (500) similarly if needed
+
 		it("エラー時に500を返すこと", async () => {
 			mockGetRecentlyReadBookmarks.mockRejectedValue(
 				new Error("Database error"),
