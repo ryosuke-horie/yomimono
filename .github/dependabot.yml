@@ -39,25 +39,28 @@ updates:
       prefix: "chore(api)"
       prefix-development: "chore(api)"
       include: "scope"
-    # ここで特定パッケージをグルーピング
     groups:
-      hono-deployment:
+      core-dependencies:
         patterns:
-          # 依存パッケージ名ベースでの指定
           - "hono"
           - "drizzle-orm"
-          - "zod"
           - "dotenv"
+          - "wrangler"
           - "@cloudflare/workers-types"
           - "drizzle-kit"
-          - "wrangler"
-      testings:
+          - "typescript"
+          - "@types/node"
+      testing-frameworks:
         patterns:
-          - "msw"
-          - "@biomejs/biome"
+          # テスト関連パッケージ
+          - "vitest"
           - "@vitest/coverage-v8"
           - "happy-dom"
-          - "vitest"
+      code-quality:
+        patterns:
+          # コード品質管理ツール
+          - "@biomejs/biome"
+          - "knip"
 
   # Extensionディレクトリの依存関係を管理
   - package-ecosystem: "bun"
