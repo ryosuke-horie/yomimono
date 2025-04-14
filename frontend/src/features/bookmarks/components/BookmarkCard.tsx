@@ -42,9 +42,7 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 		>
 			{/* ラベル表示 */}
 			{label && (
-				<div className="absolute top-2 right-2 z-10">
-					{" "}
-					{/* z-indexを追加してボタンより手前に */}
+				<div className="absolute bottom-2 left-2 z-10">
 					<LabelDisplay label={label} onClick={onLabelClick} />
 				</div>
 			)}
