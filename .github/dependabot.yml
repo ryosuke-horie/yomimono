@@ -89,6 +89,30 @@ updates:
           - "knip"
           - "typescript"
 
+  # MCPディレクトリの依存関係を管理
+  - package-ecosystem: "bun"
+    directory: "/mcp"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(mcp)"
+      prefix-development: "chore(mcp-dev)"
+      include: "scope"
+    # ここで特定パッケージをグルーピング
+    groups:
+      core-dependencies:
+        patterns:
+          # コアとなるMCPライブラリ
+          - "@modelcontextprotocol/sdk"
+          - "zod"
+          - "typescript"
+      dev-tools:
+        patterns:
+          # 開発ツール関連
+          - "@types/bun"
+          - "dotenv"
+          - "knip"
+
   # GitHub Actionsの依存関係を管理
   - package-ecosystem: "github-actions"
     directory: "/"
