@@ -23,8 +23,8 @@ export const useToggleFavoriteBookmark = () => {
 		onMutate: async ({ id, isCurrentlyFavorite }: ToggleFavoriteVariables) => {
 			const newIsFavorite = !isCurrentlyFavorite;
 
-			// 関連する可能性のあるクエリ (未読、お気に入り、最近読んだ) をキャンセル
-			await queryClient.cancelQueries({ queryKey: bookmarkKeys.lists() }); // lists() は unread, favorites, recent を含む想定
+			// 関連する可能性のあるクエリをキャンセル
+			await queryClient.cancelQueries({ queryKey: bookmarkKeys.all });
 
 			// ロールバック用に現在の未読リストキャッシュを保存
 			const previousUnreadData = queryClient.getQueryData<BookmarksData>(
@@ -131,18 +131,12 @@ export const useToggleFavoriteBookmark = () => {
 					context.previousRecentData,
 				);
 			}
-			// TODO: ユーザーへのエラー通知を実装 (例: react-hot-toast)
 		},
 
 		// 成功/失敗に関わらず実行される処理
 		onSettled: () => {
-			// 関連クエリを無効化し、サーバーと再同期
-			queryClient.invalidateQueries({ queryKey: bookmarkKeys.list("unread") });
-			queryClient.invalidateQueries({
-				queryKey: bookmarkKeys.list("favorites"),
-			});
-			// 最近読んだ記事リストのクエリも無効化
-			queryClient.invalidateQueries({ queryKey: bookmarkKeys.list("recent") });
+			// 必要に応じて関連クエリを無効化し、サーバーと再同期
+			queryClient.invalidateQueries({ queryKey: bookmarkKeys.all });
 		},
 	});
 };
