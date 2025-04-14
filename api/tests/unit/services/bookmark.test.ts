@@ -1,16 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Bookmark, Label } from "../../../src/db/schema"; // Import Bookmark and Label
+import type { Bookmark, Label } from "../../../src/db/schema";
 import type {
 	BookmarkWithLabel,
 	IBookmarkRepository,
-} from "../../../src/interfaces/repository/bookmark"; // Use IBookmarkRepository, import BookmarkWithLabel
-import type { IBookmarkService } from "../../../src/interfaces/service/bookmark"; // Use IBookmarkService
+} from "../../../src/interfaces/repository/bookmark";
+import type { IBookmarkService } from "../../../src/interfaces/service/bookmark";
 import { DefaultBookmarkService } from "../../../src/services/bookmark";
 
 describe("DefaultBookmarkService", () => {
-	let service: IBookmarkService; // Use IBookmarkService
+	let service: IBookmarkService;
 
-	// --- Mock Data ---
 	const mockBookmark1: Bookmark = {
 		id: 1,
 		url: "https://example.com/1",
@@ -26,7 +25,7 @@ describe("DefaultBookmarkService", () => {
 		isRead: false,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-	}; // Add mockBookmark2
+	};
 	const mockLabel1: Label = {
 		id: 10,
 		name: "typescript",
@@ -38,7 +37,7 @@ describe("DefaultBookmarkService", () => {
 		name: "react",
 		createdAt: new Date(),
 		updatedAt: new Date(),
-	}; // Add mockLabel2
+	};
 	const expectedResult1: BookmarkWithLabel = {
 		...mockBookmark1,
 		isFavorite: true,
@@ -48,10 +47,8 @@ describe("DefaultBookmarkService", () => {
 		...mockBookmark2,
 		isFavorite: false,
 		label: mockLabel2,
-	}; // Define expectedResult2
-	// --- End Mock Data ---
+	};
 
-	// --- Mock Repository Methods ---
 	const mockFindByUrls = vi.fn();
 	const mockFindUnread = vi.fn();
 	const mockCreateMany = vi.fn();
@@ -66,9 +63,7 @@ describe("DefaultBookmarkService", () => {
 	const mockFindUnlabeled = vi.fn();
 	const mockFindByLabelName = vi.fn();
 	const mockFindById = vi.fn();
-	// --- End Mock Repository Methods ---
 
-	// Mock Repository using mocked methods
 	const mockRepository: IBookmarkRepository = {
 		findByUrls: mockFindByUrls,
 		findUnread: mockFindUnread,
@@ -87,16 +82,14 @@ describe("DefaultBookmarkService", () => {
 	};
 
 	beforeEach(() => {
-		// Clear mocks on the functions themselves
 		vi.clearAllMocks();
-		// Recreate service instance
 		service = new DefaultBookmarkService(mockRepository);
 	});
 	describe("お気に入り機能", () => {
 		describe("addToFavorites", () => {
 			it("リポジトリを使用してお気に入りに追加できること", async () => {
 				const bookmarkId = 1;
-				mockAddToFavorites.mockResolvedValue(undefined); // Use specific mock
+				mockAddToFavorites.mockResolvedValue(undefined);
 
 				await service.addToFavorites(bookmarkId);
 
@@ -106,7 +99,7 @@ describe("DefaultBookmarkService", () => {
 			it("エラーを適切に伝播すること", async () => {
 				const bookmarkId = 1;
 				const error = new Error("Already favorited");
-				mockAddToFavorites.mockRejectedValue(error); // Use specific mock
+				mockAddToFavorites.mockRejectedValue(error);
 
 				await expect(service.addToFavorites(bookmarkId)).rejects.toThrow(error);
 			});
@@ -114,7 +107,7 @@ describe("DefaultBookmarkService", () => {
 			it("エラーが Error インスタンスでない場合、デフォルトエラーメッセージを返すこと", async () => {
 				const bookmarkId = 1;
 				const error = "文字列エラー";
-				mockAddToFavorites.mockRejectedValue(error); // Use specific mock
+				mockAddToFavorites.mockRejectedValue(error);
 
 				await expect(service.addToFavorites(bookmarkId)).rejects.toThrow(
 					"Failed to add to favorites",
@@ -125,7 +118,7 @@ describe("DefaultBookmarkService", () => {
 		describe("removeFromFavorites", () => {
 			it("リポジトリを使用してお気に入りから削除できること", async () => {
 				const bookmarkId = 1;
-				mockRemoveFromFavorites.mockResolvedValue(undefined); // Use specific mock
+				mockRemoveFromFavorites.mockResolvedValue(undefined);
 
 				await service.removeFromFavorites(bookmarkId);
 
@@ -135,7 +128,7 @@ describe("DefaultBookmarkService", () => {
 			it("エラーを適切に伝播すること", async () => {
 				const bookmarkId = 1;
 				const error = new Error("Favorite not found");
-				mockRemoveFromFavorites.mockRejectedValue(error); // Use specific mock
+				mockRemoveFromFavorites.mockRejectedValue(error);
 
 				await expect(service.removeFromFavorites(bookmarkId)).rejects.toThrow(
 					error,
@@ -145,7 +138,7 @@ describe("DefaultBookmarkService", () => {
 			it("エラーが Error インスタンスでない場合、デフォルトエラーメッセージを返すこと", async () => {
 				const bookmarkId = 1;
 				const error = "文字列エラー";
-				mockRemoveFromFavorites.mockRejectedValue(error); // Use specific mock
+				mockRemoveFromFavorites.mockRejectedValue(error);
 
 				await expect(service.removeFromFavorites(bookmarkId)).rejects.toThrow(
 					"Failed to remove from favorites",
@@ -157,20 +150,19 @@ describe("DefaultBookmarkService", () => {
 			it("リポジトリからお気に入りブックマークをラベル情報付きで取得できること", async () => {
 				const mockBookmarks: BookmarkWithLabel[] = [expectedResult1];
 				const mockRepositoryResponse = { bookmarks: mockBookmarks, total: 1 };
-				mockGetFavoriteBookmarks.mockResolvedValue(mockRepositoryResponse); // Use specific mock
+				mockGetFavoriteBookmarks.mockResolvedValue(mockRepositoryResponse);
 
-				const result = await service.getFavoriteBookmarks(1, 10);
+				const result = await service.getFavoriteBookmarks();
 
-				expect(mockGetFavoriteBookmarks).toHaveBeenCalledWith(0, 10);
+				expect(mockGetFavoriteBookmarks).toHaveBeenCalledWith(0, 1000);
 				expect(result).toEqual({
 					bookmarks: mockBookmarks,
-					pagination: { currentPage: 1, totalPages: 1, totalItems: 1 },
 				});
 			});
 
 			it("エラーを適切に伝播すること", async () => {
 				const error = new Error("Database error");
-				mockGetFavoriteBookmarks.mockRejectedValue(error); // Use specific mock
+				mockGetFavoriteBookmarks.mockRejectedValue(error);
 
 				await expect(service.getFavoriteBookmarks()).rejects.toThrow(
 					"Failed to get favorite bookmarks",
@@ -180,7 +172,7 @@ describe("DefaultBookmarkService", () => {
 	});
 	describe("getTodayReadCount：当日の既読数の取得", () => {
 		it("リポジトリから当日の既読数を取得できること", async () => {
-			mockCountTodayRead.mockResolvedValue(5); // Use specific mock
+			mockCountTodayRead.mockResolvedValue(5);
 
 			const result = await service.getTodayReadCount();
 
@@ -189,7 +181,7 @@ describe("DefaultBookmarkService", () => {
 		});
 
 		it("0件の場合も適切に処理すること", async () => {
-			mockCountTodayRead.mockResolvedValue(0); // Use specific mock
+			mockCountTodayRead.mockResolvedValue(0);
 
 			const result = await service.getTodayReadCount();
 
@@ -199,14 +191,14 @@ describe("DefaultBookmarkService", () => {
 
 		it("リポジトリからのエラーを伝播すること", async () => {
 			const error = new Error("Repository error");
-			mockCountTodayRead.mockRejectedValue(error); // Use specific mock
+			mockCountTodayRead.mockRejectedValue(error);
 
 			await expect(service.getTodayReadCount()).rejects.toThrow(error);
 		});
 	});
 	describe("getUnreadBookmarksCount：未読ブックマーク数の取得", () => {
 		it("リポジトリから未読ブックマークの数を返す", async () => {
-			mockCountUnread.mockResolvedValue(5); // Use specific mock
+			mockCountUnread.mockResolvedValue(5);
 
 			const result = await service.getUnreadBookmarksCount();
 
@@ -215,7 +207,7 @@ describe("DefaultBookmarkService", () => {
 		});
 
 		it("0件の場合も適切に処理する", async () => {
-			mockCountUnread.mockResolvedValue(0); // Use specific mock
+			mockCountUnread.mockResolvedValue(0);
 
 			const result = await service.getUnreadBookmarksCount();
 
@@ -225,7 +217,7 @@ describe("DefaultBookmarkService", () => {
 
 		it("リポジトリからのエラーを伝播する", async () => {
 			const error = new Error("Repository error");
-			mockCountUnread.mockRejectedValue(error); // Use specific mock
+			mockCountUnread.mockRejectedValue(error);
 
 			await expect(service.getUnreadBookmarksCount()).rejects.toThrow(error);
 		});
@@ -236,7 +228,7 @@ describe("DefaultBookmarkService", () => {
 				expectedResult1,
 				expectedResult2,
 			];
-			mockFindUnread.mockResolvedValue(mockBookmarks); // Use specific mock
+			mockFindUnread.mockResolvedValue(mockBookmarks);
 
 			const result = await service.getUnreadBookmarks();
 
@@ -245,7 +237,7 @@ describe("DefaultBookmarkService", () => {
 		});
 
 		it("空の配列の場合も適切に処理する", async () => {
-			mockFindUnread.mockResolvedValue([]); // Use specific mock
+			mockFindUnread.mockResolvedValue([]);
 
 			const result = await service.getUnreadBookmarks();
 
@@ -255,7 +247,7 @@ describe("DefaultBookmarkService", () => {
 
 		it("リポジトリからのエラーを伝播する", async () => {
 			const error = new Error("Repository error");
-			mockFindUnread.mockRejectedValue(error); // Use specific mock
+			mockFindUnread.mockRejectedValue(error);
 
 			await expect(service.getUnreadBookmarks()).rejects.toThrow(error);
 		});
@@ -266,8 +258,8 @@ describe("DefaultBookmarkService", () => {
 				{ url: "https://example.com", title: "Example" },
 				{ url: "https://test.com", title: "Test" },
 			];
-			mockFindByUrls.mockResolvedValue([]); // Use specific mock
-			mockCreateMany.mockResolvedValue(undefined); // Use specific mock
+			mockFindByUrls.mockResolvedValue([]);
+			mockCreateMany.mockResolvedValue(undefined);
 
 			await service.createBookmarksFromData(bookmarksToCreate);
 
@@ -287,8 +279,8 @@ describe("DefaultBookmarkService", () => {
 				isFavorite: false,
 				label: null,
 			};
-			mockFindByUrls.mockResolvedValue([existingUnread]); // Use specific mock
-			mockCreateMany.mockResolvedValue(undefined); // Use specific mock
+			mockFindByUrls.mockResolvedValue([existingUnread]);
+			mockCreateMany.mockResolvedValue(undefined);
 
 			await service.createBookmarksFromData(bookmarksToCreate);
 
@@ -306,13 +298,13 @@ describe("DefaultBookmarkService", () => {
 
 		it("空の配列の場合はcreateMany呼び出しをスキップする", async () => {
 			await service.createBookmarksFromData([]);
-			expect(mockCreateMany).not.toHaveBeenCalled(); // Use specific mock
+			expect(mockCreateMany).not.toHaveBeenCalled();
 		});
 
 		it("リポジトリからのエラーを伝播する", async () => {
 			const error = new Error("Repository error");
-			mockFindByUrls.mockResolvedValue([]); // Use specific mock
-			mockCreateMany.mockRejectedValue(error); // Use specific mock
+			mockFindByUrls.mockResolvedValue([]);
+			mockCreateMany.mockRejectedValue(error);
 			const bookmarksToCreate = [
 				{ url: "https://example.com", title: "Example" },
 			];
@@ -325,7 +317,7 @@ describe("DefaultBookmarkService", () => {
 	describe("markBookmarkAsRead：ブックマークを既読としてマーク", () => {
 		it("リポジトリを使用してブックマークを既読としてマークする", async () => {
 			const bookmarkId = 123;
-			mockMarkAsRead.mockResolvedValue(true); // Use specific mock
+			mockMarkAsRead.mockResolvedValue(true);
 
 			await service.markBookmarkAsRead(bookmarkId);
 
@@ -334,7 +326,7 @@ describe("DefaultBookmarkService", () => {
 
 		it("リポジトリからのエラーを伝播する", async () => {
 			const error = new Error("Repository error");
-			mockMarkAsRead.mockRejectedValue(error); // Use specific mock
+			mockMarkAsRead.mockRejectedValue(error);
 			const bookmarkId = 123;
 
 			await expect(service.markBookmarkAsRead(bookmarkId)).rejects.toThrow(
@@ -344,7 +336,7 @@ describe("DefaultBookmarkService", () => {
 
 		it("ブックマークが見つからない場合はエラーを投げる", async () => {
 			const bookmarkId = 999;
-			mockMarkAsRead.mockResolvedValue(false); // Use specific mock
+			mockMarkAsRead.mockResolvedValue(false);
 
 			await expect(service.markBookmarkAsRead(bookmarkId)).rejects.toThrow(
 				"Bookmark not found",
@@ -356,7 +348,7 @@ describe("DefaultBookmarkService", () => {
 	describe("getRecentlyReadBookmarks：最近読んだブックマークの取得", () => {
 		it("リポジトリから最近読んだブックマークをラベル情報付きで日付ごとにグループ化して返す", async () => {
 			const mockBookmarks: BookmarkWithLabel[] = [expectedResult1];
-			mockFindRecentlyRead.mockResolvedValue(mockBookmarks); // Use specific mock
+			mockFindRecentlyRead.mockResolvedValue(mockBookmarks);
 
 			const result = await service.getRecentlyReadBookmarks();
 
@@ -370,7 +362,7 @@ describe("DefaultBookmarkService", () => {
 
 		it("リポジトリからのエラーを伝播する", async () => {
 			const error = new Error("Repository error");
-			mockFindRecentlyRead.mockRejectedValue(error); // Use specific mock
+			mockFindRecentlyRead.mockRejectedValue(error);
 
 			await expect(service.getRecentlyReadBookmarks()).rejects.toThrow(
 				"Failed to get recently read bookmarks",
@@ -378,11 +370,10 @@ describe("DefaultBookmarkService", () => {
 		});
 	});
 
-	// --- New Method Tests ---
 	describe("getUnlabeledBookmarks：未ラベルブックマークの取得", () => {
 		it("リポジトリから未ラベルブックマークを返す", async () => {
 			const mockUnlabeled: Bookmark[] = [mockBookmark1];
-			mockFindUnlabeled.mockResolvedValue(mockUnlabeled); // Use specific mock
+			mockFindUnlabeled.mockResolvedValue(mockUnlabeled);
 
 			const result = await service.getUnlabeledBookmarks();
 
@@ -392,7 +383,7 @@ describe("DefaultBookmarkService", () => {
 
 		it("リポジトリからのエラーを伝播する", async () => {
 			const error = new Error("Repository error");
-			mockFindUnlabeled.mockRejectedValue(error); // Use specific mock
+			mockFindUnlabeled.mockRejectedValue(error);
 
 			await expect(service.getUnlabeledBookmarks()).rejects.toThrow(
 				"Failed to get unlabeled bookmarks",
@@ -404,7 +395,7 @@ describe("DefaultBookmarkService", () => {
 		it("リポジトリから指定されたラベルのブックマークをラベル情報付きで返す", async () => {
 			const labelName = "typescript";
 			const mockLabeled: BookmarkWithLabel[] = [expectedResult1];
-			mockFindByLabelName.mockResolvedValue(mockLabeled); // Use specific mock
+			mockFindByLabelName.mockResolvedValue(mockLabeled);
 
 			const result = await service.getBookmarksByLabel(labelName);
 
@@ -415,7 +406,7 @@ describe("DefaultBookmarkService", () => {
 		it("リポジトリからのエラーを伝播する", async () => {
 			const labelName = "typescript";
 			const error = new Error("Repository error");
-			mockFindByLabelName.mockRejectedValue(error); // Use specific mock
+			mockFindByLabelName.mockRejectedValue(error);
 
 			await expect(service.getBookmarksByLabel(labelName)).rejects.toThrow(
 				"Failed to get bookmarks by label",

@@ -1,18 +1,14 @@
 import { Hono } from "hono";
-import { z } from "zod";
 import type { BookmarkWithLabel } from "../interfaces/repository/bookmark";
-import type { IBookmarkService } from "../interfaces/service/bookmark"; // Use IBookmarkService
-import type { ILabelService } from "../interfaces/service/label"; // Import ILabelService
-// Removed unused import of normalizeLabelName
+import type { IBookmarkService } from "../interfaces/service/bookmark";
+import type { ILabelService } from "../interfaces/service/label";
 
-// Accept both services
 export const createBookmarksRouter = (
 	bookmarkService: IBookmarkService,
 	labelService: ILabelService,
 ) => {
 	const app = new Hono();
 
-	// GET /unread と GET /?label=... を統合 (ルートパスに変更)
 	app.get("/", async (c) => {
 		const labelQuery = c.req.query("label");
 
@@ -20,11 +16,7 @@ export const createBookmarksRouter = (
 			let bookmarks: BookmarkWithLabel[];
 			if (labelQuery) {
 				// ラベルによるフィルタリング
-				// Note: サービス層で正規化するか、ここで正規化するか要検討。
-				//       ここではサービス層が正規化済みを期待すると仮定。
-				// const normalizedLabel = normalizeLabelName(labelQuery);
 				bookmarks = await bookmarkService.getBookmarksByLabel(labelQuery);
-				// ラベルフィルタリング時はカウント不要かもしれないが、一旦そのまま
 				const [totalUnread, todayReadCount] = await Promise.all([
 					bookmarkService.getUnreadBookmarksCount(),
 					bookmarkService.getTodayReadCount(),
@@ -57,7 +49,6 @@ export const createBookmarksRouter = (
 		}
 	});
 
-	// --- New Endpoints ---
 	app.get("/unlabeled", async (c) => {
 		try {
 			const bookmarks = await bookmarkService.getUnlabeledBookmarks();
@@ -173,12 +164,6 @@ export const createBookmarksRouter = (
 		}
 	});
 
-	// クエリパラメータのバリデーションスキーマ
-	const paginationSchema = z.object({
-		page: z.coerce.number().min(1).default(1),
-		limit: z.coerce.number().min(1).max(100).default(20),
-	});
-
 	// お気に入り機能のルーティングを追加
 	app.post("/:id/favorite", async (c) => {
 		try {
@@ -234,28 +219,9 @@ export const createBookmarksRouter = (
 
 	app.get("/favorites", async (c) => {
 		try {
-			const query = paginationSchema.parse({
-				page: c.req.query("page"),
-				limit: c.req.query("limit"),
-			});
-
-			const result = await bookmarkService.getFavoriteBookmarks(
-				query.page,
-				query.limit,
-			);
-
+			const result = await bookmarkService.getFavoriteBookmarks();
 			return c.json({ success: true, ...result });
 		} catch (error) {
-			if (error instanceof z.ZodError) {
-				return c.json(
-					{
-						success: false,
-						message: "Invalid pagination parameters",
-						errors: error.errors,
-					},
-					400,
-				);
-			}
 			console.error("Failed to fetch favorites:", error);
 			return c.json(
 				{ success: false, message: "Failed to fetch favorites" },
