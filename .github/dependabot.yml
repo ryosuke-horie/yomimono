@@ -1,34 +1,39 @@
 version: 2
 updates:
-  # frontendディレクトリの依存関係を管理
   - package-ecosystem: "bun"
     directory: "/frontend"
     schedule:
       interval: "weekly"
     commit-message:
       prefix: "chore(frontend)"
-      prefix-development: "chore(frontend)"
+      prefix-development: "chore(frontend-dev)"
       include: "scope"
-    # ここで特定パッケージをグルーピング
     groups:
-      next-react-deployment:
+      core-dependencies:
         patterns:
-          # 依存パッケージ名ベースでの指定
+          # Reactとそのエコシステム
           - "next"
           - "react"
           - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+          - "@tanstack/react-query"
+          - "typescript"
+          - "@types/node"
+          # Cloudflareデプロイメント関連
           - "wrangler"
           - "@opennextjs/cloudflare"
           - "@cloudflare/workers-types"
-          - "@types/node"
-          - "@types/react"
-          - "@types/react-dom"
-      styles:
-        patterns:
+          # スタイリング関連
           - "tailwindcss"
           - "@tailwindcss/postcss"
           - "postcss"
           - "postcss-load-config"
+      dev-tools:
+        patterns:
+          # 開発ツール関連
+          - "@biomejs/biome"
+          - "knip"
 
   # apiディレクトリの依存関係を管理
   - package-ecosystem: "bun"
@@ -37,27 +42,34 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "chore(api)"
-      prefix-development: "chore(api)"
+      prefix-development: "chore(api-dev)"
       include: "scope"
     # ここで特定パッケージをグルーピング
     groups:
-      hono-deployment:
+      core-dependencies:
         patterns:
-          # 依存パッケージ名ベースでの指定
+          # コアとなる実行時依存パッケージ
           - "hono"
           - "drizzle-orm"
-          - "zod"
           - "dotenv"
-          - "@cloudflare/workers-types"
-          - "drizzle-kit"
+          - "typescript"
+          - "@types/node"
+          # Cloudflare関連のデプロイメント
           - "wrangler"
-      testings:
+          - "@cloudflare/workers-types"
+          # データベース関連ツール
+          - "drizzle-kit"
+      testing-frameworks:
         patterns:
-          - "msw"
-          - "@biomejs/biome"
+          # テスト関連パッケージ
+          - "vitest"
           - "@vitest/coverage-v8"
           - "happy-dom"
-          - "vitest"
+      code-quality:
+        patterns:
+          # コード品質管理ツール
+          - "@biomejs/biome"
+          - "knip"
 
   # Extensionディレクトリの依存関係を管理
   - package-ecosystem: "bun"
@@ -66,7 +78,7 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "chore(extension)"
-      prefix-development: "chore(extension)"
+      prefix-development: "chore(extension-dev)"
       include: "scope"
     # ここで特定パッケージをグルーピング
     groups:
@@ -77,12 +89,36 @@ updates:
           - "knip"
           - "typescript"
 
+  # MCPディレクトリの依存関係を管理
+  - package-ecosystem: "bun"
+    directory: "/mcp"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(mcp)"
+      prefix-development: "chore(mcp-dev)"
+      include: "scope"
+    # ここで特定パッケージをグルーピング
+    groups:
+      core-dependencies:
+        patterns:
+          # コアとなるMCPライブラリ
+          - "@modelcontextprotocol/sdk"
+          - "zod"
+          - "typescript"
+      dev-tools:
+        patterns:
+          # 開発ツール関連
+          - "@types/bun"
+          - "dotenv"
+          - "knip"
+
   # GitHub Actionsの依存関係を管理
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: "chore"
-      prefix-development: "chore"
+      prefix: "chore(actions)"
+      prefix-development: "chore(actions)"
       include: "scope"
