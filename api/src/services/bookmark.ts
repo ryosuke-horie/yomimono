@@ -49,7 +49,10 @@ export class DefaultBookmarkService implements IBookmarkService {
 	}> {
 		try {
 			// 個人ツールではページネーション不要のため、全件取得
-			const { bookmarks, total } = await this.repository.getFavoriteBookmarks(0, 1000);
+			const { bookmarks, total } = await this.repository.getFavoriteBookmarks(
+				0,
+				1000,
+			);
 
 			return {
 				bookmarks,
@@ -120,7 +123,7 @@ export class DefaultBookmarkService implements IBookmarkService {
 				const date = new Date(bookmark.updatedAt);
 				date.setHours(date.getHours() + 9); // JSTに変換
 
-                // 日付が無効な場合はスキップ
+				// 日付が無効な場合はスキップ
 				if (Number.isNaN(date.getTime())) {
 					console.warn(
 						`Invalid date after timezone adjustment for bookmark ID ${bookmark.id}:`,
@@ -156,8 +159,8 @@ export class DefaultBookmarkService implements IBookmarkService {
 
 	async getBookmarksByLabel(labelName: string): Promise<BookmarkWithLabel[]> {
 		try {
-            // Note: labelNameは正規化済みである必要があります。
-            // このサービスメソッドを呼び出す前に正規化してください。
+			// Note: labelNameは正規化済みである必要があります。
+			// このサービスメソッドを呼び出す前に正規化してください。
 			return await this.repository.findByLabelName(labelName);
 		} catch (error) {
 			console.error("Failed to get bookmarks by label:", error);
