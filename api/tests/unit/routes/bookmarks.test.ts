@@ -46,7 +46,7 @@ const mockBookmarkService: IBookmarkService = {
 const mockLabelService: ILabelService = {
 	getLabels: vi.fn(),
 	assignLabel: mockAssignLabel,
-    createLabel: vi.fn(),
+	createLabel: vi.fn(),
 };
 
 describe("BookmarkRouter", () => {
@@ -373,14 +373,17 @@ describe("BookmarkRouter", () => {
 				mockGetFavoriteBookmarks.mockResolvedValue(mockResponse);
 
 				const res = await app.request("/api/bookmarks/favorites");
-				const data = (await res.json()) as { success: boolean; bookmarks: BookmarkWithLabel[] };
+				const data = (await res.json()) as {
+					success: boolean;
+					bookmarks: BookmarkWithLabel[];
+				};
 
 				expect(res.status).toBe(200);
 				expect(data.success).toBe(true);
 				expect(data.bookmarks).toHaveLength(1);
 				expect(mockGetFavoriteBookmarks).toHaveBeenCalledWith(); // 引数なしで呼び出されることを確認
 			});
-			
+
 			it("エラー時に500を返すこと", async () => {
 				mockGetFavoriteBookmarks.mockRejectedValue(new Error("Database error"));
 				const res = await app.request("/api/bookmarks/favorites");
