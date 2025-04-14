@@ -5,20 +5,14 @@ import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 import { API_BASE_URL } from "@/lib/api/config";
 import { useQuery } from "@tanstack/react-query";
 
-// APIレスポンスの型定義 (仮。実際のAPI仕様に合わせて調整が必要)
+// APIレスポンスの型定義
 interface FavoritesApiResponse {
 	success: boolean;
 	bookmarks: BookmarkWithLabel[];
-	pagination: {
-		currentPage: number;
-		totalPages: number;
-		totalItems: number;
-	};
 }
 
 // お気に入りブックマーク一覧を取得する非同期関数
 const fetchFavoriteBookmarks = async (): Promise<FavoritesApiResponse> => {
-	// TODO: ページネーション対応が必要な場合は引数を追加
 	const response = await fetch(`${API_BASE_URL}/api/bookmarks/favorites`);
 	if (!response.ok) {
 		throw new Error("Failed to fetch favorite bookmarks");
@@ -56,7 +50,7 @@ export default function FavoritesPage() {
 			<h1 className="text-2xl font-bold mb-6">お気に入り</h1>
 			{isLoading ? (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					{/* スケルトンローディング表示 (簡易版) */}
+					{/* スケルトンローディング表示 */}
 					{[...Array(6)].map((_, i) => (
 						<div
 							key={i}
