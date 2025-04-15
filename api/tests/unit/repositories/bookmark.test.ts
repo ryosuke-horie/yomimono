@@ -1,4 +1,4 @@
-import { and, count, eq, gte, inArray, isNull } from "drizzle-orm";
+import { eq, inArray, isNull } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	type Bookmark,
