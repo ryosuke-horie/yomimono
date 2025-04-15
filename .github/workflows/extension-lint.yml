@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'extension/**'
+      - '.github/workflows/extension-lint.yml'
 
 jobs:
   lint:
