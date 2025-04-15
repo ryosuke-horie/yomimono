@@ -27,8 +27,14 @@ const LabelsResponseSchema = z.object({
 
 // Schema for the POST /api/labels response
 const CreateLabelResponseSchema = z.object({
-	success: z.literal(true),
-	label: LabelSchema,
+success: z.literal(true),
+label: LabelSchema,
+});
+
+// Schema for the DELETE /api/labels/:id response
+const DeleteLabelResponseSchema = z.object({
+success: z.literal(true),
+message: z.string(),
 });
 
 // Get API base URL from environment variable
@@ -164,4 +170,39 @@ export async function createLabel(labelName: string) {
 	}
 
 	return parsed.data.label;
+}
+
+/**
+ * Deletes a label via the API.
+ * @param id - The ID of the label to delete.
+ * @throws {Error} If the label deletion fails.
+ */
+export async function deleteLabel(id: number): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/labels/${id}`, {
+    method: "DELETE",
+  });
+
+  let data: unknown;
+  try {
+    data = await response.json();
+  } catch (parseError: any) {
+    if (!response.ok) {
+      throw new Error(`Failed to delete label ${id}. Status: ${response.status} ${response.statusText}`);
+    } else {
+      throw new Error(`Unexpected response format when deleting label ${id}: ${parseError.message}`);
+    }
+  }
+
+  if (!response.ok) {
+    let errorMessage = `Failed to delete label ${id}`;
+    if (typeof data === "object" && data !== null && "message" in data && typeof data.message === "string") {
+      errorMessage = data.message;
+    }
+    throw new Error(`${errorMessage}: ${response.statusText} (Status: ${response.status})`);
+  }
+
+  const parsed = DeleteLabelResponseSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error(`Invalid API response after deleting label. Zod errors: ${parsed.error.message}`);
+  }
 }
