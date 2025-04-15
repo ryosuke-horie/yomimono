@@ -6,7 +6,7 @@
   "devDependencies": {
     "@types/bun": "latest",
     "dotenv": "^16.5.0",
-    "knip": "^5.50.2"
+    "knip": "^5.50.3"
   },
   "peerDependencies": {
     "typescript": "^5"
