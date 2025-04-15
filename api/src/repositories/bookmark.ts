@@ -77,16 +77,30 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 
 	async countTodayRead(): Promise<number> {
 		try {
-			// 日本時間の当日0時のタイムスタンプを取得
-			const today = new Date();
-			today.setHours(0, 0, 0, 0);
-			// UTC+9の考慮
-			today.setHours(today.getHours() - 9);
+			const nowMillis = Date.now(); // 現在のUTC時刻 (ミリ秒)
+			const jstOffsetMillis = 9 * 60 * 60 * 1000; // 9時間 (ミリ秒)
+			const millisPerDay = 24 * 60 * 60 * 1000; // 1日 (ミリ秒)
+
+			// 現在時刻にJSTオフセットを加算し、その日付のJSTでの始まりの時刻を計算
+			// 結果はUTCミリ秒タイムスタンプ
+			const startOfTodayJstInMillis =
+				Math.floor((nowMillis + jstOffsetMillis) / millisPerDay) *
+					millisPerDay -
+				jstOffsetMillis;
+
+			// ミリ秒からDateオブジェクトを作成（DrizzleはDate型を期待）
+			const startOfTodayJst = new Date(startOfTodayJstInMillis);
 
 			const result = await this.db
 				.select({ count: count() })
 				.from(bookmarks)
-				.where(and(eq(bookmarks.isRead, true), gte(bookmarks.updatedAt, today)))
+				.where(
+					and(
+						eq(bookmarks.isRead, true),
+						// updatedAt (Date型) との比較
+						gte(bookmarks.updatedAt, startOfTodayJst),
+					),
+				)
 				.get();
 
 			return result?.count || 0;
