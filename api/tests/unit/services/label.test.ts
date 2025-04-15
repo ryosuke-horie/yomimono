@@ -9,6 +9,7 @@ import { LabelService } from "../../../src/services/label";
 const mockFindAllWithArticleCount = vi.fn();
 const mockFindLabelByName = vi.fn();
 const mockCreateLabel = vi.fn();
+const mockDeleteById = vi.fn();
 const mockFindByArticleId = vi.fn();
 const mockCreateArticleLabel = vi.fn();
 const mockFindBookmarkById = vi.fn();
@@ -17,6 +18,7 @@ const mockLabelRepository: ILabelRepository = {
 	findAllWithArticleCount: mockFindAllWithArticleCount,
 	findByName: mockFindLabelByName,
 	create: mockCreateLabel,
+	deleteById: mockDeleteById,
 };
 
 const mockArticleLabelRepository: IArticleLabelRepository = {
@@ -278,6 +280,40 @@ describe("LabelService", () => {
 			);
 			expect(mockFindLabelByName).toHaveBeenCalledWith(normalizedLabelName);
 			expect(mockCreateLabel).not.toHaveBeenCalled();
+		});
+	});
+
+	describe("deleteLabel", () => {
+		const labelId = 1;
+
+		it("ラベルを削除できること", async () => {
+			mockFindBookmarkById.mockResolvedValue({
+				id: labelId,
+				name: "typescript",
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			});
+			mockDeleteById.mockResolvedValue(true);
+
+			await expect(labelService.deleteLabel(labelId)).resolves.not.toThrow();
+			expect(mockDeleteById).toHaveBeenCalledWith(labelId);
+		});
+
+		it("存在しないラベルIDの場合、エラーをスローすること", async () => {
+			mockDeleteById.mockResolvedValue(false);
+
+			await expect(labelService.deleteLabel(labelId)).rejects.toThrow(
+				`Label with id ${labelId} not found`,
+			);
+			expect(mockDeleteById).toHaveBeenCalledWith(labelId);
+		});
+
+		it("DBエラーの場合、エラーをスローすること", async () => {
+			const error = new Error("Database error");
+			mockDeleteById.mockRejectedValue(error);
+
+			await expect(labelService.deleteLabel(labelId)).rejects.toThrow(error);
+			expect(mockDeleteById).toHaveBeenCalledWith(labelId);
 		});
 	});
 });

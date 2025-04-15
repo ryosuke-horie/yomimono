@@ -88,4 +88,13 @@ export class LabelService implements ILabelService {
 		});
 		return newLabel;
 	}
+
+	async deleteLabel(id: number): Promise<void> {
+		// 1. ラベルを削除し、削除されたかどうかを確認
+		const wasDeleted = await this.labelRepository.deleteById(id);
+		if (!wasDeleted) {
+			throw new Error(`Label with id ${id} not found`);
+		}
+		// 2. article_labelsテーブルの関連レコードは外部キー制約(onDelete: cascade)により自動的に削除される
+	}
 }

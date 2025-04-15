@@ -20,4 +20,11 @@ export interface ILabelRepository {
 	 * @returns 作成されたラベルオブジェクト
 	 */
 	create(data: Pick<InsertLabel, "name">): Promise<Label>;
+
+	/**
+	 * 指定されたIDのラベルを削除します。
+	 * @param id 削除するラベルのID
+	 * @returns データが削除された場合はtrue、存在しなかった場合はfalse
+	 */
+	deleteById(id: number): Promise<boolean>;
 }

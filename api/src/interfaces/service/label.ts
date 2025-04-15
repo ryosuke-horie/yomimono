@@ -28,4 +28,12 @@ export interface ILabelService {
 	 * @throws Error 同じ名前（正規化後）のラベルが既に存在する場合
 	 */
 	createLabel(name: string): Promise<Label>;
+
+	/**
+	 * 指定されたIDのラベルを削除します。
+	 * 関連する記事のラベリングも削除されます（DBの外部キー制約により）。
+	 * @param id 削除するラベルのID
+	 * @throws Error ラベルが存在しない場合
+	 */
+	deleteLabel(id: number): Promise<void>;
 }

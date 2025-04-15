@@ -15,6 +15,7 @@ const mockDb = {
 	insert: vi.fn().mockReturnThis(),
 	values: vi.fn().mockReturnThis(),
 	returning: vi.fn().mockReturnThis(),
+	delete: vi.fn().mockReturnThis(),
 };
 
 // Mock the drizzle function to return our mockDb
@@ -124,6 +125,40 @@ describe("LabelRepository", () => {
 			);
 			expect(mockDb.returning).toHaveBeenCalled();
 			expect(mockDb.get).toHaveBeenCalledOnce();
+		});
+	});
+
+	describe("deleteById", () => {
+		it("指定されたIDのラベルを削除できること", async () => {
+			// 削除されたレコードをモック
+			const deletedLabel: Label = {
+				id: 1,
+				name: "typescript",
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+			mockDb.all.mockResolvedValue([deletedLabel]);
+
+			const result = await labelRepository.deleteById(1);
+
+			expect(result).toBe(true);
+			expect(mockDb.delete).toHaveBeenCalledWith(expect.anything());
+			expect(mockDb.where).toHaveBeenCalledWith(expect.anything());
+			expect(mockDb.returning).toHaveBeenCalled();
+			expect(mockDb.all).toHaveBeenCalledOnce();
+		});
+
+		it("存在しないIDの場合、falseを返すこと", async () => {
+			// 削除対象が存在しない場合は空配列を返す
+			mockDb.all.mockResolvedValue([]);
+
+			const result = await labelRepository.deleteById(999);
+
+			expect(result).toBe(false);
+			expect(mockDb.delete).toHaveBeenCalledWith(expect.anything());
+			expect(mockDb.where).toHaveBeenCalledWith(expect.anything());
+			expect(mockDb.returning).toHaveBeenCalled();
+			expect(mockDb.all).toHaveBeenCalledOnce();
 		});
 	});
 });
