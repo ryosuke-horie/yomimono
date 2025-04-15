@@ -60,4 +60,14 @@ export class LabelRepository implements ILabelRepository {
 			.get();
 		return result;
 	}
+
+	async deleteById(id: number): Promise<boolean> {
+		const result = await this.db
+			.delete(labels)
+			.where(eq(labels.id, id))
+			.returning()
+			.all();
+
+		return result.length > 0;
+	}
 }

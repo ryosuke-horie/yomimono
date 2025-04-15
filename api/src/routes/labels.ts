@@ -76,4 +76,33 @@ labels.post("/", async (c) => {
 	}
 });
 
+// ラベル削除
+labels.delete("/:id", async (c) => {
+	const db = c.env.DB;
+	const labelRepository = new LabelRepository(db);
+	const articleLabelRepository = new ArticleLabelRepository(db);
+	const bookmarkRepository = new DrizzleBookmarkRepository(db);
+	const labelService = new LabelService(
+		labelRepository,
+		articleLabelRepository,
+		bookmarkRepository,
+	);
+
+	try {
+		const id = Number.parseInt(c.req.param("id"));
+		if (Number.isNaN(id)) {
+			return c.json({ success: false, message: "Invalid label ID" }, 400);
+		}
+
+		await labelService.deleteLabel(id);
+		return c.json({ success: true, message: "Label deleted successfully" });
+	} catch (error) {
+		if (error instanceof Error && error.message.includes("not found")) {
+			return c.json({ success: false, message: "Label not found" }, 404);
+		}
+		console.error("Failed to delete label:", error);
+		return c.json({ success: false, message: "Failed to delete label" }, 500);
+	}
+});
+
 export default labels;

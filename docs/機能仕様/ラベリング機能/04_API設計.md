@@ -130,7 +130,51 @@ PUT /api/articles/:id/label
     }
     ```
 
-### 4. ラベルによる記事フィルタリング
+### 4. ラベル削除
+```
+DELETE /api/labels/:id
+```
+
+#### リクエスト
+- パラメータ
+  - `id`: 削除対象のラベルID (数値)
+- ヘッダー
+  ```
+  Accept: application/json
+  ```
+
+#### レスポンス
+- 成功時 (200 OK)
+  ```json
+  {
+    "success": true,
+    "message": "Label deleted successfully"
+  }
+  ```
+- エラー時
+  - 400: 不正なリクエスト
+    ```json
+    {
+      "success": false,
+      "message": "Invalid label ID"
+    }
+    ```
+  - 404: ラベルが存在しない
+    ```json
+    {
+      "success": false,
+      "message": "Label not found"
+    }
+    ```
+  - 500: サーバーエラー
+    ```json
+    {
+      "success": false,
+      "message": "Failed to delete label"
+    }
+    ```
+
+### 5. ラベルによる記事フィルタリング
 ```
 GET /api/articles?label=:labelName
 ```
@@ -174,6 +218,11 @@ GET /api/articles?label=:labelName
 
 ## 実装詳細
 
+### データの整合性
+- ラベル削除時の挙動
+  - `labels`テーブルからレコードを削除
+  - 外部キー制約（`onDelete: "cascade"`）により、`article_labels`テーブルの関連レコードも自動削除
+
 ### 1. ルーティング実装（Hono）
 ```typescript
 // 未ラベル記事一覧取得
@@ -213,6 +262,25 @@ app.get("/", async (c) => {
 
   const result = await articleService.getArticlesByLabel(labelName);
   return c.json({ success: true, articles: result });
+});
+
+// ラベル削除
+app.delete("/labels/:id", async (c) => {
+  const id = Number.parseInt(c.req.param("id"));
+  if (Number.isNaN(id)) {
+    return c.json({ success: false, message: "Invalid label ID" }, 400);
+  }
+
+  try {
+    await labelService.deleteLabel(id);
+    return c.json({ success: true, message: "Label deleted successfully" });
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("not found")) {
+      return c.json({ success: false, message: "Label not found" }, 404);
+    }
+    console.error("Failed to delete label:", error);
+    return c.json({ success: false, message: "Failed to delete label" }, 500);
+  }
 });
 ```
 
