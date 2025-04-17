@@ -309,18 +309,13 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 	async findUnlabeled(): Promise<Bookmark[]> {
 		try {
 			const results = await this.db
-.select({ bookmarks: bookmarks }) // Select only bookmark fields
-.from(bookmarks)
-.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
-.where(
-and(
-isNull(articleLabels.id), // Filter where no label exists
-eq(bookmarks.isRead, false), // Filter out read bookmarks
-),
-)
-.all();
-return results.map((r) => r.bookmarks); // Extract bookmark data
-} catch (error) {
+				.select({ bookmarks: bookmarks }) // Select only bookmark fields
+				.from(bookmarks)
+				.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
+				.where(isNull(articleLabels.id)) // Filter where no label exists
+				.all();
+			return results.map((r) => r.bookmarks); // Extract bookmark data
+		} catch (error) {
 			console.error("Failed to fetch unlabeled bookmarks:", error);
 			throw error;
 		}
