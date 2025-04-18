@@ -27,9 +27,10 @@ export interface IBookmarkRepository {
 
 	/**
 	 * ラベルが付与されていないブックマークを取得します。
+	 * * 既読のブックマークは除外されます。
 	 * @returns 未ラベルのブックマーク配列
 	 */
-	findUnlabeled(): Promise<Bookmark[]>; // 未ラベルなのでBookmark型でOK
+	findUnlabeled(): Promise<Bookmark[]>;
 
 	/**
 	 * 指定されたラベル名に紐づくブックマークを取得します。
