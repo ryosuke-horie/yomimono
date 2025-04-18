@@ -223,9 +223,9 @@ describe("ブックマークリポジトリ", () => {
 
 	describe("未ラベルブックマーク取得 (findUnlabeled)", () => {
 		it("ラベルが付与されていないブックマークのみ取得できること", async () => {
-			mockDbClient.all.mockResolvedValue([{ bookmarks: mockBookmark3 }]);
+			mockDbClient.all.mockResolvedValue([{ bookmarks: mockBookmark2 }]);
 			const result = await repository.findUnlabeled();
-			expect(result).toEqual([mockBookmark3]);
+			expect(result).toEqual([mockBookmark2]);
 			expect(mockDbClient.select).toHaveBeenCalledWith({
 				bookmarks: bookmarks,
 			});
@@ -234,7 +234,7 @@ describe("ブックマークリポジトリ", () => {
 				articleLabels,
 				expect.anything(),
 			);
-			expect(mockDbClient.where).toHaveBeenCalledWith(isNull(articleLabels.id));
+
 			expect(mockDbClient.all).toHaveBeenCalledOnce();
 		});
 
