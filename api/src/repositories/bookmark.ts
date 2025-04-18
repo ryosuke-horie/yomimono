@@ -304,53 +304,56 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 			throw error;
 		}
 	}
-
-	// --- New methods ---
+	/**
+	 * ラベルが付与されていないブックマークを取得します。
+	 * @returns 未ラベルのブックマーク配列
+	 * * 既読のブックマークは除外されます。
+	 */
 	async findUnlabeled(): Promise<Bookmark[]> {
 		try {
 			const results = await this.db
-				.select({ bookmarks: bookmarks }) // Select only bookmark fields
+				.select({ bookmarks: bookmarks })
 				.from(bookmarks)
 				.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
-				.where(isNull(articleLabels.id)) // Filter where no label exists
+				.where(and(isNull(articleLabels.id), eq(bookmarks.isRead, false)))
 				.all();
-			return results.map((r) => r.bookmarks); // Extract bookmark data
+			return results.map((r) => r.bookmarks);
 		} catch (error) {
-			console.error("Failed to fetch unlabeled bookmarks:", error);
+			console.error(
+				"ラベルが付与されていないブックマークの取得に失敗しました:",
+				error,
+			);
 			throw error;
 		}
 	}
 
 	async findByLabelName(labelName: string): Promise<BookmarkWithLabel[]> {
 		try {
-			// Perform all necessary joins directly here
 			const results = await this.db
 				.select({
-					// Select specific fields from each table
 					bookmark: bookmarks,
-					favorite: favorites, // Select the whole favorite object (or null)
-					label: labels, // Select the whole label object
+					favorite: favorites,
+					label: labels,
 				})
 				.from(bookmarks)
-				.innerJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId)) // Must have a label association
-				.innerJoin(labels, eq(articleLabels.labelId, labels.id)) // Must have a label
-				.leftJoin(favorites, eq(bookmarks.id, favorites.bookmarkId)) // Favorite is optional
+				.innerJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
+				.innerJoin(labels, eq(articleLabels.labelId, labels.id))
+				.leftJoin(favorites, eq(bookmarks.id, favorites.bookmarkId))
 				.where(
 					and(
-						eq(labels.name, labelName), // Filter by label name
+						eq(labels.name, labelName),
 						eq(bookmarks.isRead, false), // 未読記事のみを取得
 					),
 				)
 				.all();
 
-			// Manually map the results to the BookmarkWithLabel structure
 			return results.map((row) => ({
 				...row.bookmark,
-				isFavorite: !!row.favorite, // Check if favorite exists
-				label: row.label, // Label is guaranteed by inner join
+				isFavorite: !!row.favorite,
+				label: row.label,
 			}));
 		} catch (error) {
-			console.error("Failed to fetch bookmarks by label name:", error);
+			console.error("ラベル名によるブックマークの取得に失敗しました:", error);
 			throw error;
 		}
 	}
