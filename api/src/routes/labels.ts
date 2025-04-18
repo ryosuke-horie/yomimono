@@ -5,7 +5,7 @@ import { DrizzleBookmarkRepository } from "../repositories/bookmark";
 import { LabelRepository } from "../repositories/label";
 import { LabelService } from "../services/label";
 
-const labels = new Hono<{ Bindings: Env }>(); // HonoのジェネリクスでBindingsを指定
+const labels = new Hono<{ Bindings: Env }>();
 
 labels.get("/", async (c) => {
 	// c.envから直接DBを取得
@@ -29,7 +29,6 @@ labels.get("/", async (c) => {
 	}
 });
 
-// POST /api/labels - 新しいラベルを作成
 labels.post("/", async (c) => {
 	// c.envから直接DBを取得
 	const db = c.env.DB;
