@@ -1,4 +1,4 @@
-import type { Bookmark, BookmarkWithLabel } from "@/features/bookmarks/types";
+import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { markBookmarkAsRead } from "./api";
 import type { BookmarksData } from "./api";

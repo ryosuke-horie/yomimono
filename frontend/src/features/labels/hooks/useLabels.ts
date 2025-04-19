@@ -1,16 +1,16 @@
-import { API_BASE_URL } from "@/lib/api/config"; // 正しいインポート名に修正
+import { API_BASE_URL } from "@/lib/api/config";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import type { Label } from "../types";
 
-// APIレスポンスの型定義 (仮。実際のAPI仕様に合わせて調整が必要)
+// APIレスポンスの型定義
 interface LabelsApiResponse {
 	labels: Label[];
 }
 
 // ラベル一覧を取得する非同期関数
 const fetchLabels = async (): Promise<Label[]> => {
-	const response = await fetch(`${API_BASE_URL}/api/labels`); // /api プレフィックスを追加
+	const response = await fetch(`${API_BASE_URL}/api/labels`);
 	if (!response.ok) {
 		throw new Error("Failed to fetch labels");
 	}
@@ -44,7 +44,7 @@ export function useLabels() {
 	return {
 		labels,
 		selectedLabelName,
-		setSelectedLabelName: handleLabelSelect, // メモ化されたハンドラを返す
+		setSelectedLabelName: handleLabelSelect,
 		isLoading,
 		error,
 	};

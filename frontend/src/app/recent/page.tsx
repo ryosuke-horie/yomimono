@@ -1,9 +1,7 @@
 "use client";
 
 import { BookmarkCard } from "@/features/bookmarks/components/BookmarkCard";
-// import React, { useEffect, useState } from "react"; // 削除 (一部は react-query が提供)
 import { useGetRecentBookmarks } from "@/features/bookmarks/queries/useGetRecentBookmarks";
-// import { useBookmarks } from "@/features/bookmarks/hooks/useBookmarks"; // 削除
 import type { Bookmark } from "@/features/bookmarks/types";
 
 interface GroupedBookmarks {
@@ -11,14 +9,12 @@ interface GroupedBookmarks {
 }
 
 export default function RecentPage() {
-	// --- 新しいクエリフックを使用 ---
 	const {
-		data: groupedBookmarks = {}, // デフォルト値を設定
+		data: groupedBookmarks = {},
 		isLoading,
 		isError,
 		error,
 	} = useGetRecentBookmarks();
-	// --- ここまで追加 ---
 
 	const formatDate = (dateStr: string) => {
 		const date = new Date(dateStr);
@@ -98,11 +94,7 @@ export default function RecentPage() {
 						</h2>
 						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 							{groupedBookmarks[date].map((bookmark) => (
-								<BookmarkCard
-									key={bookmark.id}
-									bookmark={bookmark}
-									// onUpdate は削除済み
-								/>
+								<BookmarkCard key={bookmark.id} bookmark={bookmark} />
 							))}
 						</div>
 					</div>
