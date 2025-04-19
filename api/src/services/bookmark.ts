@@ -1,13 +1,12 @@
-import type { Bookmark, InsertBookmark } from "../db/schema"; // Import Bookmark
+import type { Bookmark, InsertBookmark } from "../db/schema";
 import type {
-	BookmarkWithLabel, // Use BookmarkWithLabel
-	IBookmarkRepository, // Use IBookmarkRepository
+	BookmarkWithLabel,
+	IBookmarkRepository,
 } from "../interfaces/repository/bookmark";
-import type { IBookmarkService } from "../interfaces/service/bookmark"; // Use IBookmarkService
+import type { IBookmarkService } from "../interfaces/service/bookmark";
 
 export class DefaultBookmarkService implements IBookmarkService {
-	// Implement IBookmarkService
-	constructor(private readonly repository: IBookmarkRepository) {} // Use IBookmarkRepository
+	constructor(private readonly repository: IBookmarkRepository) {}
 
 	async getUnreadBookmarksCount(): Promise<number> {
 		return await this.repository.countUnread();

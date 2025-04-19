@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ArticleLabel } from "../../../src/db/schema";
 import { ArticleLabelRepository } from "../../../src/repositories/articleLabel";
 
-// Mock Drizzle D1Database instance and its methods (similar to label.test.ts)
 const mockDb = {
 	select: vi.fn().mockReturnThis(),
 	from: vi.fn().mockReturnThis(),
@@ -13,7 +12,6 @@ const mockDb = {
 	returning: vi.fn().mockReturnThis(),
 };
 
-// Mock the drizzle function
 vi.mock("drizzle-orm/d1", () => ({
 	drizzle: vi.fn(() => mockDb),
 }));
@@ -40,8 +38,8 @@ describe("ArticleLabelRepository", () => {
 
 			expect(result).toEqual(mockArticleLabel);
 			expect(mockDb.select).toHaveBeenCalled();
-			expect(mockDb.from).toHaveBeenCalledWith(expect.anything()); // Check table schema
-			expect(mockDb.where).toHaveBeenCalledWith(expect.anything()); // Check condition eq(articleLabels.articleId, 10)
+			expect(mockDb.from).toHaveBeenCalledWith(expect.anything());
+			expect(mockDb.where).toHaveBeenCalledWith(expect.anything());
 			expect(mockDb.get).toHaveBeenCalledOnce();
 		});
 
@@ -63,13 +61,12 @@ describe("ArticleLabelRepository", () => {
 				...newArticleLabelData,
 				createdAt: new Date(),
 			};
-			// .returning().get() のモック
 			mockDb.get.mockResolvedValue(createdArticleLabel);
 
 			const result = await articleLabelRepository.create(newArticleLabelData);
 
 			expect(result).toEqual(createdArticleLabel);
-			expect(mockDb.insert).toHaveBeenCalledWith(expect.anything()); // Check table schema
+			expect(mockDb.insert).toHaveBeenCalledWith(expect.anything());
 			expect(mockDb.values).toHaveBeenCalledWith(
 				expect.objectContaining(newArticleLabelData),
 			);

@@ -6,10 +6,9 @@ export type BookmarkWithLabel = BookmarkWithFavorite & {
 };
 
 export interface IBookmarkRepository {
-	// Interface名も I プレフィックスに統一
 	createMany(bookmarks: InsertBookmark[]): Promise<void>;
-	findUnread(): Promise<BookmarkWithLabel[]>; // 戻り値もラベル付きに
-	findByUrls(urls: string[]): Promise<BookmarkWithLabel[]>; // 戻り値もラベル付きに
+	findUnread(): Promise<BookmarkWithLabel[]>; 
+	findByUrls(urls: string[]): Promise<BookmarkWithLabel[]>; 
 	markAsRead(id: number): Promise<boolean>;
 	countUnread(): Promise<number>;
 	countTodayRead(): Promise<number>;
@@ -19,11 +18,11 @@ export interface IBookmarkRepository {
 		offset: number,
 		limit: number,
 	): Promise<{
-		bookmarks: BookmarkWithLabel[]; // 戻り値もラベル付きに
+		bookmarks: BookmarkWithLabel[]; 
 		total: number;
 	}>;
 	isFavorite(bookmarkId: number): Promise<boolean>;
-	findRecentlyRead(): Promise<BookmarkWithLabel[]>; // 戻り値もラベル付きに
+	findRecentlyRead(): Promise<BookmarkWithLabel[]>; 
 
 	/**
 	 * ラベルが付与されていないブックマークを取得します。
