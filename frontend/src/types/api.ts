@@ -16,4 +16,3 @@ export interface ApiResponse<T> {
 }
 
 export type ApiBookmarkResponse = ApiResponse<Bookmark>;
-export type ApiFavoriteResponse = ApiResponse<Bookmark>;
