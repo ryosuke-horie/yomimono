@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Label } from "../../../src/db/schema";
 import { LabelRepository } from "../../../src/repositories/label";
 
-// Mock Drizzle D1Database instance and its methods
 const mockDb = {
 	select: vi.fn().mockReturnThis(),
 	from: vi.fn().mockReturnThis(),
@@ -18,7 +17,6 @@ const mockDb = {
 	delete: vi.fn().mockReturnThis(),
 };
 
-// Mock the drizzle function to return our mockDb
 vi.mock("drizzle-orm/d1", () => ({
 	drizzle: vi.fn(() => mockDb),
 }));
@@ -27,11 +25,7 @@ describe("LabelRepository", () => {
 	let labelRepository: LabelRepository;
 
 	beforeEach(() => {
-		// Reset mocks before each test
 		vi.clearAllMocks();
-		// Create a new instance for each test
-		// The constructor expects a D1Database, but drizzle is mocked,
-		// so we can pass a dummy object.
 		labelRepository = new LabelRepository({} as D1Database);
 	});
 
@@ -58,17 +52,17 @@ describe("LabelRepository", () => {
 			const result = await labelRepository.findAllWithArticleCount();
 
 			expect(result).toEqual([
-				{ ...mockLabels[0], articleCount: 5 }, // Ensure count is number
+				{ ...mockLabels[0], articleCount: 5 },
 				{ ...mockLabels[1], articleCount: 10 },
 			]);
 			expect(mockDb.select).toHaveBeenCalledWith({
-				id: expect.anything(), // More specific checks can be added if needed
+				id: expect.anything(),
 				name: expect.anything(),
 				createdAt: expect.anything(),
 				updatedAt: expect.anything(),
 				articleCount: expect.anything(),
 			});
-			expect(mockDb.from).toHaveBeenCalledWith(expect.anything()); // Check table schema
+			expect(mockDb.from).toHaveBeenCalledWith(expect.anything());
 			expect(mockDb.leftJoin).toHaveBeenCalledTimes(1);
 			expect(mockDb.groupBy).toHaveBeenCalledWith(expect.anything());
 			expect(mockDb.orderBy).toHaveBeenCalledWith(expect.anything());
@@ -91,7 +85,7 @@ describe("LabelRepository", () => {
 			expect(result).toEqual(mockLabel);
 			expect(mockDb.select).toHaveBeenCalled();
 			expect(mockDb.from).toHaveBeenCalledWith(expect.anything());
-			expect(mockDb.where).toHaveBeenCalledWith(expect.anything()); // Check condition
+			expect(mockDb.where).toHaveBeenCalledWith(expect.anything());
 			expect(mockDb.get).toHaveBeenCalledOnce();
 		});
 
@@ -114,12 +108,12 @@ describe("LabelRepository", () => {
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			};
-			mockDb.get.mockResolvedValue(createdLabel); // .returning().get()
+			mockDb.get.mockResolvedValue(createdLabel);
 
 			const result = await labelRepository.create(newLabelData);
 
 			expect(result).toEqual(createdLabel);
-			expect(mockDb.insert).toHaveBeenCalledWith(expect.anything()); // Check table schema
+			expect(mockDb.insert).toHaveBeenCalledWith(expect.anything());
 			expect(mockDb.values).toHaveBeenCalledWith(
 				expect.objectContaining(newLabelData),
 			);

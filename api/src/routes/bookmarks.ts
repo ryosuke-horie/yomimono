@@ -73,7 +73,6 @@ export const createBookmarksRouter = (
 			try {
 				body = await c.req.json<{ labelName?: string }>();
 			} catch (e) {
-				// JSON parsing failed (e.g., empty body)
 				return c.json({ success: false, message: "Invalid request body" }, 400);
 			}
 
@@ -112,7 +111,6 @@ export const createBookmarksRouter = (
 			return c.json({ success: false, message: "Failed to assign label" }, 500);
 		}
 	});
-	// --- End New Endpoints ---
 
 	app.post("/bulk", async (c) => {
 		try {
@@ -120,7 +118,6 @@ export const createBookmarksRouter = (
 				bookmarks: Array<{ url: string; title: string }>;
 			}>();
 
-			// バリデーション
 			if (!Array.isArray(bookmarks)) {
 				return c.json(
 					{ success: false, message: "bookmarks must be an array" },

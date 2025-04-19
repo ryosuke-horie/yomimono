@@ -111,7 +111,6 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 	}
 
 	async findUnread(): Promise<BookmarkWithLabel[]> {
-		// Return type updated
 		try {
 			return this.attachLabelAndFavoriteStatus(eq(bookmarks.isRead, false));
 		} catch (error) {
@@ -264,7 +263,6 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 	}
 
 	async findRecentlyRead(): Promise<BookmarkWithLabel[]> {
-		// Return type updated
 		try {
 			const threeDaysAgo = new Date();
 			threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);

@@ -47,6 +47,7 @@ const mockLabelService: ILabelService = {
 	getLabels: vi.fn(),
 	assignLabel: mockAssignLabel,
 	createLabel: vi.fn(),
+	deleteLabel: vi.fn(),
 };
 
 describe("BookmarkRouter", () => {

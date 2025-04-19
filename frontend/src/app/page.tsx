@@ -1,4 +1,4 @@
-"use client"; // フックを使用するためクライアントコンポーネントにする
+"use client";
 
 import { BookmarksList } from "@/features/bookmarks/components/BookmarksList";
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
@@ -6,14 +6,12 @@ import { LabelFilter } from "@/features/labels/components/LabelFilter";
 import { useLabels } from "@/features/labels/hooks/useLabels";
 import { API_BASE_URL } from "@/lib/api/config";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
 
-// APIレスポンスの型定義 (APIのレスポンス構造に合わせる)
 interface BookmarksApiResponse {
 	success: boolean;
 	bookmarks: BookmarkWithLabel[];
-	totalUnread?: number; // ラベル指定なしの場合のみ存在
-	todayReadCount?: number; // ラベル指定なしの場合のみ存在
+	totalUnread?: number;
+	todayReadCount?: number;
 }
 
 // ブックマーク一覧を取得する非同期関数 (戻り値の型を修正)
@@ -22,14 +20,14 @@ const fetchBookmarks = async (
 ): Promise<BookmarksApiResponse> => {
 	// 戻り値をレスポンス全体に変更
 	const url = labelName
-		? `${API_BASE_URL}/api/bookmarks?label=${encodeURIComponent(labelName)}` // /api プレフィックスを追加
-		: `${API_BASE_URL}/api/bookmarks`; // /api プレフィックスを追加
+		? `${API_BASE_URL}/api/bookmarks?label=${encodeURIComponent(labelName)}`
+		: `${API_BASE_URL}/api/bookmarks`;
 	const response = await fetch(url);
 	if (!response.ok) {
 		throw new Error("Failed to fetch bookmarks");
 	}
 	const data: BookmarksApiResponse = await response.json();
-	return data; // レスポンス全体を返す
+	return data;
 };
 
 export default function HomePage() {
@@ -44,21 +42,19 @@ export default function HomePage() {
 
 	// ブックマーク一覧取得 (選択されたラベルに応じて再取得)
 	const {
-		data: responseData, // data を responseData として受け取る
+		data: responseData,
 		isLoading: isLoadingBookmarks,
 		error: errorBookmarks,
 	} = useQuery<BookmarksApiResponse, Error>({
 		// useQuery の型引数を修正
-		queryKey: ["bookmarks", selectedLabelName], // 選択ラベル名をクエリキーに含める
-		queryFn: () => fetchBookmarks(selectedLabelName), // 選択ラベル名を渡す
+		queryKey: ["bookmarks", selectedLabelName],
+		queryFn: () => fetchBookmarks(selectedLabelName),
 		staleTime: 1 * 60 * 1000, // 1分間キャッシュを有効にする
 	});
 
-	// responseData から totalUnread と todayReadCount を取得
 	const totalUnread = responseData?.totalUnread;
 	const todayReadCount = responseData?.todayReadCount;
 
-	// 取得したデータからブックマークリストを抽出 (変数名を修正)
 	const bookmarksToDisplay = responseData?.bookmarks ?? [];
 
 	// エラーハンドリング (ラベルまたはブックマーク取得エラー)

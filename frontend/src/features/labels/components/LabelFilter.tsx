@@ -36,10 +36,6 @@ export function LabelFilter({
 					} px-3 py-1 rounded-full text-sm font-medium transition-colors duration-150 ease-in-out`}
 				>
 					{label.name}
-					{/* APIがarticleCountを返すようになったらコメント解除 */}
-					{/* {label.articleCount !== undefined && (
-            <span className="ml-1 text-xs opacity-75">({label.articleCount})</span>
-          )} */}
 				</button>
 			))}
 		</div>

@@ -8,11 +8,9 @@ import { LabelService } from "../services/label";
 const labels = new Hono<{ Bindings: Env }>();
 
 labels.get("/", async (c) => {
-	// c.envから直接DBを取得
 	const db = c.env.DB;
 	const labelRepository = new LabelRepository(db);
 	const articleLabelRepository = new ArticleLabelRepository(db);
-	// LabelServiceはBookmarkRepositoryにも依存するためインスタンス化
 	const bookmarkRepository = new DrizzleBookmarkRepository(db);
 	const labelService = new LabelService(
 		labelRepository,
@@ -30,7 +28,6 @@ labels.get("/", async (c) => {
 });
 
 labels.post("/", async (c) => {
-	// c.envから直接DBを取得
 	const db = c.env.DB;
 	const labelRepository = new LabelRepository(db);
 	const articleLabelRepository = new ArticleLabelRepository(db);
@@ -60,14 +57,14 @@ labels.post("/", async (c) => {
 		}
 
 		const newLabel = await labelService.createLabel(labelName);
-		return c.json({ success: true, label: newLabel }, 201); // 201 Created
+		return c.json({ success: true, label: newLabel }, 201);
 	} catch (error) {
 		if (error instanceof Error) {
 			if (error.message.includes("already exists")) {
-				return c.json({ success: false, message: error.message }, 409); // 409 Conflict
+				return c.json({ success: false, message: error.message }, 409);
 			}
 			if (error.message.includes("cannot be empty")) {
-				return c.json({ success: false, message: error.message }, 400); // 400 Bad Request
+				return c.json({ success: false, message: error.message }, 400);
 			}
 		}
 		console.error("Failed to create label:", error);

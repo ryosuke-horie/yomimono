@@ -1,16 +1,14 @@
 "use client";
 
 import { BookmarkCard } from "@/features/bookmarks/components/BookmarkCard";
-import type { BookmarkWithLabel } from "@/features/bookmarks/types"; // BookmarkWithLabel をインポート
+import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 
 interface BookmarksListProps {
-	bookmarks: BookmarkWithLabel[]; // ブックマークデータをプロパティとして受け取る
-	onLabelClick?: (labelName: string) => void; // ラベルクリックハンドラを受け取る
+	bookmarks: BookmarkWithLabel[];
+	onLabelClick?: (labelName: string) => void;
 }
 
 export function BookmarksList({ bookmarks, onLabelClick }: BookmarksListProps) {
-	// 内部でのデータ取得ロジックは削除
-
 	if (bookmarks.length === 0) {
 		return <p className="text-gray-600">表示するブックマークはありません。</p>;
 	}
