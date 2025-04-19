@@ -1,28 +1,22 @@
-import type { Bookmark, BookmarkWithLabel } from "@/features/bookmarks/types"; // BookmarkWithLabel をインポート
+import type { Bookmark, BookmarkWithLabel } from "@/features/bookmarks/types";
 import { API_BASE_URL } from "@/lib/api/config";
-import type {
-	ApiBookmarkResponse,
-	ApiFavoriteResponse,
-	ApiResponse, // 汎用レスポンス型をインポート
-} from "@/types/api";
+import type { ApiBookmarkResponse, ApiResponse } from "@/types/api";
 
 // --- Query Functions ---
 
 export interface BookmarksData {
-	// export を追加
 	bookmarks: Bookmark[];
 	totalUnread: number;
 	todayReadCount: number;
 }
 
-// APIレスポンスの型定義を追加
 interface RecentBookmarksApiResponse {
 	success: boolean;
-	bookmarks: { [date: string]: BookmarkWithLabel[] }; // 型を BookmarkWithLabel に修正
+	bookmarks: { [date: string]: BookmarkWithLabel[] };
 }
 
 export const getRecentlyReadBookmarks = async (): Promise<{
-	[date: string]: BookmarkWithLabel[]; // 戻り値の型を修正
+	[date: string]: BookmarkWithLabel[];
 }> => {
 	const url = `${API_BASE_URL}/api/bookmarks/recent`;
 	const response = await fetch(url, {

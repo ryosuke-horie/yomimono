@@ -1,13 +1,12 @@
-import { drizzle } from "drizzle-orm/d1"; // Keep only one import
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { ArticleLabelRepository } from "./repositories/articleLabel"; // Import ArticleLabelRepository
+import { ArticleLabelRepository } from "./repositories/articleLabel";
 import { DrizzleBookmarkRepository } from "./repositories/bookmark";
-import { LabelRepository } from "./repositories/label"; // Import LabelRepository
+import { LabelRepository } from "./repositories/label";
 import { createBookmarksRouter } from "./routes/bookmarks";
-import labelsRouter from "./routes/labels"; // Import labels router
+import labelsRouter from "./routes/labels";
 import { DefaultBookmarkService } from "./services/bookmark";
-import { LabelService } from "./services/label"; // Import LabelService
+import { LabelService } from "./services/label";
 
 export interface Env {
 	DB: D1Database;
@@ -21,7 +20,7 @@ export const createApp = (env: Env) => {
 	app.use("*", cors());
 
 	// データベース、リポジトリ、サービスの初期化
-	const db = env.DB; // Use raw D1Database instance from env
+	const db = env.DB;
 	const bookmarkRepository = new DrizzleBookmarkRepository(db);
 	const labelRepository = new LabelRepository(db);
 	const articleLabelRepository = new ArticleLabelRepository(db);
@@ -29,13 +28,13 @@ export const createApp = (env: Env) => {
 	const labelService = new LabelService(
 		labelRepository,
 		articleLabelRepository,
-		bookmarkRepository, // Pass bookmarkRepository to LabelService
+		bookmarkRepository,
 	);
 
 	// ルーターのマウント
-	const bookmarksRouter = createBookmarksRouter(bookmarkService, labelService); // Pass labelService
+	const bookmarksRouter = createBookmarksRouter(bookmarkService, labelService);
 	app.route("/api/bookmarks", bookmarksRouter);
-	app.route("/api/labels", labelsRouter); // Mount labels router
+	app.route("/api/labels", labelsRouter);
 
 	return app;
 };
