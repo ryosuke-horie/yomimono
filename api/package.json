@@ -9,7 +9,8 @@
 		"test:watch": "vitest watch",
 		"knip": "knip",
 		"migrate:production": "drizzle-kit migrate",
-		"migrate:development": "wrangler d1 migrations apply yomimono-db --local"
+		"migrate:development": "wrangler d1 migrations apply yomimono-db --local",
+        "studio": "drizzle-kit studio"
 	},
 	"dependencies": {
 		"dotenv": "^16.5.0",
