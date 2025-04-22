@@ -3,13 +3,14 @@
 	"scripts": {
 		"dev": "wrangler dev",
 		"deploy": "wrangler deploy --minify",
+		"knip": "knip",
 		"lint": "npx @biomejs/biome check",
-		"format": "npx @biomejs/biome check --write",
+		"format": "npx @biomejs/biome check --write && npm run knip",
 		"test": "vitest run",
 		"test:watch": "vitest watch",
-		"knip": "knip",
 		"migrate:production": "drizzle-kit migrate",
-		"migrate:development": "wrangler d1 migrations apply yomimono-db --local"
+		"migrate:development": "wrangler d1 migrations apply yomimono-db --local",
+		"studio": "drizzle-kit studio"
 	},
 	"dependencies": {
 		"dotenv": "^16.5.0",
