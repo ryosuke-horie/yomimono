@@ -22,16 +22,19 @@ server.tool(
 			// Return the list of articles directly. Client needs to handle the structure.
 			// We'll stringify it here for simple text output, but a structured format might be better.
 			return {
-				content: [
-					{ type: "text", text: JSON.stringify(articles, null, 2) },
-				],
+				content: [{ type: "text", text: JSON.stringify(articles, null, 2) }],
 				isError: false,
 			};
-		} catch (error: any) {
-			console.error("Error in getUnlabeledArticles tool:", error.message);
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error("Error in getUnlabeledArticles tool:", errorMessage);
 			return {
 				content: [
-					{ type: "text", text: `Error fetching unlabeled articles: ${error.message}` },
+					{
+						type: "text",
+						text: `Error fetching unlabeled articles: ${errorMessage}`,
+					},
 				],
 				isError: true,
 			};
@@ -51,10 +54,14 @@ server.tool(
 				content: [{ type: "text", text: JSON.stringify(labels, null, 2) }],
 				isError: false,
 			};
-		} catch (error: any) {
-			console.error("Error in getLabels tool:", error.message);
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error("Error in getLabels tool:", errorMessage);
 			return {
-				content: [{ type: "text", text: `Error fetching labels: ${error.message}` }],
+				content: [
+					{ type: "text", text: `Error fetching labels: ${errorMessage}` },
+				],
 				isError: true,
 			};
 		}
@@ -70,9 +77,14 @@ server.tool(
 		labelName: z.string().min(1),
 		description: z.string().optional().nullable(),
 	},
-	async ({ articleId, labelName, description }) => { // Destructure arguments
+	async ({ articleId, labelName, description }) => {
+		// Destructure arguments
 		try {
-			await apiClient.assignLabelToArticle(articleId, labelName, description ?? undefined);
+			await apiClient.assignLabelToArticle(
+				articleId,
+				labelName,
+				description ?? undefined,
+			);
 			return {
 				content: [
 					{
@@ -82,16 +94,18 @@ server.tool(
 				],
 				isError: false,
 			};
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
 			console.error(
 				`Error in assignLabel tool (articleId: ${articleId}, labelName: ${labelName}, description: ${description}):`,
-				error.message,
+				errorMessage,
 			);
 			return {
 				content: [
 					{
 						type: "text",
-						text: `Failed to assign label: ${error.message}`,
+						text: `Failed to assign label: ${errorMessage}`,
 					},
 				],
 				isError: true,
@@ -108,9 +122,13 @@ server.tool(
 		labelName: z.string().min(1, "Label name cannot be empty"),
 		description: z.string().optional().nullable(),
 	},
-	async ({ labelName, description }) => { // Destructure arguments
+	async ({ labelName, description }) => {
+		// Destructure arguments
 		try {
-			const newLabel = await apiClient.createLabel(labelName, description ?? undefined);
+			const newLabel = await apiClient.createLabel(
+				labelName,
+				description ?? undefined,
+			);
 			return {
 				content: [
 					{
@@ -120,16 +138,18 @@ server.tool(
 				],
 				isError: false,
 			};
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
 			console.error(
 				`Error in createLabel tool (labelName: ${labelName}, description: ${description}):`,
-				error.message,
+				errorMessage,
 			);
 			return {
 				content: [
 					{
 						type: "text",
-						text: `Failed to create label: ${error.message}`,
+						text: `Failed to create label: ${errorMessage}`,
 					},
 				],
 				isError: true,
@@ -140,111 +160,120 @@ server.tool(
 
 // 5. Tool to get a label by ID
 server.tool(
-  "getLabelById",
-  {
-    labelId: z.number().int().positive(),
-  },
-  async ({ labelId }) => {
-    try {
-      const label = await apiClient.getLabelById(labelId);
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Label details: ${JSON.stringify(label, null, 2)}`,
-          },
-        ],
-        isError: false,
-      };
-    } catch (error: any) {
-      console.error(
-        `Error in getLabelById tool (labelId: ${labelId}):`,
-        error.message,
-      );
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Failed to get label: ${error.message}`,
-          },
-        ],
-        isError: true,
-      };
-    }
-  },
+	"getLabelById",
+	{
+		labelId: z.number().int().positive(),
+	},
+	async ({ labelId }) => {
+		try {
+			const label = await apiClient.getLabelById(labelId);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Label details: ${JSON.stringify(label, null, 2)}`,
+					},
+				],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error(
+				`Error in getLabelById tool (labelId: ${labelId}):`,
+				errorMessage,
+			);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Failed to get label: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
 );
 
 // 6. Tool to delete a label
 server.tool(
-  "deleteLabel",
-  {
-    labelId: z.number().int().positive(),
-  },
-  async ({ labelId }) => {
-    try {
-      await apiClient.deleteLabel(labelId);
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Successfully deleted label ID ${labelId}.`,
-          },
-        ],
-        isError: false,
-      };
-    } catch (error: any) {
-      console.error(
-        `Error in deleteLabel tool (labelId: ${labelId}):`,
-        error.message,
-      );
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Failed to delete label: ${error.message}`,
-          },
-        ],
-        isError: true,
-      };
-    }
-  },
+	"deleteLabel",
+	{
+		labelId: z.number().int().positive(),
+	},
+	async ({ labelId }) => {
+		try {
+			await apiClient.deleteLabel(labelId);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Successfully deleted label ID ${labelId}.`,
+					},
+				],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error(
+				`Error in deleteLabel tool (labelId: ${labelId}):`,
+				errorMessage,
+			);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Failed to delete label: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
 );
 
 // 7. Tool to update a label's description
 server.tool(
-  "updateLabelDescription",
-  {
-    labelId: z.number().int().positive(),
-    description: z.string().nullable(),
-  },
-  async ({ labelId, description }) => {
-    try {
-      const updatedLabel = await apiClient.updateLabelDescription(labelId, description);
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Successfully updated label description: ${JSON.stringify(updatedLabel, null, 2)}`,
-          },
-        ],
-        isError: false,
-      };
-    } catch (error: any) {
-      console.error(
-        `Error in updateLabelDescription tool (labelId: ${labelId}, description: ${description}):`,
-        error.message,
-      );
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Failed to update label description: ${error.message}`,
-          },
-        ],
-        isError: true,
-      };
-    }
-  },
+	"updateLabelDescription",
+	{
+		labelId: z.number().int().positive(),
+		description: z.string().nullable(),
+	},
+	async ({ labelId, description }) => {
+		try {
+			const updatedLabel = await apiClient.updateLabelDescription(
+				labelId,
+				description,
+			);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Successfully updated label description: ${JSON.stringify(updatedLabel, null, 2)}`,
+					},
+				],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error(
+				`Error in updateLabelDescription tool (labelId: ${labelId}, description: ${description}):`,
+				errorMessage,
+			);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Failed to update label description: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
 );
 
 // --- End Tool Definition ---

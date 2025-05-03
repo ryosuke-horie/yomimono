@@ -30,8 +30,8 @@ const LabelsResponseSchema = z.object({
 
 // Schema for the POST /api/labels response
 const CreateLabelResponseSchema = z.object({
-success: z.literal(true),
-label: LabelSchema,
+	success: z.literal(true),
+	label: LabelSchema,
 });
 
 // Schema for the GET /api/labels/:id response
@@ -66,7 +66,9 @@ export async function getUnlabeledArticles() {
 	// Corrected path: /api/bookmarks/unlabeled
 	const response = await fetch(`${API_BASE_URL}/api/bookmarks/unlabeled`);
 	if (!response.ok) {
-		throw new Error(`Failed to fetch unlabeled articles: ${response.statusText}`);
+		throw new Error(
+			`Failed to fetch unlabeled articles: ${response.statusText}`,
+		);
 	}
 	const data = await response.json();
 	const parsed = ArticlesResponseSchema.safeParse(data);
@@ -111,18 +113,25 @@ export async function getLabels() {
  * @param description - Optional description for the label if it's created.
  * @returns A promise that resolves when the label is successfully assigned.
  */
-export async function assignLabelToArticle(articleId: number, labelName: string, description?: string) {
+export async function assignLabelToArticle(
+	articleId: number,
+	labelName: string,
+	description?: string,
+) {
 	// Corrected path: /api/bookmarks/:id/label
-	const response = await fetch(`${API_BASE_URL}/api/bookmarks/${articleId}/label`, {
-		method: "PUT",
-		headers: {
-			"Content-Type": "application/json",
+	const response = await fetch(
+		`${API_BASE_URL}/api/bookmarks/${articleId}/label`,
+		{
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				labelName,
+				description,
+			}),
 		},
-		body: JSON.stringify({ 
-			labelName,
-			description 
-		}),
-	});
+	);
 
 	if (!response.ok) {
 		// Consider more specific error handling based on status code if needed
@@ -146,7 +155,7 @@ export async function createLabel(labelName: string, description?: string) {
 		headers: {
 			"Content-Type": "application/json",
 		},
-		body: JSON.stringify({ 
+		body: JSON.stringify({
 			name: labelName,
 			description: description,
 		}),
@@ -156,32 +165,46 @@ export async function createLabel(labelName: string, description?: string) {
 	try {
 		// Check content type before parsing, or handle potential empty body for 201/204
 		const contentType = response.headers.get("content-type");
-		if (response.ok && (!contentType || !contentType.includes("application/json"))) {
+		if (
+			response.ok &&
+			(!contentType || !contentType.includes("application/json"))
+		) {
 			// If response is OK but not JSON (e.g., 201 with empty body or wrong content type)
 			// We might assume success based on status code, or throw an error if JSON is expected.
 			// Let's assume the API *should* return JSON on success based on its route handler.
 			// If parsing fails below, it indicates an issue.
 		}
 		data = await response.json(); // Attempt to parse JSON
-	} catch (parseError: any) {
+	} catch (parseError: unknown) {
 		// Handle JSON parsing error
+		const errorMessage =
+			parseError instanceof Error ? parseError.message : String(parseError);
 		if (!response.ok) {
 			// If the request failed and JSON parsing failed, throw an error including status
-			throw new Error(`Failed to create label "${labelName}". Status: ${response.status} ${response.statusText}. Response body could not be parsed: ${parseError.message}`);
-		} else {
-			// If the request succeeded (e.g., 201) but parsing failed (unexpected)
-			throw new Error(`Successfully created label "${labelName}" (Status: ${response.status}) but received an invalid or empty JSON response: ${parseError.message}`);
+			throw new Error(
+				`Failed to create label "${labelName}". Status: ${response.status} ${response.statusText}. Response body could not be parsed: ${errorMessage}`,
+			);
 		}
+		// If the request succeeded (e.g., 201) but parsing failed (unexpected)
+		throw new Error(
+			`Successfully created label "${labelName}" (Status: ${response.status}) but received an invalid or empty JSON response: ${errorMessage}`,
+		);
 	}
-
 
 	if (!response.ok) {
 		// If response is not ok, but JSON parsing succeeded, try to extract error message
 		let errorMessage = `Failed to create label "${labelName}"`;
-		if (typeof data === "object" && data !== null && "message" in data && typeof data.message === "string") {
+		if (
+			typeof data === "object" &&
+			data !== null &&
+			"message" in data &&
+			typeof data.message === "string"
+		) {
 			errorMessage = data.message;
 		}
-		throw new Error(`${errorMessage}: ${response.statusText} (Status: ${response.status})`);
+		throw new Error(
+			`${errorMessage}: ${response.statusText} (Status: ${response.status})`,
+		);
 	}
 
 	// If response.ok and JSON parsing succeeded, validate with Zod
@@ -201,24 +224,32 @@ export async function createLabel(labelName: string, description?: string) {
  * @returns A promise that resolves to the label object.
  */
 export async function getLabelById(id: number) {
-  const response = await fetch(`${API_BASE_URL}/api/labels/${id}`);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch label with ID ${id}: ${response.statusText}`);
-  }
-  
-  let data: unknown;
-  try {
-    data = await response.json();
-  } catch (parseError: any) {
-    throw new Error(`Failed to parse response when fetching label ${id}: ${parseError.message}`);
-  }
-  
-  const parsed = GetLabelByIdResponseSchema.safeParse(data);
-  if (!parsed.success) {
-    throw new Error(`Invalid API response for label ${id}: ${parsed.error.message}`);
-  }
-  
-  return parsed.data.label;
+	const response = await fetch(`${API_BASE_URL}/api/labels/${id}`);
+	if (!response.ok) {
+		throw new Error(
+			`Failed to fetch label with ID ${id}: ${response.statusText}`,
+		);
+	}
+
+	let data: unknown;
+	try {
+		data = await response.json();
+	} catch (parseError: unknown) {
+		const errorMessage =
+			parseError instanceof Error ? parseError.message : String(parseError);
+		throw new Error(
+			`Failed to parse response when fetching label ${id}: ${errorMessage}`,
+		);
+	}
+
+	const parsed = GetLabelByIdResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response for label ${id}: ${parsed.error.message}`,
+		);
+	}
+
+	return parsed.data.label;
 }
 
 /**
@@ -227,60 +258,85 @@ export async function getLabelById(id: number) {
  * @param description - The new description (or null to remove the description).
  * @returns A promise that resolves to the updated label object.
  */
-export async function updateLabelDescription(id: number, description: string | null) {
-  const response = await fetch(`${API_BASE_URL}/api/labels/${id}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ description }),
-  });
-  
-  if (!response.ok) {
-    throw new Error(`Failed to update description for label ${id}: ${response.statusText}`);
-  }
-  
-  let data: unknown;
-  try {
-    data = await response.json();
-  } catch (parseError: any) {
-    throw new Error(`Failed to parse response when updating label ${id} description: ${parseError.message}`);
-  }
-  
-  const parsed = UpdateLabelDescriptionResponseSchema.safeParse(data);
-  if (!parsed.success) {
-    throw new Error(`Invalid API response after updating label description: ${parsed.error.message}`);
-  }
-  
-  return parsed.data.label;
+export async function updateLabelDescription(
+	id: number,
+	description: string | null,
+) {
+	const response = await fetch(`${API_BASE_URL}/api/labels/${id}`, {
+		method: "PATCH",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({ description }),
+	});
+
+	if (!response.ok) {
+		throw new Error(
+			`Failed to update description for label ${id}: ${response.statusText}`,
+		);
+	}
+
+	let data: unknown;
+	try {
+		data = await response.json();
+	} catch (parseError: unknown) {
+		const errorMessage =
+			parseError instanceof Error ? parseError.message : String(parseError);
+		throw new Error(
+			`Failed to parse response when updating label ${id} description: ${errorMessage}`,
+		);
+	}
+
+	const parsed = UpdateLabelDescriptionResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response after updating label description: ${parsed.error.message}`,
+		);
+	}
+
+	return parsed.data.label;
 }
 
 export async function deleteLabel(id: number): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/labels/${id}`, {
-    method: "DELETE",
-  });
+	const response = await fetch(`${API_BASE_URL}/api/labels/${id}`, {
+		method: "DELETE",
+	});
 
-  let data: unknown;
-  try {
-    data = await response.json();
-  } catch (parseError: any) {
-    if (!response.ok) {
-      throw new Error(`Failed to delete label ${id}. Status: ${response.status} ${response.statusText}`);
-    } else {
-      throw new Error(`Unexpected response format when deleting label ${id}: ${parseError.message}`);
-    }
-  }
+	let data: unknown;
+	try {
+		data = await response.json();
+	} catch (parseError: unknown) {
+		const errorMessage =
+			parseError instanceof Error ? parseError.message : String(parseError);
+		if (!response.ok) {
+			throw new Error(
+				`Failed to delete label ${id}. Status: ${response.status} ${response.statusText}`,
+			);
+		}
+		throw new Error(
+			`Unexpected response format when deleting label ${id}: ${errorMessage}`,
+		);
+	}
 
-  if (!response.ok) {
-    let errorMessage = `Failed to delete label ${id}`;
-    if (typeof data === "object" && data !== null && "message" in data && typeof data.message === "string") {
-      errorMessage = data.message;
-    }
-    throw new Error(`${errorMessage}: ${response.statusText} (Status: ${response.status})`);
-  }
+	if (!response.ok) {
+		let errorMessage = `Failed to delete label ${id}`;
+		if (
+			typeof data === "object" &&
+			data !== null &&
+			"message" in data &&
+			typeof data.message === "string"
+		) {
+			errorMessage = data.message;
+		}
+		throw new Error(
+			`${errorMessage}: ${response.statusText} (Status: ${response.status})`,
+		);
+	}
 
-  const parsed = DeleteLabelResponseSchema.safeParse(data);
-  if (!parsed.success) {
-    throw new Error(`Invalid API response after deleting label. Zod errors: ${parsed.error.message}`);
-  }
+	const parsed = DeleteLabelResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response after deleting label. Zod errors: ${parsed.error.message}`,
+		);
+	}
 }
