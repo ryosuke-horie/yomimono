@@ -137,9 +137,9 @@ describe("LabelRepository", () => {
 
 	describe("create", () => {
 		it("新しいラベルを作成できること", async () => {
-			const newLabelData = { 
+			const newLabelData = {
 				name: "react",
-				description: "Reactに関する記事"
+				description: "Reactに関する記事",
 			};
 			const createdLabel: Label = {
 				id: 3,
@@ -175,7 +175,10 @@ describe("LabelRepository", () => {
 			};
 			mockDb.get.mockResolvedValue(updatedLabel);
 
-			const result = await labelRepository.updateDescription(labelId, newDescription);
+			const result = await labelRepository.updateDescription(
+				labelId,
+				newDescription,
+			);
 
 			expect(result).toEqual(updatedLabel);
 			expect(mockDb.update).toHaveBeenCalledWith(expect.anything());
@@ -216,7 +219,10 @@ describe("LabelRepository", () => {
 		it("更新対象が存在しない場合、undefinedを返すこと", async () => {
 			mockDb.get.mockResolvedValue(undefined);
 
-			const result = await labelRepository.updateDescription(999, "新しい説明文");
+			const result = await labelRepository.updateDescription(
+				999,
+				"新しい説明文",
+			);
 
 			expect(result).toBeUndefined();
 		});

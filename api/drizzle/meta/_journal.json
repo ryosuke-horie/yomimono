@@ -1,34 +1,34 @@
 {
-  "version": "7",
-  "dialect": "sqlite",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "6",
-      "when": 1740851008222,
-      "tag": "0000_tired_major_mapleleaf",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1743756887453,
-      "tag": "0001_closed_layla_miller",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1744535353316,
-      "tag": "0002_dry_edwin_jarvis",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1746277800000,
-      "tag": "0003_joyous_adam_destine",
-      "breakpoints": true
-    }
-  ]
+	"version": "7",
+	"dialect": "sqlite",
+	"entries": [
+		{
+			"idx": 0,
+			"version": "6",
+			"when": 1740851008222,
+			"tag": "0000_tired_major_mapleleaf",
+			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "6",
+			"when": 1743756887453,
+			"tag": "0001_closed_layla_miller",
+			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "6",
+			"when": 1744535353316,
+			"tag": "0002_dry_edwin_jarvis",
+			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "6",
+			"when": 1746277800000,
+			"tag": "0003_joyous_adam_destine",
+			"breakpoints": true
+		}
+	]
 }

@@ -38,7 +38,11 @@ export class LabelService implements ILabelService {
 		return label;
 	}
 
-	async assignLabel(articleId: number, labelName: string, description?: string): Promise<Label> {
+	async assignLabel(
+		articleId: number,
+		labelName: string,
+		description?: string,
+	): Promise<Label> {
 		// 1. ブックマークが存在するか確認
 		const bookmark = await this.bookmarkRepository.findById(articleId);
 		if (!bookmark) {
@@ -56,9 +60,9 @@ export class LabelService implements ILabelService {
 
 		// 4. ラベルが存在しなければ新規作成
 		if (!label) {
-			label = await this.labelRepository.create({ 
+			label = await this.labelRepository.create({
 				name: normalizedName,
-				description: description 
+				description: description,
 			});
 		}
 
@@ -109,20 +113,26 @@ export class LabelService implements ILabelService {
 		}
 		// 2. article_labelsテーブルの関連レコードは外部キー制約(onDelete: cascade)により自動的に削除される
 	}
-	
-	async updateLabelDescription(id: number, description: string | null): Promise<Label> {
+
+	async updateLabelDescription(
+		id: number,
+		description: string | null,
+	): Promise<Label> {
 		// 1. ラベルが存在するか確認
 		const label = await this.labelRepository.findById(id);
 		if (!label) {
 			throw new Error(`Label with id ${id} not found`);
 		}
-		
+
 		// 2. 説明文を更新
-		const updatedLabel = await this.labelRepository.updateDescription(id, description);
+		const updatedLabel = await this.labelRepository.updateDescription(
+			id,
+			description,
+		);
 		if (!updatedLabel) {
 			throw new Error(`Failed to update description for label with id ${id}`);
 		}
-		
+
 		return updatedLabel;
 	}
 }

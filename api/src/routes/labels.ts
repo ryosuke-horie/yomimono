@@ -131,24 +131,33 @@ labels.patch("/:id", async (c) => {
 		}
 
 		const body = await c.req.json<{ description?: string | null }>();
-		
+
 		// descriptionがundefinedの場合は更新しない
 		if (body.description === undefined) {
-			return c.json({ 
-				success: false, 
-				message: "description is required" 
-			}, 400);
-		}
-		
-		// descriptionの型チェック
-		if (body.description !== null && typeof body.description !== "string") {
-			return c.json({ 
-				success: false, 
-				message: "description must be a string or null" 
-			}, 400);
+			return c.json(
+				{
+					success: false,
+					message: "description is required",
+				},
+				400,
+			);
 		}
 
-		const updatedLabel = await labelService.updateLabelDescription(id, body.description);
+		// descriptionの型チェック
+		if (body.description !== null && typeof body.description !== "string") {
+			return c.json(
+				{
+					success: false,
+					message: "description must be a string or null",
+				},
+				400,
+			);
+		}
+
+		const updatedLabel = await labelService.updateLabelDescription(
+			id,
+			body.description,
+		);
 		return c.json({ success: true, label: updatedLabel });
 	} catch (error) {
 		if (error instanceof Error) {
@@ -160,7 +169,10 @@ labels.patch("/:id", async (c) => {
 			}
 		}
 		console.error("Failed to update label description:", error);
-		return c.json({ success: false, message: "Failed to update label description" }, 500);
+		return c.json(
+			{ success: false, message: "Failed to update label description" },
+			500,
+		);
 	}
 });
 
