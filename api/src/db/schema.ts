@@ -30,6 +30,7 @@ export const favorites = sqliteTable("favorites", {
 export const labels = sqliteTable("labels", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
 	name: text("name").notNull().unique(), // ラベル名（正規化済み）
+	description: text("description"), // ラベルの説明文
 	createdAt: integer("created_at", { mode: "timestamp" })
 		.notNull()
 		.default(new Date()),

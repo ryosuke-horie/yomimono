@@ -22,6 +22,7 @@ export class LabelRepository implements ILabelRepository {
 			.select({
 				id: labels.id,
 				name: labels.name,
+				description: labels.description,
 				createdAt: labels.createdAt,
 				updatedAt: labels.updatedAt,
 				articleCount: count(articleLabels.id),
@@ -47,12 +48,19 @@ export class LabelRepository implements ILabelRepository {
 			.get();
 	}
 
-	async create(data: Pick<InsertLabel, "name">): Promise<Label> {
+	async findById(id: number): Promise<Label | undefined> {
+		return await this.db.select().from(labels).where(eq(labels.id, id)).get();
+	}
+
+	async create(
+		data: Pick<InsertLabel, "name" | "description">,
+	): Promise<Label> {
 		const now = new Date();
 		const result = await this.db
 			.insert(labels)
 			.values({
 				name: data.name,
+				description: data.description,
 				createdAt: now,
 				updatedAt: now,
 			})
@@ -69,5 +77,27 @@ export class LabelRepository implements ILabelRepository {
 			.all();
 
 		return result.length > 0;
+	}
+
+	async updateDescription(
+		id: number,
+		description: string | null,
+	): Promise<Label | undefined> {
+		const now = new Date();
+		try {
+			const result = await this.db
+				.update(labels)
+				.set({
+					description,
+					updatedAt: now,
+				})
+				.where(eq(labels.id, id))
+				.returning()
+				.get();
+			return result;
+		} catch (error) {
+			console.error("Failed to update label description:", error);
+			return undefined;
+		}
 	}
 }

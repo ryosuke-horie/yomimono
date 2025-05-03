@@ -16,7 +16,15 @@ export default defineConfig({
 				"**/*.d.ts",
 				"**/*.config.ts",
 				"src/index.ts", // index.tsをカバレッジから除外
+				"src/interfaces/**", // インターフェースはカバレッジに含めない
+				"src/routes/**", // ルートハンドラーはモックテストのため正確なカバレッジが取れない
 			],
+			thresholds: {
+				lines: 80,
+				functions: 80,
+				branches: 80,
+				statements: 80,
+			},
 		},
 	},
 });
