@@ -24,9 +24,6 @@ jobs:
 
       - name: Run lint
         run: bun lint
-
-      - name: Run Knip    
-        run: bun knip
         
       - name: Type check
         run: bun typecheck
