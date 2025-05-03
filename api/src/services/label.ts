@@ -30,7 +30,15 @@ export class LabelService implements ILabelService {
 		return this.labelRepository.findAllWithArticleCount();
 	}
 
-	async assignLabel(articleId: number, labelName: string): Promise<Label> {
+	async getLabelById(id: number): Promise<Label> {
+		const label = await this.labelRepository.findById(id);
+		if (!label) {
+			throw new Error(`Label with id ${id} not found`);
+		}
+		return label;
+	}
+
+	async assignLabel(articleId: number, labelName: string, description?: string): Promise<Label> {
 		// 1. ブックマークが存在するか確認
 		const bookmark = await this.bookmarkRepository.findById(articleId);
 		if (!bookmark) {
@@ -48,7 +56,10 @@ export class LabelService implements ILabelService {
 
 		// 4. ラベルが存在しなければ新規作成
 		if (!label) {
-			label = await this.labelRepository.create({ name: normalizedName });
+			label = await this.labelRepository.create({ 
+				name: normalizedName,
+				description: description 
+			});
 		}
 
 		// 5. 同じラベルが既に付与されていないか確認
@@ -69,7 +80,7 @@ export class LabelService implements ILabelService {
 		return label;
 	}
 
-	async createLabel(name: string): Promise<Label> {
+	async createLabel(name: string, description?: string): Promise<Label> {
 		// 1. ラベル名を正規化
 		const normalizedName = normalizeLabelName(name);
 		if (!normalizedName) {
@@ -85,6 +96,7 @@ export class LabelService implements ILabelService {
 		// 3. 新しいラベルを作成
 		const newLabel = await this.labelRepository.create({
 			name: normalizedName,
+			description: description,
 		});
 		return newLabel;
 	}
@@ -96,5 +108,21 @@ export class LabelService implements ILabelService {
 			throw new Error(`Label with id ${id} not found`);
 		}
 		// 2. article_labelsテーブルの関連レコードは外部キー制約(onDelete: cascade)により自動的に削除される
+	}
+	
+	async updateLabelDescription(id: number, description: string | null): Promise<Label> {
+		// 1. ラベルが存在するか確認
+		const label = await this.labelRepository.findById(id);
+		if (!label) {
+			throw new Error(`Label with id ${id} not found`);
+		}
+		
+		// 2. 説明文を更新
+		const updatedLabel = await this.labelRepository.updateDescription(id, description);
+		if (!updatedLabel) {
+			throw new Error(`Failed to update description for label with id ${id}`);
+		}
+		
+		return updatedLabel;
 	}
 }

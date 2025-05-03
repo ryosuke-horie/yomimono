@@ -12,6 +12,8 @@ const mockDb = {
 	all: vi.fn(),
 	get: vi.fn(),
 	insert: vi.fn().mockReturnThis(),
+	update: vi.fn().mockReturnThis(),
+	set: vi.fn().mockReturnThis(),
 	values: vi.fn().mockReturnThis(),
 	returning: vi.fn().mockReturnThis(),
 	delete: vi.fn().mockReturnThis(),
@@ -35,6 +37,7 @@ describe("LabelRepository", () => {
 				{
 					id: 1,
 					name: "go",
+					description: "Go言語に関する記事",
 					createdAt: new Date(),
 					updatedAt: new Date(),
 					articleCount: "5",
@@ -42,6 +45,7 @@ describe("LabelRepository", () => {
 				{
 					id: 2,
 					name: "typescript",
+					description: "TypeScriptに関する記事",
 					createdAt: new Date(),
 					updatedAt: new Date(),
 					articleCount: "10",
@@ -58,6 +62,7 @@ describe("LabelRepository", () => {
 			expect(mockDb.select).toHaveBeenCalledWith({
 				id: expect.anything(),
 				name: expect.anything(),
+				description: expect.anything(),
 				createdAt: expect.anything(),
 				updatedAt: expect.anything(),
 				articleCount: expect.anything(),
@@ -75,6 +80,7 @@ describe("LabelRepository", () => {
 			const mockLabel: Label = {
 				id: 1,
 				name: "typescript",
+				description: "TypeScriptに関する記事",
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			};
@@ -99,12 +105,46 @@ describe("LabelRepository", () => {
 		});
 	});
 
+	describe("findById", () => {
+		it("指定されたIDのラベルを取得できること", async () => {
+			const mockLabel: Label = {
+				id: 1,
+				name: "typescript",
+				description: "TypeScriptに関する記事",
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+			mockDb.get.mockResolvedValue(mockLabel);
+
+			const result = await labelRepository.findById(1);
+
+			expect(result).toEqual(mockLabel);
+			expect(mockDb.select).toHaveBeenCalled();
+			expect(mockDb.from).toHaveBeenCalledWith(expect.anything());
+			expect(mockDb.where).toHaveBeenCalledWith(expect.anything());
+			expect(mockDb.get).toHaveBeenCalledOnce();
+		});
+
+		it("指定されたIDのラベルが存在しない場合、undefinedを返すこと", async () => {
+			mockDb.get.mockResolvedValue(undefined);
+
+			const result = await labelRepository.findById(999);
+
+			expect(result).toBeUndefined();
+			expect(mockDb.get).toHaveBeenCalledOnce();
+		});
+	});
+
 	describe("create", () => {
 		it("新しいラベルを作成できること", async () => {
-			const newLabelData = { name: "react" };
+			const newLabelData = { 
+				name: "react",
+				description: "Reactに関する記事"
+			};
 			const createdLabel: Label = {
 				id: 3,
-				...newLabelData,
+				name: newLabelData.name,
+				description: newLabelData.description,
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			};
@@ -122,12 +162,73 @@ describe("LabelRepository", () => {
 		});
 	});
 
+	describe("updateDescription", () => {
+		it("ラベルの説明文を更新できること", async () => {
+			const labelId = 1;
+			const newDescription = "更新された説明文";
+			const updatedLabel: Label = {
+				id: labelId,
+				name: "typescript",
+				description: newDescription,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+			mockDb.get.mockResolvedValue(updatedLabel);
+
+			const result = await labelRepository.updateDescription(labelId, newDescription);
+
+			expect(result).toEqual(updatedLabel);
+			expect(mockDb.update).toHaveBeenCalledWith(expect.anything());
+			expect(mockDb.set).toHaveBeenCalledWith(
+				expect.objectContaining({
+					description: newDescription,
+					updatedAt: expect.any(Date),
+				}),
+			);
+			expect(mockDb.where).toHaveBeenCalledWith(expect.anything());
+			expect(mockDb.returning).toHaveBeenCalled();
+			expect(mockDb.get).toHaveBeenCalledOnce();
+		});
+
+		it("nullを指定して説明文を削除できること", async () => {
+			const labelId = 1;
+			const updatedLabel: Label = {
+				id: labelId,
+				name: "typescript",
+				description: null,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+			mockDb.get.mockResolvedValue(updatedLabel);
+
+			const result = await labelRepository.updateDescription(labelId, null);
+
+			expect(result).toEqual(updatedLabel);
+			expect(mockDb.update).toHaveBeenCalledWith(expect.anything());
+			expect(mockDb.set).toHaveBeenCalledWith(
+				expect.objectContaining({
+					description: null,
+					updatedAt: expect.any(Date),
+				}),
+			);
+		});
+
+		it("更新対象が存在しない場合、undefinedを返すこと", async () => {
+			mockDb.get.mockResolvedValue(undefined);
+
+			const result = await labelRepository.updateDescription(999, "新しい説明文");
+
+			expect(result).toBeUndefined();
+		});
+	});
+
 	describe("deleteById", () => {
 		it("指定されたIDのラベルを削除できること", async () => {
 			// 削除されたレコードをモック
 			const deletedLabel: Label = {
 				id: 1,
 				name: "typescript",
+				description: "TypeScriptに関する記事",
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			};

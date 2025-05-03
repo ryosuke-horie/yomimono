@@ -8,6 +8,8 @@ import { LabelService } from "../../../src/services/label";
 
 const mockFindAllWithArticleCount = vi.fn();
 const mockFindLabelByName = vi.fn();
+const mockFindLabelById = vi.fn();
+const mockUpdateDescription = vi.fn();
 const mockCreateLabel = vi.fn();
 const mockDeleteById = vi.fn();
 const mockFindByArticleId = vi.fn();
@@ -17,8 +19,10 @@ const mockFindBookmarkById = vi.fn();
 const mockLabelRepository: ILabelRepository = {
 	findAllWithArticleCount: mockFindAllWithArticleCount,
 	findByName: mockFindLabelByName,
+	findById: mockFindLabelById,
 	create: mockCreateLabel,
 	deleteById: mockDeleteById,
+	updateDescription: mockUpdateDescription,
 };
 
 const mockArticleLabelRepository: IArticleLabelRepository = {
@@ -61,6 +65,7 @@ describe("LabelService", () => {
 				{
 					id: 1,
 					name: "go",
+					description: "Go言語に関する記事",
 					createdAt: new Date(),
 					updatedAt: new Date(),
 					articleCount: 5,
@@ -68,6 +73,7 @@ describe("LabelService", () => {
 				{
 					id: 2,
 					name: "typescript",
+					description: "TypeScriptに関する記事",
 					createdAt: new Date(),
 					updatedAt: new Date(),
 					articleCount: 10,
@@ -82,10 +88,40 @@ describe("LabelService", () => {
 		});
 	});
 
+	describe("getLabelById", () => {
+		const labelId = 1;
+		const mockLabel: Label = {
+			id: labelId,
+			name: "typescript",
+			description: "TypeScriptに関する記事",
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		};
+
+		it("指定されたIDのラベルを取得できること", async () => {
+			mockFindLabelById.mockResolvedValue(mockLabel);
+
+			const result = await labelService.getLabelById(labelId);
+
+			expect(result).toEqual(mockLabel);
+			expect(mockFindLabelById).toHaveBeenCalledWith(labelId);
+		});
+
+		it("存在しないIDの場合エラーをスローすること", async () => {
+			mockFindLabelById.mockResolvedValue(undefined);
+
+			await expect(labelService.getLabelById(999)).rejects.toThrow(
+				"Label with id 999 not found",
+			);
+			expect(mockFindLabelById).toHaveBeenCalledWith(999);
+		});
+	});
+
 	describe("assignLabel", () => {
 		const articleId = 1;
 		const labelNameInput = " TypeScript "; // Test normalization
 		const normalizedLabelName = "typescript";
+		const description = "TypeScriptに関する記事";
 		const mockBookmark: BookmarkWithLabel = {
 			id: articleId,
 			url: "url",
@@ -99,12 +135,14 @@ describe("LabelService", () => {
 		const existingLabel: Label = {
 			id: 10,
 			name: normalizedLabelName,
+			description,
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		};
 		const newLabel: Label = {
 			id: 11,
 			name: normalizedLabelName,
+			description,
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		};
@@ -133,7 +171,7 @@ describe("LabelService", () => {
 			mockFindLabelByName.mockResolvedValue(undefined);
 			mockCreateLabel.mockResolvedValue(newLabel);
 
-			const result = await labelService.assignLabel(articleId, labelNameInput);
+			const result = await labelService.assignLabel(articleId, labelNameInput, description);
 
 			expect(result).toEqual(newLabel);
 			expect(mockFindBookmarkById).toHaveBeenCalledWith(articleId);
@@ -141,6 +179,7 @@ describe("LabelService", () => {
 			expect(mockFindLabelByName).toHaveBeenCalledWith(normalizedLabelName);
 			expect(mockCreateLabel).toHaveBeenCalledWith({
 				name: normalizedLabelName,
+				description,
 			});
 			expect(mockCreateArticleLabel).toHaveBeenCalledWith({
 				articleId: articleId,
@@ -153,6 +192,7 @@ describe("LabelService", () => {
 			const firstLabel: Label = {
 				id: 10,
 				name: "typescript",
+				description: "TypeScriptに関する記事",
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			};
@@ -161,6 +201,7 @@ describe("LabelService", () => {
 			const secondLabel: Label = {
 				id: 11,
 				name: "frontend",
+				description: "フロントエンド開発に関する記事",
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			};
@@ -188,6 +229,7 @@ describe("LabelService", () => {
 			const existingLabel: Label = {
 				id: 10,
 				name: "typescript",
+				description: "TypeScriptに関する記事",
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			};
@@ -238,15 +280,18 @@ describe("LabelService", () => {
 	describe("createLabel", () => {
 		const labelNameInput = " New Label ";
 		const normalizedLabelName = "new label";
+		const description = "新しいラベルの説明";
 		const newLabel: Label = {
 			id: 12,
 			name: normalizedLabelName,
+			description,
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		};
 		const existingLabel: Label = {
 			id: 13,
 			name: normalizedLabelName,
+			description: "既存ラベルの説明",
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		};
@@ -255,12 +300,13 @@ describe("LabelService", () => {
 			mockFindLabelByName.mockResolvedValue(undefined); // Label does not exist
 			mockCreateLabel.mockResolvedValue(newLabel);
 
-			const result = await labelService.createLabel(labelNameInput);
+			const result = await labelService.createLabel(labelNameInput, description);
 
 			expect(result).toEqual(newLabel);
 			expect(mockFindLabelByName).toHaveBeenCalledWith(normalizedLabelName);
 			expect(mockCreateLabel).toHaveBeenCalledWith({
 				name: normalizedLabelName,
+				description,
 			});
 		});
 
@@ -283,6 +329,73 @@ describe("LabelService", () => {
 		});
 	});
 
+	describe("updateLabelDescription", () => {
+		const labelId = 1;
+		const newDescription = "更新された説明文";
+		const label: Label = {
+			id: labelId,
+			name: "typescript",
+			description: "古い説明文",
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		};
+		const updatedLabel: Label = {
+			...label,
+			description: newDescription,
+			updatedAt: new Date(),
+		};
+
+		it("ラベルの説明文を更新できること", async () => {
+			mockFindLabelById.mockResolvedValue(label);
+			mockUpdateDescription.mockResolvedValue(updatedLabel);
+
+			const result = await labelService.updateLabelDescription(labelId, newDescription);
+
+			expect(result).toEqual(updatedLabel);
+			expect(mockFindLabelById).toHaveBeenCalledWith(labelId);
+			expect(mockUpdateDescription).toHaveBeenCalledWith(labelId, newDescription);
+		});
+
+		it("nullを指定して説明文を削除できること", async () => {
+			const labelWithoutDesc = {
+				...label,
+				description: null,
+				updatedAt: new Date(),
+			};
+			mockFindLabelById.mockResolvedValue(label);
+			mockUpdateDescription.mockResolvedValue(labelWithoutDesc);
+
+			const result = await labelService.updateLabelDescription(labelId, null);
+
+			expect(result).toEqual(labelWithoutDesc);
+			expect(mockFindLabelById).toHaveBeenCalledWith(labelId);
+			expect(mockUpdateDescription).toHaveBeenCalledWith(labelId, null);
+		});
+
+		it("存在しないラベルIDの場合エラーをスローすること", async () => {
+			mockFindLabelById.mockResolvedValue(undefined);
+
+			await expect(
+				labelService.updateLabelDescription(999, newDescription),
+			).rejects.toThrow("Label with id 999 not found");
+
+			expect(mockFindLabelById).toHaveBeenCalledWith(999);
+			expect(mockUpdateDescription).not.toHaveBeenCalled();
+		});
+
+		it("更新に失敗した場合エラーをスローすること", async () => {
+			mockFindLabelById.mockResolvedValue(label);
+			mockUpdateDescription.mockResolvedValue(undefined);
+
+			await expect(
+				labelService.updateLabelDescription(labelId, newDescription),
+			).rejects.toThrow(`Failed to update description for label with id ${labelId}`);
+
+			expect(mockFindLabelById).toHaveBeenCalledWith(labelId);
+			expect(mockUpdateDescription).toHaveBeenCalledWith(labelId, newDescription);
+		});
+	});
+
 	describe("deleteLabel", () => {
 		const labelId = 1;
 
@@ -290,6 +403,7 @@ describe("LabelService", () => {
 			mockFindBookmarkById.mockResolvedValue({
 				id: labelId,
 				name: "typescript",
+				description: "TypeScriptに関する記事",
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			});
