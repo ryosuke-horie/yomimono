@@ -171,7 +171,11 @@ describe("LabelService", () => {
 			mockFindLabelByName.mockResolvedValue(undefined);
 			mockCreateLabel.mockResolvedValue(newLabel);
 
-			const result = await labelService.assignLabel(articleId, labelNameInput, description);
+			const result = await labelService.assignLabel(
+				articleId,
+				labelNameInput,
+				description,
+			);
 
 			expect(result).toEqual(newLabel);
 			expect(mockFindBookmarkById).toHaveBeenCalledWith(articleId);
@@ -300,7 +304,10 @@ describe("LabelService", () => {
 			mockFindLabelByName.mockResolvedValue(undefined); // Label does not exist
 			mockCreateLabel.mockResolvedValue(newLabel);
 
-			const result = await labelService.createLabel(labelNameInput, description);
+			const result = await labelService.createLabel(
+				labelNameInput,
+				description,
+			);
 
 			expect(result).toEqual(newLabel);
 			expect(mockFindLabelByName).toHaveBeenCalledWith(normalizedLabelName);
@@ -349,11 +356,17 @@ describe("LabelService", () => {
 			mockFindLabelById.mockResolvedValue(label);
 			mockUpdateDescription.mockResolvedValue(updatedLabel);
 
-			const result = await labelService.updateLabelDescription(labelId, newDescription);
+			const result = await labelService.updateLabelDescription(
+				labelId,
+				newDescription,
+			);
 
 			expect(result).toEqual(updatedLabel);
 			expect(mockFindLabelById).toHaveBeenCalledWith(labelId);
-			expect(mockUpdateDescription).toHaveBeenCalledWith(labelId, newDescription);
+			expect(mockUpdateDescription).toHaveBeenCalledWith(
+				labelId,
+				newDescription,
+			);
 		});
 
 		it("nullを指定して説明文を削除できること", async () => {
@@ -389,10 +402,15 @@ describe("LabelService", () => {
 
 			await expect(
 				labelService.updateLabelDescription(labelId, newDescription),
-			).rejects.toThrow(`Failed to update description for label with id ${labelId}`);
+			).rejects.toThrow(
+				`Failed to update description for label with id ${labelId}`,
+			);
 
 			expect(mockFindLabelById).toHaveBeenCalledWith(labelId);
-			expect(mockUpdateDescription).toHaveBeenCalledWith(labelId, newDescription);
+			expect(mockUpdateDescription).toHaveBeenCalledWith(
+				labelId,
+				newDescription,
+			);
 		});
 	});
 

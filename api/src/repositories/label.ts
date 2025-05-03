@@ -49,14 +49,12 @@ export class LabelRepository implements ILabelRepository {
 	}
 
 	async findById(id: number): Promise<Label | undefined> {
-		return await this.db
-			.select()
-			.from(labels)
-			.where(eq(labels.id, id))
-			.get();
+		return await this.db.select().from(labels).where(eq(labels.id, id)).get();
 	}
 
-	async create(data: Pick<InsertLabel, "name" | "description">): Promise<Label> {
+	async create(
+		data: Pick<InsertLabel, "name" | "description">,
+	): Promise<Label> {
 		const now = new Date();
 		const result = await this.db
 			.insert(labels)
@@ -81,7 +79,10 @@ export class LabelRepository implements ILabelRepository {
 		return result.length > 0;
 	}
 
-	async updateDescription(id: number, description: string | null): Promise<Label | undefined> {
+	async updateDescription(
+		id: number,
+		description: string | null,
+	): Promise<Label | undefined> {
 		const now = new Date();
 		try {
 			const result = await this.db

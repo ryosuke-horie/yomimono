@@ -19,6 +19,9 @@ const ArticlesResponseSchema = z.object({
 const LabelSchema = z.object({
 	id: z.number(),
 	name: z.string(),
+	description: z.string().nullable().optional(),
+	createdAt: z.string().or(z.instanceof(Date)).optional(),
+	updatedAt: z.string().or(z.instanceof(Date)).optional(),
 });
 const LabelsResponseSchema = z.object({
 	success: z.literal(true), // Assuming the GET /labels also returns success: true
@@ -31,10 +34,22 @@ success: z.literal(true),
 label: LabelSchema,
 });
 
+// Schema for the GET /api/labels/:id response
+const GetLabelByIdResponseSchema = z.object({
+	success: z.literal(true),
+	label: LabelSchema,
+});
+
+// Schema for the PATCH /api/labels/:id response
+const UpdateLabelDescriptionResponseSchema = z.object({
+	success: z.literal(true),
+	label: LabelSchema,
+});
+
 // Schema for the DELETE /api/labels/:id response
 const DeleteLabelResponseSchema = z.object({
-success: z.literal(true),
-message: z.string(),
+	success: z.literal(true),
+	message: z.string(),
 });
 
 // Get API base URL from environment variable
@@ -93,16 +108,20 @@ export async function getLabels() {
  * Assigns a label to a specific article via the API.
  * @param articleId - The ID of the article to label.
  * @param labelName - The name of the label to assign.
+ * @param description - Optional description for the label if it's created.
  * @returns A promise that resolves when the label is successfully assigned.
  */
-export async function assignLabelToArticle(articleId: number, labelName: string) {
+export async function assignLabelToArticle(articleId: number, labelName: string, description?: string) {
 	// Corrected path: /api/bookmarks/:id/label
 	const response = await fetch(`${API_BASE_URL}/api/bookmarks/${articleId}/label`, {
 		method: "PUT",
 		headers: {
 			"Content-Type": "application/json",
 		},
-		body: JSON.stringify({ labelName }),
+		body: JSON.stringify({ 
+			labelName,
+			description 
+		}),
 	});
 
 	if (!response.ok) {
@@ -118,15 +137,19 @@ export async function assignLabelToArticle(articleId: number, labelName: string)
 /**
  * Creates a new label via the API.
  * @param labelName - The name of the label to create.
+ * @param description - Optional description for the label.
  * @returns A promise that resolves to the newly created label object.
  */
-export async function createLabel(labelName: string) {
+export async function createLabel(labelName: string, description?: string) {
 	const response = await fetch(`${API_BASE_URL}/api/labels`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 		},
-		body: JSON.stringify({ name: labelName }),
+		body: JSON.stringify({ 
+			name: labelName,
+			description: description,
+		}),
 	});
 
 	let data: unknown;
@@ -173,10 +196,65 @@ export async function createLabel(labelName: string) {
 }
 
 /**
- * Deletes a label via the API.
- * @param id - The ID of the label to delete.
- * @throws {Error} If the label deletion fails.
+ * Fetches a specific label by ID from the API.
+ * @param id - The ID of the label to fetch.
+ * @returns A promise that resolves to the label object.
  */
+export async function getLabelById(id: number) {
+  const response = await fetch(`${API_BASE_URL}/api/labels/${id}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch label with ID ${id}: ${response.statusText}`);
+  }
+  
+  let data: unknown;
+  try {
+    data = await response.json();
+  } catch (parseError: any) {
+    throw new Error(`Failed to parse response when fetching label ${id}: ${parseError.message}`);
+  }
+  
+  const parsed = GetLabelByIdResponseSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error(`Invalid API response for label ${id}: ${parsed.error.message}`);
+  }
+  
+  return parsed.data.label;
+}
+
+/**
+ * Updates a label's description via the API.
+ * @param id - The ID of the label to update.
+ * @param description - The new description (or null to remove the description).
+ * @returns A promise that resolves to the updated label object.
+ */
+export async function updateLabelDescription(id: number, description: string | null) {
+  const response = await fetch(`${API_BASE_URL}/api/labels/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ description }),
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Failed to update description for label ${id}: ${response.statusText}`);
+  }
+  
+  let data: unknown;
+  try {
+    data = await response.json();
+  } catch (parseError: any) {
+    throw new Error(`Failed to parse response when updating label ${id} description: ${parseError.message}`);
+  }
+  
+  const parsed = UpdateLabelDescriptionResponseSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error(`Invalid API response after updating label description: ${parsed.error.message}`);
+  }
+  
+  return parsed.data.label;
+}
+
 export async function deleteLabel(id: number): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/api/labels/${id}`, {
     method: "DELETE",

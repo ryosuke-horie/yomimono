@@ -26,7 +26,11 @@ export interface ILabelService {
 	 * @throws Error 記事が存在しない場合
 	 * @throws Error 記事が既にラベリング済みの場合
 	 */
-	assignLabel(articleId: number, labelName: string, description?: string): Promise<Label>;
+	assignLabel(
+		articleId: number,
+		labelName: string,
+		description?: string,
+	): Promise<Label>;
 
 	/**
 	 * 新しいラベルを作成します。
@@ -46,7 +50,7 @@ export interface ILabelService {
 	 * @throws Error ラベルが存在しない場合
 	 */
 	deleteLabel(id: number): Promise<void>;
-	
+
 	/**
 	 * 指定されたIDのラベルの説明文を更新します。
 	 * @param id 更新するラベルのID
@@ -54,5 +58,8 @@ export interface ILabelService {
 	 * @returns 更新されたラベルオブジェクト
 	 * @throws Error ラベルが存在しない場合
 	 */
-	updateLabelDescription(id: number, description: string | null): Promise<Label>;
+	updateLabelDescription(
+		id: number,
+		description: string | null,
+	): Promise<Label>;
 }

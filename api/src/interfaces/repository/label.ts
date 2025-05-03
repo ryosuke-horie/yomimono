@@ -34,12 +34,15 @@ export interface ILabelRepository {
 	 * @returns データが削除された場合はtrue、存在しなかった場合はfalse
 	 */
 	deleteById(id: number): Promise<boolean>;
-	
+
 	/**
 	 * 指定されたIDのラベルの説明文を更新します。
 	 * @param id 更新するラベルのID
 	 * @param description 新しい説明文
 	 * @returns 更新されたラベルオブジェクト、存在しない場合はundefined
 	 */
-	updateDescription(id: number, description: string | null): Promise<Label | undefined>;
+	updateDescription(
+		id: number,
+		description: string | null,
+	): Promise<Label | undefined>;
 }
