@@ -1,0 +1,32 @@
+name: MCP Lint
+
+on:
+  pull_request:
+    paths:
+      - 'mcp/**'
+      - '.github/workflows/mcp-lint.yml'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./mcp
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
+        with:
+          bun-version: 1.2.8
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run lint
+        run: bun lint
+
+      - name: Run Knip    
+        run: bun knip
+        
+      - name: Type check
+        run: bun typecheck
