@@ -62,3 +62,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 言語設定
 - 日本語での解答生成を優先する
 - コードコメントは日本語で書く
+
+## PR作成時
+- .github/pull_request_template.mdのコメントを付与する。
+- GitHub copilotによる自動レビューが有効なため、日本語でレビューさせる。
