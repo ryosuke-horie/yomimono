@@ -29,8 +29,8 @@ export const fetchLabels = async (): Promise<Label[]> => {
 	return data.labels;
 };
 
-// 特定のラベルを取得する関数
-export const fetchLabelById = async (id: number): Promise<Label> => {
+// 特定のラベルを取得する関数（現在は未使用）
+const fetchLabelById = async (id: number): Promise<Label> => {
 	const response = await fetch(`${API_BASE_URL}/api/labels/${id}`);
 	if (!response.ok) {
 		throw new Error(`Failed to fetch label with ID: ${id}`);
