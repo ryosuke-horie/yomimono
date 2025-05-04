@@ -49,6 +49,44 @@ cd frontend
 npm run deploy
 ```
 
+## 開発ツール
+
+### Lintとフォーマット
+
+各ディレクトリでlintとformatを実行できます：
+
+```bash
+# APIのlint
+cd api
+bun run lint
+
+# フロントエンドのlint
+cd frontend
+bun run lint
+```
+
+ルートディレクトリから一括でlintを実行することも可能です：
+
+```bash
+# すべてのプロジェクトのlint実行
+bun run lint
+
+# すべてのプロジェクトのformat実行
+bun run format
+```
+
+### pre-commitフック（lefthook）
+
+このプロジェクトではlefthookを使用してpre-commitフックを実装しています。
+コミット時に自動的に各ディレクトリのbiomeによるLintチェックが実行され、問題があれば自動的に修正されます。
+
+初回セットアップ時に以下のコマンドを実行してlefthookをインストールしてください：
+
+```bash
+bun install
+bun lefthook install
+```
+
 ## データベースマイグレーション
 ```bash
 cd api
