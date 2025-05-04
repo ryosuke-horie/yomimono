@@ -19,6 +19,12 @@ interface LabelDeleteResponse {
 	message: string;
 }
 
+// エラーレスポンス用の型定義
+interface ErrorResponse {
+	success: boolean;
+	message: string;
+}
+
 // ラベル一覧を取得する関数
 export const fetchLabels = async (): Promise<Label[]> => {
 	const response = await fetch(`${API_BASE_URL}/api/labels`);
@@ -53,7 +59,7 @@ export const createLabel = async (
 	});
 
 	if (!response.ok) {
-		const errorData = await response.json();
+		const errorData = (await response.json()) as ErrorResponse;
 		throw new Error(errorData.message || "Failed to create label");
 	}
 
@@ -75,7 +81,7 @@ export const updateLabelDescription = async (
 	});
 
 	if (!response.ok) {
-		const errorData = await response.json();
+		const errorData = (await response.json()) as ErrorResponse;
 		throw new Error(
 			errorData.message || `Failed to update label with ID: ${id}`,
 		);
@@ -92,7 +98,7 @@ export const deleteLabel = async (id: number): Promise<string> => {
 	});
 
 	if (!response.ok) {
-		const errorData = await response.json();
+		const errorData = (await response.json()) as ErrorResponse;
 		throw new Error(
 			errorData.message || `Failed to delete label with ID: ${id}`,
 		);
