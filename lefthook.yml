@@ -1,0 +1,15 @@
+pre-commit:
+  parallel: true
+  commands:
+    api-lint:
+      glob: "api/**/*.{ts,js,json}"
+      run: cd api && npx @biomejs/biome check {staged_files}
+    frontend-lint:
+      glob: "frontend/**/*.{ts,tsx,js,jsx,json}"
+      run: cd frontend && npx @biomejs/biome check {staged_files}
+    extension-lint:
+      glob: "extension/**/*.{js,json,html,css}"
+      run: cd extension && npx @biomejs/biome check {staged_files}
+    mcp-lint:
+      glob: "mcp/**/*.{ts,js,json}"
+      run: cd mcp && npx @biomejs/biome check {staged_files}
