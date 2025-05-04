@@ -41,6 +41,12 @@ export function Header() {
 						>
 							最近読んだ記事
 						</Link>
+						<Link
+							href="/labels"
+							className={`inline-flex items-center px-1 pt-1 ${isActive("/labels")}`}
+						>
+							ラベル設定
+						</Link>
 					</nav>
 				</div>
 			</div>
