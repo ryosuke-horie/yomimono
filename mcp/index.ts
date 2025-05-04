@@ -1,2 +1,3 @@
 // mcpのエントリーポイント
-console.log("Hello via Bun!");
+// 追加のコメント
+console.log("Hello via Bun!"); 
