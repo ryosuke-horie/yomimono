@@ -6,7 +6,8 @@
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
 		"@types/bun": "latest",
-		"dotenv": "^16.5.0"
+		"dotenv": "^16.5.0",
+		"knip": "^5.53.0"
 	},
 	"peerDependencies": {
 		"typescript": "^5"

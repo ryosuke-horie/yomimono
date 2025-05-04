@@ -5,14 +5,23 @@ pre-commit:
       root: "api/"
       glob: "**/*.{ts,js,json}"
       run: bunx @biomejs/biome check --write {staged_files}
+    api-knip:
+      root: "api/"
+      run: bunx knip
     frontend-lint:
       root: "frontend/"
       glob: "**/*.{ts,tsx,js,jsx,json}"
       run: bunx @biomejs/biome check --write {staged_files}
+    frontend-knip:
+      root: "frontend/"
+      run: bunx knip
     extension-lint:
       root: "extension/"
       glob: "**/*.{js,json,html,css}"
       run: bunx @biomejs/biome check --write {staged_files}
+    extension-knip:
+      root: "extension/"
+      run: bunx knip
     mcp-lint:
       root: "mcp/"
       glob: "**/*.{ts,js,json}"
