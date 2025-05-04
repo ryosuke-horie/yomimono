@@ -59,7 +59,7 @@ export const createLabel = async (
 	});
 
 	if (!response.ok) {
-		const errorData = await response.json() as ErrorResponse;
+		const errorData = (await response.json()) as ErrorResponse;
 		throw new Error(errorData.message || "Failed to create label");
 	}
 
@@ -81,7 +81,7 @@ export const updateLabelDescription = async (
 	});
 
 	if (!response.ok) {
-		const errorData = await response.json() as ErrorResponse;
+		const errorData = (await response.json()) as ErrorResponse;
 		throw new Error(
 			errorData.message || `Failed to update label with ID: ${id}`,
 		);
@@ -98,7 +98,7 @@ export const deleteLabel = async (id: number): Promise<string> => {
 	});
 
 	if (!response.ok) {
-		const errorData = await response.json() as ErrorResponse;
+		const errorData = (await response.json()) as ErrorResponse;
 		throw new Error(
 			errorData.message || `Failed to delete label with ID: ${id}`,
 		);
