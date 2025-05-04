@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import type { Label } from "../types";
 
 interface Props {
@@ -17,33 +18,73 @@ export function LabelDeleteConfirm({
 	isDeleting = false,
 	error = null,
 }: Props) {
+	const dialogRef = useRef<HTMLDivElement>(null);
+
+	// ESCキーでモーダルを閉じる
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				onCancel();
+			}
+		};
+
+		document.addEventListener("keydown", handleKeyDown);
+		return () => {
+			document.removeEventListener("keydown", handleKeyDown);
+		};
+	}, [onCancel]);
+
+	// モーダルが開いたらフォーカスをトラップする
+	useEffect(() => {
+		// フォーカス可能な要素を取得
+		const focusableElements = dialogRef.current?.querySelectorAll(
+			'button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+		) as NodeListOf<HTMLElement>;
+
+		if (focusableElements && focusableElements.length > 0) {
+			// 最初の要素にフォーカスを当てる
+			focusableElements[0].focus();
+		}
+	}, []);
+
 	const handleConfirm = () => {
 		onConfirm(label.id);
 	};
 
+	// キーボードイベントハンドラー
+	const handleOverlayKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter" || e.key === " ") {
+			onCancel();
+		}
+	};
+
+	const handleDialogKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter" || e.key === " ") {
+			e.stopPropagation();
+		}
+	};
+
 	return (
 		<div className="fixed inset-0 z-50 overflow-y-auto">
-			<div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-				{/* 背景のオーバーレイ */}
-				{/* 背景のオーバーレイ - クリックでキャンセル */}
-				<div
-					className="fixed inset-0 transition-opacity"
-					onClick={onCancel}
-					onKeyDown={(e) => {
-						if (e.key === "Escape") onCancel();
-					}}
-					role="button"
-					tabIndex={0}
-				>
-					<div className="absolute inset-0 bg-gray-500 opacity-75" />
-				</div>
+			{/* 背景のオーバーレイ - クリックでキャンセル */}
+			<div
+				className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+				onClick={onCancel}
+				onKeyDown={handleOverlayKeyDown}
+				role="button"
+				tabIndex={0}
+			/>
 
+			<div className="flex items-end sm:items-center justify-center min-h-full p-4 text-center sm:p-0">
 				{/* モーダルコンテンツ */}
 				<div
-					className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+					ref={dialogRef}
+					className="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-lg sm:w-full"
 					role="dialog"
 					aria-modal="true"
 					aria-labelledby="modal-headline"
+					onClick={(e) => e.stopPropagation()}
+					onKeyDown={handleDialogKeyDown}
 				>
 					<div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
 						<div className="sm:flex sm:items-start">
@@ -54,7 +95,6 @@ export function LabelDeleteConfirm({
 									fill="none"
 									viewBox="0 0 24 24"
 									stroke="currentColor"
-									aria-hidden="true"
 								>
 									<path
 										strokeLinecap="round"
