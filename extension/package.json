@@ -11,8 +11,8 @@
 	"private": true,
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
-		"@types/node": "^22.15.3",
-		"knip": "^5.53.0",
+		"@types/node": "^22.15.17",
+		"knip": "^5.55.1",
 		"typescript": "^5.8.3"
 	}
 }
