@@ -18,6 +18,17 @@ export function BookmarkSummary({
 	onUpdateSummary,
 }: Props) {
 	const [isExpanded, setIsExpanded] = useState(false);
+	const [copySuccess, setCopySuccess] = useState(false);
+
+	const handleCopy = async () => {
+		try {
+			await navigator.clipboard.writeText(summary || "");
+			setCopySuccess(true);
+			setTimeout(() => setCopySuccess(false), 2000);
+		} catch (error) {
+			console.error("Failed to copy summary:", error);
+		}
+	};
 
 	// 要約がない場合
 	if (!summary) {
@@ -86,6 +97,17 @@ export function BookmarkSummary({
 								{isGenerating ? "生成中..." : "再生成"}
 							</button>
 						)}
+						<button
+							type="button"
+							onClick={handleCopy}
+							className={`text-xs ${
+								copySuccess
+									? "text-green-600"
+									: "text-gray-600 hover:text-gray-800"
+							}`}
+						>
+							{copySuccess ? "コピー済み" : "コピー"}
+						</button>
 						<button
 							type="button"
 							onClick={() => setIsExpanded(!isExpanded)}
