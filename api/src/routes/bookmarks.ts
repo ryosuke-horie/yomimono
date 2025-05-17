@@ -335,5 +335,73 @@ export const createBookmarksRouter = (
 		}
 	});
 
+	// 要約なしブックマーク取得エンドポイント
+	app.get("/without-summary", async (c) => {
+		try {
+			const limit = Number.parseInt(c.req.query("limit") || "5");
+			const offset = Number.parseInt(c.req.query("offset") || "0");
+			const orderBy = c.req.query("orderBy") as
+				| "createdAt"
+				| "readAt"
+				| undefined;
+
+			// パラメータのバリデーション
+			if (Number.isNaN(limit) || limit <= 0 || limit > 100) {
+				return c.json(
+					{ success: false, message: "Invalid limit parameter" },
+					400,
+				);
+			}
+			if (Number.isNaN(offset) || offset < 0) {
+				return c.json(
+					{ success: false, message: "Invalid offset parameter" },
+					400,
+				);
+			}
+			if (orderBy && !["createdAt", "readAt"].includes(orderBy)) {
+				return c.json(
+					{ success: false, message: "Invalid orderBy parameter" },
+					400,
+				);
+			}
+
+			// ページネーション対応のため、limit+1件取得
+			const bookmarks = await bookmarkService.getBookmarksWithoutSummary(
+				limit + 1,
+				orderBy || "createdAt",
+				offset,
+			);
+
+			// hasMoreフラグの判定
+			const hasMore = bookmarks.length > limit;
+			const paginatedBookmarks = bookmarks.slice(0, limit);
+
+			// offsetベースでtotalを計算（TODO: 正確なtotalは別途クエリが必要）
+			const total = offset + paginatedBookmarks.length + (hasMore ? 1 : 0);
+
+			return c.json({
+				bookmarks: paginatedBookmarks.map((bookmark) => ({
+					id: bookmark.id,
+					url: bookmark.url,
+					title: bookmark.title,
+					createdAt: bookmark.createdAt,
+					readAt: bookmark.readAt || null,
+					isFavorite: bookmark.isFavorite,
+				})),
+				total,
+				hasMore,
+			});
+		} catch (error) {
+			console.error("Failed to fetch bookmarks without summary:", error);
+			return c.json(
+				{
+					success: false,
+					message: "Failed to fetch bookmarks without summary",
+				},
+				500,
+			);
+		}
+	});
+
 	return app;
 };
