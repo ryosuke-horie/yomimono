@@ -7,7 +7,6 @@ interface Props {
 	summaryUpdatedAt: string | null;
 	isGenerating?: boolean;
 	onGenerateSummary?: () => void;
-	onUpdateSummary?: () => void;
 }
 
 export function BookmarkSummary({
@@ -15,7 +14,6 @@ export function BookmarkSummary({
 	summaryUpdatedAt,
 	isGenerating = false,
 	onGenerateSummary,
-	onUpdateSummary,
 }: Props) {
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [copySuccess, setCopySuccess] = useState(false);
@@ -86,16 +84,6 @@ export function BookmarkSummary({
 							<span className="text-xs text-gray-500">
 								{new Date(summaryUpdatedAt).toLocaleDateString("ja-JP")}
 							</span>
-						)}
-						{onUpdateSummary && (
-							<button
-								type="button"
-								onClick={onUpdateSummary}
-								disabled={isGenerating}
-								className="text-xs text-blue-600 hover:text-blue-800 disabled:text-gray-400"
-							>
-								{isGenerating ? "生成中..." : "再生成"}
-							</button>
 						)}
 						<button
 							type="button"
