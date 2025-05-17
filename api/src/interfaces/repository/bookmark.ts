@@ -25,6 +25,12 @@ export interface IBookmarkRepository {
 	findRecentlyRead(): Promise<BookmarkWithLabel[]>;
 
 	/**
+	 * 既読のブックマークを取得します。
+	 * @returns 既読のブックマーク配列
+	 */
+	findRead(): Promise<BookmarkWithLabel[]>;
+
+	/**
 	 * ラベルが付与されていないブックマークを取得します。
 	 * * 既読のブックマークは除外されます。
 	 * @returns 未ラベルのブックマーク配列
