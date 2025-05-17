@@ -403,9 +403,11 @@ describe("ブックマークリポジトリ", () => {
 				summary: null,
 			};
 			const expectedUpdatedBookmark = {
-				...expectedResult1,
+				...mockBookmark1,
 				id: bookmarkId,
 				summary,
+				isFavorite: false,
+				label: null,
 			};
 
 			mockDbClient.get.mockResolvedValue(mockExistingBookmark);

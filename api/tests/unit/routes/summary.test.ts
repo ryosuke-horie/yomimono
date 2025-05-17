@@ -69,7 +69,11 @@ describe("Summary Routes", () => {
 			const json = await response.json();
 			expect(json).toEqual({
 				success: true,
-				bookmarks: mockBookmarksWithoutSummary,
+				bookmarks: mockBookmarksWithoutSummary.map(b => ({
+					...b,
+					createdAt: b.createdAt.toISOString(),
+					updatedAt: b.updatedAt.toISOString(),
+				})),
 			});
 			expect(
 				mockSummaryService.getBookmarksWithoutSummary,
@@ -127,7 +131,14 @@ describe("Summary Routes", () => {
 
 			expect(response.status).toBe(200);
 			const json = await response.json();
-			expect(json).toEqual({ success: true, bookmark: mockBookmarkWithLabel });
+			expect(json).toEqual({ 
+				success: true, 
+				bookmark: {
+					...mockBookmarkWithLabel,
+					createdAt: mockBookmarkWithLabel.createdAt.toISOString(),
+					updatedAt: mockBookmarkWithLabel.updatedAt.toISOString(),
+				}
+			});
 			expect(mockSummaryService.getBookmarkById).toHaveBeenCalledWith(1);
 		});
 
@@ -189,7 +200,16 @@ describe("Summary Routes", () => {
 
 			expect(response.status).toBe(200);
 			const json = await response.json();
-			expect(json).toEqual({ success: true, bookmark: createdSummary });
+			expect(json).toEqual({ 
+				success: true, 
+				bookmark: {
+					...createdSummary,
+					createdAt: createdSummary.createdAt.toISOString(),
+					updatedAt: createdSummary.updatedAt.toISOString(),
+					summaryCreatedAt: createdSummary.summaryCreatedAt.toISOString(),
+					summaryUpdatedAt: createdSummary.summaryUpdatedAt.toISOString(),
+				}
+			});
 			expect(mockSummaryService.saveSummary).toHaveBeenCalledWith({
 				bookmarkId: 1,
 				summary: "これは要約です",
@@ -278,7 +298,16 @@ describe("Summary Routes", () => {
 
 			expect(response.status).toBe(200);
 			const json = await response.json();
-			expect(json).toEqual({ success: true, bookmark: updatedSummary });
+			expect(json).toEqual({ 
+				success: true, 
+				bookmark: {
+					...updatedSummary,
+					createdAt: updatedSummary.createdAt.toISOString(),
+					updatedAt: updatedSummary.updatedAt.toISOString(),
+					summaryCreatedAt: updatedSummary.summaryCreatedAt.toISOString(),
+					summaryUpdatedAt: updatedSummary.summaryUpdatedAt.toISOString(),
+				}
+			});
 			expect(mockSummaryService.updateSummary).toHaveBeenCalledWith({
 				bookmarkId: 1,
 				summary: "更新された要約",

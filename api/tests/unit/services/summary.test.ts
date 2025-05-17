@@ -129,7 +129,17 @@ describe("DefaultSummaryService", () => {
 
 			const result = await summaryService.getBookmarkById(1);
 
-			expect(result).toEqual(mockBookmarkWithLabel);
+			expect(result).toEqual({
+				id: mockBookmark.id,
+				url: mockBookmark.url,
+				title: mockBookmark.title,
+				isRead: mockBookmark.isRead,
+				summary: mockBookmark.summary,
+				summaryCreatedAt: mockBookmark.summaryCreatedAt,
+				summaryUpdatedAt: mockBookmark.summaryUpdatedAt,
+				createdAt: mockBookmark.createdAt,
+				updatedAt: mockBookmark.updatedAt,
+			});
 			expect(mockBookmarkRepository.findById).toHaveBeenCalledWith(1);
 		});
 
