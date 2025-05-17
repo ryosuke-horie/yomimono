@@ -13,7 +13,7 @@ This directory contains the MCP (Model Context Protocol) server responsible for 
 ## Connecting with a Client
 
 ### ローカル開発 / MCP Inspector
-[MCP Inspector](https://github.com/modelcontextprotocol/inspector) のようなMCPクライアントを使用して、ローカルで実行中のサーバー（`bun run src/index.ts` で起動）に接続し、`autoLabelArticles` ツールと対話できます。
+[MCP Inspector](https://github.com/modelcontextprotocol/inspector) のようなMCPクライアントを使用して、ローカルで実行中のサーバー（`npm run src/index.ts` で起動）に接続し、`autoLabelArticles` ツールと対話できます。
 
 ### Claude Desktop 連携
 このサーバーをClaude Desktopと連携させるには：
@@ -21,7 +21,7 @@ This directory contains the MCP (Model Context Protocol) server responsible for 
 1.  **サーバーのビルド**: TypeScriptコードをJavaScriptにコンパイルします。
     ```bash
     cd mcp
-    bun run build
+    npm run build
     ```
     これにより、コンパイルされたコード（例：`build/index.js`）を含む `build` ディレクトリが作成されます。
 
@@ -45,6 +45,6 @@ This directory contains the MCP (Model Context Protocol) server responsible for 
 
 ## 開発
 
-- **ビルド**: `bun run build` （TypeScriptを `build/` ディレクトリ内のJavaScriptにコンパイルします）
-- **Lint/フォーマット**: Biomeを使用。`bun run biome check .` または `bun run biome format --write .` を実行。
-- **静的解析**: knipを使用。`bun run knip` を実行。
+- **ビルド**: `npm run build` （TypeScriptを `build/` ディレクトリ内のJavaScriptにコンパイルします）
+- **Lint/フォーマット**: Biomeを使用。`npm run biome check .` または `npm run biome format --write .` を実行。
+- **静的解析**: knipを使用。`npm run knip` を実行。
