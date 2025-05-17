@@ -72,7 +72,6 @@ export function BookmarkCard({
 		}
 	};
 
-
 	return (
 		<article
 			className={`relative p-4 border rounded-lg hover:shadow-md transition-shadow flex flex-col min-h-[150px] ${
