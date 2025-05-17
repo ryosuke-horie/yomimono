@@ -10,7 +10,7 @@ dotenv.config();
 // Create an MCP server instance
 const server = new McpServer({
 	name: "EffectiveYomimonoLabeler", // Descriptive name for the server
-	version: "0.4.0", // Updated with getUnreadArticlesByLabel tool
+	version: "0.4.0", // Updated with getUnreadArticlesByLabel and read/unread status tools
 });
 
 // --- Tool Definitions ---
@@ -599,6 +599,110 @@ server.tool(
 					{
 						type: "text",
 						text: `Failed to get unread articles by label: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
+// 15. Tool to get unread bookmarks
+server.tool(
+	"getUnreadBookmarks",
+	{}, // No input arguments
+	async () => {
+		try {
+			const bookmarks = await apiClient.getUnreadBookmarks();
+			return {
+				content: [
+					{
+						type: "text",
+						text: `未読のブックマークリスト:\n${JSON.stringify(bookmarks, null, 2)}`,
+					},
+				],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error("Error in getUnreadBookmarks tool:", errorMessage);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `未読ブックマークの取得に失敗しました: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
+// 16. Tool to get read bookmarks
+server.tool(
+	"getReadBookmarks",
+	{}, // No input arguments
+	async () => {
+		try {
+			const bookmarks = await apiClient.getReadBookmarks();
+			return {
+				content: [
+					{
+						type: "text",
+						text: `既読のブックマークリスト:\n${JSON.stringify(bookmarks, null, 2)}`,
+					},
+				],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error("Error in getReadBookmarks tool:", errorMessage);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `既読ブックマークの取得に失敗しました: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
+// 17. Tool to mark bookmark as read
+server.tool(
+	"markBookmarkAsRead",
+	{
+		bookmarkId: z.number().int().positive(),
+	},
+	async ({ bookmarkId }) => {
+		try {
+			const result = await apiClient.markBookmarkAsRead(bookmarkId);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `ブックマークID: ${bookmarkId}を既読にマークしました。\n${JSON.stringify(result, null, 2)}`,
+					},
+				],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error(
+				`Error in markBookmarkAsRead tool (bookmarkId: ${bookmarkId}):`,
+				errorMessage,
+			);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `ブックマークの既読マークに失敗しました: ${errorMessage}`,
 					},
 				],
 				isError: true,

@@ -43,4 +43,10 @@ export interface IBookmarkService {
 		orderBy?: "createdAt" | "readAt",
 		offset?: number,
 	): Promise<BookmarkWithLabel[]>;
+
+	/**
+	 * 既読のブックマークを取得します。
+	 * @returns 既読のブックマーク配列
+	 */
+	getReadBookmarks(): Promise<BookmarkWithLabel[]>;
 }

@@ -179,4 +179,13 @@ export class DefaultBookmarkService implements IBookmarkService {
 			throw new Error("Failed to get bookmarks without summary");
 		}
 	}
+
+	async getReadBookmarks(): Promise<BookmarkWithLabel[]> {
+		try {
+			return await this.repository.findRead();
+		} catch (error) {
+			console.error("Failed to get read bookmarks:", error);
+			throw new Error("Failed to get read bookmarks");
+		}
+	}
 }

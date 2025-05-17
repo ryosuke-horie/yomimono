@@ -571,6 +571,30 @@ export async function updateSummary(bookmarkId: number, summary: string) {
 	return parsed.data.bookmark;
 }
 
+// Schema for bookmark with read status
+const BookmarkWithReadStatusSchema = z.object({
+	id: z.number(),
+	url: z.string(),
+	title: z.string(),
+	labels: z.array(z.string()),
+	isRead: z.boolean(),
+	isFavorite: z.boolean(),
+	createdAt: z.string(),
+	readAt: z.string().nullable(),
+});
+
+// Schema for bookmarks list response
+const BookmarksListResponseSchema = z.object({
+	success: z.literal(true),
+	bookmarks: z.array(BookmarkWithReadStatusSchema),
+});
+
+// Schema for mark as read response
+const MarkAsReadResponseSchema = z.object({
+	success: z.literal(true),
+	message: z.string(),
+});
+
 /**
  * ラベルで未読記事を取得します
  * @param labelName - ラベル名
@@ -594,4 +618,74 @@ export async function getUnreadArticlesByLabel(labelName: string) {
 		);
 	}
 	return parsed.data.bookmarks;
+}
+
+/**
+ * 未読のブックマークを取得します
+ * @returns 未読のブックマークのリスト
+ */
+export async function getUnreadBookmarks() {
+	// Default behavior of /api/bookmarks is to return unread bookmarks
+	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks`);
+	if (!response.ok) {
+		throw new Error(`Failed to fetch unread bookmarks: ${response.statusText}`);
+	}
+
+	const data = await response.json();
+	const parsed = BookmarksListResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response for unread bookmarks: ${parsed.error.message}`,
+		);
+	}
+	return parsed.data.bookmarks;
+}
+/**
+ * 既読のブックマークを取得します
+ * @returns 既読のブックマークのリスト
+ */
+export async function getReadBookmarks() {
+	// New endpoint for all read bookmarks
+	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks/read`);
+	if (!response.ok) {
+		throw new Error(`Failed to fetch read bookmarks: ${response.statusText}`);
+	}
+
+	const data = await response.json();
+	const parsed = BookmarksListResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response for read bookmarks: ${parsed.error.message}`,
+		);
+	}
+	return parsed.data.bookmarks;
+}
+
+/**
+ * ブックマークを既読にマークします
+ * @param bookmarkId - ブックマークID
+ * @returns 処理結果
+ */
+export async function markBookmarkAsRead(bookmarkId: number) {
+	const response = await fetch(
+		`${getApiBaseUrl()}/api/bookmarks/${bookmarkId}/read`,
+		{
+			method: "PATCH",
+		},
+	);
+
+	if (!response.ok) {
+		throw new Error(
+			`Failed to mark bookmark ${bookmarkId} as read: ${response.statusText}`,
+		);
+	}
+
+	const data = await response.json();
+	const parsed = MarkAsReadResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response after marking bookmark as read: ${parsed.error.message}`,
+		);
+	}
+	return parsed.data;
 }
