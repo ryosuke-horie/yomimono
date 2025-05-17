@@ -621,13 +621,26 @@ server.tool(
 						text: `未読のブックマークリスト:\n${JSON.stringify(bookmarks, null, 2)}`,
 					},
 				],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error("Error in getUnreadBookmarks tool:", errorMessage);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `未読ブックマークの取得に失敗しました: ${errorMessage}`,
+					},
+				],
 				isError: true,
 			};
 		}
 	},
 );
 
-// 15. Tool to get read bookmarks
+// 16. Tool to get read bookmarks
 server.tool(
 	"getReadBookmarks",
 	{}, // No input arguments
@@ -660,7 +673,7 @@ server.tool(
 	},
 );
 
-// 16. Tool to mark bookmark as read
+// 17. Tool to mark bookmark as read
 server.tool(
 	"markBookmarkAsRead",
 	{
