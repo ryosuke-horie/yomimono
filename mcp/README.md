@@ -22,6 +22,7 @@ This directory contains the MCP (Model Context Protocol) server that provides to
 - **`updateSummary`**: 既存の要約を更新します。（引数: `bookmarkId`, `summary`）
 - **`getBookmarkById`**: 特定のブックマークを取得します。（引数: `bookmarkId`）
 - **`generateSummary`**: ブックマークの要約を生成します（現在は仮実装）。（引数: `bookmarkId`, `includeKeyPoints`, `maxLength`）
+- **`getUnreadArticlesByLabel`**: 指定されたラベルの未読記事を取得します。（引数: `labelName`）
 
 ## Connecting with a Client
 
