@@ -2,7 +2,6 @@
 
 import { BookmarkCard } from "@/features/bookmarks/components/BookmarkCard";
 import { useGenerateSummary } from "@/features/bookmarks/queries/useGenerateSummary";
-import { useUpdateSummary } from "@/features/bookmarks/queries/useUpdateSummary";
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 
 interface BookmarksListProps {
@@ -12,7 +11,6 @@ interface BookmarksListProps {
 
 export function BookmarksList({ bookmarks, onLabelClick }: BookmarksListProps) {
 	const { mutate: generateSummary } = useGenerateSummary();
-	const { mutate: updateSummary } = useUpdateSummary();
 
 	if (bookmarks.length === 0) {
 		return <p className="text-gray-600">表示するブックマークはありません。</p>;
@@ -20,14 +18,6 @@ export function BookmarksList({ bookmarks, onLabelClick }: BookmarksListProps) {
 
 	const handleGenerateSummary = async (bookmarkId: number) => {
 		generateSummary(bookmarkId);
-	};
-
-	const handleUpdateSummary = async (bookmarkId: number) => {
-		// 暫定的に新たな要約を生成するロジック
-		updateSummary({
-			bookmarkId,
-			summary: "更新された要約", // 実際にはMCPツールから生成
-		});
 	};
 
 	return (
@@ -43,7 +33,6 @@ export function BookmarksList({ bookmarks, onLabelClick }: BookmarksListProps) {
 						bookmark={bookmark}
 						onLabelClick={onLabelClick}
 						onGenerateSummary={handleGenerateSummary}
-						onUpdateSummary={handleUpdateSummary}
 					/>{" "}
 					{/* onLabelClick を渡す */}
 				</div>
