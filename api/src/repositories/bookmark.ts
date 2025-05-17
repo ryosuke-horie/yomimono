@@ -403,11 +403,13 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 	 * 要約がないブックマークを取得します。
 	 * @param limit - 取得する件数の上限。
 	 * @param orderBy - ソート順（createdAt または readAt）。
+	 * @param offset - 取得開始位置。
 	 * @returns 要約がないブックマークの配列。
 	 */
 	async findWithoutSummary(
 		limit = 10,
 		orderBy: "createdAt" | "readAt" = "createdAt",
+		offset = 0,
 	): Promise<BookmarkWithLabel[]> {
 		try {
 			const query = this.db
@@ -421,7 +423,8 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 				.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
 				.leftJoin(labels, eq(articleLabels.labelId, labels.id))
 				.where(isNull(bookmarks.summary))
-				.limit(limit);
+				.limit(limit)
+				.offset(offset);
 
 			// ソート順を適用
 			const sortedQuery =
