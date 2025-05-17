@@ -15,15 +15,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
+      - uses: actions/setup-node@99663b1e4fb6a8f8bd9dd78a899d3969d7ca7573 # v4.2.1
         with:
-          bun-version: 1.2.8
+          node-version: 20
 
       - name: Install dependencies
-        run: bun install
+        run: npm install
 
       - name: Run lint
-        run: bun lint
+        run: npm run lint
         
       - name: Type check
-        run: bun typecheck
+        run: npm run typecheck

@@ -58,21 +58,21 @@ npm run deploy
 ```bash
 # APIのlint
 cd api
-bun run lint
+npm run lint
 
 # フロントエンドのlint
 cd frontend
-bun run lint
+npm run lint
 ```
 
 ルートディレクトリから一括でlintを実行することも可能です：
 
 ```bash
 # すべてのプロジェクトのlint実行
-bun run lint
+npm run lint
 
 # すべてのプロジェクトのformat実行
-bun run format
+npm run format
 ```
 
 ### pre-commitフック（lefthook）
@@ -83,8 +83,8 @@ bun run format
 初回セットアップ時に以下のコマンドを実行してlefthookをインストールしてください：
 
 ```bash
-bun install
-bun lefthook install
+npm install
+npm run lefthook install
 ```
 
 ## データベースマイグレーション

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 「effective-yomimono」は、技術記事を効率的に管理するためのツールです。Chrome拡張機能でブックマークを収集し、APIを通じてデータを保存、フロントエンドで整理・閲覧できます。
 
 ## プロジェクト構成
-- **API**: Hono + Bun + Cloudflare Workers (SQLite/D1)
+- **API**: Hono + Node.js + Cloudflare Workers (SQLite/D1)
 - **フロントエンド**: Next.js + TailwindCSS + Cloudflare Workers
 - **拡張機能**: Chrome Extension
 
@@ -21,7 +21,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 .
 ├── .clinerules ... AIアシスタント用のシステムプロンプト
 ├── .github ... CICD, Dependabot関連
-├── api ... APIのソースコード (Hono/Bun)
+├── api ... APIのソースコード (Hono/Node.js)
 ├── docs ... 設計や調査結果等のドキュメント
 ├── extension ... Chrome拡張機能のソースコード
 └── frontend ... フロントエンドのソースコード (Next.js)
