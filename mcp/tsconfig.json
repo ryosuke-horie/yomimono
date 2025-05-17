@@ -6,7 +6,7 @@
 		"strict": true,
 		"skipLibCheck": true,
 		"lib": ["ESNext"],
-		"types": ["@types/node"], // Use Node.js types instead of Bun
+		"types": ["@types/node"],
 		"esModuleInterop": true, // Recommended for compatibility
 		"forceConsistentCasingInFileNames": true, // Recommended for consistency
 		"outDir": "./build" // Specify output directory
