@@ -34,6 +34,14 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 		markAsReadMutate(id);
 	};
 
+	// リンククリック時に既読にする処理を追加
+	const handleLinkClick = () => {
+		if (!isRead) {
+			// 非同期で既読にする（結果を待たない）
+			markAsReadMutate(id);
+		}
+	};
+
 	return (
 		<article
 			className={`relative p-4 border rounded-lg hover:shadow-md transition-shadow flex flex-col min-h-[150px] ${
@@ -166,6 +174,7 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 					target="_blank"
 					rel="noopener noreferrer"
 					className="hover:text-blue-600"
+					onClick={handleLinkClick}
 				>
 					{title || "タイトルなし"}
 				</a>
