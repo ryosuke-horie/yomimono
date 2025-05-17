@@ -11,14 +11,12 @@ interface Props {
 	bookmark: BookmarkWithLabel;
 	onLabelClick?: (labelName: string) => void;
 	onGenerateSummary?: (bookmarkId: number) => void;
-	onUpdateSummary?: (bookmarkId: number) => void;
 }
 
 export function BookmarkCard({
 	bookmark,
 	onLabelClick,
 	onGenerateSummary,
-	onUpdateSummary,
 }: Props) {
 	const {
 		id,
@@ -68,18 +66,6 @@ export function BookmarkCard({
 			setIsGeneratingSummary(true);
 			try {
 				await onGenerateSummary(id);
-			} finally {
-				setIsGeneratingSummary(false);
-			}
-		}
-	};
-
-	// 要約更新処理
-	const handleUpdateSummary = async () => {
-		if (onUpdateSummary) {
-			setIsGeneratingSummary(true);
-			try {
-				await onUpdateSummary(id);
 			} finally {
 				setIsGeneratingSummary(false);
 			}
@@ -234,7 +220,6 @@ export function BookmarkCard({
 				summaryUpdatedAt={summaryUpdatedAt || null}
 				isGenerating={isGeneratingSummary}
 				onGenerateSummary={handleGenerateSummary}
-				onUpdateSummary={summary ? handleUpdateSummary : undefined}
 			/>
 		</article>
 	);

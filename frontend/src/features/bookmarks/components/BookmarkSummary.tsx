@@ -7,7 +7,6 @@ interface Props {
 	summaryUpdatedAt: string | null;
 	isGenerating?: boolean;
 	onGenerateSummary?: () => void;
-	onUpdateSummary?: () => void;
 }
 
 export function BookmarkSummary({
@@ -15,9 +14,19 @@ export function BookmarkSummary({
 	summaryUpdatedAt,
 	isGenerating = false,
 	onGenerateSummary,
-	onUpdateSummary,
 }: Props) {
 	const [isExpanded, setIsExpanded] = useState(false);
+	const [copySuccess, setCopySuccess] = useState(false);
+
+	const handleCopy = async () => {
+		try {
+			await navigator.clipboard.writeText(summary || "");
+			setCopySuccess(true);
+			setTimeout(() => setCopySuccess(false), 2000);
+		} catch (error) {
+			console.error("Failed to copy summary:", error);
+		}
+	};
 
 	// 要約がない場合
 	if (!summary) {
@@ -76,16 +85,17 @@ export function BookmarkSummary({
 								{new Date(summaryUpdatedAt).toLocaleDateString("ja-JP")}
 							</span>
 						)}
-						{onUpdateSummary && (
-							<button
-								type="button"
-								onClick={onUpdateSummary}
-								disabled={isGenerating}
-								className="text-xs text-blue-600 hover:text-blue-800 disabled:text-gray-400"
-							>
-								{isGenerating ? "生成中..." : "再生成"}
-							</button>
-						)}
+						<button
+							type="button"
+							onClick={handleCopy}
+							className={`text-xs ${
+								copySuccess
+									? "text-green-600"
+									: "text-gray-600 hover:text-gray-800"
+							}`}
+						>
+							{copySuccess ? "コピー済み" : "コピー"}
+						</button>
 						<button
 							type="button"
 							onClick={() => setIsExpanded(!isExpanded)}
