@@ -16,12 +16,12 @@ echo "Creating KV namespace for Next.js incremental cache..."
 KV_NAMESPACE_NAME="effective-yomimono-next-cache"
 
 # Check if namespace already exists
-EXISTING_NAMESPACE=$(wrangler kv:namespace list --compatibility-date=2024-09-26 | grep "\"$KV_NAMESPACE_NAME\"" | awk '{print $2}' | tr -d '"')
+EXISTING_NAMESPACE=$(wrangler kv namespace list | grep "\"$KV_NAMESPACE_NAME\"" | awk '{print $2}' | tr -d '"')
 
 if [ -z "$EXISTING_NAMESPACE" ]; then
   # Create new namespace
   echo "Creating new KV namespace: $KV_NAMESPACE_NAME"
-  KV_NAMESPACE_ID=$(wrangler kv:namespace create "$KV_NAMESPACE_NAME" --compatibility-date=2024-09-26 --preview false | grep "id =" | awk '{print $3}' | tr -d '"')
+  KV_NAMESPACE_ID=$(wrangler kv namespace create "$KV_NAMESPACE_NAME" | grep "id =" | awk '{print $3}' | tr -d '"')
 else
   # Use existing namespace
   echo "Using existing KV namespace: $EXISTING_NAMESPACE"
