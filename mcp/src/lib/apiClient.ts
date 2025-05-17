@@ -570,3 +570,28 @@ export async function updateSummary(bookmarkId: number, summary: string) {
 	}
 	return parsed.data.bookmark;
 }
+
+/**
+ * ラベルで未読記事を取得します
+ * @param labelName - ラベル名
+ * @returns 指定したラベルの未読記事のリスト
+ */
+export async function getUnreadArticlesByLabel(labelName: string) {
+	const response = await fetch(
+		`${getApiBaseUrl()}/api/bookmarks?label=${encodeURIComponent(labelName)}`,
+	);
+	if (!response.ok) {
+		throw new Error(
+			`Failed to fetch unread articles for label "${labelName}": ${response.statusText}`,
+		);
+	}
+
+	const data = await response.json();
+	const parsed = ArticlesResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response for unread articles by label: ${parsed.error.message}`,
+		);
+	}
+	return parsed.data.bookmarks;
+}

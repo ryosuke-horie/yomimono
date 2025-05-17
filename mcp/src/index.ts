@@ -10,7 +10,7 @@ dotenv.config();
 // Create an MCP server instance
 const server = new McpServer({
 	name: "EffectiveYomimonoLabeler", // Descriptive name for the server
-	version: "0.3.0", // Updated with generateSummary tool
+	version: "0.4.0", // Updated with getUnreadArticlesByLabel tool
 });
 
 // --- Tool Definitions ---
@@ -561,6 +561,44 @@ ${
 					{
 						type: "text",
 						text: `Failed to generate summary: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
+// 14. Tool to get unread articles by label
+server.tool(
+	"getUnreadArticlesByLabel",
+	{
+		labelName: z.string().min(1),
+	},
+	async ({ labelName }) => {
+		try {
+			const articles = await apiClient.getUnreadArticlesByLabel(labelName);
+			return {
+				content: [
+					{
+						type: "text",
+						text: JSON.stringify(articles, null, 2),
+					},
+				],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error(
+				`Error in getUnreadArticlesByLabel tool (labelName: ${labelName}):`,
+				errorMessage,
+			);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Failed to get unread articles by label: ${errorMessage}`,
 					},
 				],
 				isError: true,
