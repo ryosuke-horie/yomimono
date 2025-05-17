@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { type DrizzleD1Database, drizzle } from "drizzle-orm/d1";
 import {
 	type ArticleLabel,
@@ -36,5 +36,32 @@ export class ArticleLabelRepository implements IArticleLabelRepository {
 			.returning()
 			.get();
 		return result;
+	}
+
+	async createMany(
+		data: Array<Pick<InsertArticleLabel, "articleId" | "labelId">>,
+	): Promise<ArticleLabel[]> {
+		const now = new Date();
+		const values = data.map(({ articleId, labelId }) => ({
+			articleId,
+			labelId,
+			createdAt: now,
+		}));
+		const results = await this.db
+			.insert(articleLabels)
+			.values(values)
+			.returning()
+			.all();
+		return results;
+	}
+
+	async findExistingArticleIds(articleIds: number[]): Promise<Set<number>> {
+		const existingLabels = await this.db
+			.select({ articleId: articleLabels.articleId })
+			.from(articleLabels)
+			.where(inArray(articleLabels.articleId, articleIds))
+			.all();
+
+		return new Set(existingLabels.map((label) => label.articleId));
 	}
 }

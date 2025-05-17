@@ -263,5 +263,77 @@ export const createBookmarksRouter = (
 		}
 	});
 
+	// 一括ラベル付け
+	app.put("/batch-label", async (c) => {
+		try {
+			const body = await c.req.json<{
+				articleIds?: number[];
+				labelName?: string;
+				description?: string;
+			}>();
+
+			// バリデーション
+			if (
+				!body.articleIds ||
+				!Array.isArray(body.articleIds) ||
+				body.articleIds.length === 0
+			) {
+				return c.json(
+					{
+						success: false,
+						message: "articleIds is required and must be a non-empty array",
+					},
+					400,
+				);
+			}
+
+			if (
+				!body.labelName ||
+				typeof body.labelName !== "string" ||
+				body.labelName.trim() === ""
+			) {
+				return c.json(
+					{
+						success: false,
+						message: "labelName is required and must be a non-empty string",
+					},
+					400,
+				);
+			}
+
+			// 数値の配列であることを確認
+			const articleIds = body.articleIds.map((id) => {
+				const numId = Number(id);
+				if (Number.isNaN(numId)) {
+					throw new Error(`Invalid article ID: ${id}`);
+				}
+				return numId;
+			});
+
+			// labelServiceを使って一括ラベル付け
+			const result = await labelService.assignLabelsToMultipleArticles(
+				articleIds,
+				body.labelName,
+				body.description,
+			);
+
+			return c.json({ success: true, ...result });
+		} catch (error) {
+			if (error instanceof Error) {
+				if (error.message.includes("Invalid article ID")) {
+					return c.json({ success: false, message: error.message }, 400);
+				}
+				if (error.message.includes("cannot be empty")) {
+					return c.json({ success: false, message: error.message }, 400);
+				}
+			}
+			console.error("Failed to batch assign labels:", error);
+			return c.json(
+				{ success: false, message: "Failed to batch assign labels" },
+				500,
+			);
+		}
+	});
+
 	return app;
 };

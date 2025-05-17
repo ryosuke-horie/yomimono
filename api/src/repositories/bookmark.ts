@@ -377,4 +377,25 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 			throw error;
 		}
 	}
+
+	async findByIds(ids: number[]): Promise<Map<number, BookmarkWithLabel>> {
+		try {
+			const results = await this.attachLabelAndFavoriteStatus(
+				inArray(bookmarks.id, ids),
+			);
+
+			const bookmarkMap = new Map<number, BookmarkWithLabel>();
+			for (const bookmark of results) {
+				bookmarkMap.set(bookmark.id, bookmark);
+			}
+
+			return bookmarkMap;
+		} catch (error) {
+			console.error(
+				"[ERROR] BookmarkRepository.findByIds: Failed to fetch bookmarks by ids:",
+				error,
+			);
+			throw error;
+		}
+	}
 }

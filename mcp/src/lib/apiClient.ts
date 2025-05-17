@@ -340,3 +340,82 @@ export async function deleteLabel(id: number): Promise<void> {
 		);
 	}
 }
+
+/**
+ * 複数の記事に一括でラベルを付与します。
+ * @param articleIds - ラベルを付与する記事IDの配列
+ * @param labelName - 付与するラベル名
+ * @param description - ラベルの説明（オプション）
+ * @returns 処理結果（成功数、スキップ数、エラー情報、ラベル）
+ */
+export async function assignLabelsToMultipleArticles(
+	articleIds: number[],
+	labelName: string,
+	description?: string,
+): Promise<{
+	successful: number;
+	skipped: number;
+	errors: Array<{ articleId: number; error: string }>;
+	label: z.infer<typeof LabelSchema>;
+}> {
+	const response = await fetch(`${API_BASE_URL}/api/bookmarks/batch-label`, {
+		method: "PUT",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({
+			articleIds,
+			labelName,
+			description,
+		}),
+	});
+
+	let data: unknown;
+	try {
+		data = await response.json();
+	} catch (parseError: unknown) {
+		const errorMessage =
+			parseError instanceof Error ? parseError.message : String(parseError);
+		throw new Error(
+			`Failed to parse response for batch label assignment: ${errorMessage}`,
+		);
+	}
+
+	if (!response.ok) {
+		let errorMessage = `Failed to batch assign label "${labelName}"`;
+		if (
+			typeof data === "object" &&
+			data !== null &&
+			"message" in data &&
+			typeof data.message === "string"
+		) {
+			errorMessage = data.message;
+		}
+		throw new Error(`${errorMessage}: ${response.statusText}`);
+	}
+
+	// バッチ結果のスキーマを定義
+	const BatchResultSchema = z.object({
+		success: z.literal(true),
+		successful: z.number(),
+		skipped: z.number(),
+		errors: z.array(
+			z.object({
+				articleId: z.number(),
+				error: z.string(),
+			}),
+		),
+		label: LabelSchema,
+	});
+
+	const parsed = BatchResultSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response for batch label assignment: ${parsed.error.message}`,
+		);
+	}
+
+	// successプロパティを除いた結果を返す
+	const { success, ...result } = parsed.data;
+	return result;
+}
