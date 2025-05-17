@@ -15,17 +15,31 @@ fi
 echo "Creating KV namespace for Next.js incremental cache..."
 KV_NAMESPACE_NAME="effective-yomimono-next-cache"
 
-# Check if namespace already exists
-EXISTING_NAMESPACE=$(wrangler kv namespace list | grep "\"$KV_NAMESPACE_NAME\"" | awk '{print $2}' | tr -d '"')
+# Try to create namespace (it will fail if it already exists)
+echo "Attempting to create KV namespace: $KV_NAMESPACE_NAME"
+CREATE_OUTPUT=$(wrangler kv namespace create "$KV_NAMESPACE_NAME" 2>&1 || true)
+echo "Create output: $CREATE_OUTPUT"
 
-if [ -z "$EXISTING_NAMESPACE" ]; then
-  # Create new namespace
-  echo "Creating new KV namespace: $KV_NAMESPACE_NAME"
-  KV_NAMESPACE_ID=$(wrangler kv namespace create "$KV_NAMESPACE_NAME" | grep "id =" | awk '{print $3}' | tr -d '"')
+# Extract ID from creation output or list existing namespaces
+if echo "$CREATE_OUTPUT" | grep -q "id = "; then
+  # Successfully created new namespace
+  KV_NAMESPACE_ID=$(echo "$CREATE_OUTPUT" | grep 'id = "' | sed 's/.*id = "\([^"]*\)".*/\1/')
+  echo "Created new KV namespace with ID: $KV_NAMESPACE_ID"
 else
-  # Use existing namespace
-  echo "Using existing KV namespace: $EXISTING_NAMESPACE"
-  KV_NAMESPACE_ID=$EXISTING_NAMESPACE
+  # Namespace might already exist, list all namespaces
+  echo "Namespace might already exist, listing all namespaces..."
+  LIST_OUTPUT=$(wrangler kv namespace list 2>&1)
+  echo "List output: $LIST_OUTPUT"
+  
+  # Parse JSON output to find our namespace ID
+  KV_NAMESPACE_ID=$(echo "$LIST_OUTPUT" | grep -A2 "\"title\": \"$KV_NAMESPACE_NAME\"" | grep '"id"' | sed 's/.*"id": "\([^"]*\)".*/\1/')
+  
+  if [ -z "$KV_NAMESPACE_ID" ]; then
+    echo "Failed to find namespace ID in list output"
+    exit 1
+  fi
+  
+  echo "Found existing KV namespace with ID: $KV_NAMESPACE_ID"
 fi
 
 if [ -z "$KV_NAMESPACE_ID" ]; then
