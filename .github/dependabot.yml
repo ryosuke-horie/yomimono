@@ -1,6 +1,6 @@
 version: 2
 updates:
-  - package-ecosystem: "bun"
+  - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
       interval: "weekly"
@@ -36,7 +36,7 @@ updates:
           - "knip"
 
   # apiディレクトリの依存関係を管理
-  - package-ecosystem: "bun"
+  - package-ecosystem: "npm"
     directory: "/api"
     schedule:
       interval: "weekly"
@@ -72,7 +72,7 @@ updates:
           - "knip"
 
   # Extensionディレクトリの依存関係を管理
-  - package-ecosystem: "bun"
+  - package-ecosystem: "npm"
     directory: "/extension"
     schedule:
       interval: "weekly"
@@ -90,7 +90,7 @@ updates:
           - "typescript"
 
   # MCPディレクトリの依存関係を管理
-  - package-ecosystem: "bun"
+  - package-ecosystem: "npm"
     directory: "/mcp"
     schedule:
       interval: "weekly"
