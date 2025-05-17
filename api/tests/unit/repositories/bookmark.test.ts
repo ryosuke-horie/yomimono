@@ -352,4 +352,131 @@ describe("ブックマークリポジトリ", () => {
 			expect(mockDbClient.get).toHaveBeenCalledOnce();
 		});
 	});
+
+	describe("要約なしブックマーク取得 (findWithoutSummary)", () => {
+		it("要約なしブックマークを取得できること", async () => {
+			mockDbClient.all.mockResolvedValue([mockQueryResult1, mockQueryResult2]);
+
+			const result = await repository.findWithoutSummary();
+
+			expect(result).toEqual([expectedResult1, expectedResult2]);
+			expect(mockDbClient.select).toHaveBeenCalled();
+			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
+			expect(mockDbClient.where).toHaveBeenCalledWith(
+				isNull(bookmarks.summary),
+			);
+			expect(mockDbClient.orderBy).toHaveBeenCalledWith(bookmarks.createdAt);
+			expect(mockDbClient.all).toHaveBeenCalledOnce();
+		});
+
+		it("limitオプションが適用されること", async () => {
+			mockDbClient.all.mockResolvedValue([mockQueryResult1]);
+
+			await repository.findWithoutSummary(5);
+
+			expect(mockDbClient.limit).toHaveBeenCalledWith(5);
+		});
+
+		it("orderByオプションが適用されること", async () => {
+			mockDbClient.all.mockResolvedValue([mockQueryResult1]);
+
+			await repository.findWithoutSummary(10, "readAt");
+
+			expect(mockDbClient.orderBy).toHaveBeenCalledWith(bookmarks.updatedAt);
+		});
+
+		it("DBクエリ失敗時にエラーをスローすること", async () => {
+			const mockError = new Error("Database error");
+			mockDbClient.all.mockRejectedValue(mockError);
+
+			await expect(repository.findWithoutSummary()).rejects.toThrow(mockError);
+		});
+	});
+
+	describe("要約更新 (updateSummary)", () => {
+		it("要約を正常に更新できること", async () => {
+			const bookmarkId = 123;
+			const summary = "これはテスト要約です";
+			const mockExistingBookmark = {
+				...mockBookmark1,
+				id: bookmarkId,
+				summary: null,
+			};
+			const expectedUpdatedBookmark = {
+				...expectedResult1,
+				id: bookmarkId,
+				summary,
+			};
+
+			mockDbClient.get.mockResolvedValue(mockExistingBookmark);
+			mockDbClient.all.mockResolvedValue([
+				{
+					bookmark: { ...mockExistingBookmark, summary },
+					favorite: null,
+					label: null,
+				},
+			]);
+
+			const result = await repository.updateSummary(bookmarkId, summary);
+
+			expect(result).toEqual(expectedUpdatedBookmark);
+			expect(mockDbClient.update).toHaveBeenCalledWith(bookmarks);
+			expect(mockDbClient.set).toHaveBeenCalledWith({
+				summary,
+				summaryCreatedAt: expect.any(Date),
+				summaryUpdatedAt: expect.any(Date),
+				updatedAt: expect.any(Date),
+			});
+			expect(mockDbClient.where).toHaveBeenCalledWith(
+				eq(bookmarks.id, bookmarkId),
+			);
+		});
+
+		it("更新対象がない場合はundefinedを返すこと", async () => {
+			mockDbClient.get.mockResolvedValue(null);
+
+			const result = await repository.updateSummary(789, "要約");
+
+			expect(result).toBe(undefined);
+		});
+
+		it("既存の要約がある場合はsummaryCreatedAtが更新されないこと", async () => {
+			const bookmarkId = 456;
+			const existingCreatedAt = new Date("2023-12-01");
+			const mockExistingBookmark = {
+				...mockBookmark1,
+				id: bookmarkId,
+				summary: "既存の要約",
+				summaryCreatedAt: existingCreatedAt,
+			};
+
+			mockDbClient.get.mockResolvedValue(mockExistingBookmark);
+			mockDbClient.all.mockResolvedValue([
+				{
+					bookmark: mockExistingBookmark,
+					favorite: null,
+					label: null,
+				},
+			]);
+
+			await repository.updateSummary(bookmarkId, "更新されたテスト要約");
+
+			// setに渡されたオブジェクトを検証
+			expect(mockDbClient.set).toHaveBeenCalledWith({
+				summary: "更新されたテスト要約",
+				summaryCreatedAt: existingCreatedAt,
+				summaryUpdatedAt: expect.any(Date),
+				updatedAt: expect.any(Date),
+			});
+		});
+
+		it("DBクエリ失敗時にエラーをスローすること", async () => {
+			const mockError = new Error("Database error");
+			mockDbClient.get.mockRejectedValue(mockError);
+
+			await expect(
+				repository.updateSummary(999, "失敗する要約"),
+			).rejects.toThrow("Database error");
+		});
+	});
 });
