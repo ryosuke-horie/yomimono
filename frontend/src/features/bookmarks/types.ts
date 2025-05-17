@@ -8,6 +8,9 @@ export interface Bookmark {
 	isFavorite: boolean;
 	createdAt: string;
 	updatedAt: string;
+	summary: string | null;
+	summaryCreatedAt: string | null;
+	summaryUpdatedAt: string | null;
 }
 
 export interface BookmarkWithLabel extends Bookmark {

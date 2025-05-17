@@ -4,6 +4,7 @@ import { useMarkBookmarkAsRead } from "@/features/bookmarks/queries/useMarkBookm
 import { useToggleFavoriteBookmark } from "@/features/bookmarks/queries/useToggleFavoriteBookmark";
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 import { LabelDisplay } from "@/features/labels/components/LabelDisplay";
+import { BookmarkSummary } from "./BookmarkSummary";
 
 interface Props {
 	bookmark: BookmarkWithLabel;
@@ -11,7 +12,7 @@ interface Props {
 }
 
 export function BookmarkCard({ bookmark, onLabelClick }: Props) {
-	const { id, title, url, createdAt, isRead, isFavorite, label } = bookmark;
+	const { id, title, url, createdAt, isRead, isFavorite, label, summary } = bookmark;
 	const formattedDate = new Date(createdAt).toLocaleDateString("ja-JP");
 
 	const { mutate: toggleFavorite, isPending: isTogglingFavorite } =
@@ -46,7 +47,7 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 		<article
 			className={`relative p-4 border rounded-lg hover:shadow-md transition-shadow flex flex-col min-h-[150px] ${
 				isRead ? "bg-gray-50" : ""
-			}`}
+			} ${summary ? "pb-6" : ""}`}
 		>
 			{/* ラベル表示 */}
 			{label && (
@@ -183,6 +184,7 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 				{url}
 			</p>
 			<p className="text-xs text-gray-500">{formattedDate}</p>
+			<BookmarkSummary summary={summary} />
 		</article>
 	);
 }

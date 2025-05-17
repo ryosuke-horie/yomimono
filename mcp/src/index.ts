@@ -475,6 +475,66 @@ server.tool(
 	},
 );
 
+// 13. Tool to generate summary
+server.tool(
+	"generateSummary",
+	// Define input arguments schema using Zod
+	{
+		bookmarkId: z.number().int().positive(),
+		articleContent: z.string().min(1),
+	},
+	async ({ bookmarkId, articleContent }) => {
+		try {
+			// LLMプロンプトの作成
+			const prompt = `
+以下の技術記事の要約を作成してください。tl;dr形式で3-5個のポイントに整理し、技術的な要点を重視してください。
+
+## 要約のフォーマット
+tl;dr
+- ポイント1（技術的な主要概念や手法）
+- ポイント2（実装上の重要な知見）
+- ポイント3（使用されている技術スタックや手法）
+- ポイント4（結果や成果、メリットなど）
+- ポイント5（応用可能性や注意点など）
+
+## 記事内容
+${articleContent}
+
+## 要約`;
+
+			// Note: 実際のLLM呼び出しは、Claude Desktop側で行われる想定
+			// このツールは要約生成のためのプロンプトを提供し、
+			// 生成された要約をAPIに保存する機能を提供する
+			
+			return {
+				content: [
+					{
+						type: "text",
+						text: `以下のプロンプトでLLMに要約を生成してください。生成された要約は saveSummary ツールを使用して保存できます。\n\n${prompt}`,
+					},
+				],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error(
+				`Error in generateSummary tool (bookmarkId: ${bookmarkId}):`,
+				errorMessage,
+			);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Failed to generate summary prompt: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
 // --- End Tool Definition ---
 
 async function main() {
