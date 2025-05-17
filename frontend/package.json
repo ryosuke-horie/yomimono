@@ -10,7 +10,7 @@
 		"format": "npx @biomejs/biome check --write",
 		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
 		"deploy:setup": "bash ./setup-deploy.sh",
-		"deploy": "bun run deploy:setup && opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+		"deploy": "npm run deploy:setup && opennextjs-cloudflare build && opennextjs-cloudflare deploy",
 		"cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
 		"knip": "knip"
 	},
