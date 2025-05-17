@@ -7,7 +7,7 @@ import * as apiClient from "./lib/apiClient.js";
 // Create an MCP server instance
 const server = new McpServer({
 	name: "EffectiveYomimonoLabeler", // Descriptive name for the server
-	version: "0.2.0", // Updated with summary support
+	version: "0.3.0", // Updated with generateSummary tool
 });
 
 // --- Tool Definitions ---
@@ -467,6 +467,97 @@ server.tool(
 					{
 						type: "text",
 						text: `Failed to get bookmark: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
+// 13. Tool to generate summary for a bookmark
+server.tool(
+	"generateSummary",
+	{
+		bookmarkId: z.number().int().positive(),
+		includeKeyPoints: z.boolean().optional().default(true),
+		maxLength: z.number().int().positive().optional().default(500),
+	},
+	async ({ bookmarkId, includeKeyPoints, maxLength }) => {
+		try {
+			// 記事情報を取得
+			const bookmark = await apiClient.getBookmarkById(bookmarkId);
+
+			// 既に要約が存在する場合は警告
+			if (bookmark.summary) {
+				return {
+					content: [
+						{
+							type: "text",
+							text: `Bookmark ${bookmarkId} already has a summary. Use updateSummary to modify it.`,
+						},
+					],
+					isError: true,
+				};
+			}
+
+			// URLから記事内容を取得（実際の実装では記事本文を取得する）
+			// ここは仮実装として、タイトルとURLを使用
+			const summaryPrompt = `
+以下の記事を要約してください:
+タイトル: ${bookmark.title || "タイトルなし"}
+URL: ${bookmark.url}
+
+要約条件:
+- 最大${maxLength}文字で簡潔に
+${includeKeyPoints ? "- 主要なポイントを箇条書きで含める" : ""}
+- 日本語で記述
+- 技術記事として重要な情報を優先
+`;
+
+			// ここで実際にはLLMを呼び出して要約を生成
+			// 現時点では仮の要約を生成
+			const mockSummary = `この記事は「${bookmark.title || "untitled"}」に関する内容です。
+${
+	includeKeyPoints
+		? `
+主要なポイント:
+• 技術的な概要
+• 実装のアプローチ
+• 利用されている技術スタック
+• まとめと結論`
+		: ""
+}
+
+詳細な内容は元記事をご確認ください。`;
+
+			// 要約を保存
+			const updatedBookmark = await apiClient.saveSummary(
+				bookmarkId,
+				mockSummary,
+			);
+
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Successfully generated and saved summary for bookmark ${bookmarkId}:\n${JSON.stringify(updatedBookmark, null, 2)}`,
+					},
+				],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error(
+				`Error in generateSummary tool (bookmarkId: ${bookmarkId}):`,
+				errorMessage,
+			);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Failed to generate summary: ${errorMessage}`,
 					},
 				],
 				isError: true,

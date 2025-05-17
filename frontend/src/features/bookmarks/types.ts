@@ -6,6 +6,9 @@ export interface Bookmark {
 	title: string | null;
 	isRead: boolean;
 	isFavorite: boolean;
+	summary?: string | null;
+	summaryCreatedAt?: string | null;
+	summaryUpdatedAt?: string | null;
 	createdAt: string;
 	updatedAt: string;
 }

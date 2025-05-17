@@ -4,15 +4,35 @@ import { useMarkBookmarkAsRead } from "@/features/bookmarks/queries/useMarkBookm
 import { useToggleFavoriteBookmark } from "@/features/bookmarks/queries/useToggleFavoriteBookmark";
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 import { LabelDisplay } from "@/features/labels/components/LabelDisplay";
+import { useState } from "react";
+import { BookmarkSummary } from "./BookmarkSummary";
 
 interface Props {
 	bookmark: BookmarkWithLabel;
 	onLabelClick?: (labelName: string) => void;
+	onGenerateSummary?: (bookmarkId: number) => void;
+	onUpdateSummary?: (bookmarkId: number) => void;
 }
 
-export function BookmarkCard({ bookmark, onLabelClick }: Props) {
-	const { id, title, url, createdAt, isRead, isFavorite, label } = bookmark;
+export function BookmarkCard({
+	bookmark,
+	onLabelClick,
+	onGenerateSummary,
+	onUpdateSummary,
+}: Props) {
+	const {
+		id,
+		title,
+		url,
+		createdAt,
+		isRead,
+		isFavorite,
+		label,
+		summary,
+		summaryUpdatedAt,
+	} = bookmark;
 	const formattedDate = new Date(createdAt).toLocaleDateString("ja-JP");
+	const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
 	const { mutate: toggleFavorite, isPending: isTogglingFavorite } =
 		useToggleFavoriteBookmark();
@@ -39,6 +59,30 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 		if (!isRead) {
 			// 非同期で既読にする（結果を待たない）
 			markAsReadMutate(id);
+		}
+	};
+
+	// 要約生成処理
+	const handleGenerateSummary = async () => {
+		if (onGenerateSummary) {
+			setIsGeneratingSummary(true);
+			try {
+				await onGenerateSummary(id);
+			} finally {
+				setIsGeneratingSummary(false);
+			}
+		}
+	};
+
+	// 要約更新処理
+	const handleUpdateSummary = async () => {
+		if (onUpdateSummary) {
+			setIsGeneratingSummary(true);
+			try {
+				await onUpdateSummary(id);
+			} finally {
+				setIsGeneratingSummary(false);
+			}
 		}
 	};
 
@@ -183,6 +227,15 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 				{url}
 			</p>
 			<p className="text-xs text-gray-500">{formattedDate}</p>
+
+			{/* 要約表示 */}
+			<BookmarkSummary
+				summary={summary || null}
+				summaryUpdatedAt={summaryUpdatedAt || null}
+				isGenerating={isGeneratingSummary}
+				onGenerateSummary={handleGenerateSummary}
+				onUpdateSummary={summary ? handleUpdateSummary : undefined}
+			/>
 		</article>
 	);
 }
