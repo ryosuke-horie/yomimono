@@ -18,7 +18,6 @@ GET /api/rss/feeds
       "name": "Cloudflare Blog",
       "url": "https://blog.cloudflare.com/rss/",
       "isActive": true,
-      "updateInterval": 3600,
       "lastFetchedAt": "2024-01-15T10:00:00Z",
       "nextFetchAt": "2024-01-15T11:00:00Z",
       "itemCount": 150,
@@ -42,19 +41,8 @@ GET /api/rss/feeds/:id
   "name": "Cloudflare Blog",
   "url": "https://blog.cloudflare.com/rss/",
   "isActive": true,
-  "updateInterval": 3600,
   "lastFetchedAt": "2024-01-15T10:00:00Z",
   "nextFetchAt": "2024-01-15T11:00:00Z",
-  "labels": [
-    {
-      "id": 10,
-      "name": "Cloudflare"
-    },
-    {
-      "id": 20,
-      "name": "インフラ"
-    }
-  ],
   "stats": {
     "totalItems": 150,
     "todayItems": 3,
@@ -75,9 +63,7 @@ POST /api/rss/feeds
 {
   "name": "Google Cloud Blog",
   "url": "https://cloud.google.com/blog/feed",
-  "isActive": true,
-  "updateInterval": 3600,
-  "labelIds": [30, 40]
+  "isActive": true
 }
 ```
 
@@ -88,7 +74,6 @@ POST /api/rss/feeds
   "name": "Google Cloud Blog",
   "url": "https://cloud.google.com/blog/feed",
   "isActive": true,
-  "updateInterval": 3600,
   "createdAt": "2024-01-15T12:00:00Z"
 }
 ```
@@ -102,9 +87,7 @@ PUT /api/rss/feeds/:id
 ```json
 {
   "name": "Google Cloud Blog （更新）",
-  "isActive": false,
-  "updateInterval": 7200,
-  "labelIds": [30, 40, 50]
+  "isActive": false
 }
 ```
 
