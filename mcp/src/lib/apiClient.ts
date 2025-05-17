@@ -419,3 +419,152 @@ export async function assignLabelsToMultipleArticles(
 	const { success, ...result } = parsed.data;
 	return result;
 }
+
+// Schema for bookmark with summary
+const BookmarkSchema = z.object({
+	id: z.number(),
+	url: z.string(),
+	title: z.string().nullable(),
+	isRead: z.boolean(),
+	summary: z.string().nullable(),
+	summaryCreatedAt: z.string().nullable(),
+	summaryUpdatedAt: z.string().nullable(),
+	createdAt: z.string(),
+	updatedAt: z.string(),
+});
+
+// Schema for bookmarks without summary response
+const BookmarksWithoutSummaryResponseSchema = z.object({
+	success: z.literal(true),
+	bookmarks: z.array(BookmarkSchema),
+});
+
+// Schema for single bookmark response
+const BookmarkResponseSchema = z.object({
+	success: z.literal(true),
+	bookmark: BookmarkSchema,
+});
+
+/**
+ * 要約がないブックマークを取得します
+ * @param limit - 取得する件数の上限
+ * @param orderBy - ソート順（createdAt または readAt）
+ * @returns 要約がないブックマークのリスト
+ */
+export async function getBookmarksWithoutSummary(
+	limit?: number,
+	orderBy?: "createdAt" | "readAt",
+) {
+	const queryParams = new URLSearchParams();
+	if (limit !== undefined) queryParams.append("limit", limit.toString());
+	if (orderBy !== undefined) queryParams.append("orderBy", orderBy);
+
+	const response = await fetch(
+		`${API_BASE_URL}/api/bookmarks/without-summary?${queryParams}`,
+	);
+	if (!response.ok) {
+		throw new Error(
+			`Failed to fetch bookmarks without summary: ${response.statusText}`,
+		);
+	}
+
+	const data = await response.json();
+	const parsed = BookmarksWithoutSummaryResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response for bookmarks without summary: ${parsed.error.message}`,
+		);
+	}
+	return parsed.data.bookmarks;
+}
+
+/**
+ * 特定のブックマークを取得します
+ * @param bookmarkId - ブックマークID
+ * @returns ブックマーク情報
+ */
+export async function getBookmarkById(bookmarkId: number) {
+	const response = await fetch(`${API_BASE_URL}/api/bookmarks/${bookmarkId}`);
+	if (!response.ok) {
+		throw new Error(
+			`Failed to fetch bookmark ${bookmarkId}: ${response.statusText}`,
+		);
+	}
+
+	const data = await response.json();
+	const parsed = BookmarkResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response for bookmark ${bookmarkId}: ${parsed.error.message}`,
+		);
+	}
+	return parsed.data.bookmark;
+}
+
+/**
+ * ブックマークの要約を保存します
+ * @param bookmarkId - ブックマークID
+ * @param summary - 要約テキスト
+ * @returns 更新されたブックマーク情報
+ */
+export async function saveSummary(bookmarkId: number, summary: string) {
+	const response = await fetch(
+		`${API_BASE_URL}/api/bookmarks/${bookmarkId}/summary`,
+		{
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ summary }),
+		},
+	);
+
+	if (!response.ok) {
+		throw new Error(
+			`Failed to save summary for bookmark ${bookmarkId}: ${response.statusText}`,
+		);
+	}
+
+	const data = await response.json();
+	const parsed = BookmarkResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response after saving summary: ${parsed.error.message}`,
+		);
+	}
+	return parsed.data.bookmark;
+}
+
+/**
+ * ブックマークの要約を更新します
+ * @param bookmarkId - ブックマークID
+ * @param summary - 要約テキスト
+ * @returns 更新されたブックマーク情報
+ */
+export async function updateSummary(bookmarkId: number, summary: string) {
+	const response = await fetch(
+		`${API_BASE_URL}/api/bookmarks/${bookmarkId}/summary`,
+		{
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ summary }),
+		},
+	);
+
+	if (!response.ok) {
+		throw new Error(
+			`Failed to update summary for bookmark ${bookmarkId}: ${response.statusText}`,
+		);
+	}
+
+	const data = await response.json();
+	const parsed = BookmarkResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response after updating summary: ${parsed.error.message}`,
+		);
+	}
+	return parsed.data.bookmark;
+}

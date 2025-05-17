@@ -1,8 +1,8 @@
 {
 	"version": "6",
 	"dialect": "sqlite",
-	"id": "c78aa4ab-d351-4960-849b-45719681eaac",
-	"prevId": "2e774160-3f29-474d-b254-9b733a9b2bfc",
+	"id": "9b261393-5bbd-4b87-9909-3463bb4ecf7e",
+	"prevId": "c78aa4ab-d351-4960-849b-45719681eaac",
 	"tables": {
 		"article_labels": {
 			"name": "article_labels",
@@ -34,7 +34,7 @@
 					"primaryKey": false,
 					"notNull": true,
 					"autoincrement": false,
-					"default": "'\"2025-05-03T13:06:58.957Z\"'"
+					"default": "'\"2025-05-17T08:02:14.917Z\"'"
 				}
 			},
 			"indexes": {},
@@ -94,13 +94,34 @@
 					"autoincrement": false,
 					"default": false
 				},
+				"summary": {
+					"name": "summary",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"summary_created_at": {
+					"name": "summary_created_at",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"summary_updated_at": {
+					"name": "summary_updated_at",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
 				"created_at": {
 					"name": "created_at",
 					"type": "integer",
 					"primaryKey": false,
 					"notNull": true,
 					"autoincrement": false,
-					"default": "'\"2025-05-03T13:06:58.957Z\"'"
+					"default": "'\"2025-05-17T08:02:14.917Z\"'"
 				},
 				"updated_at": {
 					"name": "updated_at",
@@ -108,7 +129,7 @@
 					"primaryKey": false,
 					"notNull": true,
 					"autoincrement": false,
-					"default": "'\"2025-05-03T13:06:58.957Z\"'"
+					"default": "'\"2025-05-17T08:02:14.917Z\"'"
 				}
 			},
 			"indexes": {},
@@ -140,7 +161,7 @@
 					"primaryKey": false,
 					"notNull": true,
 					"autoincrement": false,
-					"default": "'\"2025-05-03T13:06:58.957Z\"'"
+					"default": "'\"2025-05-17T08:02:14.917Z\"'"
 				}
 			},
 			"indexes": {
@@ -195,7 +216,7 @@
 					"primaryKey": false,
 					"notNull": true,
 					"autoincrement": false,
-					"default": "'\"2025-05-03T13:06:58.957Z\"'"
+					"default": "'\"2025-05-17T08:02:14.917Z\"'"
 				},
 				"updated_at": {
 					"name": "updated_at",
@@ -203,7 +224,7 @@
 					"primaryKey": false,
 					"notNull": true,
 					"autoincrement": false,
-					"default": "'\"2025-05-03T13:06:58.957Z\"'"
+					"default": "'\"2025-05-17T08:02:14.917Z\"'"
 				}
 			},
 			"indexes": {

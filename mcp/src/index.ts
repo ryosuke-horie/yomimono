@@ -7,7 +7,7 @@ import * as apiClient from "./lib/apiClient.js";
 // Create an MCP server instance
 const server = new McpServer({
 	name: "EffectiveYomimonoLabeler", // Descriptive name for the server
-	version: "0.1.0", // Initial version
+	version: "0.2.0", // Updated with summary support
 });
 
 // --- Tool Definitions ---
@@ -314,6 +314,159 @@ server.tool(
 					{
 						type: "text",
 						text: `Failed to batch assign labels: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
+// 9. Tool to get bookmarks without summary
+server.tool(
+	"getBookmarksWithoutSummary",
+	{
+		limit: z.number().int().positive().optional(),
+		orderBy: z.enum(["createdAt", "readAt"]).optional(),
+	},
+	async ({ limit, orderBy }) => {
+		try {
+			const bookmarks = await apiClient.getBookmarksWithoutSummary(
+				limit,
+				orderBy,
+			);
+			return {
+				content: [{ type: "text", text: JSON.stringify(bookmarks, null, 2) }],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error(
+				`Error in getBookmarksWithoutSummary tool (limit: ${limit}, orderBy: ${orderBy}):`,
+				errorMessage,
+			);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Failed to get bookmarks without summary: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
+// 10. Tool to save summary
+server.tool(
+	"saveSummary",
+	{
+		bookmarkId: z.number().int().positive(),
+		summary: z.string().min(1),
+	},
+	async ({ bookmarkId, summary }) => {
+		try {
+			const bookmark = await apiClient.saveSummary(bookmarkId, summary);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Successfully saved summary for bookmark ID ${bookmarkId}: ${JSON.stringify(bookmark, null, 2)}`,
+					},
+				],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error(
+				`Error in saveSummary tool (bookmarkId: ${bookmarkId}):`,
+				errorMessage,
+			);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Failed to save summary: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
+// 11. Tool to update summary
+server.tool(
+	"updateSummary",
+	{
+		bookmarkId: z.number().int().positive(),
+		summary: z.string().min(1),
+	},
+	async ({ bookmarkId, summary }) => {
+		try {
+			const bookmark = await apiClient.updateSummary(bookmarkId, summary);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Successfully updated summary for bookmark ID ${bookmarkId}: ${JSON.stringify(bookmark, null, 2)}`,
+					},
+				],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error(
+				`Error in updateSummary tool (bookmarkId: ${bookmarkId}):`,
+				errorMessage,
+			);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Failed to update summary: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
+// 12. Tool to get bookmark by ID
+server.tool(
+	"getBookmarkById",
+	{
+		bookmarkId: z.number().int().positive(),
+	},
+	async ({ bookmarkId }) => {
+		try {
+			const bookmark = await apiClient.getBookmarkById(bookmarkId);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Bookmark details: ${JSON.stringify(bookmark, null, 2)}`,
+					},
+				],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error(
+				`Error in getBookmarkById tool (bookmarkId: ${bookmarkId}):`,
+				errorMessage,
+			);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Failed to get bookmark: ${errorMessage}`,
 					},
 				],
 				isError: true,

@@ -5,8 +5,10 @@ import { DrizzleBookmarkRepository } from "./repositories/bookmark";
 import { LabelRepository } from "./repositories/label";
 import { createBookmarksRouter } from "./routes/bookmarks";
 import labelsRouter from "./routes/labels";
+import { createSummaryRouter } from "./routes/summary";
 import { DefaultBookmarkService } from "./services/bookmark";
 import { LabelService } from "./services/label";
+import { SummaryService } from "./services/summary";
 
 export interface Env {
 	DB: D1Database;
@@ -30,11 +32,15 @@ export const createApp = (env: Env) => {
 		articleLabelRepository,
 		bookmarkRepository,
 	);
+	const summaryService = new SummaryService(bookmarkRepository);
 
 	// ルーターのマウント
 	const bookmarksRouter = createBookmarksRouter(bookmarkService, labelService);
 	app.route("/api/bookmarks", bookmarksRouter);
 	app.route("/api/labels", labelsRouter);
+
+	const summaryRouter = createSummaryRouter(summaryService);
+	app.route("/api", summaryRouter);
 
 	return app;
 };
