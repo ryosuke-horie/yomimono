@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config({ path: "../.env" }); // Load .env from the parent (mcp) directory
-
 import { z } from "zod";
 
 // Define schemas for API responses (adjust based on actual API implementation)
@@ -53,9 +50,12 @@ const DeleteLabelResponseSchema = z.object({
 });
 
 // Get API base URL from environment variable
-const API_BASE_URL = process.env.API_BASE_URL;
-if (!API_BASE_URL) {
-	throw new Error("API_BASE_URL environment variable is not set.");
+function getApiBaseUrl(): string {
+	const API_BASE_URL = process.env.API_BASE_URL;
+	if (!API_BASE_URL) {
+		throw new Error("API_BASE_URL environment variable is not set.");
+	}
+	return API_BASE_URL;
 }
 
 /**
@@ -64,7 +64,7 @@ if (!API_BASE_URL) {
  */
 export async function getUnlabeledArticles() {
 	// Corrected path: /api/bookmarks/unlabeled
-	const response = await fetch(`${API_BASE_URL}/api/bookmarks/unlabeled`);
+	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks/unlabeled`);
 	if (!response.ok) {
 		throw new Error(
 			`Failed to fetch unlabeled articles: ${response.statusText}`,
@@ -87,7 +87,7 @@ export async function getUnlabeledArticles() {
  * @returns A promise that resolves to an array of existing labels.
  */
 export async function getLabels() {
-	const response = await fetch(`${API_BASE_URL}/api/labels`);
+	const response = await fetch(`${getApiBaseUrl()}/api/labels`);
 	if (!response.ok) {
 		throw new Error(`Failed to fetch labels: ${response.statusText}`);
 	}
@@ -120,7 +120,7 @@ export async function assignLabelToArticle(
 ) {
 	// Corrected path: /api/bookmarks/:id/label
 	const response = await fetch(
-		`${API_BASE_URL}/api/bookmarks/${articleId}/label`,
+		`${getApiBaseUrl()}/api/bookmarks/${articleId}/label`,
 		{
 			method: "PUT",
 			headers: {
@@ -150,7 +150,7 @@ export async function assignLabelToArticle(
  * @returns A promise that resolves to the newly created label object.
  */
 export async function createLabel(labelName: string, description?: string) {
-	const response = await fetch(`${API_BASE_URL}/api/labels`, {
+	const response = await fetch(`${getApiBaseUrl()}/api/labels`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -224,7 +224,7 @@ export async function createLabel(labelName: string, description?: string) {
  * @returns A promise that resolves to the label object.
  */
 export async function getLabelById(id: number) {
-	const response = await fetch(`${API_BASE_URL}/api/labels/${id}`);
+	const response = await fetch(`${getApiBaseUrl()}/api/labels/${id}`);
 	if (!response.ok) {
 		throw new Error(
 			`Failed to fetch label with ID ${id}: ${response.statusText}`,
@@ -262,7 +262,7 @@ export async function updateLabelDescription(
 	id: number,
 	description: string | null,
 ) {
-	const response = await fetch(`${API_BASE_URL}/api/labels/${id}`, {
+	const response = await fetch(`${getApiBaseUrl()}/api/labels/${id}`, {
 		method: "PATCH",
 		headers: {
 			"Content-Type": "application/json",
@@ -298,7 +298,7 @@ export async function updateLabelDescription(
 }
 
 export async function deleteLabel(id: number): Promise<void> {
-	const response = await fetch(`${API_BASE_URL}/api/labels/${id}`, {
+	const response = await fetch(`${getApiBaseUrl()}/api/labels/${id}`, {
 		method: "DELETE",
 	});
 
@@ -358,7 +358,7 @@ export async function assignLabelsToMultipleArticles(
 	errors: Array<{ articleId: number; error: string }>;
 	label: z.infer<typeof LabelSchema>;
 }> {
-	const response = await fetch(`${API_BASE_URL}/api/bookmarks/batch-label`, {
+	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks/batch-label`, {
 		method: "PUT",
 		headers: {
 			"Content-Type": "application/json",
@@ -460,7 +460,7 @@ export async function getBookmarksWithoutSummary(
 	if (orderBy !== undefined) queryParams.append("orderBy", orderBy);
 
 	const response = await fetch(
-		`${API_BASE_URL}/api/bookmarks/without-summary?${queryParams}`,
+		`${getApiBaseUrl()}/api/bookmarks/without-summary?${queryParams}`,
 	);
 	if (!response.ok) {
 		throw new Error(
@@ -484,7 +484,9 @@ export async function getBookmarksWithoutSummary(
  * @returns ブックマーク情報
  */
 export async function getBookmarkById(bookmarkId: number) {
-	const response = await fetch(`${API_BASE_URL}/api/bookmarks/${bookmarkId}`);
+	const response = await fetch(
+		`${getApiBaseUrl()}/api/bookmarks/${bookmarkId}`,
+	);
 	if (!response.ok) {
 		throw new Error(
 			`Failed to fetch bookmark ${bookmarkId}: ${response.statusText}`,
@@ -509,7 +511,7 @@ export async function getBookmarkById(bookmarkId: number) {
  */
 export async function saveSummary(bookmarkId: number, summary: string) {
 	const response = await fetch(
-		`${API_BASE_URL}/api/bookmarks/${bookmarkId}/summary`,
+		`${getApiBaseUrl()}/api/bookmarks/${bookmarkId}/summary`,
 		{
 			method: "POST",
 			headers: {
@@ -543,7 +545,7 @@ export async function saveSummary(bookmarkId: number, summary: string) {
  */
 export async function updateSummary(bookmarkId: number, summary: string) {
 	const response = await fetch(
-		`${API_BASE_URL}/api/bookmarks/${bookmarkId}/summary`,
+		`${getApiBaseUrl()}/api/bookmarks/${bookmarkId}/summary`,
 		{
 			method: "PUT",
 			headers: {

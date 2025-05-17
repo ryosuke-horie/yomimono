@@ -1,8 +1,11 @@
-// Remove dotenv import and config call - rely on Bun's automatic .env loading
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import * as dotenv from "dotenv";
 import { z } from "zod";
 import * as apiClient from "./lib/apiClient.js";
+
+// Configure dotenv to load environment variables
+dotenv.config();
 
 // Create an MCP server instance
 const server = new McpServer({
