@@ -135,4 +135,89 @@ export class LabelService implements ILabelService {
 
 		return updatedLabel;
 	}
+
+	async assignLabelsToMultipleArticles(
+		articleIds: number[],
+		labelName: string,
+		description?: string,
+	): Promise<{
+		successful: number;
+		skipped: number;
+		errors: Array<{ articleId: number; error: string }>;
+		label: Label;
+	}> {
+		// 1. ラベル名を正規化
+		const normalizedName = normalizeLabelName(labelName);
+		if (!normalizedName) {
+			throw new Error("Label name cannot be empty after normalization");
+		}
+
+		// 2. 正規化された名前でラベルを検索
+		let label = await this.labelRepository.findByName(normalizedName);
+
+		// 3. ラベルが存在しなければ新規作成
+		if (!label) {
+			label = await this.labelRepository.create({
+				name: normalizedName,
+				description: description,
+			});
+		}
+
+		// 4. バッチデータ取得
+		const [bookmarkMap, existingArticleIds] = await Promise.all([
+			this.bookmarkRepository.findByIds(articleIds),
+			this.articleLabelRepository.findExistingArticleIds(articleIds),
+		]);
+
+		// 5. 各記事の検証と結果の作成
+		const results = {
+			successful: 0,
+			skipped: 0,
+			errors: [] as Array<{ articleId: number; error: string }>,
+			label: label,
+		};
+
+		const itemsToCreate: Array<{ articleId: number; labelId: number }> = [];
+
+		for (const articleId of articleIds) {
+			// ブックマークが存在するか確認
+			if (!bookmarkMap.has(articleId)) {
+				results.errors.push({
+					articleId,
+					error: `Bookmark with id ${articleId} not found`,
+				});
+				continue;
+			}
+
+			// 既にラベルが付与されているか確認
+			if (existingArticleIds.has(articleId)) {
+				results.skipped++;
+				continue;
+			}
+
+			// ラベル付け用データを準備
+			itemsToCreate.push({
+				articleId,
+				labelId: label.id,
+			});
+		}
+
+		// 6. バッチでラベルを1括作成
+		if (itemsToCreate.length > 0) {
+			try {
+				await this.articleLabelRepository.createMany(itemsToCreate);
+				results.successful = itemsToCreate.length;
+			} catch (error) {
+				// バッチ処理でエラーが発生した場合
+				for (const item of itemsToCreate) {
+					results.errors.push({
+						articleId: item.articleId,
+						error: error instanceof Error ? error.message : String(error),
+					});
+				}
+			}
+		}
+
+		return results;
+	}
 }

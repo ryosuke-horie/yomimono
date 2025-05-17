@@ -276,6 +276,52 @@ server.tool(
 	},
 );
 
+// 8. Tool to assign labels to multiple articles
+server.tool(
+	"assignLabelsToMultipleArticles",
+	// Define input arguments schema using Zod
+	{
+		articleIds: z.array(z.number().int().positive()),
+		labelName: z.string().min(1),
+		description: z.string().optional().nullable(),
+	},
+	async ({ articleIds, labelName, description }) => {
+		// Destructure arguments
+		try {
+			const result = await apiClient.assignLabelsToMultipleArticles(
+				articleIds,
+				labelName,
+				description ?? undefined,
+			);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Successfully batch assigned label "${labelName}" to articles. Result: ${JSON.stringify(result, null, 2)}`,
+					},
+				],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error(
+				`Error in assignLabelsToMultipleArticles tool (articleIds: ${articleIds}, labelName: ${labelName}, description: ${description}):`,
+				errorMessage,
+			);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Failed to batch assign labels: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
 // --- End Tool Definition ---
 
 async function main() {

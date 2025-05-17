@@ -44,4 +44,11 @@ export interface IBookmarkRepository {
 	 * @returns ブックマークオブジェクト（ラベル・お気に入り情報付き）、存在しない場合はundefined
 	 */
 	findById(id: number): Promise<BookmarkWithLabel | undefined>;
+
+	/**
+	 * 指定されたIDのブックマークを一括で取得します。
+	 * @param ids ブックマークIDの配列
+	 * @returns ブックマークのマップ（ID => BookmarkWithLabel）
+	 */
+	findByIds(ids: number[]): Promise<Map<number, BookmarkWithLabel>>;
 }
