@@ -10,7 +10,7 @@
 		"knip": "^5.55.1"
 	},
 	"peerDependencies": {
-		"typescript": "^5"
+		"typescript": "^5.8.3"
 	},
 	"scripts": {
 		"build": "tsc",

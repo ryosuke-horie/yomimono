@@ -1,8 +1,6 @@
 {
-	"version": "5",
+	"version": "6",
 	"dialect": "sqlite",
-	"id": "af02f2d3-1889-4bf5-ba40-d0f99d33e28c",
-	"prevId": "2c3bca22-4be0-4516-bded-7c4f6151a6fc",
 	"tables": {
 		"article_labels": {
 			"name": "article_labels",
@@ -42,24 +40,25 @@
 				"article_labels_article_id_bookmarks_id_fk": {
 					"name": "article_labels_article_id_bookmarks_id_fk",
 					"tableFrom": "article_labels",
-					"tableTo": "bookmarks",
 					"columnsFrom": ["article_id"],
+					"tableTo": "bookmarks",
 					"columnsTo": ["id"],
-					"onDelete": "cascade",
-					"onUpdate": "no action"
+					"onUpdate": "no action",
+					"onDelete": "cascade"
 				},
 				"article_labels_label_id_labels_id_fk": {
 					"name": "article_labels_label_id_labels_id_fk",
 					"tableFrom": "article_labels",
-					"tableTo": "labels",
 					"columnsFrom": ["label_id"],
+					"tableTo": "labels",
 					"columnsTo": ["id"],
-					"onDelete": "cascade",
-					"onUpdate": "no action"
+					"onUpdate": "no action",
+					"onDelete": "cascade"
 				}
 			},
 			"compositePrimaryKeys": {},
-			"uniqueConstraints": {}
+			"uniqueConstraints": {},
+			"checkConstraints": {}
 		},
 		"bookmarks": {
 			"name": "bookmarks",
@@ -113,7 +112,8 @@
 			"indexes": {},
 			"foreignKeys": {},
 			"compositePrimaryKeys": {},
-			"uniqueConstraints": {}
+			"uniqueConstraints": {},
+			"checkConstraints": {}
 		},
 		"favorites": {
 			"name": "favorites",
@@ -152,15 +152,16 @@
 				"favorites_bookmark_id_bookmarks_id_fk": {
 					"name": "favorites_bookmark_id_bookmarks_id_fk",
 					"tableFrom": "favorites",
-					"tableTo": "bookmarks",
 					"columnsFrom": ["bookmark_id"],
+					"tableTo": "bookmarks",
 					"columnsTo": ["id"],
-					"onDelete": "cascade",
-					"onUpdate": "no action"
+					"onUpdate": "no action",
+					"onDelete": "cascade"
 				}
 			},
 			"compositePrimaryKeys": {},
-			"uniqueConstraints": {}
+			"uniqueConstraints": {},
+			"checkConstraints": {}
 		},
 		"labels": {
 			"name": "labels",
@@ -212,13 +213,16 @@
 			},
 			"foreignKeys": {},
 			"compositePrimaryKeys": {},
-			"uniqueConstraints": {}
+			"uniqueConstraints": {},
+			"checkConstraints": {}
 		}
 	},
 	"enums": {},
 	"_meta": {
-		"schemas": {},
 		"tables": {},
 		"columns": {}
-	}
+	},
+	"id": "af02f2d3-1889-4bf5-ba40-d0f99d33e28c",
+	"prevId": "2c3bca22-4be0-4516-bded-7c4f6151a6fc",
+	"views": {}
 }
