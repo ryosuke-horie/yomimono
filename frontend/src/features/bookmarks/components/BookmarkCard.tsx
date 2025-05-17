@@ -11,7 +11,8 @@ interface Props {
 }
 
 export function BookmarkCard({ bookmark, onLabelClick }: Props) {
-	const { id, title, url, createdAt, isRead, isFavorite, label } = bookmark;
+	const { id, title, url, createdAt, isRead, isFavorite, label, summary } =
+		bookmark;
 	const formattedDate = new Date(createdAt).toLocaleDateString("ja-JP");
 
 	const { mutate: toggleFavorite, isPending: isTogglingFavorite } =
@@ -39,6 +40,21 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 		if (!isRead) {
 			// 非同期で既読にする（結果を待たない）
 			markAsReadMutate(id);
+		}
+	};
+
+	// 要約をマークダウン形式でコピー
+	const handleCopySummary = async () => {
+		if (!summary) return;
+
+		const markdown = `## ${title || "タイトルなし"}\n\n${url}\n\n### 要約\n${summary}`;
+
+		try {
+			await navigator.clipboard.writeText(markdown);
+			// コピー成功の通知（オプション）
+			// TODO: トースト通知などを実装
+		} catch (error) {
+			console.error("Failed to copy summary:", error);
 		}
 	};
 
@@ -179,6 +195,67 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 					{title || "タイトルなし"}
 				</a>
 			</h2>
+
+			{/* 要約表示エリア */}
+			{summary && (
+				<div className="mb-3 p-3 bg-gray-50 rounded-md border border-gray-200">
+					<div className="flex justify-between items-start mb-2">
+						<h4 className="text-sm font-semibold text-gray-700">要約</h4>
+						<button
+							type="button"
+							onClick={handleCopySummary}
+							className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+							title="要約をコピー"
+						>
+							<svg
+								className="w-4 h-4"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+								/>
+							</svg>
+							コピー
+						</button>
+					</div>
+					<div className="text-sm text-gray-600 space-y-1">
+						{summary
+							.split("\n")
+							.filter((line) => line.trim())
+							.map((line, index) => (
+								<p key={index}>{line}</p>
+							))}
+					</div>
+				</div>
+			)}
+
+			{/* 要約がない場合の表示 */}
+			{!summary && (
+				<div className="mb-3 p-3 bg-gray-50 rounded-md border border-dashed border-gray-300">
+					<div className="text-sm text-gray-500 flex items-center gap-2">
+						<svg
+							className="w-4 h-4"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+							/>
+						</svg>
+						<span>要約はClaude Desktop経由で作成できます</span>
+					</div>
+				</div>
+			)}
+
 			<p className="text-sm text-gray-600 line-clamp-1 mb-2" title={url}>
 				{url}
 			</p>

@@ -49,6 +49,37 @@ export const createBookmarksRouter = (
 		}
 	});
 
+	// 要約なしのブックマークを取得
+	app.get("/without-summary", async (c) => {
+		const limit = c.req.query("limit");
+		const parsedLimit = limit ? Number.parseInt(limit, 10) : undefined;
+
+		if (limit && (Number.isNaN(parsedLimit) || parsedLimit <= 0)) {
+			return c.json(
+				{ success: false, message: "Invalid limit parameter" },
+				400,
+			);
+		}
+
+		try {
+			const bookmarks =
+				await bookmarkService.getBookmarksWithoutSummary(parsedLimit);
+			return c.json({
+				success: true,
+				bookmarks,
+			});
+		} catch (error) {
+			console.error("Failed to fetch bookmarks without summary:", error);
+			return c.json(
+				{
+					success: false,
+					message: "Failed to fetch bookmarks without summary",
+				},
+				500,
+			);
+		}
+	});
+
 	app.get("/unlabeled", async (c) => {
 		try {
 			const bookmarks = await bookmarkService.getUnlabeledBookmarks();
@@ -244,6 +275,54 @@ export const createBookmarksRouter = (
 			console.error("Failed to mark bookmark as read:", error);
 			return c.json(
 				{ success: false, message: "Failed to mark bookmark as read" },
+				500,
+			);
+		}
+	});
+
+	// ブックマークの要約を作成
+	app.post("/:id/summary", async (c) => {
+		try {
+			const id = Number.parseInt(c.req.param("id"));
+			if (Number.isNaN(id)) {
+				return c.json({ success: false, message: "Invalid bookmark ID" }, 400);
+			}
+
+			const body = await c.req.json<{ summary: string }>();
+			if (!body.summary || typeof body.summary !== "string") {
+				return c.json({ success: false, message: "Summary is required" }, 400);
+			}
+
+			await bookmarkService.updateBookmarkSummary(id, body.summary);
+			return c.json({ success: true });
+		} catch (error) {
+			console.error("Failed to update bookmark summary:", error);
+			return c.json(
+				{ success: false, message: "Failed to update bookmark summary" },
+				500,
+			);
+		}
+	});
+
+	// ブックマークの要約を更新
+	app.put("/:id/summary", async (c) => {
+		try {
+			const id = Number.parseInt(c.req.param("id"));
+			if (Number.isNaN(id)) {
+				return c.json({ success: false, message: "Invalid bookmark ID" }, 400);
+			}
+
+			const body = await c.req.json<{ summary: string }>();
+			if (!body.summary || typeof body.summary !== "string") {
+				return c.json({ success: false, message: "Summary is required" }, 400);
+			}
+
+			await bookmarkService.updateBookmarkSummary(id, body.summary);
+			return c.json({ success: true });
+		} catch (error) {
+			console.error("Failed to update bookmark summary:", error);
+			return c.json(
+				{ success: false, message: "Failed to update bookmark summary" },
 				500,
 			);
 		}

@@ -398,4 +398,49 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 			throw error;
 		}
 	}
+
+	/**
+	 * 要約が未作成のブックマークを取得します。
+	 * @param limit 取得件数制限（デフォルト: 5）
+	 * @returns 要約なしのブックマーク配列
+	 */
+	async findWithoutSummary(limit = 5): Promise<BookmarkWithLabel[]> {
+		const results = this.db
+			.select({
+				bookmark: bookmarks,
+				favorite: favorites,
+				label: labels,
+			})
+			.from(bookmarks)
+			.leftJoin(favorites, eq(bookmarks.id, favorites.bookmarkId))
+			.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
+			.leftJoin(labels, eq(articleLabels.labelId, labels.id))
+			.where(isNull(bookmarks.summary))
+			.limit(limit)
+			.orderBy(bookmarks.createdAt);
+
+		const rows = await results.all();
+
+		return rows.map((row): BookmarkWithLabel => {
+			const bookmark = row.bookmark;
+			return {
+				...bookmark,
+				isFavorite: !!row.favorite,
+				label: row.label || null,
+			};
+		});
+	}
+
+	/**
+	 * ブックマークの要約を更新します。
+	 * @param bookmarkId ブックマークID
+	 * @param summary 要約文
+	 */
+	async updateSummary(bookmarkId: number, summary: string): Promise<void> {
+		await this.db
+			.update(bookmarks)
+			.set({ summary, updatedAt: new Date() })
+			.where(eq(bookmarks.id, bookmarkId))
+			.execute();
+	}
 }

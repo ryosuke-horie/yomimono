@@ -51,4 +51,18 @@ export interface IBookmarkRepository {
 	 * @returns ブックマークのマップ（ID => BookmarkWithLabel）
 	 */
 	findByIds(ids: number[]): Promise<Map<number, BookmarkWithLabel>>;
+
+	/**
+	 * 要約が未作成のブックマークを取得します。
+	 * @param limit 取得件数制限（デフォルト: 5）
+	 * @returns 要約なしのブックマーク配列
+	 */
+	findWithoutSummary(limit?: number): Promise<BookmarkWithLabel[]>;
+
+	/**
+	 * ブックマークの要約を更新します。
+	 * @param bookmarkId ブックマークID
+	 * @param summary 要約文
+	 */
+	updateSummary(bookmarkId: number, summary: string): Promise<void>;
 }

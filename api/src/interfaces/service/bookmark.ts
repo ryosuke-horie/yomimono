@@ -30,4 +30,18 @@ export interface IBookmarkService {
 	 * @returns ラベルに紐づくブックマーク配列
 	 */
 	getBookmarksByLabel(labelName: string): Promise<BookmarkWithLabel[]>;
+
+	/**
+	 * 要約が未作成のブックマークを取得します。
+	 * @param limit 取得件数制限
+	 * @returns 要約なしのブックマーク配列
+	 */
+	getBookmarksWithoutSummary(limit?: number): Promise<BookmarkWithLabel[]>;
+
+	/**
+	 * ブックマークの要約を更新します。
+	 * @param bookmarkId ブックマークID
+	 * @param summary 要約文
+	 */
+	updateBookmarkSummary(bookmarkId: number, summary: string): Promise<void>;
 }

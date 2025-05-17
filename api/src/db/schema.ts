@@ -6,6 +6,7 @@ export const bookmarks = sqliteTable("bookmarks", {
 	url: text("url").notNull(),
 	title: text("title"),
 	isRead: integer("is_read", { mode: "boolean" }).notNull().default(false),
+	summary: text("summary"), // AI生成による記事要約
 	createdAt: integer("created_at", { mode: "timestamp" })
 		.notNull()
 		.default(new Date()),

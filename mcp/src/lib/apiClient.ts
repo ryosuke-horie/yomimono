@@ -419,3 +419,181 @@ export async function assignLabelsToMultipleArticles(
 	const { success, ...result } = parsed.data;
 	return result;
 }
+
+/**
+ * 要約が未作成のブックマークを取得します。
+ * @param limit - 取得件数制限（デフォルト: 5）
+ * @returns 要約なしのブックマーク配列
+ */
+export async function getBookmarksWithoutSummary(limit = 5) {
+	const url = new URL(`${API_BASE_URL}/api/bookmarks/without-summary`);
+	url.searchParams.append("limit", limit.toString());
+
+	const response = await fetch(url.toString());
+	if (!response.ok) {
+		throw new Error(
+			`Failed to fetch bookmarks without summary: ${response.statusText}`,
+		);
+	}
+
+	const data: unknown = await response.json();
+
+	// スキーマを定義（既存のArticleSchemaを拡張）
+	const BookmarkWithoutSummarySchema = z.object({
+		id: z.number(),
+		title: z.string(),
+		url: z.string(),
+		summary: z.null().optional(), // nullまたは未定義
+		createdAt: z.string().or(z.instanceof(Date)).optional(),
+		isRead: z.boolean().optional(),
+		isFavorite: z.boolean().optional(),
+		label: LabelSchema.nullable().optional(),
+	});
+
+	const BookmarksWithoutSummaryResponseSchema = z.object({
+		success: z.literal(true),
+		bookmarks: z.array(BookmarkWithoutSummarySchema),
+	});
+
+	const parsed = BookmarksWithoutSummaryResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response for bookmarks without summary: ${parsed.error.message}`,
+		);
+	}
+
+	return parsed.data.bookmarks;
+}
+
+/**
+ * ブックマークの要約を保存します（新規作成）。
+ * @param bookmarkId - ブックマークID
+ * @param summary - 要約文
+ * @returns void
+ */
+export async function saveBookmarkSummary(
+	bookmarkId: number,
+	summary: string,
+): Promise<void> {
+	const response = await fetch(
+		`${API_BASE_URL}/api/bookmarks/${bookmarkId}/summary`,
+		{
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ summary }),
+		},
+	);
+
+	if (!response.ok) {
+		let errorMessage = `Failed to save bookmark summary for ID ${bookmarkId}`;
+		try {
+			const data = await response.json();
+			if (
+				data &&
+				typeof data === "object" &&
+				"message" in data &&
+				typeof data.message === "string"
+			) {
+				errorMessage = data.message;
+			}
+		} catch {
+			// Ignore parsing errors
+		}
+		throw new Error(`${errorMessage}: ${response.statusText}`);
+	}
+}
+
+/**
+ * ブックマークの要約を更新します。
+ * @param bookmarkId - ブックマークID
+ * @param summary - 新しい要約文
+ * @returns void
+ */
+export async function updateBookmarkSummary(
+	bookmarkId: number,
+	summary: string,
+): Promise<void> {
+	const response = await fetch(
+		`${API_BASE_URL}/api/bookmarks/${bookmarkId}/summary`,
+		{
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ summary }),
+		},
+	);
+
+	if (!response.ok) {
+		let errorMessage = `Failed to update bookmark summary for ID ${bookmarkId}`;
+		try {
+			const data = await response.json();
+			if (
+				data &&
+				typeof data === "object" &&
+				"message" in data &&
+				typeof data.message === "string"
+			) {
+				errorMessage = data.message;
+			}
+		} catch {
+			// Ignore parsing errors
+		}
+		throw new Error(`${errorMessage}: ${response.statusText}`);
+	}
+}
+
+/**
+ * 指定されたIDのブックマークを取得します。
+ * @param bookmarkId - ブックマークID
+ * @returns ブックマークオブジェクト
+ */
+export async function getBookmarkById(bookmarkId: number) {
+	const response = await fetch(`${API_BASE_URL}/api/bookmarks/${bookmarkId}`);
+
+	if (!response.ok) {
+		throw new Error(
+			`Failed to fetch bookmark with ID ${bookmarkId}: ${response.statusText}`,
+		);
+	}
+
+	let data: unknown;
+	try {
+		data = await response.json();
+	} catch (parseError: unknown) {
+		const errorMessage =
+			parseError instanceof Error ? parseError.message : String(parseError);
+		throw new Error(
+			`Failed to parse response when fetching bookmark ${bookmarkId}: ${errorMessage}`,
+		);
+	}
+
+	// 完全なBookmarkのスキーマを定義
+	const BookmarkSchema = z.object({
+		id: z.number(),
+		title: z.string(),
+		url: z.string(),
+		summary: z.string().nullable().optional(),
+		createdAt: z.string().or(z.instanceof(Date)).optional(),
+		updatedAt: z.string().or(z.instanceof(Date)).optional(),
+		isRead: z.boolean().optional(),
+		isFavorite: z.boolean().optional(),
+		label: LabelSchema.nullable().optional(),
+	});
+
+	const GetBookmarkResponseSchema = z.object({
+		success: z.literal(true),
+		bookmark: BookmarkSchema,
+	});
+
+	const parsed = GetBookmarkResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response for bookmark ${bookmarkId}: ${parsed.error.message}`,
+		);
+	}
+
+	return parsed.data.bookmark;
+}

@@ -166,4 +166,27 @@ export class DefaultBookmarkService implements IBookmarkService {
 			throw new Error("Failed to get bookmarks by label");
 		}
 	}
+
+	async getBookmarksWithoutSummary(
+		limit?: number,
+	): Promise<BookmarkWithLabel[]> {
+		try {
+			return await this.repository.findWithoutSummary(limit);
+		} catch (error) {
+			console.error("Failed to get bookmarks without summary:", error);
+			throw new Error("Failed to get bookmarks without summary");
+		}
+	}
+
+	async updateBookmarkSummary(
+		bookmarkId: number,
+		summary: string,
+	): Promise<void> {
+		try {
+			await this.repository.updateSummary(bookmarkId, summary);
+		} catch (error) {
+			console.error("Failed to update bookmark summary:", error);
+			throw new Error("Failed to update bookmark summary");
+		}
+	}
 }
