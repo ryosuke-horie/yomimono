@@ -32,7 +32,8 @@ else
   echo "List output: $LIST_OUTPUT"
   
   # Parse JSON output to find our namespace ID
-  KV_NAMESPACE_ID=$(echo "$LIST_OUTPUT" | grep -A2 "\"title\": \"$KV_NAMESPACE_NAME\"" | grep '"id"' | sed 's/.*"id": "\([^"]*\)".*/\1/')
+  # Look for the ID that appears right before our namespace title
+  KV_NAMESPACE_ID=$(echo "$LIST_OUTPUT" | grep -B1 "\"title\": \"$KV_NAMESPACE_NAME\"" | head -1 | sed -n 's/.*"id": "\([^"]*\)".*/\1/p')
   
   if [ -z "$KV_NAMESPACE_ID" ]; then
     echo "Failed to find namespace ID in list output"
