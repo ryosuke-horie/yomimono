@@ -1,12 +1,28 @@
+import { Button } from "@/components/Button";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { useState } from "react";
+import { useDeleteRSSFeed } from "../queries/useRSSFeeds";
 import type { RSSFeed } from "../types";
+import { EditFeedModal } from "./EditFeedModal";
 
 interface FeedCardProps {
 	feed: RSSFeed;
-	onEdit?: (feed: RSSFeed) => void;
-	onDelete?: (id: number) => void;
 }
 
-export function FeedCard({ feed, onEdit, onDelete }: FeedCardProps) {
+export function FeedCard({ feed }: FeedCardProps) {
+	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+	const { mutate: deleteFeed, isPending: isDeleting } = useDeleteRSSFeed();
+
+	const handleDelete = () => {
+		deleteFeed(feed.id, {
+			onSuccess: () => {
+				setIsDeleteDialogOpen(false);
+			},
+		});
+	};
+
 	// 最終更新時刻をフォーマット
 	const formatLastFetch = (date: string | null) => {
 		if (!date) return "まだ取得されていません";
@@ -30,45 +46,58 @@ export function FeedCard({ feed, onEdit, onDelete }: FeedCardProps) {
 	const statusColor = feed.isActive ? "bg-green-500" : "bg-gray-400";
 
 	return (
-		<div className="border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition-shadow">
-			<div className="flex justify-between items-start mb-2">
-				<h3 className="font-bold text-lg">{feed.name}</h3>
-				<div className="flex gap-2">
-					{onEdit && (
-						<button
-							type="button"
-							onClick={() => onEdit(feed)}
-							className="text-blue-500 hover:text-blue-700 px-2 py-1 text-sm"
+		<>
+			<div className="border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition-shadow">
+				<div className="flex justify-between items-start mb-2">
+					<h3 className="font-bold text-lg">{feed.name}</h3>
+					<div className="flex gap-2">
+						<Button
+							variant="secondary"
+							size="sm"
+							onClick={() => setIsEditModalOpen(true)}
 						>
 							編集
-						</button>
-					)}
-					{onDelete && (
-						<button
-							type="button"
-							onClick={() => onDelete(feed.id)}
-							className="text-red-500 hover:text-red-700 px-2 py-1 text-sm"
+						</Button>
+						<Button
+							variant="danger"
+							size="sm"
+							onClick={() => setIsDeleteDialogOpen(true)}
 						>
 							削除
-						</button>
-					)}
+						</Button>
+					</div>
+				</div>
+
+				<p className="text-sm text-gray-600 mb-3 truncate" title={feed.url}>
+					URL: {feed.url}
+				</p>
+
+				<div className="flex items-center gap-4 text-sm">
+					<span className="text-gray-600">
+						最終更新: {formatLastFetch(feed.lastFetchedAt)}
+					</span>
+					<span className="text-gray-600">記事数: {feed.itemCount || 0}</span>
+					<div className="flex items-center gap-1">
+						<span className="text-gray-600">ステータス:</span>
+						<div className={`w-3 h-3 rounded-full ${statusColor}`} />
+					</div>
 				</div>
 			</div>
 
-			<p className="text-sm text-gray-600 mb-3 truncate" title={feed.url}>
-				URL: {feed.url}
-			</p>
+			<EditFeedModal
+				feed={feed}
+				isOpen={isEditModalOpen}
+				onClose={() => setIsEditModalOpen(false)}
+			/>
 
-			<div className="flex items-center gap-4 text-sm">
-				<span className="text-gray-600">
-					最終更新: {formatLastFetch(feed.lastFetchedAt)}
-				</span>
-				<span className="text-gray-600">記事数: {feed.itemCount || 0}</span>
-				<div className="flex items-center gap-1">
-					<span className="text-gray-600">ステータス:</span>
-					<div className={`w-3 h-3 rounded-full ${statusColor}`} />
-				</div>
-			</div>
-		</div>
+			<ConfirmDialog
+				isOpen={isDeleteDialogOpen}
+				onClose={() => setIsDeleteDialogOpen(false)}
+				onConfirm={handleDelete}
+				title="フィードの削除"
+				message="このフィードを削除してもよろしいですか？"
+				isLoading={isDeleting}
+			/>
+		</>
 	);
 }

@@ -16,7 +16,7 @@ export function CreateFeedModal({ isOpen, onClose }: CreateFeedModalProps) {
 	});
 
 	const [errors, setErrors] = useState<Record<string, string>>({});
-	const { mutate: createFeed, isLoading } = useCreateRSSFeed();
+	const { mutate: createFeed, isPending } = useCreateRSSFeed();
 
 	const validateForm = (): boolean => {
 		const newErrors: Record<string, string> = {};
@@ -143,16 +143,16 @@ export function CreateFeedModal({ isOpen, onClose }: CreateFeedModalProps) {
 						type="button"
 						onClick={onClose}
 						className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
-						disabled={isLoading}
+						disabled={isPending}
 					>
 						キャンセル
 					</button>
 					<button
 						type="submit"
 						className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-						disabled={isLoading}
+						disabled={isPending}
 					>
-						{isLoading ? "登録中..." : "登録"}
+						{isPending ? "登録中..." : "登録"}
 					</button>
 				</div>
 			</form>
