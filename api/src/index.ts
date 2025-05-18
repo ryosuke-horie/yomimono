@@ -3,11 +3,14 @@ import { cors } from "hono/cors";
 import { ArticleLabelRepository } from "./repositories/articleLabel";
 import { DrizzleBookmarkRepository } from "./repositories/bookmark";
 import { LabelRepository } from "./repositories/label";
+import { RssFeedRepository } from "./repositories/rssFeed";
 import { createBookmarksRouter } from "./routes/bookmarks";
 import labelsRouter from "./routes/labels";
+import rssFeedsRoute from "./routes/rssFeeds";
 import { createSummaryRouter } from "./routes/summary";
 import { DefaultBookmarkService } from "./services/bookmark";
 import { LabelService } from "./services/label";
+import { RssFeedService } from "./services/rssFeed";
 import { SummaryService } from "./services/summary";
 
 export interface Env {
@@ -26,6 +29,7 @@ export const createApp = (env: Env) => {
 	const bookmarkRepository = new DrizzleBookmarkRepository(db);
 	const labelRepository = new LabelRepository(db);
 	const articleLabelRepository = new ArticleLabelRepository(db);
+	const rssFeedRepository = new RssFeedRepository(db);
 	const bookmarkService = new DefaultBookmarkService(bookmarkRepository);
 	const labelService = new LabelService(
 		labelRepository,
@@ -33,6 +37,7 @@ export const createApp = (env: Env) => {
 		bookmarkRepository,
 	);
 	const summaryService = new SummaryService(bookmarkRepository);
+	const rssFeedService = new RssFeedService(rssFeedRepository);
 
 	// ルーターのマウント
 	const bookmarksRouter = createBookmarksRouter(bookmarkService, labelService);
@@ -41,6 +46,9 @@ export const createApp = (env: Env) => {
 
 	const summaryRouter = createSummaryRouter(summaryService);
 	app.route("/api", summaryRouter);
+
+	// RSSフィードルートの追加
+	rssFeedsRoute(app, { rssFeed: rssFeedService });
 
 	return app;
 };
