@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { describe, expect, it, vi } from "vitest";
 import type { RssFeed } from "../../../src/db/schema";
-import rssFeedsRoute from "../../../src/routes/rssFeeds";
+import { createRssFeedsRouter } from "../../../src/routes/rssFeeds";
 import type { RssFeedService } from "../../../src/services/rssFeed";
 
 interface FeedsResponse {
@@ -38,7 +38,7 @@ describe("rssFeeds route", () => {
 			} as unknown as RssFeedService;
 
 			const app = new Hono<{ Bindings: { DB: D1Database } }>();
-			rssFeedsRoute(app, { rssFeed: mockService });
+			app.route("/api/rss", createRssFeedsRouter(mockService));
 
 			const response = await app.request("/api/rss/feeds");
 			const json = (await response.json()) as FeedsResponse;
@@ -62,7 +62,7 @@ describe("rssFeeds route", () => {
 			} as unknown as RssFeedService;
 
 			const app = new Hono<{ Bindings: { DB: D1Database } }>();
-			rssFeedsRoute(app, { rssFeed: mockService });
+			app.route("/api/rss", createRssFeedsRouter(mockService));
 
 			const response = await app.request("/api/rss/feeds/1");
 			const json = (await response.json()) as FeedWithStatsResponse;
@@ -96,7 +96,7 @@ describe("rssFeeds route", () => {
 			} as unknown as RssFeedService;
 
 			const app = new Hono<{ Bindings: { DB: D1Database } }>();
-			rssFeedsRoute(app, { rssFeed: mockService });
+			app.route("/api/rss", createRssFeedsRouter(mockService));
 
 			const response = await app.request("/api/rss/feeds", {
 				method: "POST",
@@ -128,7 +128,7 @@ describe("rssFeeds route", () => {
 			} as unknown as RssFeedService;
 
 			const app = new Hono<{ Bindings: { DB: D1Database } }>();
-			rssFeedsRoute(app, { rssFeed: mockService });
+			app.route("/api/rss", createRssFeedsRouter(mockService));
 
 			const response = await app.request("/api/rss/feeds/1", {
 				method: "PUT",
@@ -153,7 +153,7 @@ describe("rssFeeds route", () => {
 			} as unknown as RssFeedService;
 
 			const app = new Hono<{ Bindings: { DB: D1Database } }>();
-			rssFeedsRoute(app, { rssFeed: mockService });
+			app.route("/api/rss", createRssFeedsRouter(mockService));
 
 			const response = await app.request("/api/rss/feeds/1", {
 				method: "DELETE",
