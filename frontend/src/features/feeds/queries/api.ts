@@ -1,9 +1,6 @@
 import { API_BASE_URL } from "@/lib/api/config";
 import type {
-	BatchLog,
 	CreateRSSFeedDTO,
-	ExecuteBatchRequest,
-	ExecuteBatchResponse,
 	RSSFeed,
 	RSSFeedDetailResponse,
 	RSSFeedResponse,
@@ -70,34 +67,4 @@ export const feedsApi = {
 			throw new Error(`Failed to delete feed: ${response.statusText}`);
 		}
 	},
-};
-
-// バッチ処理用API
-export const executeBatchApi = async (
-	data: ExecuteBatchRequest,
-): Promise<ExecuteBatchResponse> => {
-	const url = `${API_BASE_URL}/api/rss/batch/execute`;
-	console.log("Executing batch request to:", url);
-	const response = await fetch(url, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify(data),
-	});
-	if (!response.ok) {
-		const errorData = await response.text();
-		console.error("Failed to execute batch:", response.status, errorData);
-		console.error("Request URL:", url);
-		throw new Error(`Failed to execute batch: ${response.status} ${response.statusText}`);
-	}
-	return response.json();
-};
-
-export const getBatchLogsApi = async (): Promise<BatchLog[]> => {
-	const response = await fetch(`${API_BASE_URL}/api/rss/batch/logs`);
-	if (!response.ok) {
-		throw new Error(`Failed to fetch batch logs: ${response.statusText}`);
-	}
-	return response.json();
 };
