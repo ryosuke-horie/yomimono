@@ -17,6 +17,7 @@ const mockDb = {
 	where: vi.fn(),
 	values: vi.fn(),
 	returning: vi.fn(),
+	set: vi.fn(),
 };
 
 describe("RSSBatchProcessor", () => {
@@ -35,6 +36,7 @@ describe("RSSBatchProcessor", () => {
 		mockDb.where.mockReturnValue(mockDb);
 		mockDb.values.mockReturnValue(mockDb);
 		mockDb.returning.mockReturnValue(mockDb);
+		mockDb.set.mockReturnValue(mockDb);
 	});
 
 	describe("getActiveFeeds", () => {
@@ -74,66 +76,56 @@ describe("RSSBatchProcessor", () => {
 
 	describe("logBatchComplete", () => {
 		it("バッチ完了ログを正常に記録する", async () => {
-			mockDb.values.mockResolvedValue(undefined);
+			mockDb.where.mockResolvedValue(undefined);
 
-			await processor.logBatchComplete(5);
+			await processor.logBatchComplete(1, "completed", 10, 8, 2);
 
-			expect(mockDb.insert).toHaveBeenCalledWith(rssBatchLogs);
-			expect(mockDb.values).toHaveBeenCalledWith(
+			expect(mockDb.update).toHaveBeenCalledWith(rssBatchLogs);
+			// setメソッドも追加でモックする必要がある
+			expect(mockDb.set).toHaveBeenCalledWith(
 				expect.objectContaining({
-					status: "success",
-					itemsCreated: 5,
-					itemsFetched: 5,
-					feedId: 0,
+					status: "completed",
+					finishedAt: expect.any(Date),
+					itemsCreated: 8,
+					itemsFetched: 10,
 				}),
 			);
 		});
 
 		it("エラー時に例外をスローする", async () => {
-			mockDb.values.mockRejectedValue(new Error("Database error"));
+			mockDb.where.mockRejectedValue(new Error("Database error"));
 
-			await expect(processor.logBatchComplete(5)).rejects.toThrow(
-				"Failed to log batch complete",
-			);
+			await expect(
+				processor.logBatchComplete(1, "completed", 10, 8, 2),
+			).rejects.toThrow("Failed to log batch complete");
 		});
 	});
 
-	describe("logBatchError", () => {
-		it("エラーメッセージを正常に記録する", async () => {
-			mockDb.values.mockResolvedValue(undefined);
-			const error = new Error("Test error");
+	describe("logBatchStart", () => {
+		it("バッチ開始ログを正常に記録する", async () => {
+			mockDb.returning.mockResolvedValue([{ id: 123 }]);
 
-			await processor.logBatchError(error);
+			const result = await processor.logBatchStart("Test Batch");
 
 			expect(mockDb.insert).toHaveBeenCalledWith(rssBatchLogs);
 			expect(mockDb.values).toHaveBeenCalledWith(
 				expect.objectContaining({
-					status: "error",
-					errorMessage: "Test error",
-					feedId: 0,
+					status: "in_progress",
+					startedAt: expect.any(Date),
+					feedId: 1, // 暫定的に1を使用
+					itemsCreated: 0,
+					itemsFetched: 0,
 				}),
 			);
+			expect(result).toBe(123);
 		});
 
-		it("文字列エラーを処理する", async () => {
-			mockDb.values.mockResolvedValue(undefined);
+		it("エラー時に例外をスローする", async () => {
+			mockDb.returning.mockRejectedValue(new Error("Database error"));
 
-			await processor.logBatchError("String error");
-
-			expect(mockDb.values).toHaveBeenCalledWith(
-				expect.objectContaining({
-					errorMessage: "String error",
-				}),
+			await expect(processor.logBatchStart()).rejects.toThrow(
+				"Failed to log batch start",
 			);
-		});
-
-		it("ログエラーを無視する", async () => {
-			mockDb.values.mockRejectedValue(new Error("Log error"));
-
-			// エラーが発生してもthrowしない
-			await expect(
-				processor.logBatchError("Test error"),
-			).resolves.toBeUndefined();
 		});
 	});
 
@@ -157,6 +149,8 @@ describe("RSSBatchProcessor", () => {
 					itemsFetched: 10,
 					itemsCreated: 8,
 					errorMessage: undefined,
+					startedAt: details.startedAt,
+					finishedAt: details.finishedAt,
 				}),
 			);
 		});
@@ -164,6 +158,8 @@ describe("RSSBatchProcessor", () => {
 		it("エラー時のフィード処理ログを記録する", async () => {
 			mockDb.values.mockResolvedValue(undefined);
 			const details = {
+				itemsFetched: 0,
+				itemsCreated: 0,
 				errorMessage: "Feed fetch error",
 				startedAt: new Date("2024-01-01T00:00:00Z"),
 				finishedAt: new Date("2024-01-01T00:01:00Z"),
@@ -178,6 +174,8 @@ describe("RSSBatchProcessor", () => {
 					itemsFetched: 0,
 					itemsCreated: 0,
 					errorMessage: "Feed fetch error",
+					startedAt: details.startedAt,
+					finishedAt: details.finishedAt,
 				}),
 			);
 		});

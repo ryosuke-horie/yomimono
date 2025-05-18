@@ -74,16 +74,16 @@ describe("FeedProcessor", () => {
 			}
 		).mockImplementation(() => mockBatchProcessor);
 
-		// DBチェーンメソッドのモック
-		mockDb.select.mockReturnValue(mockDb);
-		mockDb.insert.mockReturnValue(mockDb);
-		mockDb.update.mockReturnValue(mockDb);
-		mockDb.from.mockReturnValue(mockDb);
-		mockDb.where.mockReturnValue(mockDb);
-		mockDb.values.mockReturnValue(mockDb);
-		mockDb.returning.mockReturnValue(mockDb);
-		mockDb.set.mockReturnValue(mockDb);
-		mockDb.prepare.mockReturnValue({});
+		// DBチェーンメソッドのモック - 毎回新しいインスタンスを返す
+		mockDb.select = vi.fn().mockReturnValue(mockDb);
+		mockDb.insert = vi.fn().mockReturnValue(mockDb);
+		mockDb.update = vi.fn().mockReturnValue(mockDb);
+		mockDb.from = vi.fn().mockReturnValue(mockDb);
+		mockDb.where = vi.fn().mockReturnValue(mockDb);
+		mockDb.values = vi.fn().mockReturnValue(mockDb);
+		mockDb.returning = vi.fn().mockReturnValue([]);
+		mockDb.set = vi.fn().mockReturnValue(mockDb);
+		mockDb.prepare = vi.fn().mockReturnValue({});
 
 		processor = new FeedProcessor(mockFeed, mockD1Database);
 	});
@@ -110,13 +110,14 @@ describe("FeedProcessor", () => {
 			mockFetcher.fetchFeed.mockResolvedValue("<xml>feed data</xml>");
 			mockParser.parseFeed.mockResolvedValue(mockArticles);
 			mockDb.where.mockResolvedValue([]); // 既存URLなし
-			mockD1Database.batch.mockResolvedValue([[{ id: 1 }], [{ id: 2 }]]);
+			// 個別のinsert操作のモック
+			mockDb.returning.mockResolvedValue([{ id: 1 }]);
 
 			await processor.process();
 
 			expect(mockFetcher.fetchFeed).toHaveBeenCalledWith(mockFeed.url);
 			expect(mockParser.parseFeed).toHaveBeenCalledWith("<xml>feed data</xml>");
-			expect(mockD1Database.batch).toHaveBeenCalledTimes(2); // ブックマークとRSS記事の保存
+			expect(mockDb.insert).toHaveBeenCalledTimes(4); // 2記事 x (ブックマーク + RSS記事)
 			expect(mockBatchProcessor.logFeedProcess).toHaveBeenCalledWith(
 				mockFeed.id,
 				"success",
@@ -150,12 +151,12 @@ describe("FeedProcessor", () => {
 				{ url: "https://example.com/article1" },
 			]);
 			mockDb.where.mockResolvedValueOnce([]); // RSS記事履歴には存在しない
-			mockD1Database.batch.mockResolvedValue([[{ id: 2 }]]);
+			mockDb.returning.mockResolvedValue([{ id: 2 }]);
 
 			await processor.process();
 
-			// 1つの記事のみ保存される
-			expect(mockD1Database.batch).toHaveBeenCalledTimes(2);
+			// 1つの記事のみ保存される（2回のinsert: ブックマーク + RSS記事）
+			expect(mockDb.insert).toHaveBeenCalledTimes(2);
 			expect(mockBatchProcessor.logFeedProcess).toHaveBeenCalledWith(
 				mockFeed.id,
 				"success",
@@ -204,7 +205,7 @@ describe("FeedProcessor", () => {
 		it("lastFetchedAtが設定されている場合、それ以降の記事のみフィルタする", async () => {
 			const feedWithLastFetch = {
 				...mockFeed,
-				lastFetchedAt: "2024-01-01T00:00:00Z",
+				lastFetchedAt: new Date("2024-01-01T00:00:00Z"),
 			};
 			processor = new FeedProcessor(feedWithLastFetch, mockD1Database);
 
@@ -226,11 +227,12 @@ describe("FeedProcessor", () => {
 			mockFetcher.fetchFeed.mockResolvedValue("<xml>feed data</xml>");
 			mockParser.parseFeed.mockResolvedValue(mockArticles);
 			mockDb.where.mockResolvedValue([]); // 既存URLなし
-			mockD1Database.batch.mockResolvedValue([[{ id: 2 }]]);
+			mockDb.returning.mockResolvedValue([{ id: 2 }]);
 
 			await processor.process();
 
-			// 新しい記事のみが保存される
+			// 新しい記事のみが保存される（1記事 x 2テーブル = 2回のinsert）
+			expect(mockDb.insert).toHaveBeenCalledTimes(2);
 			expect(mockBatchProcessor.logFeedProcess).toHaveBeenCalledWith(
 				feedWithLastFetch.id,
 				"success",

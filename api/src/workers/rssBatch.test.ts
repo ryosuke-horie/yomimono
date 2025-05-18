@@ -22,8 +22,9 @@ describe("rssBatch", () => {
 
 	let mockBatchProcessor: {
 		getActiveFeeds: ReturnType<typeof vi.fn>;
+		logBatchStart: ReturnType<typeof vi.fn>;
 		logBatchComplete: ReturnType<typeof vi.fn>;
-		logBatchError: ReturnType<typeof vi.fn>;
+		logFeedProcess: ReturnType<typeof vi.fn>;
 	};
 	let mockFeedProcessor: {
 		process: ReturnType<typeof vi.fn>;
@@ -36,8 +37,9 @@ describe("rssBatch", () => {
 		// BatchProcessorのモック
 		mockBatchProcessor = {
 			getActiveFeeds: vi.fn(),
+			logBatchStart: vi.fn().mockResolvedValue(1), // バッチログIDを返す
 			logBatchComplete: vi.fn(),
-			logBatchError: vi.fn(),
+			logFeedProcess: vi.fn(),
 		};
 		(
 			RSSBatchProcessor as unknown as {
@@ -62,7 +64,13 @@ describe("rssBatch", () => {
 		await rssBatch.scheduled(mockController, mockEnv, mockContext);
 
 		expect(mockBatchProcessor.getActiveFeeds).toHaveBeenCalled();
-		expect(mockBatchProcessor.logBatchComplete).not.toHaveBeenCalled();
+		expect(mockBatchProcessor.logBatchComplete).toHaveBeenCalledWith(
+			1,
+			"completed",
+			0,
+			0,
+			0,
+		);
 		expect(mockFeedProcessor.process).not.toHaveBeenCalled();
 	});
 
@@ -79,8 +87,13 @@ describe("rssBatch", () => {
 		expect(mockBatchProcessor.getActiveFeeds).toHaveBeenCalled();
 		expect(FeedProcessor).toHaveBeenCalledTimes(2);
 		expect(mockFeedProcessor.process).toHaveBeenCalledTimes(2);
-		expect(mockBatchProcessor.logBatchComplete).toHaveBeenCalledWith(2);
-		expect(mockBatchProcessor.logBatchError).not.toHaveBeenCalled();
+		expect(mockBatchProcessor.logBatchComplete).toHaveBeenCalledWith(
+			1,
+			"completed",
+			2,
+			2,
+			0,
+		);
 	});
 
 	it("並行処理の制限が適用される", async () => {
@@ -95,10 +108,16 @@ describe("rssBatch", () => {
 
 		await rssBatch.scheduled(mockController, mockEnv, mockContext);
 
-		// 20個のフィードが10個ずつのチャンクで処理される
+		// 20個のフィードが全て処理される
 		expect(FeedProcessor).toHaveBeenCalledTimes(20);
 		expect(mockFeedProcessor.process).toHaveBeenCalledTimes(20);
-		expect(mockBatchProcessor.logBatchComplete).toHaveBeenCalledWith(20);
+		expect(mockBatchProcessor.logBatchComplete).toHaveBeenCalledWith(
+			1,
+			"completed",
+			20,
+			20,
+			0,
+		);
 	});
 
 	it("個別のフィードでエラーが発生しても処理は継続する", async () => {
@@ -119,18 +138,50 @@ describe("rssBatch", () => {
 
 		expect(FeedProcessor).toHaveBeenCalledTimes(3);
 		expect(mockFeedProcessor.process).toHaveBeenCalledTimes(3);
-		// エラーがあっても全体の処理は完了する
-		expect(mockBatchProcessor.logBatchComplete).toHaveBeenCalledWith(3);
-		expect(mockBatchProcessor.logBatchError).not.toHaveBeenCalled();
+		// エラーがあっても全体の処理は完了する（部分失敗）
+		expect(mockBatchProcessor.logBatchComplete).toHaveBeenCalledWith(
+			1,
+			"partial_failure",
+			3,
+			2,
+			1,
+		);
 	});
 
-	it("バッチ処理全体でエラーが発生した場合はエラーログを記録する", async () => {
+	it("バッチ処理全体でエラーが発生した場合はエラーをスローする", async () => {
 		const error = new Error("Batch processing error");
 		mockBatchProcessor.getActiveFeeds.mockRejectedValue(error);
 
-		await rssBatch.scheduled(mockController, mockEnv, mockContext);
+		await expect(
+			rssBatch.scheduled(mockController, mockEnv, mockContext),
+		).rejects.toThrow(error);
 
 		expect(mockBatchProcessor.logBatchComplete).not.toHaveBeenCalled();
-		expect(mockBatchProcessor.logBatchError).toHaveBeenCalledWith(error);
+	});
+
+	it("個別のフィードで文字列エラーが発生しても処理は継続する", async () => {
+		const mockFeeds = [
+			{ id: 1, url: "https://example.com/feed1", feedName: "Feed 1" },
+			{ id: 2, url: "https://example.com/feed2", feedName: "Feed 2" },
+		];
+		mockBatchProcessor.getActiveFeeds.mockResolvedValue(mockFeeds);
+
+		// 1番目のフィードで文字列エラーを発生させる
+		mockFeedProcessor.process
+			.mockRejectedValueOnce("String error")
+			.mockResolvedValueOnce(undefined);
+
+		await rssBatch.scheduled(mockController, mockEnv, mockContext);
+
+		expect(FeedProcessor).toHaveBeenCalledTimes(2);
+		expect(mockFeedProcessor.process).toHaveBeenCalledTimes(2);
+		// エラーがあっても全体の処理は完了する（部分失敗）
+		expect(mockBatchProcessor.logBatchComplete).toHaveBeenCalledWith(
+			1,
+			"partial_failure",
+			2,
+			1,
+			1,
+		);
 	});
 });
