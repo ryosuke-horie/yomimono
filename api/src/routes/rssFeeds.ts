@@ -4,7 +4,7 @@ import type { RssFeedService } from "../services/rssFeed";
 export const createRssFeedsRouter = (rssFeedService: RssFeedService) => {
 	const app = new Hono();
 	// RSSフィード一覧取得
-	app.get("/feeds", async (c) => {
+	app.get("/", async (c) => {
 		const feeds = await rssFeedService.getAllFeeds();
 		return c.json({
 			feeds,
@@ -13,7 +13,7 @@ export const createRssFeedsRouter = (rssFeedService: RssFeedService) => {
 	});
 
 	// RSSフィード詳細取得
-	app.get("/feeds/:id", async (c) => {
+	app.get("/:id", async (c) => {
 		const id = Number.parseInt(c.req.param("id"));
 		const feed = await rssFeedService.getFeedById(id);
 
@@ -31,14 +31,14 @@ export const createRssFeedsRouter = (rssFeedService: RssFeedService) => {
 	});
 
 	// RSSフィード作成
-	app.post("/feeds", async (c) => {
+	app.post("/", async (c) => {
 		const data = await c.req.json();
 		const newFeed = await rssFeedService.createFeed(data);
 		return c.json(newFeed, 201);
 	});
 
 	// RSSフィード更新
-	app.put("/feeds/:id", async (c) => {
+	app.put("/:id", async (c) => {
 		const id = Number.parseInt(c.req.param("id"));
 		const data = await c.req.json();
 		const updatedFeed = await rssFeedService.updateFeed(id, data);
@@ -46,7 +46,7 @@ export const createRssFeedsRouter = (rssFeedService: RssFeedService) => {
 	});
 
 	// RSSフィード削除
-	app.delete("/feeds/:id", async (c) => {
+	app.delete("/:id", async (c) => {
 		const id = Number.parseInt(c.req.param("id"));
 		// TODO: クエリパラメータでdeleteBookmarksを確認し、関連ブックマークも削除する処理を追加
 		await rssFeedService.deleteFeed(id);
