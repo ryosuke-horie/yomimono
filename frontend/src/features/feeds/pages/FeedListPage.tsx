@@ -54,22 +54,13 @@ export function FeedListPage() {
 			{/* ヘッダー */}
 			<div className="flex justify-between items-center mb-6">
 				<h1 className="text-2xl font-bold">RSS管理</h1>
-				<div className="flex gap-3">
-					<button
-						type="button"
-						onClick={() => setIsModalOpen(true)}
-						className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-					>
-						新規登録
-					</button>
-					<button
-						type="button"
-						className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-						disabled
-					>
-						手動実行
-					</button>
-				</div>
+				<button
+					type="button"
+					onClick={() => setIsModalOpen(true)}
+					className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+				>
+					新規登録
+				</button>
 			</div>
 
 			{/* フィード一覧 */}
