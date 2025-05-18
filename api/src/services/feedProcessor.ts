@@ -43,18 +43,28 @@ export class FeedProcessor {
 		let itemsCreated = 0;
 
 		try {
+			console.log(`フィード処理開始: ${this.feed.feedName} (${this.feed.url})`);
+
 			// 1. フィード取得
+			console.log("フィードデータを取得中...");
 			const feedData = await this.fetcher.fetchFeed(this.feed.url);
+			console.log("フィードデータ取得完了");
 
 			// 2. XML解析
+			console.log("XMLを解析中...");
 			const articles = await this.parser.parseFeed(feedData);
 			itemsFetched = articles.length;
+			console.log(`解析完了: ${itemsFetched}件の記事を取得`);
 
 			// 3. 新着記事のフィルタリング
+			console.log("新着記事をフィルタリング中...");
 			const newArticles = await this.filterNewArticles(articles);
+			console.log(`新着記事数: ${newArticles.length}件`);
 
 			// 4. ブックマーク登録
+			console.log("記事を保存中...");
 			itemsCreated = await this.saveArticles(newArticles);
+			console.log(`保存完了: ${itemsCreated}件の記事を保存`);
 
 			// 5. フィードの最終取得日時を更新
 			await this.updateFeedLastFetchedAt();
@@ -153,51 +163,55 @@ export class FeedProcessor {
 		}
 
 		try {
-			// トランザクション処理（D1はバッチ処理で代用）
-			const bookmarkInserts = articles.map((article) => {
-				const bookmarkData = {
-					url: article.url,
-					title: article.title,
-					isRead: false,
-					createdAt: article.publishedAt || new Date(),
-					updatedAt: new Date(),
-				};
-				console.log("Inserting bookmark:", bookmarkData);
-				return this.db
-					.insert(bookmarks)
-					.values(bookmarkData)
-					.returning({ id: bookmarks.id })
-					.prepare();
-			});
+			let successCount = 0;
 
-			const bookmarkResults = await this.d1Database.batch(bookmarkInserts);
+			// バッチ処理の代わりに1つずつ処理して問題を特定
+			for (const article of articles) {
+				try {
+					// ブックマークを保存
+					const bookmarkData = {
+						url: article.url,
+						title: article.title,
+						isRead: false,
+						// D1はDateオブジェクトを直接扱えないので、必要に応じて変換
+					};
+					console.log("Inserting bookmark:", JSON.stringify(bookmarkData));
 
-			// RSS記事情報をrss_feed_itemsテーブルに保存（取得履歴として）
-			const feedItemInserts = articles.map((article) => {
-				const feedItemData = {
-					feedId: this.feed.id,
-					guid: article.guid,
-					url: article.url,
-					title: article.title,
-					description: article.description,
-					publishedAt: article.publishedAt || null,
-					fetchedAt: new Date(),
-					createdAt: new Date(),
-				};
-				console.log("Inserting feed item:", feedItemData);
-				return this.db
-					.insert(rssFeedItems)
-					.values(feedItemData)
-					.prepare();
-			});
+					const bookmarkResult = await this.db
+						.insert(bookmarks)
+						.values(bookmarkData)
+						.returning({ id: bookmarks.id });
 
-			await this.d1Database.batch(feedItemInserts);
+					console.log("Bookmark inserted, id:", bookmarkResult[0]?.id);
 
-			return articles.length;
+					// RSS記事情報をrss_feed_itemsテーブルに保存（取得履歴として）
+					const feedItemData = {
+						feedId: this.feed.id,
+						guid: article.guid,
+						url: article.url,
+						title: article.title,
+						description: article.description || "",
+						// D1はDateオブジェクトを直接扱えないので、必要に応じて変換
+					};
+					console.log("Inserting feed item:", JSON.stringify(feedItemData));
+
+					await this.db.insert(rssFeedItems).values(feedItemData);
+
+					console.log("Feed item inserted");
+					successCount++;
+				} catch (articleError) {
+					console.error("Error saving article:", article.url, articleError);
+					// 個別のエラーは無視して処理を続行
+				}
+			}
+
+			return successCount;
 		} catch (error) {
 			console.error("Error saving articles:", error);
 			console.error("Detailed error:", JSON.stringify(error, null, 2));
-			throw new Error(`Failed to save articles: ${error instanceof Error ? error.message : String(error)}`);
+			throw new Error(
+				`Failed to save articles: ${error instanceof Error ? error.message : String(error)}`,
+			);
 		}
 	}
 

@@ -22,6 +22,7 @@ export class RSSBatchProcessor {
 		}>
 	> {
 		try {
+			console.log("RSSフィードテーブルからアクティブなフィードを取得中...");
 			const feeds = await this.db
 				.select({
 					id: rssFeeds.id,
@@ -32,6 +33,7 @@ export class RSSBatchProcessor {
 				.from(rssFeeds)
 				.where(eq(rssFeeds.isActive, true));
 
+			console.log(`取得したフィード数: ${feeds.length}`);
 			return feeds;
 		} catch (error) {
 			console.error("Error fetching active feeds:", error);
@@ -42,19 +44,21 @@ export class RSSBatchProcessor {
 	/**
 	 * バッチ処理の開始をログに記録
 	 */
-	async logBatchStart(): Promise<number> {
+	async logBatchStart(description = "RSS定期バッチ"): Promise<number> {
 		try {
+			console.log(`バッチログ記録開始: ${description}`);
 			const result = await this.db
 				.insert(rssBatchLogs)
 				.values({
 					status: "in_progress",
 					startedAt: new Date(),
-					feedId: 0, // バッチ全体のログなのでfeedIdは0とする
+					feedId: 1, // 暫定的に1を使用（後でスキーマ変更が必要）
 					itemsCreated: 0,
 					itemsFetched: 0,
 				})
 				.returning({ id: rssBatchLogs.id });
 
+			console.log(`バッチログID: ${result[0].id}`);
 			return result[0].id;
 		} catch (error) {
 			console.error("Error logging batch start:", error);
@@ -65,16 +69,27 @@ export class RSSBatchProcessor {
 	/**
 	 * バッチ処理の完了をログに記録
 	 */
-	async logBatchComplete(feedsProcessed: number): Promise<void> {
+	async logBatchComplete(
+		batchLogId: number,
+		status: "completed" | "partial_failure",
+		totalFeeds: number,
+		successCount: number,
+		errorCount: number,
+	): Promise<void> {
 		try {
-			await this.db.insert(rssBatchLogs).values({
-				status: "success",
-				itemsCreated: feedsProcessed,
-				itemsFetched: feedsProcessed,
-				startedAt: new Date(),
-				finishedAt: new Date(),
-				feedId: 0, // バッチ全体のログなのでfeedIdは0とする
-			});
+			await this.db
+				.update(rssBatchLogs)
+				.set({
+					status,
+					finishedAt: new Date(),
+					itemsCreated: successCount,
+					itemsFetched: totalFeeds,
+				})
+				.where(eq(rssBatchLogs.id, batchLogId));
+
+			console.log(
+				`バッチログ更新: ID=${batchLogId}, ステータス=${status}, 成功=${successCount}, エラー=${errorCount}`,
+			);
 		} catch (error) {
 			console.error("Error logging batch complete:", error);
 			throw new Error("Failed to log batch complete");
@@ -111,8 +126,8 @@ export class RSSBatchProcessor {
 		feedId: number,
 		status: "success" | "error",
 		details: {
-			itemsFetched?: number;
-			itemsCreated?: number;
+			itemsFetched: number;
+			itemsCreated: number;
 			errorMessage?: string;
 			startedAt: Date;
 			finishedAt: Date;
@@ -122,8 +137,8 @@ export class RSSBatchProcessor {
 			await this.db.insert(rssBatchLogs).values({
 				feedId,
 				status,
-				itemsFetched: details.itemsFetched || 0,
-				itemsCreated: details.itemsCreated || 0,
+				itemsFetched: details.itemsFetched,
+				itemsCreated: details.itemsCreated,
 				errorMessage: details.errorMessage,
 				startedAt: details.startedAt,
 				finishedAt: details.finishedAt,

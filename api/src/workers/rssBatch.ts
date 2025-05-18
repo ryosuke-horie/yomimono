@@ -1,10 +1,10 @@
-import type { D1Database, ExportedHandler } from "@cloudflare/workers-types";
+import type { D1Database } from "@cloudflare/workers-types";
 import { RSSBatchProcessor } from "../services/batchProcessor";
 import { FeedProcessor } from "../services/feedProcessor";
 
 export interface Env {
 	DB: D1Database;
-	// RSS_BATCH_QUEUE: Queue;  今後の拡張用にコメントアウト
+	NODE_ENV?: string;
 }
 
 export default {
@@ -13,57 +13,67 @@ export default {
 		env: Env,
 		ctx: ExecutionContext,
 	): Promise<void> {
-		const batchProcessor = new RSSBatchProcessor(env.DB);
+		console.log("RSS バッチ処理開始");
+
+		const db = env.DB;
+		const processor = new RSSBatchProcessor(db);
 
 		try {
-			// アクティブなフィードを取得
-			const activeFeeds = await batchProcessor.getActiveFeeds();
+			console.log("DB接続確認");
+			// バッチ開始のログを記録
+			const batchLogId = await processor.logBatchStart("RSS定期バッチ");
+			console.log(`バッチログID: ${batchLogId}`);
+
+			// アクティブなRSSフィードを取得
+			console.log("アクティブなフィードを取得中...");
+			const activeFeeds = await processor.getActiveFeeds();
+			console.log(`アクティブなフィード数: ${activeFeeds.length}`);
 
 			if (activeFeeds.length === 0) {
-				console.log("No active feeds to process");
+				console.log("処理対象のフィードがありません");
+				await processor.logBatchComplete(batchLogId, "completed", 0, 0, 0);
 				return;
 			}
 
-			// 並行処理の設定
-			const CONCURRENT_LIMIT = 10;
-			const chunks = chunk(activeFeeds, CONCURRENT_LIMIT);
+			// 処理統計
+			let successCount = 0;
+			let errorCount = 0;
+			const errors: string[] = [];
 
-			// チャンク毎に処理
-			for (const feedChunk of chunks) {
-				await Promise.all(feedChunk.map((feed) => processFeed(feed, env)));
+			// フィードを順番に処理（並行処理は後で実装）
+			for (const feed of activeFeeds) {
+				console.log(`処理中のフィード: ${feed.feedName}`);
+				const feedProcessor = new FeedProcessor(feed, db);
+
+				try {
+					await feedProcessor.process();
+					successCount++;
+					console.log(`フィード処理成功: ${feed.feedName}`);
+				} catch (error) {
+					errorCount++;
+					const errorMessage = `フィード処理エラー (${feed.feedName}): ${
+						error instanceof Error ? error.message : String(error)
+					}`;
+					console.error(errorMessage);
+					errors.push(errorMessage);
+				}
 			}
 
-			// バッチ完了ログ
-			await batchProcessor.logBatchComplete(activeFeeds.length);
+			// バッチ処理完了
+			await processor.logBatchComplete(
+				batchLogId,
+				errorCount > 0 ? "partial_failure" : "completed",
+				activeFeeds.length,
+				successCount,
+				errorCount,
+			);
+
+			console.log(
+				`バッチ処理完了: 総数=${activeFeeds.length}, 成功=${successCount}, エラー=${errorCount}`,
+			);
 		} catch (error) {
-			console.error("Batch processing error:", error);
-			await batchProcessor.logBatchError(error);
+			console.error("バッチ処理エラー:", error);
+			throw error;
 		}
 	},
-} satisfies ExportedHandler<Env>;
-
-// 配列をチャンクに分割するヘルパー関数
-function chunk<T>(array: T[], size: number): T[][] {
-	const chunks: T[][] = [];
-	for (let i = 0; i < array.length; i += size) {
-		chunks.push(array.slice(i, i + size));
-	}
-	return chunks;
-}
-
-// フィード処理関数
-async function processFeed(
-	feed: { id: number; url: string; feedName: string },
-	env: Env,
-): Promise<void> {
-	console.log(`Processing feed: ${feed.feedName} (${feed.url})`);
-	const processor = new FeedProcessor(feed, env.DB);
-
-	try {
-		await processor.process();
-		console.log(`Successfully processed feed: ${feed.feedName}`);
-	} catch (error) {
-		console.error(`Error processing feed ${feed.feedName}:`, error);
-		// エラーがあっても他のフィードの処理は継続
-	}
-}
+};
