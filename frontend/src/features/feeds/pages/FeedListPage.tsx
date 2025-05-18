@@ -4,22 +4,10 @@ import { useState } from "react";
 import { CreateFeedModal } from "../components/CreateFeedModal";
 import { FeedCard } from "../components/FeedCard";
 import { useRSSFeeds } from "../queries/useRSSFeeds";
-import type { RSSFeed } from "../types";
 
 export function FeedListPage() {
 	const { data, isLoading, error } = useRSSFeeds();
 	const [isModalOpen, setIsModalOpen] = useState(false);
-
-	// 編集、削除のハンドラー（今回は未実装）
-	const handleEdit = (feed: RSSFeed) => {
-		// TODO: 編集モーダルの実装
-		console.log("Edit feed:", feed);
-	};
-
-	const handleDelete = (id: number) => {
-		// TODO: 削除機能の実装
-		console.log("Delete feed:", id);
-	};
 
 	// ローディング状態
 	if (isLoading) {
@@ -80,12 +68,7 @@ export function FeedListPage() {
 			) : (
 				<div className="grid gap-4">
 					{feeds.map((feed) => (
-						<FeedCard
-							key={feed.id}
-							feed={feed}
-							onEdit={handleEdit}
-							onDelete={handleDelete}
-						/>
+						<FeedCard key={feed.id} feed={feed} />
 					))}
 				</div>
 			)}
