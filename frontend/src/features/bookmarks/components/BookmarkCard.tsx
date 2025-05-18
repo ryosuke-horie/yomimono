@@ -86,7 +86,7 @@ export function BookmarkCard({
 
 	return (
 		<article
-			className={`relative p-4 border rounded-lg hover:shadow-md transition-shadow flex flex-col min-h-[150px] ${
+			className={`relative p-4 pb-16 border rounded-lg hover:shadow-md transition-shadow flex flex-col min-h-[150px] ${
 				isRead ? "bg-gray-50" : ""
 			}`}
 		>
@@ -271,12 +271,14 @@ export function BookmarkCard({
 			<p className="text-xs text-gray-500">{formattedDate}</p>
 
 			{/* 要約表示 */}
-			<BookmarkSummary
-				summary={summary || null}
-				summaryUpdatedAt={summaryUpdatedAt || null}
-				isGenerating={isGeneratingSummary}
-				onGenerateSummary={handleGenerateSummary}
-			/>
+			<div className="mt-3 mb-12">
+				<BookmarkSummary
+					summary={summary || null}
+					summaryUpdatedAt={summaryUpdatedAt || null}
+					isGenerating={isGeneratingSummary}
+					onGenerateSummary={handleGenerateSummary}
+				/>
+			</div>
 		</article>
 	);
 }
