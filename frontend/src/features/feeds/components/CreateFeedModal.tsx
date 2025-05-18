@@ -113,7 +113,6 @@ export function CreateFeedModal({ isOpen, onClose }: CreateFeedModalProps) {
 					)}
 				</div>
 
-
 				{/* 有効/無効 */}
 				<div className="flex items-center">
 					<input
