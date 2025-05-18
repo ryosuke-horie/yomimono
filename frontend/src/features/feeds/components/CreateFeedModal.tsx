@@ -12,7 +12,6 @@ export function CreateFeedModal({ isOpen, onClose }: CreateFeedModalProps) {
 	const [formData, setFormData] = useState<CreateRSSFeedDTO>({
 		name: "",
 		url: "",
-		updateInterval: 3600, // デフォルト: 1時間
 		isActive: true,
 	});
 
@@ -53,7 +52,6 @@ export function CreateFeedModal({ isOpen, onClose }: CreateFeedModalProps) {
 				setFormData({
 					name: "",
 					url: "",
-					updateInterval: 3600,
 					isActive: true,
 				});
 				setErrors({});
@@ -115,33 +113,6 @@ export function CreateFeedModal({ isOpen, onClose }: CreateFeedModalProps) {
 					)}
 				</div>
 
-				{/* 更新間隔 */}
-				<div>
-					<label
-						htmlFor="updateInterval"
-						className="block text-sm font-medium text-gray-700 mb-1"
-					>
-						更新間隔
-					</label>
-					<select
-						id="updateInterval"
-						value={formData.updateInterval}
-						onChange={(e) =>
-							setFormData({
-								...formData,
-								updateInterval: Number(e.target.value),
-							})
-						}
-						className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-					>
-						<option value={1800}>30分</option>
-						<option value={3600}>1時間</option>
-						<option value={7200}>2時間</option>
-						<option value={21600}>6時間</option>
-						<option value={43200}>12時間</option>
-						<option value={86400}>24時間</option>
-					</select>
-				</div>
 
 				{/* 有効/無効 */}
 				<div className="flex items-center">
