@@ -52,6 +52,7 @@ updates:
           - "hono"
           - "drizzle-orm"
           - "dotenv"
+          - "fast-xml-parser"
           - "typescript"
           - "@types/node"
           # Cloudflare関連のデプロイメント
