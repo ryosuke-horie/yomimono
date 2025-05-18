@@ -6,6 +6,7 @@ import { desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { HTTPException } from "hono/http-exception";
 import { bookmarks, rssBatchLogs } from "./db/schema";
 import { ArticleLabelRepository } from "./repositories/articleLabel";
 import { DrizzleBookmarkRepository } from "./repositories/bookmark";
@@ -33,6 +34,25 @@ export const createApp = (env: Env) => {
 	// CORSの設定
 	app.use("*", cors());
 
+	// グローバルエラーハンドラの追加
+	app.onError((err, c) => {
+		console.error(`Error: ${err}`);
+		
+		// HTTPExceptionの場合は適切なステータスコードとメッセージを返す
+		if (err instanceof HTTPException) {
+			return c.json(
+				{ error: err.message },
+				err.status
+			);
+		}
+		
+		// その他のエラーの場合は500エラーを返す
+		return c.json(
+			{ error: "Internal Server Error" },
+			500
+		);
+	});
+
 	// データベース、リポジトリ、サービスの初期化
 	const db = env.DB;
 	const bookmarkRepository = new DrizzleBookmarkRepository(db);
@@ -58,7 +78,7 @@ export const createApp = (env: Env) => {
 
 	// RSSフィードルートの追加
 	const rssFeedsRouter = createRssFeedsRouter(rssFeedService);
-	app.route("/api/rss/feeds", rssFeedsRouter);
+	app.route("/api/rss", rssFeedsRouter);
 
 	// テストエンドポイント
 	app.get("/api/dev/test", (c) => {
