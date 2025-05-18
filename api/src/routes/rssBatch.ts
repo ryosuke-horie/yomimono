@@ -119,6 +119,7 @@ export const createRssBatchRouter = (db: D1Database) => {
 				targetFeeds: feedIds?.length || "all",
 				startedAt: new Date().toISOString(),
 			});
+			*/
 		} catch (error) {
 			console.error("手動バッチ実行エラー:", error);
 			const errorMessage = error instanceof Error ? error.message : String(error);
