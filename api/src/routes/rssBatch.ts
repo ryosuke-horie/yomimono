@@ -9,14 +9,37 @@ export const createRssBatchRouter = (db: D1Database) => {
 	// 手動バッチ実行エンドポイント
 	app.post("/batch/execute", async (c) => {
 		try {
+			console.log("手動バッチ実行リクエスト受信");
 			const body = await c.req.json<{ feedIds?: number[] }>();
 			const feedIds = body.feedIds;
+			console.log("feedIds:", feedIds);
 
 			const jobId = crypto.randomUUID();
+			console.log("ジョブID生成:", jobId);
+			
+			// まずは同期処理でテスト
+			return c.json({
+				jobId,
+				status: "started",
+				targetFeeds: feedIds?.length || "all",
+				startedAt: new Date().toISOString(),
+			});
+			
+			/*
 			const processor = new RSSBatchProcessor(db);
+			console.log("RSSBatchProcessor初期化");
 
 			// 非同期でバッチ処理を開始
-			c.executionCtx.waitUntil(
+			const ctx = c.executionCtx;
+			if (!ctx) {
+				console.error("ExecutionContextが存在しません");
+				return c.json({ 
+					error: "Failed to start batch execution",
+					details: "ExecutionContext not available"
+				}, 500);
+			}
+			
+			ctx.waitUntil(
 				(async () => {
 					console.log(`手動バッチ実行開始: ジョブID=${jobId}`);
 
@@ -98,7 +121,13 @@ export const createRssBatchRouter = (db: D1Database) => {
 			});
 		} catch (error) {
 			console.error("手動バッチ実行エラー:", error);
-			return c.json({ error: "Failed to start batch execution" }, 500);
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			console.error("エラー詳細:", errorMessage);
+			console.error("エラースタック:", error instanceof Error ? error.stack : "");
+			return c.json({ 
+				error: "Failed to start batch execution",
+				details: errorMessage
+			}, 500);
 		}
 	});
 
