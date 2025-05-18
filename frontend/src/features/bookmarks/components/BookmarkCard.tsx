@@ -10,14 +10,9 @@ import { BookmarkSummary } from "./BookmarkSummary";
 interface Props {
 	bookmark: BookmarkWithLabel;
 	onLabelClick?: (labelName: string) => void;
-	onGenerateSummary?: (bookmarkId: number) => void;
 }
 
-export function BookmarkCard({
-	bookmark,
-	onLabelClick,
-	onGenerateSummary,
-}: Props) {
+export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 	const {
 		id,
 		title,
@@ -30,7 +25,6 @@ export function BookmarkCard({
 		summaryUpdatedAt,
 	} = bookmark;
 	const formattedDate = new Date(createdAt).toLocaleDateString("ja-JP");
-	const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
 	const { mutate: toggleFavorite, isPending: isTogglingFavorite } =
 		useToggleFavoriteBookmark();
@@ -58,18 +52,6 @@ export function BookmarkCard({
 		if (!isRead) {
 			// 非同期で既読にする（結果を待たない）
 			markAsReadMutate(id);
-		}
-	};
-
-	// 要約生成処理
-	const handleGenerateSummary = async () => {
-		if (onGenerateSummary) {
-			setIsGeneratingSummary(true);
-			try {
-				await onGenerateSummary(id);
-			} finally {
-				setIsGeneratingSummary(false);
-			}
 		}
 	};
 
@@ -275,8 +257,6 @@ export function BookmarkCard({
 				<BookmarkSummary
 					summary={summary || null}
 					summaryUpdatedAt={summaryUpdatedAt || null}
-					isGenerating={isGeneratingSummary}
-					onGenerateSummary={handleGenerateSummary}
 				/>
 			</div>
 		</article>
