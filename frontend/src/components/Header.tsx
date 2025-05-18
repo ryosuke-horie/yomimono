@@ -47,6 +47,12 @@ export function Header() {
 						>
 							ラベル設定
 						</Link>
+						<Link
+							href="/feeds"
+							className={`inline-flex items-center px-1 pt-1 ${isActive("/feeds")}`}
+						>
+							RSS管理
+						</Link>
 					</nav>
 				</div>
 			</div>
