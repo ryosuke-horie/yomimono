@@ -4,4 +4,5 @@ export const queryKeys = {
 	list: () => [...queryKeys.lists()] as const,
 	details: () => [...queryKeys.all, "detail"] as const,
 	detail: (id: number) => [...queryKeys.details(), id] as const,
+	batchLogs: () => ["batch-logs"] as const,
 };

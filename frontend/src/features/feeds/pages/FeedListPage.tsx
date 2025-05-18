@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { BatchStatus } from "../components/BatchStatus";
 import { CreateFeedModal } from "../components/CreateFeedModal";
 import { FeedCard } from "../components/FeedCard";
+import { ManualExecuteButton } from "../components/ManualExecuteButton";
 import { useRSSFeeds } from "../queries/useRSSFeeds";
 
 export function FeedListPage() {
@@ -42,13 +44,21 @@ export function FeedListPage() {
 			{/* ヘッダー */}
 			<div className="flex justify-between items-center mb-6">
 				<h1 className="text-2xl font-bold">RSS管理</h1>
-				<button
-					type="button"
-					onClick={() => setIsModalOpen(true)}
-					className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-				>
-					新規登録
-				</button>
+				<div className="flex items-center gap-3">
+					<ManualExecuteButton />
+					<button
+						type="button"
+						onClick={() => setIsModalOpen(true)}
+						className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+					>
+						新規登録
+					</button>
+				</div>
+			</div>
+
+			{/* バッチ実行状態 */}
+			<div className="mb-6">
+				<BatchStatus />
 			</div>
 
 			{/* フィード一覧 */}

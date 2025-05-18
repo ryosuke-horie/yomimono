@@ -13,6 +13,7 @@ import { LabelRepository } from "./repositories/label";
 import { RssFeedRepository } from "./repositories/rssFeed";
 import { createBookmarksRouter } from "./routes/bookmarks";
 import labelsRouter from "./routes/labels";
+import { createRssBatchRouter } from "./routes/rssBatch";
 import { createRssFeedsRouter } from "./routes/rssFeeds";
 import { createSummaryRouter } from "./routes/summary";
 import { DefaultBookmarkService } from "./services/bookmark";
@@ -59,6 +60,10 @@ export const createApp = (env: Env) => {
 	// RSSフィードルートの追加
 	const rssFeedsRouter = createRssFeedsRouter(rssFeedService);
 	app.route("/api/rss", rssFeedsRouter);
+
+	// RSSバッチルートの追加
+	const rssBatchRouter = createRssBatchRouter(c.env.DB);
+	app.route("/", rssBatchRouter);
 
 	// テストエンドポイント
 	app.get("/api/dev/test", (c) => {
