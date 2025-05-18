@@ -1,3 +1,4 @@
+import type { D1Database } from "@cloudflare/workers-types";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Article } from "../types/rss";
 import { RSSBatchProcessor } from "./batchProcessor";
@@ -36,11 +37,11 @@ describe("FeedProcessor", () => {
 	};
 	const mockD1Database = {
 		batch: vi.fn(),
-	} as any;
+	} as unknown as D1Database;
 
-	let mockFetcher: any;
-	let mockParser: any;
-	let mockBatchProcessor: any;
+	let mockFetcher: { fetchFeed: ReturnType<typeof vi.fn> };
+	let mockParser: { parseFeed: ReturnType<typeof vi.fn> };
+	let mockBatchProcessor: { logFeedProcess: ReturnType<typeof vi.fn> };
 
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -57,9 +58,21 @@ describe("FeedProcessor", () => {
 		};
 
 		// コンストラクタのモック
-		(RSSFetcher as any).mockImplementation(() => mockFetcher);
-		(RSSParser as any).mockImplementation(() => mockParser);
-		(RSSBatchProcessor as any).mockImplementation(() => mockBatchProcessor);
+		(
+			RSSFetcher as unknown as {
+				mockImplementation: (fn: () => typeof mockFetcher) => void;
+			}
+		).mockImplementation(() => mockFetcher);
+		(
+			RSSParser as unknown as {
+				mockImplementation: (fn: () => typeof mockParser) => void;
+			}
+		).mockImplementation(() => mockParser);
+		(
+			RSSBatchProcessor as unknown as {
+				mockImplementation: (fn: () => typeof mockBatchProcessor) => void;
+			}
+		).mockImplementation(() => mockBatchProcessor);
 
 		// DBチェーンメソッドのモック
 		mockDb.select.mockReturnValue(mockDb);

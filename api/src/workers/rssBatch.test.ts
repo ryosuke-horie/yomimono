@@ -1,4 +1,5 @@
 import type {
+	D1Database,
 	ExecutionContext,
 	ScheduledController,
 } from "@cloudflare/workers-types";
@@ -12,15 +13,21 @@ vi.mock("../services/batchProcessor");
 vi.mock("../services/feedProcessor");
 
 describe("rssBatch", () => {
-	const mockDb = {} as any;
+	const mockDb = {} as unknown as D1Database;
 	const mockEnv: Env = {
 		DB: mockDb,
 	};
 	const mockController = {} as ScheduledController;
 	const mockContext = {} as ExecutionContext;
 
-	let mockBatchProcessor: any;
-	let mockFeedProcessor: any;
+	let mockBatchProcessor: {
+		getActiveFeeds: ReturnType<typeof vi.fn>;
+		logBatchComplete: ReturnType<typeof vi.fn>;
+		logBatchError: ReturnType<typeof vi.fn>;
+	};
+	let mockFeedProcessor: {
+		process: ReturnType<typeof vi.fn>;
+	};
 
 	beforeEach(() => {
 		// モックをリセット
@@ -32,13 +39,21 @@ describe("rssBatch", () => {
 			logBatchComplete: vi.fn(),
 			logBatchError: vi.fn(),
 		};
-		(RSSBatchProcessor as any).mockImplementation(() => mockBatchProcessor);
+		(
+			RSSBatchProcessor as unknown as {
+				mockImplementation: (fn: () => typeof mockBatchProcessor) => void;
+			}
+		).mockImplementation(() => mockBatchProcessor);
 
 		// FeedProcessorのモック
 		mockFeedProcessor = {
 			process: vi.fn(),
 		};
-		(FeedProcessor as any).mockImplementation(() => mockFeedProcessor);
+		(
+			FeedProcessor as unknown as {
+				mockImplementation: (fn: () => typeof mockFeedProcessor) => void;
+			}
+		).mockImplementation(() => mockFeedProcessor);
 	});
 
 	it("アクティブなフィードがない場合は早期に終了する", async () => {

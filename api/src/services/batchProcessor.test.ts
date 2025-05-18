@@ -1,3 +1,4 @@
+import type { D1Database } from "@cloudflare/workers-types";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { rssBatchLogs, rssFeeds } from "../db/schema";
 import { RSSBatchProcessor } from "./batchProcessor";
@@ -20,7 +21,7 @@ const mockDb = {
 
 describe("RSSBatchProcessor", () => {
 	let processor: RSSBatchProcessor;
-	const mockD1Database = {} as any;
+	const mockD1Database = {} as unknown as D1Database;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
