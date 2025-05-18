@@ -84,7 +84,9 @@ export const executeBatchApi = async (
 		body: JSON.stringify(data),
 	});
 	if (!response.ok) {
-		throw new Error(`Failed to execute batch: ${response.statusText}`);
+		const errorData = await response.text();
+		console.error("Failed to execute batch:", response.status, errorData);
+		throw new Error(`Failed to execute batch: ${response.status} ${response.statusText}`);
 	}
 	return response.json();
 };

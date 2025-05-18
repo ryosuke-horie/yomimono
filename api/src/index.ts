@@ -62,7 +62,7 @@ export const createApp = (env: Env) => {
 	app.route("/api/rss", rssFeedsRouter);
 
 	// RSSバッチルートの追加
-	const rssBatchRouter = createRssBatchRouter(c.env.DB);
+	const rssBatchRouter = createRssBatchRouter(env.DB);
 	app.route("/", rssBatchRouter);
 
 	// テストエンドポイント
