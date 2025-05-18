@@ -7,7 +7,7 @@ export const createRssBatchRouter = (db: D1Database) => {
 	const app = new Hono();
 
 	// 手動バッチ実行エンドポイント
-	app.post("/api/rss/batch/execute", async (c) => {
+	app.post("/batch/execute", async (c) => {
 		try {
 			const body = await c.req.json<{ feedIds?: number[] }>();
 			const feedIds = body.feedIds;
@@ -103,7 +103,7 @@ export const createRssBatchRouter = (db: D1Database) => {
 	});
 
 	// バッチ実行ログ取得エンドポイント
-	app.get("/api/rss/batch/logs", async (c) => {
+	app.get("/batch/logs", async (c) => {
 		try {
 			const processor = new RSSBatchProcessor(db);
 			// ログ取得メソッドが必要（後で実装）
