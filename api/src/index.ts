@@ -12,6 +12,7 @@ import { DefaultBookmarkService } from "./services/bookmark";
 import { LabelService } from "./services/label";
 import { RssFeedService } from "./services/rssFeed";
 import { SummaryService } from "./services/summary";
+import rssBatch from "./workers/rssBatch";
 
 export interface Env {
 	DB: D1Database;
@@ -50,6 +51,33 @@ export const createApp = (env: Env) => {
 	// RSSフィードルートの追加
 	const rssFeedsRouter = createRssFeedsRouter(rssFeedService);
 	app.route("/api/rss", rssFeedsRouter);
+
+	// 開発環境用：手動バッチ実行エンドポイント
+	if (process.env.NODE_ENV !== "production") {
+		app.post("/api/dev/rss-batch/run", async (c) => {
+			const mockController = {
+				noRetry: () => {},
+				waitUntil: () => {},
+			} as any;
+			const mockContext = {
+				waitUntil: () => {},
+			} as any;
+
+			try {
+				await rssBatch.scheduled(mockController, c.env, mockContext);
+				return c.json({ success: true, message: "バッチ処理が完了しました" });
+			} catch (error) {
+				console.error("バッチ処理エラー:", error);
+				return c.json(
+					{
+						success: false,
+						error: error instanceof Error ? error.message : String(error),
+					},
+					500,
+				);
+			}
+		});
+	}
 
 	return app;
 };

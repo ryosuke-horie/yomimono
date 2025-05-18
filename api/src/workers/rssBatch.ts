@@ -56,10 +56,12 @@ async function processFeed(
 	feed: { id: number; url: string; feedName: string },
 	env: Env,
 ): Promise<void> {
+	console.log(`Processing feed: ${feed.feedName} (${feed.url})`);
 	const processor = new FeedProcessor(feed, env.DB);
 
 	try {
 		await processor.process();
+		console.log(`Successfully processed feed: ${feed.feedName}`);
 	} catch (error) {
 		console.error(`Error processing feed ${feed.feedName}:`, error);
 		// エラーがあっても他のフィードの処理は継続

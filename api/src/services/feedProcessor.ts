@@ -154,42 +154,50 @@ export class FeedProcessor {
 
 		try {
 			// トランザクション処理（D1はバッチ処理で代用）
-			const bookmarkInserts = articles.map((article) =>
-				this.db
+			const bookmarkInserts = articles.map((article) => {
+				const bookmarkData = {
+					url: article.url,
+					title: article.title,
+					isRead: false,
+					createdAt: article.publishedAt || new Date(),
+					updatedAt: new Date(),
+				};
+				console.log("Inserting bookmark:", bookmarkData);
+				return this.db
 					.insert(bookmarks)
-					.values({
-						url: article.url,
-						title: article.title,
-						isRead: false,
-						createdAt: article.publishedAt || new Date(),
-					})
+					.values(bookmarkData)
 					.returning({ id: bookmarks.id })
-					.prepare(),
-			);
+					.prepare();
+			});
 
 			const bookmarkResults = await this.d1Database.batch(bookmarkInserts);
 
 			// RSS記事情報をrss_feed_itemsテーブルに保存（取得履歴として）
-			const feedItemInserts = articles.map((article) =>
-				this.db
+			const feedItemInserts = articles.map((article) => {
+				const feedItemData = {
+					feedId: this.feed.id,
+					guid: article.guid,
+					url: article.url,
+					title: article.title,
+					description: article.description,
+					publishedAt: article.publishedAt || null,
+					fetchedAt: new Date(),
+					createdAt: new Date(),
+				};
+				console.log("Inserting feed item:", feedItemData);
+				return this.db
 					.insert(rssFeedItems)
-					.values({
-						feedId: this.feed.id,
-						guid: article.guid,
-						url: article.url,
-						title: article.title,
-						description: article.description,
-						publishedAt: article.publishedAt || null,
-					})
-					.prepare(),
-			);
+					.values(feedItemData)
+					.prepare();
+			});
 
 			await this.d1Database.batch(feedItemInserts);
 
 			return articles.length;
 		} catch (error) {
 			console.error("Error saving articles:", error);
-			throw new Error("Failed to save articles");
+			console.error("Detailed error:", JSON.stringify(error, null, 2));
+			throw new Error(`Failed to save articles: ${error instanceof Error ? error.message : String(error)}`);
 		}
 	}
 
