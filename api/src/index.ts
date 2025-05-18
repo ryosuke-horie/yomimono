@@ -37,20 +37,14 @@ export const createApp = (env: Env) => {
 	// グローバルエラーハンドラの追加
 	app.onError((err, c) => {
 		console.error(`Error: ${err}`);
-		
+
 		// HTTPExceptionの場合は適切なステータスコードとメッセージを返す
 		if (err instanceof HTTPException) {
-			return c.json(
-				{ error: err.message },
-				err.status
-			);
+			return c.json({ error: err.message }, err.status);
 		}
-		
+
 		// その他のエラーの場合は500エラーを返す
-		return c.json(
-			{ error: "Internal Server Error" },
-			500
-		);
+		return c.json({ error: "Internal Server Error" }, 500);
 	});
 
 	// データベース、リポジトリ、サービスの初期化
