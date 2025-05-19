@@ -59,6 +59,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **エラー処理**: try/catchブロックで明示的にエラーを処理
 - **テスト記述**: テスト内容は日本語で記述し、理解しやすくする
 
+## 依存関係管理
+- **Dependabot**: `.github/dependabot.yml`で設定
+  - 各ディレクトリごと（api, frontend, extension, mcp）に個別に依存関係を管理
+  - 依存パッケージはグループ化されており、関連パッケージは一括で更新される
+  - テスト関連パッケージ（vitest, @vitest/*）は同時に更新する必要があるためグループ化
+
 ## 言語設定
 - 日本語での解答生成を優先する
 - コードコメントは日本語で書く
