@@ -16,7 +16,7 @@ export const useCreateBookmark = () => {
 				queryKey: ["bookmarks"],
 				refetchType: "all",
 			} as InvalidateQueryFilters);
-			
+
 			// 追加後すぐに最新データを取得するため
 			queryClient.refetchQueries({
 				queryKey: ["bookmarks"],
