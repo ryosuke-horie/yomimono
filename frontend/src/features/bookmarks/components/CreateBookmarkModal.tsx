@@ -36,6 +36,11 @@ export function CreateBookmarkModal({
 			onSuccess: () => {
 				reset();
 				onClose();
+				// ページの上部へスクロール（新しい記事が表示される位置）
+				window.scrollTo({ top: 0, behavior: "smooth" });
+			},
+			onError: (error) => {
+				console.error("記事の追加に失敗しました:", error);
 			},
 		});
 	};
