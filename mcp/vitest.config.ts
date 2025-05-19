@@ -14,7 +14,6 @@ export default defineConfig({
 				"src/test/**",
 				"src/types/**",
 				"*.config.{js,ts}",
-				"knip.config.ts",
 			],
 		},
 	},

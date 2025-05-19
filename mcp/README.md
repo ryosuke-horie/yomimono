@@ -61,4 +61,3 @@ This directory contains the MCP (Model Context Protocol) server that provides to
 
 - **ビルド**: `npm run build` （TypeScriptを `build/` ディレクトリ内のJavaScriptにコンパイルします）
 - **Lint/フォーマット**: Biomeを使用。`npm run biome check .` または `npm run biome format --write .` を実行。
-- **静的解析**: knipを使用。`npm run knip` を実行。

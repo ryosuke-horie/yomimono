@@ -12,6 +12,5 @@
     "format:frontend": "cd frontend && npm run format",
     "format:extension": "cd extension && npm run format",
     "format:mcp": "cd mcp && npm run format"
-  },
-  "devDependencies": {}
+  }
 }

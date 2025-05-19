@@ -33,7 +33,6 @@ updates:
         patterns:
           # 開発ツール関連
           - "@biomejs/biome"
-          - "knip"
 
   # apiディレクトリの依存関係を管理
   - package-ecosystem: "npm"
@@ -70,7 +69,6 @@ updates:
         patterns:
           # コード品質管理ツール
           - "@biomejs/biome"
-          - "knip"
 
   # Extensionディレクトリの依存関係を管理
   - package-ecosystem: "npm"
@@ -87,7 +85,6 @@ updates:
         patterns:
           - "@biomejs/biome"
           - "@types/node"
-          - "knip"
           - "typescript"
 
   # MCPディレクトリの依存関係を管理
@@ -112,7 +109,6 @@ updates:
           # 開発ツール関連
           - "@types/bun"
           - "dotenv"
-          - "knip"
 
   # GitHub Actionsの依存関係を管理
   - package-ecosystem: "github-actions"

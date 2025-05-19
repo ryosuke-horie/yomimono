@@ -7,12 +7,12 @@ import type {
 	UpdateRSSFeedDTO,
 } from "../types";
 
-const BASE_PATH = "/api/rss";
+const BASE_PATH = "/api/rss/feeds";
 
 export const feedsApi = {
 	// RSSフィード一覧を取得
 	getFeeds: async (): Promise<RSSFeedResponse> => {
-		const response = await fetch(`${API_BASE_URL}${BASE_PATH}/feeds`);
+		const response = await fetch(`${API_BASE_URL}${BASE_PATH}`);
 		if (!response.ok) {
 			throw new Error(`Failed to fetch feeds: ${response.statusText}`);
 		}
@@ -21,7 +21,7 @@ export const feedsApi = {
 
 	// RSSフィード詳細を取得
 	getFeedById: async (id: number): Promise<RSSFeedDetailResponse> => {
-		const response = await fetch(`${API_BASE_URL}${BASE_PATH}/feeds/${id}`);
+		const response = await fetch(`${API_BASE_URL}${BASE_PATH}/${id}`);
 		if (!response.ok) {
 			throw new Error(`Failed to fetch feed: ${response.statusText}`);
 		}
@@ -30,7 +30,7 @@ export const feedsApi = {
 
 	// RSSフィードを作成
 	createFeed: async (data: CreateRSSFeedDTO): Promise<RSSFeed> => {
-		const response = await fetch(`${API_BASE_URL}${BASE_PATH}/feeds`, {
+		const response = await fetch(`${API_BASE_URL}${BASE_PATH}`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -45,7 +45,7 @@ export const feedsApi = {
 
 	// RSSフィードを更新
 	updateFeed: async (id: number, data: UpdateRSSFeedDTO): Promise<RSSFeed> => {
-		const response = await fetch(`${API_BASE_URL}${BASE_PATH}/feeds/${id}`, {
+		const response = await fetch(`${API_BASE_URL}${BASE_PATH}/${id}`, {
 			method: "PUT",
 			headers: {
 				"Content-Type": "application/json",
@@ -60,7 +60,7 @@ export const feedsApi = {
 
 	// RSSフィードを削除
 	deleteFeed: async (id: number): Promise<void> => {
-		const response = await fetch(`${API_BASE_URL}${BASE_PATH}/feeds/${id}`, {
+		const response = await fetch(`${API_BASE_URL}${BASE_PATH}/${id}`, {
 			method: "DELETE",
 		});
 		if (!response.ok) {
