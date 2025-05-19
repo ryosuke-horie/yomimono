@@ -5,14 +5,12 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"lint": "npx @biomejs/biome check",
-		"format": "npx @biomejs/biome check --write",
-		"knip": "knip"
+		"format": "npx @biomejs/biome check --write"
 	},
 	"private": true,
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
 		"@types/node": "^22.15.18",
-		"knip": "^5.55.1",
 		"typescript": "^5.8.3"
 	}
 }
