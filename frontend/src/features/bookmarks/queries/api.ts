@@ -91,3 +91,25 @@ export const removeBookmarkFromFavorites = async (
 	const data = (await response.json()) as ApiBookmarkResponse;
 	if (!data.success) throw new Error(data.message);
 };
+
+export const createBookmark = async (data: {
+	title: string;
+	url: string;
+}): Promise<void> => {
+	const url = `${API_BASE_URL}/api/bookmarks/bulk`;
+
+	const response = await fetch(url, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({
+			bookmarks: [data],
+		}),
+	});
+
+	if (!response.ok) {
+		const errorData = await response.json();
+		throw new Error(errorData.message || "Failed to create bookmark");
+	}
+};
