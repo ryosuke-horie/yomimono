@@ -19,6 +19,7 @@ describe("GET /bookmarks/without-summary", () => {
 			findUnread: vi.fn(),
 			findByUrls: vi.fn(),
 			markAsRead: vi.fn(),
+			markAsUnread: vi.fn(), // Add missing method
 			countUnread: vi.fn(),
 			countTodayRead: vi.fn(),
 			addToFavorites: vi.fn(),
@@ -26,6 +27,7 @@ describe("GET /bookmarks/without-summary", () => {
 			getFavoriteBookmarks: vi.fn(),
 			isFavorite: vi.fn(),
 			findRecentlyRead: vi.fn(),
+			findRead: vi.fn(), // Add missing method
 			findUnlabeled: vi.fn(),
 			findByLabelName: vi.fn(),
 			findById: vi.fn(),
@@ -35,9 +37,13 @@ describe("GET /bookmarks/without-summary", () => {
 
 		// Mock label service
 		mockLabelService = {
-			getAllLabels: vi.fn(),
+			getLabels: vi.fn(), // Changed from getAllLabels
+			getLabelById: vi.fn(), // Added missing method
 			assignLabel: vi.fn(),
 			assignLabelsToMultipleArticles: vi.fn(),
+			createLabel: vi.fn(), // Added missing method
+			deleteLabel: vi.fn(), // Added missing method
+			updateLabelDescription: vi.fn(), // Added missing method
 		};
 
 		// Create services
