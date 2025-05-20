@@ -35,17 +35,17 @@ describe("markBookmarkAsUnread", () => {
 
 	it("ブックマークを未読に戻せること", async () => {
 		mockMarkAsUnread.mockResolvedValue(true);
-		
+
 		await service.markBookmarkAsUnread(1);
-		
+
 		expect(mockMarkAsUnread).toHaveBeenCalledWith(1);
 	});
 
 	it("存在しないブックマークの場合はエラーをスローすること", async () => {
 		mockMarkAsUnread.mockResolvedValue(false);
-		
+
 		await expect(service.markBookmarkAsUnread(999)).rejects.toThrow(
-			"Bookmark not found"
+			"Bookmark not found",
 		);
 		expect(mockMarkAsUnread).toHaveBeenCalledWith(999);
 	});
@@ -53,7 +53,7 @@ describe("markBookmarkAsUnread", () => {
 	it("リポジトリでエラーが発生した場合はエラーを伝播すること", async () => {
 		const error = new Error("Repository error");
 		mockMarkAsUnread.mockRejectedValue(error);
-		
+
 		await expect(service.markBookmarkAsUnread(1)).rejects.toThrow(error);
 	});
 });

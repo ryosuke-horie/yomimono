@@ -18,10 +18,9 @@ export const useMarkBookmarkAsUnread = () => {
 			const previousUnreadData = queryClient.getQueryData<BookmarksData>(
 				bookmarkKeys.list("unread"),
 			);
-			const previousFavoriteData =
-				queryClient.getQueryData<BookmarkWithLabel[]>(
-					bookmarkKeys.list("favorites"),
-				);
+			const previousFavoriteData = queryClient.getQueryData<
+				BookmarkWithLabel[]
+			>(bookmarkKeys.list("favorites"));
 			const previousRecentData = queryClient.getQueryData<{
 				[date: string]: BookmarkWithLabel[];
 			}>(bookmarkKeys.list("recent"));
@@ -31,12 +30,14 @@ export const useMarkBookmarkAsUnread = () => {
 
 			if (previousRecentData) {
 				// 日付ごとにグループ化されたデータから該当ブックマークを探す
-				Object.values(previousRecentData).forEach((bookmarks) => {
-					const found = bookmarks.find((bookmark) => bookmark.id === bookmarkId);
+				for (const bookmarks of Object.values(previousRecentData)) {
+					const found = bookmarks.find(
+						(bookmark) => bookmark.id === bookmarkId,
+					);
 					if (found) {
 						bookmarkToUpdate = found;
 					}
-				});
+				}
 			}
 
 			// 最近読んだリストから該当のブックマークを削除
@@ -52,7 +53,7 @@ export const useMarkBookmarkAsUnread = () => {
 					const newData = { ...oldData };
 
 					// すべての日付のエントリをチェックして、該当するブックマークを削除
-					Object.keys(newData).forEach((date) => {
+					for (const date of Object.keys(newData)) {
 						newData[date] = newData[date].filter(
 							(bookmark) => bookmark.id !== bookmarkId,
 						);
@@ -60,7 +61,7 @@ export const useMarkBookmarkAsUnread = () => {
 						if (newData[date].length === 0) {
 							delete newData[date];
 						}
-					});
+					}
 
 					return newData;
 				});
@@ -87,13 +88,13 @@ export const useMarkBookmarkAsUnread = () => {
 					bookmarkKeys.list("unread"),
 					(oldData) => {
 						if (!oldData) return undefined;
-						
+
 						// 既存の未読リストにブックマークを追加
 						const updatedBookmark: BookmarkWithLabel = {
 							...bookmarkToUpdate,
 							isRead: false,
 						};
-						
+
 						return {
 							...oldData,
 							bookmarks: [updatedBookmark, ...oldData.bookmarks],
