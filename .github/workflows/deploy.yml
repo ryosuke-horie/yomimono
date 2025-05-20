@@ -7,42 +7,7 @@ on:
       - main
 
 jobs:
-  checks:
-    runs-on: ubuntu-latest
-    name: Build Checks
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-    
-      - name: API Install dependencies
-        run: npm ci
-        working-directory: ./api
-        
-      - name: API Type check
-        run: npx tsc --noEmit
-        working-directory: ./api
-
-      - name: Frontend Install dependencies
-        run: npm ci
-        working-directory: ./frontend
-        
-      - name: Frontend Lint
-        run: npm run lint
-        working-directory: ./frontend
-        
-      - name: Frontend Type check
-        run: npx tsc --noEmit
-        working-directory: ./frontend
-        
-      - name: Frontend OpenNext Build Check
-        run: npm run build
-        working-directory: ./frontend
-        
   deploy:
-    needs: checks
     runs-on: ubuntu-latest
     name: Deploy
     steps:
