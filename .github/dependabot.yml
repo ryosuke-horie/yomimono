@@ -63,8 +63,12 @@ updates:
         patterns:
           # テスト関連パッケージ
           - "vitest"
-          - "@vitest/coverage-v8"
+          - "@vitest/*"
           - "happy-dom"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
       code-quality:
         patterns:
           # コード品質管理ツール
@@ -104,6 +108,15 @@ updates:
           - "@modelcontextprotocol/sdk"
           - "zod"
           - "typescript"
+      vitest-ecosystem:
+        patterns:
+          # vitestとその関連パッケージ
+          - "vitest"
+          - "@vitest/*"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
       dev-tools:
         patterns:
           # 開発ツール関連
