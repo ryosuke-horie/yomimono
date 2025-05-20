@@ -31,6 +31,7 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 	const { mutate: markAsReadMutate, isPending: isMarkingAsRead } =
 		useMarkBookmarkAsRead();
 	const [isCopied, setIsCopied] = useState(false);
+	const [isUrlCopied, setIsUrlCopied] = useState(false);
 
 	const handleFavoriteToggle = () => {
 		toggleFavorite({ id, isCurrentlyFavorite: isFavorite });
@@ -66,6 +67,17 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 		}
 	};
 
+	// URLコピー処理
+	const handleCopyUrl = async () => {
+		try {
+			await navigator.clipboard.writeText(url);
+			setIsUrlCopied(true);
+			setTimeout(() => setIsUrlCopied(false), 2000); // 2秒後にリセット
+		} catch (error) {
+			console.error("URLのコピーに失敗しました", error);
+		}
+	};
+
 	return (
 		<article
 			className={`relative p-4 pb-16 border rounded-lg hover:shadow-md transition-shadow flex flex-col min-h-[150px] ${
@@ -78,6 +90,52 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 					<LabelDisplay label={label} onClick={onLabelClick} />
 				</div>
 			)}
+
+			{/* URLコピーボタン */}
+			<button
+				type="button"
+				onClick={handleCopyUrl}
+				className={`absolute bottom-2 right-36 p-1 rounded-full transition-colors ${
+					isUrlCopied
+						? "text-green-500 hover:text-green-600"
+						: "text-gray-400 hover:text-blue-500 hover:bg-blue-50"
+				}`}
+				title={isUrlCopied ? "URLをコピーしました！" : "URLをコピー"}
+			>
+				{isUrlCopied ? (
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						strokeWidth={1.5}
+						stroke="currentColor"
+						className="w-6 h-6"
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							d="M9 12.75L11.25 15 15 9.75m6-1.5c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"
+						/>
+					</svg>
+				) : (
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						fill="none"
+						viewBox="0 0 24 24"
+						strokeWidth={1.5}
+						stroke="currentColor"
+						className="w-6 h-6"
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"
+						/>
+					</svg>
+				)}
+			</button>
 
 			{/* IDコピーボタン */}
 			<button
