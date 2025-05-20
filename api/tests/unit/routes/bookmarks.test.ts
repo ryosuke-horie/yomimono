@@ -59,7 +59,8 @@ const mockLabelService: ILabelService = {
 describe("BookmarkRouter", () => {
 	let app: Hono<{ Bindings: Env }>;
 
-	const mockBookmark1: Bookmark = {
+	// 型キャストを使用して、必要な型に合わせる
+	const mockBookmark1 = {
 		id: 1,
 		url: "https://example.com/1",
 		title: "Example 1",
@@ -70,18 +71,18 @@ describe("BookmarkRouter", () => {
 		createdAt: new Date(),
 		updatedAt: new Date(),
 	};
-	const mockLabel1: Label = {
+	const mockLabel1 = {
 		id: 10,
 		name: "typescript",
 		description: null, // Add missing property
 		createdAt: new Date(),
 		updatedAt: new Date(),
-	};
-	const expectedResult1: BookmarkWithLabel = {
+	} as Label;
+	const expectedResult1 = {
 		...mockBookmark1,
 		isFavorite: true,
 		label: mockLabel1,
-	};
+	} as BookmarkWithLabel;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
