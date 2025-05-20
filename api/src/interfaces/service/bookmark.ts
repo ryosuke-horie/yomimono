@@ -7,6 +7,12 @@ export interface IBookmarkService {
 	): Promise<void>;
 	getUnreadBookmarks(): Promise<BookmarkWithLabel[]>;
 	markBookmarkAsRead(id: number): Promise<void>;
+	/**
+	 * ブックマークを未読に戻します。
+	 * @param id ブックマークID
+	 * @throws {Error} ブックマークが存在しない場合
+	 */
+	markBookmarkAsUnread(id: number): Promise<void>;
 	getUnreadBookmarksCount(): Promise<number>;
 	getTodayReadCount(): Promise<number>;
 	addToFavorites(bookmarkId: number): Promise<void>;

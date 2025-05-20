@@ -1,6 +1,7 @@
 "use client";
 
 import { useMarkBookmarkAsRead } from "@/features/bookmarks/queries/useMarkBookmarkAsRead";
+import { useMarkBookmarkAsUnread } from "@/features/bookmarks/queries/useMarkBookmarkAsUnread";
 import { useToggleFavoriteBookmark } from "@/features/bookmarks/queries/useToggleFavoriteBookmark";
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 import { LabelDisplay } from "@/features/labels/components/LabelDisplay";
@@ -10,9 +11,10 @@ import { BookmarkSummary } from "./BookmarkSummary";
 interface Props {
 	bookmark: BookmarkWithLabel;
 	onLabelClick?: (labelName: string) => void;
+	showUnreadButton?: boolean; // 未読に戻すボタンを表示するかどうか（既読一覧で表示）
 }
 
-export function BookmarkCard({ bookmark, onLabelClick }: Props) {
+export function BookmarkCard({ bookmark, onLabelClick, showUnreadButton = false }: Props) {
 	const {
 		id,
 		title,
@@ -30,6 +32,8 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 		useToggleFavoriteBookmark();
 	const { mutate: markAsReadMutate, isPending: isMarkingAsRead } =
 		useMarkBookmarkAsRead();
+	const { mutate: markAsUnreadMutate, isPending: isMarkingAsUnread } =
+		useMarkBookmarkAsUnread();
 	const [isCopied, setIsCopied] = useState(false);
 	const [isUrlCopied, setIsUrlCopied] = useState(false);
 
@@ -46,6 +50,10 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 
 	const handleMarkAsRead = () => {
 		markAsReadMutate(id);
+	};
+	
+	const handleMarkAsUnread = () => {
+		markAsUnreadMutate(id);
 	};
 
 	// リンククリック時に既読にする処理を追加
@@ -236,59 +244,115 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 				</svg>
 			</button>
 
-			{/* 既読ボタン */}
-			<button
-				type="button"
-				onClick={handleMarkAsRead}
-				disabled={isRead || isMarkingAsRead}
-				className={`absolute bottom-2 right-2 p-1 rounded-full ${
-					isRead
-						? "text-green-500 cursor-default"
-						: isMarkingAsRead
+			{/* 未読に戻すボタン（既読のブックマークに表示） */}
+			{showUnreadButton && isRead && (
+				<button
+					type="button"
+					onClick={handleMarkAsUnread}
+					disabled={isMarkingAsUnread}
+					className={`absolute bottom-2 right-2 p-1 rounded-full ${
+						isMarkingAsUnread
 							? "text-gray-400"
-							: "text-gray-400 hover:text-green-500 hover:bg-green-50"
-				}`}
-				title={isRead ? "既読済み" : "既読にする"}
-			>
-				{isMarkingAsRead ? (
-					<svg
-						className="animate-spin w-6 h-6"
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						role="status"
-					>
-						<circle
-							className="opacity-25"
-							cx="12"
-							cy="12"
-							r="10"
+							: "text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+					}`}
+					title="未読に戻す"
+				>
+					{isMarkingAsUnread ? (
+						<svg
+							className="animate-spin w-6 h-6"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							role="status"
+						>
+							<circle
+								className="opacity-25"
+								cx="12"
+								cy="12"
+								r="10"
+								stroke="currentColor"
+								strokeWidth="4"
+							/>
+							<path
+								className="opacity-75"
+								fill="currentColor"
+								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+							/>
+						</svg>
+					) : (
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							strokeWidth={1.5}
 							stroke="currentColor"
-							strokeWidth="4"
-						/>
-						<path
-							className="opacity-75"
-							fill="currentColor"
-							d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-						/>
-					</svg>
-				) : (
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						strokeWidth={1.5}
-						stroke="currentColor"
-						className="w-6 h-6"
-					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-						/>
-					</svg>
-				)}
-			</button>
+							className="w-6 h-6"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+							/>
+						</svg>
+					)}
+				</button>
+			)}
+
+			{/* 既読ボタン（未読の場合、または未読に戻すボタンが表示されない既読の場合） */}
+			{(!isRead || !showUnreadButton) && (
+				<button
+					type="button"
+					onClick={handleMarkAsRead}
+					disabled={isRead || isMarkingAsRead}
+					className={`absolute bottom-2 right-2 p-1 rounded-full ${
+						isRead
+							? "text-green-500 cursor-default"
+							: isMarkingAsRead
+								? "text-gray-400"
+								: "text-gray-400 hover:text-green-500 hover:bg-green-50"
+					}`}
+					title={isRead ? "既読済み" : "既読にする"}
+				>
+					{isMarkingAsRead ? (
+						<svg
+							className="animate-spin w-6 h-6"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							role="status"
+						>
+							<circle
+								className="opacity-25"
+								cx="12"
+								cy="12"
+								r="10"
+								stroke="currentColor"
+								strokeWidth="4"
+							/>
+							<path
+								className="opacity-75"
+								fill="currentColor"
+								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+							/>
+						</svg>
+					) : (
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							strokeWidth={1.5}
+							stroke="currentColor"
+							className="w-6 h-6"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+							/>
+						</svg>
+					)}
+				</button>
+			)}
 
 			{/* コンテンツ */}
 			<h2
