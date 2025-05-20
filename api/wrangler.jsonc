@@ -6,9 +6,9 @@
 	// "compatibility_flags": [
 	//   "nodejs_compat"
 	// ],
-	// "vars": {
-	//   "MY_VAR": "my-variable"
-	// },
+	"vars": {
+		"ENVIRONMENT": "production"
+	},
 	// "kv_namespaces": [
 	//   {
 	//     "binding": "MY_KV_NAMESPACE",
@@ -38,5 +38,10 @@
 	},
 	"triggers": {
 		"crons": ["0 0 * * *"]
+	},
+	"dev": {
+		"vars": {
+			"ENVIRONMENT": "development"
+		}
 	}
 }

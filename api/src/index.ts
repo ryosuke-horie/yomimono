@@ -25,6 +25,7 @@ import rssBatch from "./workers/rssBatch";
 export interface Env {
 	DB: D1Database;
 	NODE_ENV?: string;
+	ENVIRONMENT?: string; // production または development
 }
 
 // アプリケーションファクトリ関数
@@ -38,6 +39,11 @@ export const createApp = (env: Env) => {
 	app.onError((err, c) => {
 		console.error(`Error: ${err}`);
 
+		// ログ出力を追加（環境情報を含む）
+		console.log(
+			`環境: ${env.ENVIRONMENT || "unknown"}, NODE_ENV: ${env.NODE_ENV || "unknown"}`,
+		);
+
 		// HTTPExceptionの場合は適切なステータスコードとメッセージを返す
 		if (err instanceof HTTPException) {
 			return c.json({ error: err.message }, err.status);
@@ -46,6 +52,13 @@ export const createApp = (env: Env) => {
 		// その他のエラーの場合は500エラーを返す
 		return c.json({ error: "Internal Server Error" }, 500);
 	});
+
+	// 環境情報をログ出力
+	if (env.ENVIRONMENT === "development") {
+		console.log("開発環境で実行中です。ローカルのD1データベースを使用します。");
+	} else {
+		console.log("本番環境で実行中です。本番用のD1データベースを使用します。");
+	}
 
 	// データベース、リポジトリ、サービスの初期化
 	const db = env.DB;
