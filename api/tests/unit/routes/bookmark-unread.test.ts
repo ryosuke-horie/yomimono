@@ -36,12 +36,13 @@ describe("bookmarks router", () => {
 		};
 
 		mockLabelService = {
-			getAllLabels: vi.fn(),
+			getLabels: vi.fn(), // Fixed method name from getAllLabels to getLabels
+			getLabelById: vi.fn(),
 			assignLabel: vi.fn(),
 			assignLabelsToMultipleArticles: vi.fn(),
 			createLabel: vi.fn(),
 			deleteLabel: vi.fn(),
-			updateLabel: vi.fn(),
+			updateLabelDescription: vi.fn(), // Fixed method name from updateLabel to updateLabelDescription
 		};
 
 		app = createBookmarksRouter(mockBookmarkService, mockLabelService);
@@ -69,7 +70,7 @@ describe("bookmarks router", () => {
 
 			// 実行
 			const result = await app.fetch(request, c as MockContext);
-			const responseData = await result.json();
+			const responseData = await result.json() as { success: boolean; message?: string };
 
 			// 検証
 			expect(mockBookmarkService.markBookmarkAsUnread).toHaveBeenCalledWith(
@@ -94,7 +95,7 @@ describe("bookmarks router", () => {
 
 			// 実行
 			const result = await app.fetch(request, c as MockContext);
-			const responseData = await result.json();
+			const responseData = await result.json() as { success: boolean; message?: string };
 
 			// 検証
 			expect(mockBookmarkService.markBookmarkAsUnread).not.toHaveBeenCalled();
@@ -123,7 +124,7 @@ describe("bookmarks router", () => {
 
 			// 実行
 			const result = await app.fetch(request, c as MockContext);
-			const responseData = await result.json();
+			const responseData = await result.json() as { success: boolean; message?: string };
 
 			// 検証
 			expect(mockBookmarkService.markBookmarkAsUnread).toHaveBeenCalledWith(
