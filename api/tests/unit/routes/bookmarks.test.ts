@@ -35,6 +35,7 @@ const mockBookmarkService: IBookmarkService = {
 	getUnreadBookmarksCount: mockGetUnreadBookmarksCount,
 	getTodayReadCount: mockGetTodayReadCount,
 	markBookmarkAsRead: mockMarkBookmarkAsRead,
+	markBookmarkAsUnread: vi.fn(), // Add missing method
 	createBookmarksFromData: mockCreateBookmarksFromData,
 	addToFavorites: mockAddToFavorites,
 	removeFromFavorites: mockRemoveFromFavorites,
@@ -42,12 +43,17 @@ const mockBookmarkService: IBookmarkService = {
 	getRecentlyReadBookmarks: mockGetRecentlyReadBookmarks,
 	getUnlabeledBookmarks: mockGetUnlabeledBookmarks,
 	getBookmarksByLabel: mockGetBookmarksByLabel,
+	getBookmarksWithoutSummary: vi.fn(), // Add missing method
+	getReadBookmarks: vi.fn(), // Add missing method
 };
 const mockLabelService: ILabelService = {
 	getLabels: vi.fn(),
+	getLabelById: vi.fn(), // Add missing method
 	assignLabel: mockAssignLabel,
+	assignLabelsToMultipleArticles: vi.fn(), // Add missing method
 	createLabel: vi.fn(),
 	deleteLabel: vi.fn(),
+	updateLabelDescription: vi.fn(), // Add missing method
 };
 
 describe("BookmarkRouter", () => {
@@ -58,12 +64,16 @@ describe("BookmarkRouter", () => {
 		url: "https://example.com/1",
 		title: "Example 1",
 		isRead: false,
+		summary: null,
+		summaryCreatedAt: null,
+		summaryUpdatedAt: null,
 		createdAt: new Date(),
 		updatedAt: new Date(),
 	};
 	const mockLabel1: Label = {
 		id: 10,
 		name: "typescript",
+		description: null, // Add missing property
 		createdAt: new Date(),
 		updatedAt: new Date(),
 	};
