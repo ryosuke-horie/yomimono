@@ -10,44 +10,52 @@ import { DefaultBookmarkService } from "../../../src/services/bookmark";
 describe("DefaultBookmarkService", () => {
 	let service: IBookmarkService;
 
-	const mockBookmark1: Bookmark = {
+	const mockBookmark1 = {
 		id: 1,
 		url: "https://example.com/1",
 		title: "Example 1",
 		isRead: false,
+		summary: null,
+		summaryCreatedAt: null,
+		summaryUpdatedAt: null,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-	};
-	const mockBookmark2: Bookmark = {
+	} as Bookmark;
+	const mockBookmark2 = {
 		id: 2,
 		url: "https://example.com/2",
 		title: "Example 2",
 		isRead: false,
+		summary: null,
+		summaryCreatedAt: null,
+		summaryUpdatedAt: null,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-	};
-	const mockLabel1: Label = {
+	} as Bookmark;
+	const mockLabel1 = {
 		id: 10,
 		name: "typescript",
+		description: null,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-	};
-	const mockLabel2: Label = {
+	} as Label;
+	const mockLabel2 = {
 		id: 11,
 		name: "react",
+		description: null,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-	};
-	const expectedResult1: BookmarkWithLabel = {
+	} as Label;
+	const expectedResult1 = {
 		...mockBookmark1,
 		isFavorite: true,
 		label: mockLabel1,
-	};
-	const expectedResult2: BookmarkWithLabel = {
+	} as BookmarkWithLabel;
+	const expectedResult2 = {
 		...mockBookmark2,
 		isFavorite: false,
 		label: mockLabel2,
-	};
+	} as BookmarkWithLabel;
 
 	const mockFindByUrls = vi.fn();
 	const mockFindUnread = vi.fn();
@@ -64,11 +72,13 @@ describe("DefaultBookmarkService", () => {
 	const mockFindByLabelName = vi.fn();
 	const mockFindById = vi.fn();
 
-	const mockRepository: IBookmarkRepository = {
+	const mockRepository = {
 		findByUrls: mockFindByUrls,
 		findUnread: mockFindUnread,
+		findRead: vi.fn(), // Add missing method
 		createMany: mockCreateMany,
 		markAsRead: mockMarkAsRead,
+		markAsUnread: vi.fn(), // Add missing method
 		countUnread: mockCountUnread,
 		countTodayRead: mockCountTodayRead,
 		addToFavorites: mockAddToFavorites,
@@ -79,7 +89,10 @@ describe("DefaultBookmarkService", () => {
 		findUnlabeled: mockFindUnlabeled,
 		findByLabelName: mockFindByLabelName,
 		findById: mockFindById,
-	};
+		findByIds: vi.fn(), // Add missing method
+		findWithoutSummary: vi.fn(), // Add missing method
+		updateSummary: vi.fn(), // Add missing method
+	} as IBookmarkRepository;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
