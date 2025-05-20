@@ -10,9 +10,14 @@ import { BookmarkSummary } from "./BookmarkSummary";
 interface Props {
 	bookmark: BookmarkWithLabel;
 	onLabelClick?: (labelName: string) => void;
+	showSummary?: boolean;
 }
 
-export function BookmarkCard({ bookmark, onLabelClick }: Props) {
+export function BookmarkCard({
+	bookmark,
+	onLabelClick,
+	showSummary = true,
+}: Props) {
 	const {
 		id,
 		title,
@@ -310,13 +315,16 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 			</p>
 			<p className="text-xs text-gray-500">{formattedDate}</p>
 
-			{/* 要約表示 */}
-			<div className="mt-3 mb-12">
-				<BookmarkSummary
-					summary={summary || null}
-					summaryUpdatedAt={summaryUpdatedAt || null}
-				/>
-			</div>
+			{/* 要約表示 - 条件付きレンダリング */}
+			{showSummary && (
+				<div className="mt-3 mb-12">
+					<BookmarkSummary
+						summary={summary || null}
+						summaryUpdatedAt={summaryUpdatedAt || null}
+					/>
+				</div>
+			)}
+			{!showSummary && <div className="mb-12" />}
 		</article>
 	);
 }
