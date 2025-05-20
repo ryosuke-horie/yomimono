@@ -362,6 +362,44 @@ server.tool(
 	},
 );
 
+// 9.1 Compatibility tool for typo in "getBookmarkWithoutSummry"
+server.tool(
+	"getBookmarkWithoutSummry", // Intentional typo for backward compatibility
+	{
+		limit: z.number().int().positive().optional(),
+		orderBy: z.enum(["createdAt", "readAt"]).optional(),
+	},
+	async ({ limit, orderBy }) => {
+		try {
+			// Forward to the correctly named function
+			const bookmarks = await apiClient.getBookmarksWithoutSummary(
+				limit,
+				orderBy,
+			);
+			return {
+				content: [{ type: "text", text: JSON.stringify(bookmarks, null, 2) }],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error(
+				`Error in getBookmarkWithoutSummry tool (typo-compatibility) (limit: ${limit}, orderBy: ${orderBy}):`,
+				errorMessage,
+			);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Failed to get bookmarks without summary: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
 // 10. Tool to save summary
 server.tool(
 	"saveSummary",
