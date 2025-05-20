@@ -1,12 +1,12 @@
-import { useState } from "react";
 import { Button } from "@/components/Button";
+import { useState } from "react";
 import { FeedFilter } from "../components/FeedFilter";
 import { FeedItemCard } from "../components/FeedItemCard";
 import { useRSSItems } from "../queries/useRSSItems";
 
 export function FeedItemsPage() {
 	const [selectedFeedId, setSelectedFeedId] = useState<number | null>(null);
-	
+
 	const {
 		items,
 		fetchNextPage,
@@ -28,7 +28,9 @@ export function FeedItemsPage() {
 					onChange={setSelectedFeedId}
 				/>
 				<div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
-					<p className="text-red-700">エラーが発生しました。再読み込みしてください。</p>
+					<p className="text-red-700">
+						エラーが発生しました。再読み込みしてください。
+					</p>
 				</div>
 			</div>
 		);
@@ -44,9 +46,7 @@ export function FeedItemsPage() {
 						onChange={setSelectedFeedId}
 					/>
 					{total > 0 && (
-						<span className="text-sm text-gray-600 ml-2">
-							合計: {total}件
-						</span>
+						<span className="text-sm text-gray-600 ml-2">合計: {total}件</span>
 					)}
 				</div>
 			</div>
@@ -55,9 +55,9 @@ export function FeedItemsPage() {
 				<div className="grid gap-4">
 					{[...Array(5)].map((_, i) => (
 						<div key={i} className="border rounded-lg p-4 animate-pulse">
-							<div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
-							<div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-							<div className="h-4 bg-gray-200 rounded w-1/4"></div>
+							<div className="h-6 bg-gray-200 rounded w-3/4 mb-2" />
+							<div className="h-4 bg-gray-200 rounded w-1/2 mb-2" />
+							<div className="h-4 bg-gray-200 rounded w-1/4" />
 						</div>
 					))}
 				</div>
@@ -81,9 +81,7 @@ export function FeedItemsPage() {
 								variant="secondary"
 								className="w-full max-w-md"
 							>
-								{isFetchingNextPage
-									? "読み込み中..."
-									: "もっと読み込む"}
+								{isFetchingNextPage ? "読み込み中..." : "もっと読み込む"}
 							</Button>
 						</div>
 					)}

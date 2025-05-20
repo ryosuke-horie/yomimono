@@ -1,21 +1,16 @@
 import { eq, inArray } from "drizzle-orm";
-import { type AnyD1Database, drizzle } from "drizzle-orm/d1";
-import { type InsertRssFeed, type RssFeed, rssFeeds } from "../db/schema";
-import type { RssFeedRepository as IRssFeedRepository } from "../interfaces/repository/rssFeed";
-
-export class RssFeedRepository implements IRssFeedRepository {
-	private db;
-	public rssFeedsTable = rssFeeds;
-
-	constructor(d1Database: AnyD1Database) {
+import { drizzle } from "drizzle-orm/d1";
+import { rssFeeds } from "../db/schema";
+export class RssFeedRepository {
+	db;
+	rssFeedsTable = rssFeeds;
+	constructor(d1Database) {
 		this.db = drizzle(d1Database);
 	}
-
-	async findAll(): Promise<RssFeed[]> {
+	async findAll() {
 		return await this.db.select().from(rssFeeds).all();
 	}
-
-	async findById(id: number): Promise<RssFeed | null> {
+	async findById(id) {
 		const result = await this.db
 			.select()
 			.from(rssFeeds)
@@ -23,33 +18,25 @@ export class RssFeedRepository implements IRssFeedRepository {
 			.get();
 		return result || null;
 	}
-
-	async findByIds(ids: number[]): Promise<RssFeed[]> {
+	async findByIds(ids) {
 		if (ids.length === 0) {
 			return [];
 		}
-
 		return await this.db
 			.select()
 			.from(rssFeeds)
 			.where(inArray(rssFeeds.id, ids))
 			.all();
 	}
-
-	async create(feed: InsertRssFeed): Promise<RssFeed> {
+	async create(feed) {
 		const result = await this.db
 			.insert(rssFeeds)
 			.values(feed)
 			.returning()
 			.all();
-
 		return result[0];
 	}
-
-	async update(
-		id: number,
-		data: Partial<InsertRssFeed>,
-	): Promise<RssFeed | null> {
+	async update(id, data) {
 		const result = await this.db
 			.update(rssFeeds)
 			.set({
@@ -59,11 +46,9 @@ export class RssFeedRepository implements IRssFeedRepository {
 			.where(eq(rssFeeds.id, id))
 			.returning()
 			.all();
-
 		return result[0] || null;
 	}
-
-	async delete(id: number): Promise<boolean> {
+	async delete(id) {
 		try {
 			const result = await this.db
 				.delete(rssFeeds)
@@ -74,17 +59,15 @@ export class RssFeedRepository implements IRssFeedRepository {
 			return false;
 		}
 	}
-
 	// 既存の便利メソッドも保持
-	async findByUrl(url: string): Promise<RssFeed | undefined> {
+	async findByUrl(url) {
 		return await this.db
 			.select()
 			.from(rssFeeds)
 			.where(eq(rssFeeds.url, url))
 			.get();
 	}
-
-	async findAllActive(): Promise<RssFeed[]> {
+	async findAllActive() {
 		return await this.db
 			.select()
 			.from(rssFeeds)

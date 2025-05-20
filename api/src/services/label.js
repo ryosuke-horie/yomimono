@@ -1,0 +1,176 @@
+/**
+ * ラベル名を正規化する関数
+ * - 前後の空白を除去
+ * - 小文字に統一
+ * - 全角英数字記号を半角に変換
+ * @param name 正規化前のラベル名
+ * @returns 正規化後のラベル名
+ */
+function normalizeLabelName(name) {
+	return name
+		.trim()
+		.toLowerCase()
+		.replace(/[！-～]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0)); // 全角 -> 半角
+}
+export class LabelService {
+	labelRepository;
+	articleLabelRepository;
+	bookmarkRepository;
+	constructor(labelRepository, articleLabelRepository, bookmarkRepository) {
+		this.labelRepository = labelRepository;
+		this.articleLabelRepository = articleLabelRepository;
+		this.bookmarkRepository = bookmarkRepository;
+	}
+	async getLabels() {
+		return this.labelRepository.findAllWithArticleCount();
+	}
+	async getLabelById(id) {
+		const label = await this.labelRepository.findById(id);
+		if (!label) {
+			throw new Error(`Label with id ${id} not found`);
+		}
+		return label;
+	}
+	async assignLabel(articleId, labelName, description) {
+		// 1. ブックマークが存在するか確認
+		const bookmark = await this.bookmarkRepository.findById(articleId);
+		if (!bookmark) {
+			throw new Error(`Bookmark with id ${articleId} not found`);
+		}
+		// 2. ラベル名を正規化
+		const normalizedName = normalizeLabelName(labelName);
+		if (!normalizedName) {
+			throw new Error("Label name cannot be empty after normalization");
+		}
+		// 3. 正規化された名前でラベルを検索
+		let label = await this.labelRepository.findByName(normalizedName);
+		// 4. ラベルが存在しなければ新規作成
+		if (!label) {
+			label = await this.labelRepository.create({
+				name: normalizedName,
+				description: description,
+			});
+		}
+		// 5. 同じラベルが既に付与されていないか確認
+		const existingArticleLabel =
+			await this.articleLabelRepository.findByArticleId(articleId);
+		if (existingArticleLabel && existingArticleLabel.labelId === label.id) {
+			throw new Error(
+				`Label "${normalizedName}" is already assigned to article ${articleId}`,
+			);
+		}
+		// 6. 記事とラベルを紐付け
+		await this.articleLabelRepository.create({
+			articleId: bookmark.id,
+			labelId: label.id,
+		});
+		return label;
+	}
+	async createLabel(name, description) {
+		// 1. ラベル名を正規化
+		const normalizedName = normalizeLabelName(name);
+		if (!normalizedName) {
+			throw new Error("Label name cannot be empty after normalization");
+		}
+		// 2. 正規化された名前でラベルを検索（重複チェック）
+		const existingLabel = await this.labelRepository.findByName(normalizedName);
+		if (existingLabel) {
+			throw new Error(`Label "${normalizedName}" already exists`);
+		}
+		// 3. 新しいラベルを作成
+		const newLabel = await this.labelRepository.create({
+			name: normalizedName,
+			description: description,
+		});
+		return newLabel;
+	}
+	async deleteLabel(id) {
+		// 1. ラベルを削除し、削除されたかどうかを確認
+		const wasDeleted = await this.labelRepository.deleteById(id);
+		if (!wasDeleted) {
+			throw new Error(`Label with id ${id} not found`);
+		}
+		// 2. article_labelsテーブルの関連レコードは外部キー制約(onDelete: cascade)により自動的に削除される
+	}
+	async updateLabelDescription(id, description) {
+		// 1. ラベルが存在するか確認
+		const label = await this.labelRepository.findById(id);
+		if (!label) {
+			throw new Error(`Label with id ${id} not found`);
+		}
+		// 2. 説明文を更新
+		const updatedLabel = await this.labelRepository.updateDescription(
+			id,
+			description,
+		);
+		if (!updatedLabel) {
+			throw new Error(`Failed to update description for label with id ${id}`);
+		}
+		return updatedLabel;
+	}
+	async assignLabelsToMultipleArticles(articleIds, labelName, description) {
+		// 1. ラベル名を正規化
+		const normalizedName = normalizeLabelName(labelName);
+		if (!normalizedName) {
+			throw new Error("Label name cannot be empty after normalization");
+		}
+		// 2. 正規化された名前でラベルを検索
+		let label = await this.labelRepository.findByName(normalizedName);
+		// 3. ラベルが存在しなければ新規作成
+		if (!label) {
+			label = await this.labelRepository.create({
+				name: normalizedName,
+				description: description,
+			});
+		}
+		// 4. バッチデータ取得
+		const [bookmarkMap, existingArticleIds] = await Promise.all([
+			this.bookmarkRepository.findByIds(articleIds),
+			this.articleLabelRepository.findExistingArticleIds(articleIds),
+		]);
+		// 5. 各記事の検証と結果の作成
+		const results = {
+			successful: 0,
+			skipped: 0,
+			errors: [],
+			label: label,
+		};
+		const itemsToCreate = [];
+		for (const articleId of articleIds) {
+			// ブックマークが存在するか確認
+			if (!bookmarkMap.has(articleId)) {
+				results.errors.push({
+					articleId,
+					error: `Bookmark with id ${articleId} not found`,
+				});
+				continue;
+			}
+			// 既にラベルが付与されているか確認
+			if (existingArticleIds.has(articleId)) {
+				results.skipped++;
+				continue;
+			}
+			// ラベル付け用データを準備
+			itemsToCreate.push({
+				articleId,
+				labelId: label.id,
+			});
+		}
+		// 6. バッチでラベルを1括作成
+		if (itemsToCreate.length > 0) {
+			try {
+				await this.articleLabelRepository.createMany(itemsToCreate);
+				results.successful = itemsToCreate.length;
+			} catch (error) {
+				// バッチ処理でエラーが発生した場合
+				for (const item of itemsToCreate) {
+					results.errors.push({
+						articleId: item.articleId,
+						error: error instanceof Error ? error.message : String(error),
+					});
+				}
+			}
+		}
+		return results;
+	}
+}

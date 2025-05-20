@@ -22,7 +22,7 @@ export function FeedItemCard({ item }: FeedItemCardProps) {
 	const truncateDescription = (text: string | null, maxLength = 150) => {
 		if (!text) return "";
 		return text.length > maxLength
-			? text.substring(0, maxLength) + "..."
+			? `${text.substring(0, maxLength)}...`
 			: text;
 	};
 

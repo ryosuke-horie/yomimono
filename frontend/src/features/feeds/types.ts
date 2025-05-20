@@ -38,4 +38,4 @@ export interface RSSFeedDetailResponse extends RSSFeed {
 	};
 }
 
-export * from './types/rssItem';
+export * from "./types/rssItem";
