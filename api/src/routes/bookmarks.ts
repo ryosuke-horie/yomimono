@@ -249,6 +249,28 @@ export const createBookmarksRouter = (
 		}
 	});
 
+	// 未読に戻す機能
+	app.patch("/:id/unread", async (c) => {
+		try {
+			const id = Number.parseInt(c.req.param("id"));
+			if (Number.isNaN(id)) {
+				return c.json({ success: false, message: "Invalid bookmark ID" }, 400);
+			}
+
+			await bookmarkService.markBookmarkAsUnread(id);
+			return c.json({ success: true });
+		} catch (error) {
+			if (error instanceof Error && error.message === "Bookmark not found") {
+				return c.json({ success: false, message: "Bookmark not found" }, 404);
+			}
+			console.error("Failed to mark bookmark as unread:", error);
+			return c.json(
+				{ success: false, message: "Failed to mark bookmark as unread" },
+				500,
+			);
+		}
+	});
+
 	app.get("/recent", async (c) => {
 		try {
 			const recentlyReadBookmarks =

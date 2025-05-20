@@ -165,6 +165,35 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 		}
 	}
 
+	async markAsUnread(id: number): Promise<boolean> {
+		try {
+			// 存在確認
+			const bookmark = await this.db
+				.select()
+				.from(bookmarks)
+				.where(eq(bookmarks.id, id))
+				.get();
+
+			if (!bookmark) {
+				return false;
+			}
+
+			await this.db
+				.update(bookmarks)
+				.set({
+					isRead: false,
+					updatedAt: new Date(),
+				})
+				.where(eq(bookmarks.id, id))
+				.run();
+
+			return true;
+		} catch (error) {
+			console.error("Failed to mark bookmark as unread:", error);
+			throw error;
+		}
+	}
+
 	async addToFavorites(bookmarkId: number): Promise<void> {
 		try {
 			// ブックマークの存在確認

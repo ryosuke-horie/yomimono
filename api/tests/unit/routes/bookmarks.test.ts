@@ -21,6 +21,7 @@ const mockGetUnreadBookmarks = vi.fn();
 const mockGetUnreadBookmarksCount = vi.fn();
 const mockGetTodayReadCount = vi.fn();
 const mockMarkBookmarkAsRead = vi.fn();
+const mockMarkBookmarkAsUnread = vi.fn();
 const mockCreateBookmarksFromData = vi.fn();
 const mockAddToFavorites = vi.fn();
 const mockRemoveFromFavorites = vi.fn();
@@ -35,6 +36,7 @@ const mockBookmarkService: IBookmarkService = {
 	getUnreadBookmarksCount: mockGetUnreadBookmarksCount,
 	getTodayReadCount: mockGetTodayReadCount,
 	markBookmarkAsRead: mockMarkBookmarkAsRead,
+	markBookmarkAsUnread: mockMarkBookmarkAsUnread,
 	createBookmarksFromData: mockCreateBookmarksFromData,
 	addToFavorites: mockAddToFavorites,
 	removeFromFavorites: mockRemoveFromFavorites,

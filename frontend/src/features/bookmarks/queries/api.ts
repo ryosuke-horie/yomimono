@@ -66,6 +66,24 @@ export const markBookmarkAsRead = async (id: number): Promise<void> => {
 	}
 };
 
+export const markBookmarkAsUnread = async (id: number): Promise<void> => {
+	const url = `${API_BASE_URL}/api/bookmarks/${id}/unread`;
+	const response = await fetch(url, {
+		method: "PATCH",
+		headers: { Accept: "application/json", "Content-Type": "application/json" },
+	});
+	const responseText = await response.text();
+	if (!response.ok)
+		throw new Error(`Failed to mark as unread: ${response.status}`);
+	try {
+		const data = JSON.parse(responseText) as ApiBookmarkResponse;
+		if (!data.success) throw new Error(data.message);
+	} catch (e) {
+		console.error("Failed to parse response:", e, { responseText });
+		throw new Error("Invalid response format");
+	}
+};
+
 export const addBookmarkToFavorites = async (id: number): Promise<void> => {
 	const url = `${API_BASE_URL}/api/bookmarks/${id}/favorite`;
 	const response = await fetch(url, {

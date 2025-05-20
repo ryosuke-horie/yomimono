@@ -7,6 +7,7 @@ export interface IBookmarkService {
 	): Promise<void>;
 	getUnreadBookmarks(): Promise<BookmarkWithLabel[]>;
 	markBookmarkAsRead(id: number): Promise<void>;
+	markBookmarkAsUnread(id: number): Promise<void>;
 	getUnreadBookmarksCount(): Promise<number>;
 	getTodayReadCount(): Promise<number>;
 	addToFavorites(bookmarkId: number): Promise<void>;

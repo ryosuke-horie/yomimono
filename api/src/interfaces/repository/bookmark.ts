@@ -10,6 +10,7 @@ export interface IBookmarkRepository {
 	findUnread(): Promise<BookmarkWithLabel[]>;
 	findByUrls(urls: string[]): Promise<BookmarkWithLabel[]>;
 	markAsRead(id: number): Promise<boolean>;
+	markAsUnread(id: number): Promise<boolean>;
 	countUnread(): Promise<number>;
 	countTodayRead(): Promise<number>;
 	addToFavorites(bookmarkId: number): Promise<void>;
