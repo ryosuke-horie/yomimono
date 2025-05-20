@@ -27,7 +27,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 └── frontend ... フロントエンドのソースコード (Next.js)
 ```
 
-## ビルドコマンド
+## よく利用するコマンド
 - API: `cd api && npm run dev` - APIの開発サーバーを起動
 - フロントエンド: `cd frontend && npm run dev` - フロントエンドの開発サーバーを起動
 - ビルド: `cd frontend && npm run build` - フロントエンドを本番用にビルド
