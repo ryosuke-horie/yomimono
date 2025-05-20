@@ -25,12 +25,16 @@ describe("PUT /bookmarks/batch-label", () => {
 			getUnreadBookmarksCount: vi.fn(),
 			getTodayReadCount: vi.fn(),
 			markBookmarkAsRead: vi.fn(),
+			markBookmarkAsUnread: vi.fn(), // Add missing method
 			addToFavorites: vi.fn(),
 			removeFromFavorites: vi.fn(),
 			getFavoriteBookmarks: vi.fn(),
 			getRecentlyReadBookmarks: vi.fn(),
 			getUnlabeledBookmarks: vi.fn(),
 			getBookmarksByLabel: vi.fn(),
+			getBookmarksWithoutSummary: vi.fn(), // Add missing method
+			getReadBookmarks: vi.fn(), // Add missing method
+			createBookmarksFromData: vi.fn(), // Add missing method
 		} as unknown as IBookmarkService;
 
 		labelService = {
@@ -80,7 +84,14 @@ describe("PUT /bookmarks/batch-label", () => {
 			});
 
 			expect(response.status).toBe(200);
-			const data = await response.json();
+			const data = await response.json() as {
+				success: boolean;
+				successful?: number;
+				skipped?: number;
+				errors?: any[];
+				message?: string;
+				label?: { id: number };
+			};
 
 			expect(data.success).toBe(true);
 			expect(data.successful).toBe(2);
@@ -111,7 +122,14 @@ describe("PUT /bookmarks/batch-label", () => {
 			});
 
 			expect(response.status).toBe(400);
-			const data = await response.json();
+			const data = await response.json() as {
+				success: boolean;
+				successful?: number;
+				skipped?: number;
+				errors?: any[];
+				message?: string;
+				label?: { id: number };
+			};
 			expect(data).toEqual({
 				success: false,
 				message: "articleIds is required and must be a non-empty array",
@@ -131,7 +149,14 @@ describe("PUT /bookmarks/batch-label", () => {
 			});
 
 			expect(response.status).toBe(400);
-			const data = await response.json();
+			const data = await response.json() as {
+				success: boolean;
+				successful?: number;
+				skipped?: number;
+				errors?: any[];
+				message?: string;
+				label?: { id: number };
+			};
 			expect(data).toEqual({
 				success: false,
 				message: "articleIds is required and must be a non-empty array",
@@ -150,7 +175,14 @@ describe("PUT /bookmarks/batch-label", () => {
 			});
 
 			expect(response.status).toBe(400);
-			const data = await response.json();
+			const data = await response.json() as {
+				success: boolean;
+				successful?: number;
+				skipped?: number;
+				errors?: any[];
+				message?: string;
+				label?: { id: number };
+			};
 			expect(data).toEqual({
 				success: false,
 				message: "labelName is required and must be a non-empty string",
@@ -170,7 +202,14 @@ describe("PUT /bookmarks/batch-label", () => {
 			});
 
 			expect(response.status).toBe(400);
-			const data = await response.json();
+			const data = await response.json() as {
+				success: boolean;
+				successful?: number;
+				skipped?: number;
+				errors?: any[];
+				message?: string;
+				label?: { id: number };
+			};
 			expect(data.success).toBe(false);
 			expect(data.message).toContain("Invalid article ID");
 		});
@@ -192,7 +231,14 @@ describe("PUT /bookmarks/batch-label", () => {
 			});
 
 			expect(response.status).toBe(500);
-			const data = await response.json();
+			const data = await response.json() as {
+				success: boolean;
+				successful?: number;
+				skipped?: number;
+				errors?: any[];
+				message?: string;
+				label?: { id: number };
+			};
 			expect(data).toEqual({
 				success: false,
 				message: "Failed to batch assign labels",
