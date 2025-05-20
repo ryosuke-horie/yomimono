@@ -110,7 +110,7 @@ describe("ブックマークリポジトリ", () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-		
+
 		// モックのリセット
 		mockDbClient.select.mockReturnThis();
 		mockDbClient.from.mockReturnThis();
@@ -124,7 +124,7 @@ describe("ブックマークリポジトリ", () => {
 		mockDbClient.orderBy.mockReturnThis();
 		mockDbClient.update.mockReturnThis();
 		mockDbClient.insert.mockReturnThis();
-		
+
 		repository = new DrizzleBookmarkRepository({} as D1Database);
 	});
 
@@ -449,11 +449,13 @@ describe("ブックマークリポジトリ", () => {
 					updatedAt: new Date(),
 				},
 			];
-			
+
 			const mockError = new Error("Database error");
 			mockDbClient.values.mockRejectedValue(mockError);
-			
-			await expect(repository.createMany(newBookmarks)).rejects.toThrow(mockError);
+
+			await expect(repository.createMany(newBookmarks)).rejects.toThrow(
+				mockError,
+			);
 		});
 	});
 
@@ -461,9 +463,9 @@ describe("ブックマークリポジトリ", () => {
 		it("存在するブックマークを既読にできること", async () => {
 			mockDbClient.get.mockResolvedValue(mockBookmark1);
 			mockDbClient.run.mockResolvedValue({ meta: { changes: 1 } });
-			
+
 			const result = await repository.markAsRead(1);
-			
+
 			expect(result).toBe(true);
 			expect(mockDbClient.select).toHaveBeenCalled();
 			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
@@ -479,9 +481,9 @@ describe("ブックマークリポジトリ", () => {
 
 		it("存在しないブックマークのIDが指定された場合にfalseを返すこと", async () => {
 			mockDbClient.get.mockResolvedValue(null);
-			
+
 			const result = await repository.markAsRead(999);
-			
+
 			expect(result).toBe(false);
 			expect(mockDbClient.select).toHaveBeenCalled();
 			expect(mockDbClient.get).toHaveBeenCalled();
@@ -491,7 +493,7 @@ describe("ブックマークリポジトリ", () => {
 		it("DBエラー時にエラーをスローすること", async () => {
 			const mockError = new Error("Database error");
 			mockDbClient.get.mockRejectedValue(mockError);
-			
+
 			await expect(repository.markAsRead(1)).rejects.toThrow(mockError);
 		});
 
@@ -499,7 +501,7 @@ describe("ブックマークリポジトリ", () => {
 			mockDbClient.get.mockResolvedValue(mockBookmark1);
 			const mockError = new Error("Update error");
 			mockDbClient.run.mockRejectedValue(mockError);
-			
+
 			await expect(repository.markAsRead(1)).rejects.toThrow(mockError);
 		});
 	});
@@ -508,16 +510,19 @@ describe("ブックマークリポジトリ", () => {
 		it("ブックマークをお気に入りに追加できること", async () => {
 			// 最初のget呼び出し（ブックマーク存在確認）ではブックマークを返す
 			// 2回目のget呼び出し（お気に入り確認）ではnullを返す（まだお気に入りに追加されていない）
-			mockDbClient.get.mockImplementationOnce(() => Promise.resolve(mockBookmark1))
+			mockDbClient.get
+				.mockImplementationOnce(() => Promise.resolve(mockBookmark1))
 				.mockImplementationOnce(() => Promise.resolve(null));
-			
+
 			await repository.addToFavorites(1);
-			
+
 			expect(mockDbClient.select).toHaveBeenCalledTimes(2); // 2回呼ばれる（ブックマーク存在確認とお気に入り確認）
 			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
 			expect(mockDbClient.from).toHaveBeenCalledWith(favorites);
 			expect(mockDbClient.where).toHaveBeenCalledWith(eq(bookmarks.id, 1));
-			expect(mockDbClient.where).toHaveBeenCalledWith(eq(favorites.bookmarkId, 1));
+			expect(mockDbClient.where).toHaveBeenCalledWith(
+				eq(favorites.bookmarkId, 1),
+			);
 			expect(mockDbClient.insert).toHaveBeenCalledWith(favorites);
 			expect(mockDbClient.values).toHaveBeenCalledWith({
 				bookmarkId: 1,
@@ -527,9 +532,11 @@ describe("ブックマークリポジトリ", () => {
 
 		it("存在しないブックマークIDの場合にエラーをスローすること", async () => {
 			mockDbClient.get.mockResolvedValue(null);
-			
-			await expect(repository.addToFavorites(999)).rejects.toThrow("Bookmark not found");
-			
+
+			await expect(repository.addToFavorites(999)).rejects.toThrow(
+				"Bookmark not found",
+			);
+
 			expect(mockDbClient.select).toHaveBeenCalled();
 			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
 			expect(mockDbClient.where).toHaveBeenCalledWith(eq(bookmarks.id, 999));
@@ -539,11 +546,16 @@ describe("ブックマークリポジトリ", () => {
 		it("既にお気に入りに追加されている場合にエラーをスローすること", async () => {
 			// 最初のget呼び出し（ブックマーク存在確認）ではブックマークを返す
 			// 2回目のget呼び出し（お気に入り確認）ではお気に入りレコードを返す
-			mockDbClient.get.mockImplementationOnce(() => Promise.resolve(mockBookmark1))
-				.mockImplementationOnce(() => Promise.resolve({ id: 1, bookmarkId: 1, createdAt: new Date() }));
-			
-			await expect(repository.addToFavorites(1)).rejects.toThrow("Already favorited");
-			
+			mockDbClient.get
+				.mockImplementationOnce(() => Promise.resolve(mockBookmark1))
+				.mockImplementationOnce(() =>
+					Promise.resolve({ id: 1, bookmarkId: 1, createdAt: new Date() }),
+				);
+
+			await expect(repository.addToFavorites(1)).rejects.toThrow(
+				"Already favorited",
+			);
+
 			expect(mockDbClient.select).toHaveBeenCalledTimes(2);
 			expect(mockDbClient.insert).not.toHaveBeenCalled();
 		});
@@ -551,7 +563,7 @@ describe("ブックマークリポジトリ", () => {
 		it("DBエラー時にエラーをスローすること", async () => {
 			const mockError = new Error("Database error");
 			mockDbClient.get.mockRejectedValue(mockError);
-			
+
 			await expect(repository.addToFavorites(1)).rejects.toThrow(mockError);
 		});
 	});
@@ -559,68 +571,88 @@ describe("ブックマークリポジトリ", () => {
 	describe("お気に入りから削除 (removeFromFavorites)", () => {
 		it("ブックマークをお気に入りから削除できること", async () => {
 			mockDbClient.run.mockResolvedValue({ meta: { changes: 1 } });
-			
+
 			await repository.removeFromFavorites(1);
-			
+
 			expect(mockDbClient.delete).toHaveBeenCalledWith(favorites);
-			expect(mockDbClient.where).toHaveBeenCalledWith(eq(favorites.bookmarkId, 1));
+			expect(mockDbClient.where).toHaveBeenCalledWith(
+				eq(favorites.bookmarkId, 1),
+			);
 			expect(mockDbClient.run).toHaveBeenCalled();
 		});
 
 		it("お気に入りに存在しないブックマークIDの場合にエラーをスローすること", async () => {
 			mockDbClient.run.mockResolvedValue({ meta: { changes: 0 } });
-			
-			await expect(repository.removeFromFavorites(999)).rejects.toThrow("Favorite not found");
-			
+
+			await expect(repository.removeFromFavorites(999)).rejects.toThrow(
+				"Favorite not found",
+			);
+
 			expect(mockDbClient.delete).toHaveBeenCalledWith(favorites);
-			expect(mockDbClient.where).toHaveBeenCalledWith(eq(favorites.bookmarkId, 999));
+			expect(mockDbClient.where).toHaveBeenCalledWith(
+				eq(favorites.bookmarkId, 999),
+			);
 		});
 
 		it("DBエラー時にエラーをスローすること", async () => {
 			const mockError = new Error("Database error");
 			mockDbClient.run.mockRejectedValue(mockError);
-			
-			await expect(repository.removeFromFavorites(1)).rejects.toThrow(mockError);
-			
+
+			await expect(repository.removeFromFavorites(1)).rejects.toThrow(
+				mockError,
+			);
+
 			expect(mockDbClient.delete).toHaveBeenCalledWith(favorites);
-			expect(mockDbClient.where).toHaveBeenCalledWith(eq(favorites.bookmarkId, 1));
+			expect(mockDbClient.where).toHaveBeenCalledWith(
+				eq(favorites.bookmarkId, 1),
+			);
 		});
 	});
 
 	describe("お気に入り状態確認 (isFavorite)", () => {
 		it("お気に入りに追加されているブックマークIDの場合にtrueを返すこと", async () => {
-			mockDbClient.get.mockResolvedValue({ id: 1, bookmarkId: 1, createdAt: new Date() });
-			
+			mockDbClient.get.mockResolvedValue({
+				id: 1,
+				bookmarkId: 1,
+				createdAt: new Date(),
+			});
+
 			const result = await repository.isFavorite(1);
-			
+
 			expect(result).toBe(true);
 			expect(mockDbClient.select).toHaveBeenCalled();
 			expect(mockDbClient.from).toHaveBeenCalledWith(favorites);
-			expect(mockDbClient.where).toHaveBeenCalledWith(eq(favorites.bookmarkId, 1));
+			expect(mockDbClient.where).toHaveBeenCalledWith(
+				eq(favorites.bookmarkId, 1),
+			);
 			expect(mockDbClient.get).toHaveBeenCalled();
 		});
 
 		it("お気に入りに追加されていないブックマークIDの場合にfalseを返すこと", async () => {
 			mockDbClient.get.mockResolvedValue(null);
-			
+
 			const result = await repository.isFavorite(999);
-			
+
 			expect(result).toBe(false);
 			expect(mockDbClient.select).toHaveBeenCalled();
 			expect(mockDbClient.from).toHaveBeenCalledWith(favorites);
-			expect(mockDbClient.where).toHaveBeenCalledWith(eq(favorites.bookmarkId, 999));
+			expect(mockDbClient.where).toHaveBeenCalledWith(
+				eq(favorites.bookmarkId, 999),
+			);
 			expect(mockDbClient.get).toHaveBeenCalled();
 		});
 
 		it("DBエラー時にエラーをスローすること", async () => {
 			const mockError = new Error("Database error");
 			mockDbClient.get.mockRejectedValue(mockError);
-			
+
 			await expect(repository.isFavorite(1)).rejects.toThrow(mockError);
-			
+
 			expect(mockDbClient.select).toHaveBeenCalled();
 			expect(mockDbClient.from).toHaveBeenCalledWith(favorites);
-			expect(mockDbClient.where).toHaveBeenCalledWith(eq(favorites.bookmarkId, 1));
+			expect(mockDbClient.where).toHaveBeenCalledWith(
+				eq(favorites.bookmarkId, 1),
+			);
 		});
 	});
 });
