@@ -99,6 +99,13 @@ export class DefaultBookmarkService implements IBookmarkService {
 		}
 	}
 
+	async markBookmarkAsUnread(id: number): Promise<void> {
+		const updated = await this.repository.markAsUnread(id);
+		if (!updated) {
+			throw new Error("Bookmark not found");
+		}
+	}
+
 	async getRecentlyReadBookmarks(): Promise<{
 		[date: string]: BookmarkWithLabel[];
 	}> {
