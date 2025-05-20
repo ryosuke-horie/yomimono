@@ -109,7 +109,7 @@ export const createBookmark = async (data: {
 	});
 
 	if (!response.ok) {
-		const errorData = await response.json();
+		const errorData = (await response.json()) as ApiResponse<unknown>;
 		throw new Error(errorData.message || "Failed to create bookmark");
 	}
 };

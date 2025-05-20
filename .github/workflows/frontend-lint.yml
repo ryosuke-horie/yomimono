@@ -1,4 +1,4 @@
-name: Frontend Lint
+name: Frontend Checks
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
       - '.github/workflows/frontend-lint.yml'
 
 jobs:
-  lint:
+  checks:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -24,3 +24,6 @@ jobs:
 
       - name: Run lint
         run: npm run lint
+        
+      - name: Run typecheck
+        run: npx tsc --noEmit
