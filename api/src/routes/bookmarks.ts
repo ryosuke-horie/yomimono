@@ -430,7 +430,7 @@ export const createBookmarksRouter = (
 					url: bookmark.url,
 					title: bookmark.title,
 					createdAt: bookmark.createdAt,
-					readAt: bookmark.updatedAt || null,
+					readAt: bookmark.readAt || bookmark.updatedAt || null,
 					isFavorite: bookmark.isFavorite,
 				})),
 				total,
