@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { type AnyD1Database, drizzle } from "drizzle-orm/d1";
 import { type InsertRssFeed, type RssFeed, rssFeeds } from "../db/schema";
 import type { RssFeedRepository as IRssFeedRepository } from "../interfaces/repository/rssFeed";
@@ -22,6 +22,18 @@ export class RssFeedRepository implements IRssFeedRepository {
 			.where(eq(rssFeeds.id, id))
 			.get();
 		return result || null;
+	}
+
+	async findByIds(ids: number[]): Promise<RssFeed[]> {
+		if (ids.length === 0) {
+			return [];
+		}
+		
+		return await this.db
+			.select()
+			.from(rssFeeds)
+			.where(inArray(rssFeeds.id, ids))
+			.all();
 	}
 
 	async create(feed: InsertRssFeed): Promise<RssFeed> {

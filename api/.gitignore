@@ -35,4 +35,4 @@ lerna-debug.log*
 coverage/
 
 # 本番から取得するデータSQL
-data.sql
+data.sql*.js

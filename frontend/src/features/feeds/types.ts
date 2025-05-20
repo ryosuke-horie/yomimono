@@ -37,3 +37,5 @@ export interface RSSFeedDetailResponse extends RSSFeed {
 		lastWeekItems: number;
 	};
 }
+
+export * from './types/rssItem';

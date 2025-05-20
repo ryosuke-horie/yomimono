@@ -1,10 +1,11 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { type D1Database, drizzle } from "drizzle-orm/d1";
 import {
 	type InsertRssFeedItem,
 	type RssFeedItem,
 	rssFeedItems,
 } from "../db/schema";
+import type { FindWithPaginationParams } from "../interfaces/repository/rssFeedItem";
 
 export class RssFeedItemRepository {
 	private db;
@@ -42,6 +43,40 @@ export class RssFeedItemRepository {
 			.where(eq(rssFeedItems.feedId, feedId))
 			.orderBy(desc(rssFeedItems.publishedAt))
 			.all();
+	}
+
+	async findWithPagination({
+		feedId,
+		limit,
+		offset,
+	}: FindWithPaginationParams): Promise<RssFeedItem[]> {
+		const query = this.db
+			.select()
+			.from(rssFeedItems)
+			.orderBy(desc(rssFeedItems.publishedAt))
+			.limit(limit)
+			.offset(offset);
+
+		// フィードIDが指定されている場合はフィルタリング
+		if (feedId !== undefined) {
+			query.where(eq(rssFeedItems.feedId, feedId));
+		}
+
+		return await query.all();
+	}
+
+	async getTotalCount(feedId?: number): Promise<number> {
+		const query = this.db
+			.select({ count: sql<number>`count(*)` })
+			.from(rssFeedItems);
+
+		// フィードIDが指定されている場合はフィルタリング
+		if (feedId !== undefined) {
+			query.where(eq(rssFeedItems.feedId, feedId));
+		}
+
+		const result = await query.get();
+		return result?.count || 0;
 	}
 
 	async createMany(items: InsertRssFeedItem[]): Promise<number> {

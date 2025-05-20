@@ -15,6 +15,13 @@ export interface RssFeedRepository {
 	findById(id: number): Promise<RssFeed | null>;
 
 	/**
+	 * 複数のIDに対応するRSSフィードを取得する
+	 * @param ids - RSSフィードIDの配列
+	 * @returns RSSフィードの配列
+	 */
+	findByIds(ids: number[]): Promise<RssFeed[]>;
+
+	/**
 	 * 新しいRSSフィードを作成する
 	 * @param data - 作成するRSSフィードのデータ
 	 * @returns 作成されたRSSフィード

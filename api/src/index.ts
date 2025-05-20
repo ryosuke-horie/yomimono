@@ -11,14 +11,18 @@ import { bookmarks, rssBatchLogs } from "./db/schema";
 import { ArticleLabelRepository } from "./repositories/articleLabel";
 import { DrizzleBookmarkRepository } from "./repositories/bookmark";
 import { LabelRepository } from "./repositories/label";
+import { RssBatchLogRepository } from "./repositories/rssBatchLog";
 import { RssFeedRepository } from "./repositories/rssFeed";
+import { RssFeedItemRepository } from "./repositories/rssFeedItem";
 import { createBookmarksRouter } from "./routes/bookmarks";
 import labelsRouter from "./routes/labels";
 import { createRssFeedsRouter } from "./routes/rssFeeds";
+import { createRssItemsRouter } from "./routes/rssItems";
 import { createSummaryRouter } from "./routes/summary";
 import { DefaultBookmarkService } from "./services/bookmark";
 import { LabelService } from "./services/label";
 import { RssFeedService } from "./services/rssFeed";
+import { RssFeedItemService } from "./services/rssFeedItem";
 import { SummaryService } from "./services/summary";
 import rssBatch from "./workers/rssBatch";
 
@@ -53,6 +57,7 @@ export const createApp = (env: Env) => {
 	const labelRepository = new LabelRepository(db);
 	const articleLabelRepository = new ArticleLabelRepository(db);
 	const rssFeedRepository = new RssFeedRepository(db);
+	const rssFeedItemRepository = new RssFeedItemRepository(db);
 	const bookmarkService = new DefaultBookmarkService(bookmarkRepository);
 	const labelService = new LabelService(
 		labelRepository,
@@ -61,6 +66,11 @@ export const createApp = (env: Env) => {
 	);
 	const summaryService = new SummaryService(bookmarkRepository);
 	const rssFeedService = new RssFeedService(rssFeedRepository);
+	const rssFeedItemService = new RssFeedItemService(
+		rssFeedItemRepository,
+		rssFeedRepository,
+		bookmarkRepository,
+	);
 
 	// ルーターのマウント
 	const bookmarksRouter = createBookmarksRouter(bookmarkService, labelService);
@@ -73,6 +83,10 @@ export const createApp = (env: Env) => {
 	// RSSフィードルートの追加
 	const rssFeedsRouter = createRssFeedsRouter(rssFeedService);
 	app.route("/api/rss", rssFeedsRouter);
+	
+	// RSSアイテムルートの追加
+	const rssItemsRouter = createRssItemsRouter(rssFeedItemService);
+	app.route("/api/rss", rssItemsRouter);
 
 	// テストエンドポイント
 	app.get("/api/dev/test", (c) => {
