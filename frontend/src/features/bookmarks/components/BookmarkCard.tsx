@@ -40,6 +40,7 @@ export function BookmarkCard({
 		useMarkBookmarkAsUnread();
 	const [isCopied, setIsCopied] = useState(false);
 	const [isUrlCopied, setIsUrlCopied] = useState(false);
+	const [showSummaryContent, setShowSummaryContent] = useState(false);
 
 	const handleFavoriteToggle = () => {
 		toggleFavorite({ id, isCurrentlyFavorite: isFavorite });
@@ -88,6 +89,11 @@ export function BookmarkCard({
 		} catch (error) {
 			console.error("URLのコピーに失敗しました", error);
 		}
+	};
+
+	// 要約表示切り替え処理
+	const handleToggleSummary = () => {
+		setShowSummaryContent(!showSummaryContent);
 	};
 
 	return (
@@ -375,16 +381,41 @@ export function BookmarkCard({
 			</p>
 			<p className="text-xs text-gray-500">{formattedDate}</p>
 
+			{/* 要約ボタン */}
+			<div className="mt-3 mb-3">
+				<button
+					type="button"
+					onClick={handleToggleSummary}
+					disabled={!summary}
+					className={`px-3 py-1 text-sm rounded border transition-colors ${
+						!summary
+							? "text-gray-400 border-gray-300 bg-gray-100 cursor-not-allowed"
+							: showSummaryContent
+								? "text-blue-700 border-blue-300 bg-blue-50 hover:bg-blue-100"
+								: "text-gray-700 border-gray-300 bg-white hover:bg-gray-50"
+					}`}
+					title={
+						!summary
+							? "要約がありません"
+							: showSummaryContent
+								? "要約を閉じる"
+								: "要約を表示"
+					}
+				>
+					要約
+				</button>
+			</div>
+
 			{/* 要約表示 - 条件付きレンダリング */}
-			{showSummary && (
-				<div className="mt-3 mb-12">
+			{showSummaryContent && summary && (
+				<div className="mb-12">
 					<BookmarkSummary
 						summary={summary || null}
 						summaryUpdatedAt={summaryUpdatedAt || null}
 					/>
 				</div>
 			)}
-			{!showSummary && <div className="mb-12" />}
+			{!showSummaryContent && <div className="mb-12" />}
 		</article>
 	);
 }
