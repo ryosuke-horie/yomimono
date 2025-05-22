@@ -383,8 +383,7 @@ export const createBookmarksRouter = (
 	// 要約なしブックマーク取得エンドポイント
 	app.get("/without-summary", async (c) => {
 		try {
-			const limit = Number.parseInt(c.req.query("limit") || "5");
-			const offset = Number.parseInt(c.req.query("offset") || "0");
+			const limit = Number.parseInt(c.req.query("limit") || "10");
 			const orderBy = c.req.query("orderBy") as
 				| "createdAt"
 				| "readAt"
@@ -397,12 +396,6 @@ export const createBookmarksRouter = (
 					400,
 				);
 			}
-			if (Number.isNaN(offset) || offset < 0) {
-				return c.json(
-					{ success: false, message: "Invalid offset parameter" },
-					400,
-				);
-			}
 			if (orderBy && !["createdAt", "readAt"].includes(orderBy)) {
 				return c.json(
 					{ success: false, message: "Invalid orderBy parameter" },
@@ -410,31 +403,25 @@ export const createBookmarksRouter = (
 				);
 			}
 
-			// ページネーション対応のため、limit+1件取得
 			const bookmarks = await bookmarkService.getBookmarksWithoutSummary(
-				limit + 1,
+				limit,
 				orderBy || "createdAt",
-				offset,
+				0,
 			);
 
-			// hasMoreフラグの判定
-			const hasMore = bookmarks.length > limit;
-			const paginatedBookmarks = bookmarks.slice(0, limit);
-
-			// offsetベースでtotalを計算（TODO: 正確なtotalは別途クエリが必要）
-			const total = offset + paginatedBookmarks.length + (hasMore ? 1 : 0);
-
 			return c.json({
-				bookmarks: paginatedBookmarks.map((bookmark) => ({
+				success: true,
+				bookmarks: bookmarks.map((bookmark) => ({
 					id: bookmark.id,
 					url: bookmark.url,
 					title: bookmark.title,
-					createdAt: bookmark.createdAt,
-					readAt: bookmark.readAt || null,
-					isFavorite: bookmark.isFavorite,
+					isRead: bookmark.isRead,
+					summary: bookmark.summary,
+					summaryCreatedAt: bookmark.summaryCreatedAt?.toISOString() ?? null,
+					summaryUpdatedAt: bookmark.summaryUpdatedAt?.toISOString() ?? null,
+					createdAt: bookmark.createdAt.toISOString(),
+					updatedAt: bookmark.updatedAt.toISOString(),
 				})),
-				total,
-				hasMore,
 			});
 		} catch (error) {
 			console.error("Failed to fetch bookmarks without summary:", error);
