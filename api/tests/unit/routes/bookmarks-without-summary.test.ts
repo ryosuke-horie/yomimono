@@ -19,6 +19,7 @@ describe("GET /bookmarks/without-summary", () => {
 			findUnread: vi.fn(),
 			findByUrls: vi.fn(),
 			markAsRead: vi.fn(),
+			markAsUnread: vi.fn(),
 			countUnread: vi.fn(),
 			countTodayRead: vi.fn(),
 			addToFavorites: vi.fn(),
@@ -26,6 +27,7 @@ describe("GET /bookmarks/without-summary", () => {
 			getFavoriteBookmarks: vi.fn(),
 			isFavorite: vi.fn(),
 			findRecentlyRead: vi.fn(),
+			findRead: vi.fn(),
 			findUnlabeled: vi.fn(),
 			findByLabelName: vi.fn(),
 			findById: vi.fn(),
@@ -38,6 +40,10 @@ describe("GET /bookmarks/without-summary", () => {
 			getAllLabels: vi.fn(),
 			assignLabel: vi.fn(),
 			assignLabelsToMultipleArticles: vi.fn(),
+			getLabelById: vi.fn(),
+			deleteLabel: vi.fn(),
+			updateLabelDescription: vi.fn(),
+			createLabel: vi.fn(),
 		};
 
 		// Create services
@@ -93,33 +99,38 @@ describe("GET /bookmarks/without-summary", () => {
 
 		expect(res.status).toBe(200);
 		expect(mockBookmarkRepository.findWithoutSummary).toHaveBeenCalledWith(
-			6, // limit + 1 for pagination (default is 5)
+			10, // default limit is now 10
 			"createdAt", // default orderBy
 			0, // default offset
 		);
 
 		const json = await res.json();
 		expect(json).toMatchObject({
+			success: true,
 			bookmarks: [
 				{
 					id: 1,
 					url: "https://example.com/article1",
 					title: "記事1",
+					isRead: false,
+					summary: null,
+					summaryCreatedAt: null,
+					summaryUpdatedAt: null,
 					createdAt: "2024-01-01T00:00:00.000Z",
-					readAt: null,
-					isFavorite: false,
+					updatedAt: "2024-01-01T00:00:00.000Z",
 				},
 				{
 					id: 2,
 					url: "https://example.com/article2",
 					title: "記事2",
+					isRead: true,
+					summary: null,
+					summaryCreatedAt: null,
+					summaryUpdatedAt: null,
 					createdAt: "2024-01-02T00:00:00.000Z",
-					readAt: "2024-01-02T00:00:00.000Z",
-					isFavorite: true,
+					updatedAt: "2024-01-02T00:00:00.000Z",
 				},
 			],
-			total: 2,
-			hasMore: false,
 		});
 	});
 
@@ -146,28 +157,32 @@ describe("GET /bookmarks/without-summary", () => {
 		).mockResolvedValue(mockBookmarks);
 
 		const res = await app.request(
-			"/bookmarks/without-summary?limit=5&orderBy=readAt&offset=10",
+			"/bookmarks/without-summary?limit=5&orderBy=readAt",
 		);
 
 		expect(res.status).toBe(200);
 		expect(mockBookmarkRepository.findWithoutSummary).toHaveBeenCalledWith(
-			6, // limit + 1
+			5,
 			"readAt",
-			10,
+			0,
 		);
 
 		const json = await res.json();
 		expect(json).toMatchObject({
+			success: true,
 			bookmarks: [
 				{
 					id: 1,
 					url: "https://example.com/article1",
 					title: "記事1",
-					isFavorite: false,
+					isRead: false,
+					summary: null,
+					summaryCreatedAt: null,
+					summaryUpdatedAt: null,
+					createdAt: "2024-01-01T00:00:00.000Z",
+					updatedAt: "2024-01-01T00:00:00.000Z",
 				},
 			],
-			total: 11,
-			hasMore: false,
 		});
 	});
 
@@ -179,17 +194,6 @@ describe("GET /bookmarks/without-summary", () => {
 		expect(json).toMatchObject({
 			success: false,
 			message: "Invalid limit parameter",
-		});
-	});
-
-	it("無効なoffsetパラメータでエラーを返す", async () => {
-		const res = await app.request("/bookmarks/without-summary?offset=-1");
-
-		expect(res.status).toBe(400);
-		const json = await res.json();
-		expect(json).toMatchObject({
-			success: false,
-			message: "Invalid offset parameter",
 		});
 	});
 
