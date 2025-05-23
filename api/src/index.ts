@@ -204,4 +204,5 @@ export default {
 		const app = createApp(env);
 		return app.fetch(request, env);
 	},
+	scheduled: rssBatch.scheduled,
 };
