@@ -21,7 +21,9 @@ This directory contains the MCP (Model Context Protocol) server that provides to
 - **`saveSummary`**: 生成した要約をブックマークに保存します。（引数: `bookmarkId`, `summary`）
 - **`updateSummary`**: 既存の要約を更新します。（引数: `bookmarkId`, `summary`）
 - **`getBookmarkById`**: 特定のブックマークを取得します。（引数: `bookmarkId`）
-- **`generateSummary`**: ブックマークの要約を生成します（現在は仮実装）。（引数: `bookmarkId`, `includeKeyPoints`, `maxLength`）
+- **`generateSummary`**: Claude Desktopに記事URLへのアクセスと要約生成を指示します。（引数: `bookmarkId`, `includeKeyPoints`, `maxLength`）
+  - Claude Desktopが記事にアクセスし、エンジニア向けの要約を生成
+  - 技術的な学習ポイントを抽出する形式で要約
 - **`getUnreadArticlesByLabel`**: 指定されたラベルの未読記事を取得します。（引数: `labelName`）
 
 ## Connecting with a Client
