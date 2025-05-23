@@ -3,6 +3,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import * as dotenv from "dotenv";
 import { z } from "zod";
 import * as apiClient from "./lib/apiClient.js";
+import { getSummaryPrompt } from "./lib/promptTemplates.js";
 
 // Configure dotenv to load environment variables
 dotenv.config();
@@ -544,49 +545,14 @@ server.tool(
 			}
 
 			// Claude Desktopに記事内容の取得と要約生成を依頼
-			// このツールはClaude Desktopに指示を返し、Claude Desktop側で記事にアクセスして要約を生成する
-			const instructionForClaude = `
-以下のURLの技術記事を読み込んで、エンジニア向けの要約を生成してください。
-
-URL: ${bookmark.url}
-タイトル: ${bookmark.title || "タイトルなし"}
-ブックマークID: ${bookmarkId}
-
-要約の要件:
-1. 日本語で${maxLength}文字以内で作成
-2. 以下の形式で構成:
-   【概要】
-   記事の主旨を1-2文で説明
-   
-   ${
-			includeKeyPoints
-				? `【学習ポイント】
-   ・技術的に重要な概念やパターン
-   ・新しく学べる技術やツール
-   ・ベストプラクティスや注意点
-   
-   【実装に役立つ情報】
-   ・具体的なコード例やコマンド
-   ・設定方法や使用手順
-   ・パフォーマンスやセキュリティの考慮点
-   
-   【関連技術】
-   記事で言及されている関連技術やライブラリ`
-				: "記事の技術的な内容を簡潔にまとめる"
-		}
-
-3. エンジニアが後で見返した時に、記事の価値と学習内容がすぐ分かるようにする
-4. 専門用語は適切に使用し、技術的な正確性を保つ
-
-手順:
-1. 上記URLにアクセスして記事内容を読み込む
-2. 技術的な観点から要約を生成
-3. 生成した要約を saveSummary ツールを使って保存する (bookmarkId: ${bookmarkId})
-
-注意: 
-- 記事にアクセスできない場合は、その旨を明記してください
-- ペイウォールや認証が必要な場合も、アクセスできない理由を説明してください
-- 要約生成後は必ず saveSummary ツールで保存してください`;
+			// 最適化されたプロンプトテンプレートを使用
+			const instructionForClaude = getSummaryPrompt({
+				url: bookmark.url,
+				title: bookmark.title || "タイトルなし",
+				bookmarkId,
+				maxLength,
+				includeKeyPoints,
+			});
 
 			return {
 				content: [

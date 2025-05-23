@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as apiClient from "../lib/apiClient.js";
+import { getSummaryPrompt } from "../lib/promptTemplates.js";
 
 // APIクライアントのモック
 vi.mock("../lib/apiClient.js", () => ({
@@ -72,7 +73,7 @@ describe("generateSummary tool preparation", () => {
 		);
 	});
 
-	it("Claude Desktopへの指示に必要な情報が含まれていることを確認", async () => {
+	it("プロンプトテンプレートを使用した指示生成のテスト", async () => {
 		const mockBookmark = {
 			id: 3,
 			url: "https://example.com/article3",
@@ -87,10 +88,18 @@ describe("generateSummary tool preparation", () => {
 
 		vi.mocked(apiClient.getBookmarkById).mockResolvedValue(mockBookmark);
 
-		// generateSummaryツールが生成する指示内容の検証
+		// generateSummaryツールと同じ方法でプロンプトを生成
 		const bookmarkId = 3;
 		const maxLength = 500;
 		const includeKeyPoints = true;
+
+		const generatedPrompt = getSummaryPrompt({
+			url: mockBookmark.url,
+			title: mockBookmark.title,
+			bookmarkId,
+			maxLength,
+			includeKeyPoints,
+		});
 
 		// 期待される指示内容の要素
 		const expectedElements = [
@@ -101,48 +110,58 @@ describe("generateSummary tool preparation", () => {
 			"【概要】",
 			"【学習ポイント】",
 			"【実装に役立つ情報】",
-			"【関連技術】",
-			"saveSummary ツールを使って保存",
+			"【関連技術・エコシステム】",
+			"saveSummary ツールを使って要約を保存",
+			"品質基準",
+			"作業手順",
 		];
-
-		// 実際の指示内容を模擬的に生成
-		const instruction = `
-以下のURLの技術記事を読み込んで、エンジニア向けの要約を生成してください。
-
-URL: ${mockBookmark.url}
-タイトル: ${mockBookmark.title}
-ブックマークID: ${bookmarkId}
-
-要約の要件:
-1. 日本語で${maxLength}文字以内で作成
-2. 以下の形式で構成:
-   【概要】
-   記事の主旨を1-2文で説明
-   
-   【学習ポイント】
-   ・技術的に重要な概念やパターン
-   ・新しく学べる技術やツール
-   ・ベストプラクティスや注意点
-   
-   【実装に役立つ情報】
-   ・具体的なコード例やコマンド
-   ・設定方法や使用手順
-   ・パフォーマンスやセキュリティの考慮点
-   
-   【関連技術】
-   記事で言及されている関連技術やライブラリ
-
-3. エンジニアが後で見返した時に、記事の価値と学習内容がすぐ分かるようにする
-4. 専門用語は適切に使用し、技術的な正確性を保つ
-
-手順:
-1. 上記URLにアクセスして記事内容を読み込む
-2. 技術的な観点から要約を生成
-3. 生成した要約を saveSummary ツールを使って保存する (bookmarkId: ${bookmarkId})`;
 
 		// すべての必要な要素が含まれているか確認
 		for (const element of expectedElements) {
-			expect(instruction).toContain(element);
+			expect(generatedPrompt).toContain(element);
 		}
+
+		// 新しいプロンプトテンプレートの特徴が含まれているか確認
+		expect(generatedPrompt).toContain("詳細指針");
+		expect(generatedPrompt).toContain("記事解析のポイント");
+		expect(generatedPrompt).toContain("特別な考慮事項");
+	});
+
+	it("includeKeyPointsがfalseの場合のシンプルプロンプトテスト", async () => {
+		const mockBookmark = {
+			id: 4,
+			url: "https://example.com/simple-article",
+			title: "シンプルな技術記事",
+			isRead: false,
+			summary: null,
+			summaryCreatedAt: null,
+			summaryUpdatedAt: null,
+			createdAt: "2024-01-01T00:00:00Z",
+			updatedAt: "2024-01-01T00:00:00Z",
+		};
+
+		vi.mocked(apiClient.getBookmarkById).mockResolvedValue(mockBookmark);
+
+		const bookmarkId = 4;
+		const maxLength = 300;
+		const includeKeyPoints = false;
+
+		const generatedPrompt = getSummaryPrompt({
+			url: mockBookmark.url,
+			title: mockBookmark.title,
+			bookmarkId,
+			maxLength,
+			includeKeyPoints,
+		});
+
+		// シンプルプロンプトの要素が含まれているか確認
+		expect(generatedPrompt).toContain("【技術要約】");
+		expect(generatedPrompt).toContain(`${maxLength}文字以内`);
+		expect(generatedPrompt).toContain("saveSummary ツール");
+
+		// 詳細プロンプトの要素が含まれていないことを確認
+		expect(generatedPrompt).not.toContain("【学習ポイント】");
+		expect(generatedPrompt).not.toContain("品質基準");
+		expect(generatedPrompt).not.toContain("詳細指針");
 	});
 });
