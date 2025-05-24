@@ -103,9 +103,7 @@ export const rssFeedItems = sqliteTable("rss_feed_items", {
 // RSSバッチログ
 export const rssBatchLogs = sqliteTable("rss_batch_logs", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
-	feedId: integer("feed_id")
-		.notNull()
-		.references(() => rssFeeds.id),
+	feedId: integer("feed_id").references(() => rssFeeds.id),
 	status: text("status").notNull(),
 	itemsFetched: integer("items_fetched").notNull().default(0),
 	itemsCreated: integer("items_created").notNull().default(0),
