@@ -52,7 +52,7 @@ export class RSSBatchProcessor {
 				.values({
 					status: "in_progress",
 					startedAt: new Date(),
-					feedId: 1, // 暫定的に1を使用（後でスキーマ変更が必要）
+					feedId: null, // バッチ全体のログはfeedId不要
 					itemsCreated: 0,
 					itemsFetched: 0,
 				})
@@ -109,7 +109,7 @@ export class RSSBatchProcessor {
 				errorMessage,
 				startedAt: new Date(),
 				finishedAt: new Date(),
-				feedId: 0, // バッチ全体のログなのでfeedIdは0とする
+				feedId: null, // バッチ全体のログはfeedId不要
 				itemsCreated: 0,
 				itemsFetched: 0,
 			});
