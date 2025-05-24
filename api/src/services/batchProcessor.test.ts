@@ -112,7 +112,7 @@ describe("RSSBatchProcessor", () => {
 				expect.objectContaining({
 					status: "in_progress",
 					startedAt: expect.any(Date),
-					feedId: 1, // 暫定的に1を使用
+					feedId: null, // バッチ全体のログはfeedId不要
 					itemsCreated: 0,
 					itemsFetched: 0,
 				}),
