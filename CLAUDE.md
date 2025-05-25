@@ -5,6 +5,46 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## プロジェクト概要
 「effective-yomimono」は、技術記事を効率的に管理するためのツールです。Chrome拡張機能でブックマークを収集し、APIを通じてデータを保存、フロントエンドで整理・閲覧できます。
 
+## 重要
+
+### テスト駆動開発を行う
+TDDを実施する。コードを生成するときにはそれに対応するユニットテストを常に生成する。
+コードを追加で修正したときには`npm run test`がパスすることを常に確認する。
+
+```ts
+function add(a: number, b: number) { return a + b }
+test("1+2=3", () => {
+  expect(add(1, 2)).toBe(3);
+});
+```
+
+### vitest で実装と同じファイルにユニットテストを書く。
+出力例
+```ts
+export function distance(a: Point, b: Point): number {...}
+if (import.meta.vitest) {
+  const {test, expect} = import.meta.vitest;
+  test("ユークリッド距離を計算する", () => {
+    const result = distance({x: 0, y: 0}, {x: 3, y: 4});
+    expect(distance(result)).toBe(5)
+  });
+}
+```
+
+### 各ファイルの冒頭にはコメントで仕様を記述する
+
+出力例
+
+```ts
+/**
+ * 2点間のユークリッド距離を計算する
+**/
+type Point = { x: number; y: number; };
+export function distance(a: Point, b: Point): number {
+  return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+}
+```
+
 ## プロジェクト構成
 - **API**: Hono + Node.js + Cloudflare Workers (SQLite/D1)
 - **フロントエンド**: Next.js + TailwindCSS + Cloudflare Workers
