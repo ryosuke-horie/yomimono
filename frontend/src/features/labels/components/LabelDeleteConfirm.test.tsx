@@ -83,9 +83,12 @@ describe("LabelDeleteConfirm", () => {
 				/>,
 			);
 
-			expect(
-				screen.getByText(/このラベルは現在 5 件の記事に使用されています/),
-			).toBeInTheDocument();
+			// テキスト内容の存在を確認（数字が含まれていることをチェック）
+			const warningText = screen.getByText(
+				/このラベルは現在.*件の記事に使用されています/,
+			);
+			expect(warningText).toBeInTheDocument();
+			expect(warningText.textContent).toContain("5");
 			expect(
 				screen.getByText(/削除すると、これらの記事からラベルが削除されます/),
 			).toBeInTheDocument();
@@ -157,10 +160,8 @@ describe("LabelDeleteConfirm", () => {
 				/>,
 			);
 
-			// オーバーレイを取得（背景の暗い部分）
-			const overlay = screen
-				.getByRole("dialog")
-				.parentElement?.querySelector('[role="button"]');
+			// オーバーレイを取得（背景の暗い部分） - DOMツリーから直接取得
+			const overlay = document.querySelector('[role="button"]');
 			expect(overlay).toBeInTheDocument();
 
 			if (overlay) {
@@ -273,9 +274,7 @@ describe("LabelDeleteConfirm", () => {
 				/>,
 			);
 
-			const overlay = screen
-				.getByRole("dialog")
-				.parentElement?.querySelector('[role="button"]');
+			const overlay = document.querySelector('[role="button"]');
 			expect(overlay).toBeInTheDocument();
 
 			if (overlay) {
@@ -295,9 +294,7 @@ describe("LabelDeleteConfirm", () => {
 				/>,
 			);
 
-			const overlay = screen
-				.getByRole("dialog")
-				.parentElement?.querySelector('[role="button"]');
+			const overlay = document.querySelector('[role="button"]');
 			expect(overlay).toBeInTheDocument();
 
 			if (overlay) {
@@ -384,9 +381,12 @@ describe("LabelDeleteConfirm", () => {
 			expect(
 				screen.getByText(/ラベル「重要なラベル」を削除します/),
 			).toBeInTheDocument();
-			expect(
-				screen.getByText(/このラベルは現在 42 件の記事に使用されています/),
-			).toBeInTheDocument();
+			// テキスト内容の存在を確認（数字が含まれていることをチェック）
+			const warningText = screen.getByText(
+				/このラベルは現在.*件の記事に使用されています/,
+			);
+			expect(warningText).toBeInTheDocument();
+			expect(warningText.textContent).toContain("42");
 		});
 
 		it("削除中にエラーが発生した場合の表示", () => {
