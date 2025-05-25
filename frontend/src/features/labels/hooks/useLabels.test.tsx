@@ -29,7 +29,7 @@ const createWrapper = () => {
 };
 
 describe("useLabels", () => {
-	let wrapper: ({ children }: { children: ReactNode }) => JSX.Element;
+	let wrapper: ({ children }: { children: ReactNode }) => React.ReactElement;
 
 	beforeEach(() => {
 		wrapper = createWrapper();
