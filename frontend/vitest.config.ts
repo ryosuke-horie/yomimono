@@ -22,17 +22,22 @@ export default defineConfig({
 		// カバレッジ設定
 		coverage: {
 			provider: "v8",
-			reporter: ["text", "json", "html", "lcov"],
+			reporter: ["text", "json", "json-summary", "html", "lcov"],
+			include: ["src/**/*.{ts,tsx}"],
 			exclude: [
 				"coverage/**",
 				"dist/**",
 				"**/*.d.ts",
 				"**/.next/**",
+				"**/.open-next/**",
+				"**/node_modules/**",
 				"**/vitest.config.{js,ts}",
 				"**/vitest.setup.ts",
 				"**/postcss.config.mjs",
 				"**/next.config.mjs",
 				"**/tailwind.config.{js,ts}",
+				"**/*.test.{ts,tsx}",
+				"**/*.spec.{ts,tsx}",
 			],
 			thresholds: {
 				global: {

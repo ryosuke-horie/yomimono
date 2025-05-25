@@ -1,0 +1,95 @@
+name: Frontend Tests
+
+on:
+  push:
+    paths:
+      - 'frontend/**'
+    branches:
+      - main
+  pull_request:
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-test.yml'
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  test:
+    runs-on: self-hosted
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests with coverage
+        id: test
+        run: npm run test:coverage
+
+      - name: Extract coverage
+        id: coverage
+        run: |
+          COVERAGE=$(cat coverage/coverage-summary.json | jq -r '.total.statements.pct')
+          COVERAGE_DETAIL=$(cat coverage/coverage-summary.json | jq -r '
+            "### カバレッジ詳細\n" +
+            "| Type | Percentage | \n" +
+            "|------|------------|\n" +
+            "| Statements | \(.total.statements.pct)% |\n" +
+            "| Branches | \(.total.branches.pct)% |\n" +
+            "| Functions | \(.total.functions.pct)% |\n" +
+            "| Lines | \(.total.lines.pct)% |"
+          ')
+          echo "coverage=$COVERAGE" >> $GITHUB_OUTPUT
+          echo "detail<<EOF" >> $GITHUB_OUTPUT
+          echo "$COVERAGE_DETAIL" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Check coverage threshold
+        run: |
+          COVERAGE=${{ steps.coverage.outputs.coverage }}
+          echo "Checking if coverage ($COVERAGE%) meets threshold (80%)..."
+          if [ "$(echo "$COVERAGE < 80" | bc -l)" -eq 1 ]; then
+            echo "❌ Coverage ($COVERAGE%) is below threshold (80%)"
+            exit 1
+          else
+            echo "✅ Coverage ($COVERAGE%) meets or exceeds threshold (80%)"
+          fi
+
+      - name: Post coverage comment
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@67d0dec7b07ed060a405f9b2a64b8ab319fdd7db # v2.9.2
+        with:
+          header: frontend-test-coverage
+          message: |
+            ### フロントエンドテストカバレッジレポート
+
+            フロントエンド全体のカバレッジ: ${{ steps.coverage.outputs.coverage }}%
+            必要なカバレッジ閾値: 80%
+
+            ${{ steps.coverage.outputs.detail }}
+
+            判定: ${{ steps.coverage.outputs.coverage >= 80 && '✅ 合格' || '❌ 不合格' }}
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: frontend-coverage-report
+          path: frontend/coverage/
+          retention-days: 7
+
+      - name: Run TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Run lint
+        run: npm run lint
