@@ -3,10 +3,10 @@
  * ラベル削除確認モーダルの表示、操作、キーボードイベント、エラーハンドリングをテスト
  */
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { LabelDeleteConfirm } from "./LabelDeleteConfirm";
-import { vi } from "vitest";
 import userEvent from "@testing-library/user-event";
+import { vi } from "vitest";
 import type { Label } from "../types";
+import { LabelDeleteConfirm } from "./LabelDeleteConfirm";
 
 const createMockLabel = (overrides?: Partial<Label>): Label => ({
 	id: 1,
@@ -35,15 +35,21 @@ describe("LabelDeleteConfirm", () => {
 					label={mockLabel}
 					onConfirm={mockOnConfirm}
 					onCancel={mockOnCancel}
-				/>
+				/>,
 			);
 
 			expect(screen.getByRole("dialog")).toBeInTheDocument();
 			expect(screen.getByText("ラベルを削除しますか？")).toBeInTheDocument();
-			expect(screen.getByText(/ラベル「JavaScript」を削除します/)).toBeInTheDocument();
+			expect(
+				screen.getByText(/ラベル「JavaScript」を削除します/),
+			).toBeInTheDocument();
 			expect(screen.getByText(/この操作は取り消せません/)).toBeInTheDocument();
-			expect(screen.getByRole("button", { name: "削除する" })).toBeInTheDocument();
-			expect(screen.getByRole("button", { name: "キャンセル" })).toBeInTheDocument();
+			expect(
+				screen.getByRole("button", { name: "削除する" }),
+			).toBeInTheDocument();
+			expect(
+				screen.getByRole("button", { name: "キャンセル" }),
+			).toBeInTheDocument();
 		});
 
 		it("警告アイコンが表示される", () => {
@@ -54,7 +60,7 @@ describe("LabelDeleteConfirm", () => {
 					label={mockLabel}
 					onConfirm={mockOnConfirm}
 					onCancel={mockOnCancel}
-				/>
+				/>,
 			);
 
 			// SVG要素の存在を確認
@@ -64,9 +70,9 @@ describe("LabelDeleteConfirm", () => {
 		});
 
 		it("記事数がある場合は警告メッセージが表示される", () => {
-			const mockLabel = createMockLabel({ 
+			const mockLabel = createMockLabel({
 				name: "React",
-				articleCount: 5 
+				articleCount: 5,
 			});
 
 			render(
@@ -74,11 +80,15 @@ describe("LabelDeleteConfirm", () => {
 					label={mockLabel}
 					onConfirm={mockOnConfirm}
 					onCancel={mockOnCancel}
-				/>
+				/>,
 			);
 
-			expect(screen.getByText(/このラベルは現在 5 件の記事に使用されています/)).toBeInTheDocument();
-			expect(screen.getByText(/削除すると、これらの記事からラベルが削除されます/)).toBeInTheDocument();
+			expect(
+				screen.getByText(/このラベルは現在 5 件の記事に使用されています/),
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/削除すると、これらの記事からラベルが削除されます/),
+			).toBeInTheDocument();
 		});
 
 		it("記事数がない場合は警告メッセージが表示されない", () => {
@@ -89,10 +99,12 @@ describe("LabelDeleteConfirm", () => {
 					label={mockLabel}
 					onConfirm={mockOnConfirm}
 					onCancel={mockOnCancel}
-				/>
+				/>,
 			);
 
-			expect(screen.queryByText(/件の記事に使用されています/)).not.toBeInTheDocument();
+			expect(
+				screen.queryByText(/件の記事に使用されています/),
+			).not.toBeInTheDocument();
 		});
 	});
 
@@ -106,7 +118,7 @@ describe("LabelDeleteConfirm", () => {
 					label={mockLabel}
 					onConfirm={mockOnConfirm}
 					onCancel={mockOnCancel}
-				/>
+				/>,
 			);
 
 			const deleteButton = screen.getByRole("button", { name: "削除する" });
@@ -124,7 +136,7 @@ describe("LabelDeleteConfirm", () => {
 					label={mockLabel}
 					onConfirm={mockOnConfirm}
 					onCancel={mockOnCancel}
-				/>
+				/>,
 			);
 
 			const cancelButton = screen.getByRole("button", { name: "キャンセル" });
@@ -142,11 +154,13 @@ describe("LabelDeleteConfirm", () => {
 					label={mockLabel}
 					onConfirm={mockOnConfirm}
 					onCancel={mockOnCancel}
-				/>
+				/>,
 			);
 
 			// オーバーレイを取得（背景の暗い部分）
-			const overlay = screen.getByRole("dialog").parentElement?.querySelector('[role="button"]');
+			const overlay = screen
+				.getByRole("dialog")
+				.parentElement?.querySelector('[role="button"]');
 			expect(overlay).toBeInTheDocument();
 
 			if (overlay) {
@@ -166,7 +180,7 @@ describe("LabelDeleteConfirm", () => {
 					onConfirm={mockOnConfirm}
 					onCancel={mockOnCancel}
 					isDeleting={true}
-				/>
+				/>,
 			);
 
 			const deleteButton = screen.getByRole("button", { name: "削除中..." });
@@ -185,7 +199,7 @@ describe("LabelDeleteConfirm", () => {
 					onConfirm={mockOnConfirm}
 					onCancel={mockOnCancel}
 					isDeleting={false}
-				/>
+				/>,
 			);
 
 			const deleteButton = screen.getByRole("button", { name: "削除する" });
@@ -207,7 +221,7 @@ describe("LabelDeleteConfirm", () => {
 					onConfirm={mockOnConfirm}
 					onCancel={mockOnCancel}
 					error={mockError}
-				/>
+				/>,
 			);
 
 			expect(screen.getByText("削除に失敗しました")).toBeInTheDocument();
@@ -222,7 +236,7 @@ describe("LabelDeleteConfirm", () => {
 					onConfirm={mockOnConfirm}
 					onCancel={mockOnCancel}
 					error={null}
-				/>
+				/>,
 			);
 
 			// エラーメッセージのコンテナが存在しないことを確認
@@ -239,7 +253,7 @@ describe("LabelDeleteConfirm", () => {
 					label={mockLabel}
 					onConfirm={mockOnConfirm}
 					onCancel={mockOnCancel}
-				/>
+				/>,
 			);
 
 			// Escapeキーを押す
@@ -256,10 +270,12 @@ describe("LabelDeleteConfirm", () => {
 					label={mockLabel}
 					onConfirm={mockOnConfirm}
 					onCancel={mockOnCancel}
-				/>
+				/>,
 			);
 
-			const overlay = screen.getByRole("dialog").parentElement?.querySelector('[role="button"]');
+			const overlay = screen
+				.getByRole("dialog")
+				.parentElement?.querySelector('[role="button"]');
 			expect(overlay).toBeInTheDocument();
 
 			if (overlay) {
@@ -276,10 +292,12 @@ describe("LabelDeleteConfirm", () => {
 					label={mockLabel}
 					onConfirm={mockOnConfirm}
 					onCancel={mockOnCancel}
-				/>
+				/>,
 			);
 
-			const overlay = screen.getByRole("dialog").parentElement?.querySelector('[role="button"]');
+			const overlay = screen
+				.getByRole("dialog")
+				.parentElement?.querySelector('[role="button"]');
 			expect(overlay).toBeInTheDocument();
 
 			if (overlay) {
@@ -296,7 +314,7 @@ describe("LabelDeleteConfirm", () => {
 					label={mockLabel}
 					onConfirm={mockOnConfirm}
 					onCancel={mockOnCancel}
-				/>
+				/>,
 			);
 
 			const dialog = screen.getByRole("dialog");
@@ -320,7 +338,7 @@ describe("LabelDeleteConfirm", () => {
 					label={mockLabel}
 					onConfirm={mockOnConfirm}
 					onCancel={mockOnCancel}
-				/>
+				/>,
 			);
 
 			const dialog = screen.getByRole("dialog");
@@ -339,7 +357,7 @@ describe("LabelDeleteConfirm", () => {
 					label={mockLabel}
 					onConfirm={mockOnConfirm}
 					onCancel={mockOnCancel}
-				/>
+				/>,
 			);
 
 			// 削除ボタンが存在することを確認（フォーカステストは環境依存のためスキップ）
@@ -360,11 +378,15 @@ describe("LabelDeleteConfirm", () => {
 					label={mockLabel}
 					onConfirm={mockOnConfirm}
 					onCancel={mockOnCancel}
-				/>
+				/>,
 			);
 
-			expect(screen.getByText(/ラベル「重要なラベル」を削除します/)).toBeInTheDocument();
-			expect(screen.getByText(/このラベルは現在 42 件の記事に使用されています/)).toBeInTheDocument();
+			expect(
+				screen.getByText(/ラベル「重要なラベル」を削除します/),
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/このラベルは現在 42 件の記事に使用されています/),
+			).toBeInTheDocument();
 		});
 
 		it("削除中にエラーが発生した場合の表示", () => {
@@ -378,12 +400,14 @@ describe("LabelDeleteConfirm", () => {
 					onCancel={mockOnCancel}
 					isDeleting={true}
 					error={mockError}
-				/>
+				/>,
 			);
 
 			// 削除中かつエラー表示
 			expect(screen.getByRole("button", { name: "削除中..." })).toBeDisabled();
-			expect(screen.getByText("ネットワークエラーが発生しました")).toBeInTheDocument();
+			expect(
+				screen.getByText("ネットワークエラーが発生しました"),
+			).toBeInTheDocument();
 		});
 	});
 });

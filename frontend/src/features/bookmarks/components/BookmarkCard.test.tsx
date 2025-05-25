@@ -1,12 +1,12 @@
+import type { BookmarkWithLabel } from "@/features/bookmarks/types";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 /**
  * BookmarkCard コンポーネントのテスト
  * ブックマーカード表示、お気に入り、既読/未読、要約、シェア、コピー機能をテスト
  */
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type { BookmarkWithLabel } from "@/features/bookmarks/types";
-import { BookmarkCard } from "./BookmarkCard";
 import { vi } from "vitest";
+import { BookmarkCard } from "./BookmarkCard";
 
 // 基本的なモック設定
 const mockToggleFavorite = vi.fn();
@@ -36,8 +36,15 @@ vi.mock("@/features/bookmarks/queries/useMarkBookmarkAsUnread", () => ({
 
 // LabelDisplayコンポーネントのモック
 vi.mock("@/features/labels/components/LabelDisplay", () => ({
-	LabelDisplay: ({ label, onClick }: { label: any; onClick?: (name: string) => void }) => (
-		<button onClick={() => onClick?.(label.name)} data-testid="label-display">
+	LabelDisplay: ({
+		label,
+		onClick,
+	}: { label: { name: string }; onClick?: (name: string) => void }) => (
+		<button
+			type="button"
+			onClick={() => onClick?.(label.name)}
+			data-testid="label-display"
+		>
 			{label.name}
 		</button>
 	),
@@ -64,7 +71,9 @@ Object.defineProperty(window, "open", {
 	writable: true,
 });
 
-const createMockBookmark = (overrides?: Partial<BookmarkWithLabel>): BookmarkWithLabel => ({
+const createMockBookmark = (
+	overrides?: Partial<BookmarkWithLabel>,
+): BookmarkWithLabel => ({
 	id: 1,
 	title: "テスト記事タイトル",
 	url: "https://example.com/article",
@@ -91,7 +100,9 @@ const createWrapper = () => {
 };
 
 describe("BookmarkCard", () => {
-	let wrapper: ({ children }: { children: React.ReactNode }) => React.ReactElement;
+	let wrapper: ({
+		children,
+	}: { children: React.ReactNode }) => React.ReactElement;
 
 	beforeEach(() => {
 		wrapper = createWrapper();
@@ -109,7 +120,9 @@ describe("BookmarkCard", () => {
 			render(<BookmarkCard bookmark={mockBookmark} />, { wrapper });
 
 			expect(screen.getByText("React Testing Library入門")).toBeInTheDocument();
-			expect(screen.getByText("https://example.com/react-testing")).toBeInTheDocument();
+			expect(
+				screen.getByText("https://example.com/react-testing"),
+			).toBeInTheDocument();
 			expect(screen.getByText("2024/1/15")).toBeInTheDocument();
 		});
 
@@ -138,7 +151,9 @@ describe("BookmarkCard", () => {
 
 			render(<BookmarkCard bookmark={mockBookmark} />, { wrapper });
 
-			const favoriteButton = screen.getByRole("button", { name: /お気に入りに追加/ });
+			const favoriteButton = screen.getByRole("button", {
+				name: /お気に入りに追加/,
+			});
 			fireEvent.click(favoriteButton);
 
 			expect(mockToggleFavorite).toHaveBeenCalledWith({
@@ -211,7 +226,9 @@ describe("BookmarkCard", () => {
 
 			render(<BookmarkCard bookmark={mockBookmark} />, { wrapper });
 
-			const summaryButton = screen.getByRole("button", { name: /要約がありません/ });
+			const summaryButton = screen.getByRole("button", {
+				name: /要約がありません/,
+			});
 			expect(summaryButton).toBeDisabled();
 		});
 
@@ -237,7 +254,7 @@ describe("BookmarkCard", () => {
 			render(<BookmarkCard bookmark={mockBookmark} />, { wrapper });
 
 			const summaryButton = screen.getByRole("button", { name: /要約を表示/ });
-			
+
 			// 要約を表示
 			fireEvent.click(summaryButton);
 			expect(screen.getByTestId("bookmark-summary")).toBeInTheDocument();
@@ -266,15 +283,15 @@ describe("BookmarkCard", () => {
 			// 実際のエンコード結果を確認して期待値を調整
 			expect(mockOpen).toHaveBeenCalledWith(
 				expect.stringContaining("https://twitter.com/intent/tweet"),
-				"_blank"
+				"_blank",
 			);
 			expect(mockOpen).toHaveBeenCalledWith(
 				expect.stringContaining("text="),
-				"_blank"
+				"_blank",
 			);
 			expect(mockOpen).toHaveBeenCalledWith(
 				expect.stringContaining("url="),
-				"_blank"
+				"_blank",
 			);
 		});
 	});
@@ -288,14 +305,18 @@ describe("BookmarkCard", () => {
 
 			render(<BookmarkCard bookmark={mockBookmark} />, { wrapper });
 
-			const copyIdButton = screen.getByRole("button", { name: /ID: 12345をコピー/ });
+			const copyIdButton = screen.getByRole("button", {
+				name: /ID: 12345をコピー/,
+			});
 			fireEvent.click(copyIdButton);
 
 			expect(mockWriteText).toHaveBeenCalledWith("12345");
-			
+
 			// コピー成功フィードバックが表示される（ボタンのtitleに表示）
 			await waitFor(() => {
-				expect(screen.getByRole("button", { name: /コピーしました！/ })).toBeInTheDocument();
+				expect(
+					screen.getByRole("button", { name: /コピーしました！/ }),
+				).toBeInTheDocument();
 			});
 		});
 
@@ -312,16 +333,22 @@ describe("BookmarkCard", () => {
 			const copyUrlButton = screen.getByRole("button", { name: /URLをコピー/ });
 			fireEvent.click(copyUrlButton);
 
-			expect(mockWriteText).toHaveBeenCalledWith("https://example.com/copy-test");
+			expect(mockWriteText).toHaveBeenCalledWith(
+				"https://example.com/copy-test",
+			);
 
 			// コピー成功フィードバックが表示される（ボタンのtitleに表示）
 			await waitFor(() => {
-				expect(screen.getByRole("button", { name: /コピーしました！/ })).toBeInTheDocument();
+				expect(
+					screen.getByRole("button", { name: /コピーしました！/ }),
+				).toBeInTheDocument();
 			});
 		});
 
 		it("コピーに失敗した場合はエラーログが出力される", async () => {
-			const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+			const consoleSpy = vi
+				.spyOn(console, "error")
+				.mockImplementation(() => {});
 			const mockWriteText = vi.fn().mockRejectedValue(new Error("コピー失敗"));
 			navigator.clipboard.writeText = mockWriteText;
 
@@ -329,13 +356,15 @@ describe("BookmarkCard", () => {
 
 			render(<BookmarkCard bookmark={mockBookmark} />, { wrapper });
 
-			const copyIdButton = screen.getByRole("button", { name: /ID: \d+をコピー/ });
+			const copyIdButton = screen.getByRole("button", {
+				name: /ID: \d+をコピー/,
+			});
 			fireEvent.click(copyIdButton);
 
 			await waitFor(() => {
 				expect(consoleSpy).toHaveBeenCalledWith(
 					"クリップボードへのコピーに失敗しました",
-					expect.any(Error)
+					expect.any(Error),
 				);
 			});
 
@@ -381,7 +410,13 @@ describe("BookmarkCard", () => {
 				},
 			});
 
-			render(<BookmarkCard bookmark={mockBookmark} onLabelClick={mockOnLabelClick} />, { wrapper });
+			render(
+				<BookmarkCard
+					bookmark={mockBookmark}
+					onLabelClick={mockOnLabelClick}
+				/>,
+				{ wrapper },
+			);
 
 			const labelButton = screen.getByTestId("label-display");
 			fireEvent.click(labelButton);
