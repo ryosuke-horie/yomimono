@@ -7,6 +7,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 重要
 
+### CIについて
+
+CIがパスしない限りマージすることは許容できません。
+必ず編集したディレクトリのLint, TypeCheck, Testを実行するようにしましょう。
+またコメント等を利用してDisableすることも認めません。本気で取り組みましょう
+
 ### テスト駆動開発を行う
 TDDを実施する。コードを生成するときにはそれに対応するユニットテストを常に生成する。
 コードを追加で修正したときには`npm run test`がパスすることを常に確認する。
