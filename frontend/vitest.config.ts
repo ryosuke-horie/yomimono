@@ -1,0 +1,47 @@
+import react from "@vitejs/plugin-react";
+import tsconfigPaths from "vite-tsconfig-paths";
+/**
+ * Vitest設定ファイル
+ * Next.jsとReactコンポーネントのテスト環境を構築
+ */
+/// <reference types="vitest" />
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+	plugins: [tsconfigPaths(), react()],
+	test: {
+		environment: "jsdom",
+		globals: true,
+		setupFiles: ["./vitest.setup.ts"],
+		env: {
+			NEXT_PUBLIC_API_URL: "http://localhost:3001",
+		},
+		// パフォーマンス最適化設定（MSWのためにforksを使用）
+		pool: "forks",
+
+		// カバレッジ設定
+		coverage: {
+			provider: "v8",
+			reporter: ["text", "json", "html", "lcov"],
+			exclude: [
+				"coverage/**",
+				"dist/**",
+				"**/*.d.ts",
+				"**/.next/**",
+				"**/vitest.config.{js,ts}",
+				"**/vitest.setup.ts",
+				"**/postcss.config.mjs",
+				"**/next.config.mjs",
+				"**/tailwind.config.{js,ts}",
+			],
+			thresholds: {
+				global: {
+					branches: 80,
+					functions: 80,
+					lines: 80,
+					statements: 80,
+				},
+			},
+		},
+	},
+});
