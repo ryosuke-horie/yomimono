@@ -78,6 +78,7 @@ const createMockBookmark = (
 	title: "テスト記事タイトル",
 	url: "https://example.com/article",
 	createdAt: "2024-01-01T00:00:00Z",
+	updatedAt: "2024-01-01T00:00:00Z",
 	isRead: false,
 	isFavorite: false,
 	label: null,
