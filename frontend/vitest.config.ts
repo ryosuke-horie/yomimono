@@ -9,10 +9,14 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
 	plugins: [tsconfigPaths(), react()],
+	define: {
+		"import.meta.vitest": true,
+	},
 	test: {
 		environment: "jsdom",
 		globals: true,
 		setupFiles: ["./vitest.setup.ts"],
+		includeSource: ["src/**/*.{js,jsx,ts,tsx}"],
 		env: {
 			NEXT_PUBLIC_API_URL: "http://localhost:3001",
 		},
