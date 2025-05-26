@@ -53,9 +53,7 @@ describe("FavoritesPage", () => {
 
 		await waitFor(() => {
 			expect(
-				screen.getByText(
-					/お気に入りブックマークの読み込みに失敗しました/,
-				),
+				screen.getByText(/お気に入りブックマークの読み込みに失敗しました/),
 			).toBeInTheDocument();
 		});
 	});

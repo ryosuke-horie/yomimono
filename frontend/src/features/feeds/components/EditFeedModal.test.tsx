@@ -1,23 +1,48 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import type React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { EditFeedModal } from "./EditFeedModal";
 import type { RSSFeed } from "../types";
+import { EditFeedModal } from "./EditFeedModal";
 
 // モック
 vi.mock("@/components/Modal", () => ({
-	Modal: ({ isOpen, onClose, title, children }: any) => 
+	Modal: ({
+		isOpen,
+		onClose,
+		title,
+		children,
+	}: {
+		isOpen: boolean;
+		onClose: () => void;
+		title: string;
+		children: React.ReactNode;
+	}) =>
 		isOpen ? (
 			<div data-testid="modal">
 				<h1>{title}</h1>
-				<button onClick={onClose}>Close</button>
+				<button type="button" onClick={onClose}>
+					Close
+				</button>
 				{children}
 			</div>
 		) : null,
 }));
 
 vi.mock("@/components/Button", () => ({
-	Button: ({ children, onClick, type, variant, disabled }: any) => (
+	Button: ({
+		children,
+		onClick,
+		type,
+		variant,
+		disabled,
+	}: {
+		children: React.ReactNode;
+		onClick?: () => void;
+		type?: "submit" | "reset" | "button";
+		variant?: string;
+		disabled?: boolean;
+	}) => (
 		<button
 			onClick={onClick}
 			type={type}
@@ -60,7 +85,9 @@ describe("EditFeedModal", () => {
 		name: "テストフィード",
 		url: "https://example.com/rss",
 		isActive: true,
+		updateInterval: 3600,
 		lastFetchedAt: "2024-01-01T00:00:00Z",
+		nextFetchAt: "2024-01-01T01:00:00Z",
 		itemCount: 10,
 		createdAt: "2024-01-01T00:00:00Z",
 		updatedAt: "2024-01-01T00:00:00Z",
@@ -86,7 +113,9 @@ describe("EditFeedModal", () => {
 		expect(screen.getByTestId("modal")).toBeInTheDocument();
 		expect(screen.getByText("フィードを編集")).toBeInTheDocument();
 		expect(screen.getByDisplayValue("テストフィード")).toBeInTheDocument();
-		expect(screen.getByDisplayValue("https://example.com/rss")).toBeInTheDocument();
+		expect(
+			screen.getByDisplayValue("https://example.com/rss"),
+		).toBeInTheDocument();
 		expect(screen.getByRole("checkbox")).toBeChecked();
 	});
 
@@ -104,7 +133,9 @@ describe("EditFeedModal", () => {
 		const activeCheckbox = screen.getByLabelText("有効");
 
 		fireEvent.change(nameInput, { target: { value: "更新されたフィード" } });
-		fireEvent.change(urlInput, { target: { value: "https://updated.com/rss" } });
+		fireEvent.change(urlInput, {
+			target: { value: "https://updated.com/rss" },
+		});
 		fireEvent.click(activeCheckbox);
 
 		expect(nameInput).toHaveValue("更新されたフィード");
@@ -117,9 +148,11 @@ describe("EditFeedModal", () => {
 
 		const nameInput = screen.getByLabelText("フィード名");
 		fireEvent.change(nameInput, { target: { value: "更新フィード" } });
-		
-		const form = screen.getByRole("form") || screen.getByTestId("modal").querySelector("form");
-		fireEvent.submit(form!);
+
+		const form =
+			screen.getByRole("form") ||
+			screen.getByTestId("modal").querySelector("form");
+		if (form) fireEvent.submit(form);
 
 		expect(mockMutate).toHaveBeenCalledWith(
 			{
@@ -144,10 +177,12 @@ describe("EditFeedModal", () => {
 			successCallback = options.onSuccess;
 		});
 
-		renderWithQueryClient(<EditFeedModal {...defaultProps} onClose={onCloseMock} />);
+		renderWithQueryClient(
+			<EditFeedModal {...defaultProps} onClose={onCloseMock} />,
+		);
 
 		const form = screen.getByTestId("modal").querySelector("form");
-		fireEvent.submit(form!);
+		if (form) fireEvent.submit(form);
 
 		// 成功コールバックを実行
 		successCallback?.();
@@ -164,18 +199,22 @@ describe("EditFeedModal", () => {
 		renderWithQueryClient(<EditFeedModal {...defaultProps} />);
 
 		expect(screen.getByText("更新中...")).toBeInTheDocument();
-		
+
 		const buttons = screen.getAllByRole("button");
-		const cancelButton = buttons.find(btn => btn.textContent === "キャンセル");
-		const updateButton = buttons.find(btn => btn.textContent === "更新中...");
-		
+		const cancelButton = buttons.find(
+			(btn) => btn.textContent === "キャンセル",
+		);
+		const updateButton = buttons.find((btn) => btn.textContent === "更新中...");
+
 		expect(cancelButton).toBeDisabled();
 		expect(updateButton).toBeDisabled();
 	});
 
 	it("キャンセルボタンでモーダルが閉じる", () => {
 		const onCloseMock = vi.fn();
-		renderWithQueryClient(<EditFeedModal {...defaultProps} onClose={onCloseMock} />);
+		renderWithQueryClient(
+			<EditFeedModal {...defaultProps} onClose={onCloseMock} />,
+		);
 
 		const cancelButton = screen.getByText("キャンセル");
 		fireEvent.click(cancelButton);
@@ -185,7 +224,9 @@ describe("EditFeedModal", () => {
 
 	it("非アクティブなフィードでも正しく表示される", () => {
 		const inactiveFeed = { ...mockFeed, isActive: false };
-		renderWithQueryClient(<EditFeedModal {...defaultProps} feed={inactiveFeed} />);
+		renderWithQueryClient(
+			<EditFeedModal {...defaultProps} feed={inactiveFeed} />,
+		);
 
 		const activeCheckbox = screen.getByLabelText("有効");
 		expect(activeCheckbox).not.toBeChecked();
@@ -197,16 +238,22 @@ describe("EditFeedModal", () => {
 			name: "カスタムフィード",
 			url: "https://custom.com/feed.xml",
 			isActive: false,
+			updateInterval: 7200,
 			lastFetchedAt: "2024-01-01T00:00:00Z",
+			nextFetchAt: "2024-01-01T02:00:00Z",
 			itemCount: 5,
 			createdAt: "2024-01-01T00:00:00Z",
 			updatedAt: "2024-01-01T00:00:00Z",
 		};
 
-		renderWithQueryClient(<EditFeedModal {...defaultProps} feed={customFeed} />);
+		renderWithQueryClient(
+			<EditFeedModal {...defaultProps} feed={customFeed} />,
+		);
 
 		expect(screen.getByDisplayValue("カスタムフィード")).toBeInTheDocument();
-		expect(screen.getByDisplayValue("https://custom.com/feed.xml")).toBeInTheDocument();
+		expect(
+			screen.getByDisplayValue("https://custom.com/feed.xml"),
+		).toBeInTheDocument();
 		expect(screen.getByLabelText("有効")).not.toBeChecked();
 	});
 });

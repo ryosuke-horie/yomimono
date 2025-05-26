@@ -1,26 +1,51 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import LabelsPage from "./page";
 
 // モックコンポーネント
 vi.mock("@/features/labels/components/LabelCreateForm", () => ({
-	LabelCreateForm: ({ onSubmit, onCancel }: any) => (
+	LabelCreateForm: ({
+		onSubmit,
+		onCancel,
+	}: {
+		onSubmit: (name: string, desc: string) => void;
+		onCancel: () => void;
+	}) => (
 		<div data-testid="label-create-form">
-			<button onClick={() => onSubmit("test", "test description")}>Submit</button>
-			<button onClick={onCancel}>Cancel</button>
+			<button
+				type="button"
+				onClick={() => onSubmit("test", "test description")}
+			>
+				Submit
+			</button>
+			<button type="button" onClick={onCancel}>
+				Cancel
+			</button>
 		</div>
 	),
 }));
 
 vi.mock("@/features/labels/components/LabelList", () => ({
-	LabelList: ({ labels, onEdit, onDelete }: any) => (
+	LabelList: ({
+		labels,
+		onEdit,
+		onDelete,
+	}: {
+		labels: Array<{ id: number; name: string }>;
+		onEdit: (id: number) => void;
+		onDelete: (id: number) => void;
+	}) => (
 		<div data-testid="label-list">
-			{labels?.map((label: any) => (
+			{labels?.map((label: { id: number; name: string }) => (
 				<div key={label.id}>
 					<span>{label.name}</span>
-					<button onClick={() => onEdit(label.id)}>Edit</button>
-					<button onClick={() => onDelete(label.id)}>Delete</button>
+					<button type="button" onClick={() => onEdit(label.id)}>
+						Edit
+					</button>
+					<button type="button" onClick={() => onDelete(label.id)}>
+						Delete
+					</button>
 				</div>
 			))}
 		</div>
@@ -28,21 +53,48 @@ vi.mock("@/features/labels/components/LabelList", () => ({
 }));
 
 vi.mock("@/features/labels/components/LabelEditForm", () => ({
-	LabelEditForm: ({ label, onSubmit, onCancel }: any) => (
+	LabelEditForm: ({
+		label,
+		onSubmit,
+		onCancel,
+	}: {
+		label: { id: number; name: string };
+		onSubmit: (id: number, desc: string) => void;
+		onCancel: () => void;
+	}) => (
 		<div data-testid="label-edit-form">
 			<span>Editing: {label.name}</span>
-			<button onClick={() => onSubmit(label.id, "updated description")}>Update</button>
-			<button onClick={onCancel}>Cancel Edit</button>
+			<button
+				type="button"
+				onClick={() => onSubmit(label.id, "updated description")}
+			>
+				Update
+			</button>
+			<button type="button" onClick={onCancel}>
+				Cancel Edit
+			</button>
 		</div>
 	),
 }));
 
 vi.mock("@/features/labels/components/LabelDeleteConfirm", () => ({
-	LabelDeleteConfirm: ({ label, onConfirm, onCancel }: any) => (
+	LabelDeleteConfirm: ({
+		label,
+		onConfirm,
+		onCancel,
+	}: {
+		label: { id: number; name: string };
+		onConfirm: (id: number) => void;
+		onCancel: () => void;
+	}) => (
 		<div data-testid="label-delete-confirm">
 			<span>Delete: {label.name}</span>
-			<button onClick={() => onConfirm(label.id)}>Confirm Delete</button>
-			<button onClick={onCancel}>Cancel Delete</button>
+			<button type="button" onClick={() => onConfirm(label.id)}>
+				Confirm Delete
+			</button>
+			<button type="button" onClick={onCancel}>
+				Cancel Delete
+			</button>
 		</div>
 	),
 }));
@@ -146,7 +198,9 @@ describe("LabelsPage", () => {
 
 		renderWithQueryClient(<LabelsPage />);
 
-		expect(screen.getByText("ラベルの読み込みに失敗しました")).toBeInTheDocument();
+		expect(
+			screen.getByText("ラベルの読み込みに失敗しました"),
+		).toBeInTheDocument();
 		expect(screen.getByText("テストエラー")).toBeInTheDocument();
 	});
 
@@ -175,7 +229,11 @@ describe("LabelsPage", () => {
 	});
 
 	it("削除確認ダイアログが開いている時に表示する", () => {
-		const deleteConfirmLabel = { id: 1, name: "削除予定ラベル", description: "説明" };
+		const deleteConfirmLabel = {
+			id: 1,
+			name: "削除予定ラベル",
+			description: "説明",
+		};
 		mockUseManageLabels.mockReturnValue({
 			...defaultMockReturn,
 			getDeleteConfirmLabel: vi.fn(() => deleteConfirmLabel),

@@ -5,7 +5,9 @@ import RecentPage from "./page";
 
 // BookmarkCardコンポーネントをモック
 vi.mock("@/features/bookmarks/components/BookmarkCard", () => ({
-	BookmarkCard: ({ bookmark }: any) => (
+	BookmarkCard: ({
+		bookmark,
+	}: { bookmark: { id: number; title: string; url: string } }) => (
 		<div data-testid={`bookmark-card-${bookmark.id}`}>
 			<h3>{bookmark.title}</h3>
 			<p>{bookmark.url}</p>
@@ -161,9 +163,36 @@ describe("RecentPage", () => {
 		const date3 = "2024-01-14";
 
 		const mockData = {
-			[date1]: [{ id: 1, title: "記事1", url: "https://1.com", created_at: date1, is_read: true, is_favorite: false }],
-			[date2]: [{ id: 2, title: "記事2", url: "https://2.com", created_at: date2, is_read: true, is_favorite: false }],
-			[date3]: [{ id: 3, title: "記事3", url: "https://3.com", created_at: date3, is_read: true, is_favorite: false }],
+			[date1]: [
+				{
+					id: 1,
+					title: "記事1",
+					url: "https://1.com",
+					created_at: date1,
+					is_read: true,
+					is_favorite: false,
+				},
+			],
+			[date2]: [
+				{
+					id: 2,
+					title: "記事2",
+					url: "https://2.com",
+					created_at: date2,
+					is_read: true,
+					is_favorite: false,
+				},
+			],
+			[date3]: [
+				{
+					id: 3,
+					title: "記事3",
+					url: "https://3.com",
+					created_at: date3,
+					is_read: true,
+					is_favorite: false,
+				},
+			],
 		};
 
 		mockUseGetRecentBookmarks.mockReturnValue({

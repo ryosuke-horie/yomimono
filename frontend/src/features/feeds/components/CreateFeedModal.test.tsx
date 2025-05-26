@@ -1,15 +1,28 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import type React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CreateFeedModal } from "./CreateFeedModal";
 
 // モック
 vi.mock("@/components/Modal", () => ({
-	Modal: ({ isOpen, onClose, title, children }: any) => 
+	Modal: ({
+		isOpen,
+		onClose,
+		title,
+		children,
+	}: {
+		isOpen: boolean;
+		onClose: () => void;
+		title: string;
+		children: React.ReactNode;
+	}) =>
 		isOpen ? (
 			<div data-testid="modal">
 				<h1>{title}</h1>
-				<button onClick={onClose}>Close</button>
+				<button type="button" onClick={onClose}>
+					Close
+				</button>
 				{children}
 			</div>
 		) : null,
@@ -78,7 +91,9 @@ describe("CreateFeedModal", () => {
 		const activeCheckbox = screen.getByLabelText("有効にする");
 
 		fireEvent.change(nameInput, { target: { value: "テストフィード" } });
-		fireEvent.change(urlInput, { target: { value: "https://example.com/rss" } });
+		fireEvent.change(urlInput, {
+			target: { value: "https://example.com/rss" },
+		});
 		fireEvent.click(activeCheckbox);
 
 		expect(nameInput).toHaveValue("テストフィード");
@@ -90,10 +105,12 @@ describe("CreateFeedModal", () => {
 		renderWithQueryClient(<CreateFeedModal {...defaultProps} />);
 
 		const form = screen.getByTestId("modal").querySelector("form");
-		fireEvent.submit(form!);
+		if (form) fireEvent.submit(form);
 
 		await waitFor(() => {
-			expect(screen.getByText("フィード名を入力してください")).toBeInTheDocument();
+			expect(
+				screen.getByText("フィード名を入力してください"),
+			).toBeInTheDocument();
 			expect(screen.getByText("URLを入力してください")).toBeInTheDocument();
 		});
 	});
@@ -103,30 +120,36 @@ describe("CreateFeedModal", () => {
 
 		const nameInput = screen.getByLabelText("フィード名");
 		const urlInput = screen.getByLabelText("RSS URL");
-		
+
 		fireEvent.change(nameInput, { target: { value: "テスト" } });
 		fireEvent.change(urlInput, { target: { value: "invalid-url" } });
-		
+
 		const form = screen.getByTestId("modal").querySelector("form");
-		fireEvent.submit(form!);
+		if (form) fireEvent.submit(form);
 
 		await waitFor(() => {
-			expect(screen.getByText("有効なURLを入力してください")).toBeInTheDocument();
+			expect(
+				screen.getByText("有効なURLを入力してください"),
+			).toBeInTheDocument();
 		});
 	});
 
 	it("フォーム送信が正しく動作する", async () => {
 		const onCloseMock = vi.fn();
-		renderWithQueryClient(<CreateFeedModal {...defaultProps} onClose={onCloseMock} />);
+		renderWithQueryClient(
+			<CreateFeedModal {...defaultProps} onClose={onCloseMock} />,
+		);
 
 		const nameInput = screen.getByLabelText("フィード名");
 		const urlInput = screen.getByLabelText("RSS URL");
-		
+
 		fireEvent.change(nameInput, { target: { value: "テストフィード" } });
-		fireEvent.change(urlInput, { target: { value: "https://example.com/rss" } });
-		
+		fireEvent.change(urlInput, {
+			target: { value: "https://example.com/rss" },
+		});
+
 		const form = screen.getByTestId("modal").querySelector("form");
-		fireEvent.submit(form!);
+		if (form) fireEvent.submit(form);
 
 		await waitFor(() => {
 			expect(mockMutate).toHaveBeenCalledWith(
@@ -151,15 +174,19 @@ describe("CreateFeedModal", () => {
 			successCallback = options.onSuccess;
 		});
 
-		renderWithQueryClient(<CreateFeedModal {...defaultProps} onClose={onCloseMock} />);
+		renderWithQueryClient(
+			<CreateFeedModal {...defaultProps} onClose={onCloseMock} />,
+		);
 
 		const nameInput = screen.getByLabelText("フィード名");
 		const urlInput = screen.getByLabelText("RSS URL");
 		fireEvent.change(nameInput, { target: { value: "テスト" } });
-		fireEvent.change(urlInput, { target: { value: "https://example.com/test" } });
-		
+		fireEvent.change(urlInput, {
+			target: { value: "https://example.com/test" },
+		});
+
 		const form = screen.getByTestId("modal").querySelector("form");
-		fireEvent.submit(form!);
+		if (form) fireEvent.submit(form);
 
 		// 成功コールバックを実行
 		successCallback?.();
@@ -190,7 +217,7 @@ describe("CreateFeedModal", () => {
 		renderWithQueryClient(<CreateFeedModal {...defaultProps} />);
 
 		const form = screen.getByTestId("modal").querySelector("form");
-		fireEvent.submit(form!);
+		if (form) fireEvent.submit(form);
 
 		// エラーコールバックを実行
 		errorCallback?.(new Error("テストエラー"));
@@ -202,7 +229,9 @@ describe("CreateFeedModal", () => {
 
 	it("キャンセルボタンでモーダルが閉じる", () => {
 		const onCloseMock = vi.fn();
-		renderWithQueryClient(<CreateFeedModal {...defaultProps} onClose={onCloseMock} />);
+		renderWithQueryClient(
+			<CreateFeedModal {...defaultProps} onClose={onCloseMock} />,
+		);
 
 		const cancelButton = screen.getByText("キャンセル");
 		fireEvent.click(cancelButton);

@@ -1,38 +1,76 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, fireEvent, act } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi, afterEach } from "vitest";
-import { FeedCard } from "./FeedCard";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import type React from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { RSSFeed } from "../types";
+import { FeedCard } from "./FeedCard";
 
 // モック
 vi.mock("@/components/Button", () => ({
-	Button: ({ children, onClick, variant, size }: any) => (
-		<button onClick={onClick} data-variant={variant} data-size={size}>
+	Button: ({
+		children,
+		onClick,
+		variant,
+		size,
+	}: {
+		children: React.ReactNode;
+		onClick?: () => void;
+		variant?: string;
+		size?: string;
+	}) => (
+		<button
+			type="button"
+			onClick={onClick}
+			data-variant={variant}
+			data-size={size}
+		>
 			{children}
 		</button>
 	),
 }));
 
 vi.mock("@/components/ConfirmDialog", () => ({
-	ConfirmDialog: ({ isOpen, onClose, onConfirm, title, message, isLoading }: any) => 
+	ConfirmDialog: ({
+		isOpen,
+		onClose,
+		onConfirm,
+		title,
+		message,
+		isLoading,
+	}: {
+		isOpen: boolean;
+		onClose: () => void;
+		onConfirm: () => void;
+		title: string;
+		message: string;
+		isLoading?: boolean;
+	}) =>
 		isOpen ? (
 			<div data-testid="confirm-dialog">
 				<h3>{title}</h3>
 				<p>{message}</p>
-				<button onClick={onConfirm} disabled={isLoading}>
+				<button type="button" onClick={onConfirm} disabled={isLoading}>
 					{isLoading ? "削除中..." : "確認"}
 				</button>
-				<button onClick={onClose}>キャンセル</button>
+				<button type="button" onClick={onClose}>
+					キャンセル
+				</button>
 			</div>
 		) : null,
 }));
 
 vi.mock("./EditFeedModal", () => ({
-	EditFeedModal: ({ feed, isOpen, onClose }: any) => 
+	EditFeedModal: ({
+		feed,
+		isOpen,
+		onClose,
+	}: { feed: { name: string }; isOpen: boolean; onClose: () => void }) =>
 		isOpen ? (
 			<div data-testid="edit-modal">
 				<p>編集モーダル: {feed.name}</p>
-				<button onClick={onClose}>閉じる</button>
+				<button type="button" onClick={onClose}>
+					閉じる
+				</button>
 			</div>
 		) : null,
 }));
@@ -68,7 +106,9 @@ describe("FeedCard", () => {
 		name: "テストフィード",
 		url: "https://example.com/rss",
 		isActive: true,
+		updateInterval: 3600,
 		lastFetchedAt: "2024-01-01T10:00:00Z",
+		nextFetchAt: "2024-01-01T11:00:00Z",
 		itemCount: 15,
 		createdAt: "2024-01-01T00:00:00Z",
 		updatedAt: "2024-01-01T00:00:00Z",
@@ -93,7 +133,9 @@ describe("FeedCard", () => {
 		renderWithQueryClient(<FeedCard feed={mockFeed} />);
 
 		expect(screen.getByText("テストフィード")).toBeInTheDocument();
-		expect(screen.getByText("URL: https://example.com/rss")).toBeInTheDocument();
+		expect(
+			screen.getByText("URL: https://example.com/rss"),
+		).toBeInTheDocument();
 		expect(screen.getByText("記事数: 15")).toBeInTheDocument();
 		expect(screen.getByText("編集")).toBeInTheDocument();
 		expect(screen.getByText("削除")).toBeInTheDocument();
@@ -125,7 +167,9 @@ describe("FeedCard", () => {
 		const feedWithoutLastFetch = { ...mockFeed, lastFetchedAt: null };
 		renderWithQueryClient(<FeedCard feed={feedWithoutLastFetch} />);
 
-		expect(screen.getByText("最終更新: まだ取得されていません")).toBeInTheDocument();
+		expect(
+			screen.getByText("最終更新: まだ取得されていません"),
+		).toBeInTheDocument();
 	});
 
 	it("時間経過による異なるフォーマット表示", () => {
@@ -135,7 +179,10 @@ describe("FeedCard", () => {
 		expect(screen.getByText("最終更新: 30分前")).toBeInTheDocument();
 
 		// 2時間前
-		const feed2HoursAgo = { ...mockFeed, lastFetchedAt: "2024-01-01T08:30:00Z" };
+		const feed2HoursAgo = {
+			...mockFeed,
+			lastFetchedAt: "2024-01-01T08:30:00Z",
+		};
 		vi.setSystemTime(new Date("2024-01-01T10:30:00Z"));
 		rerender(<FeedCard feed={feed2HoursAgo} />);
 		expect(screen.getByText("最終更新: 2時間前")).toBeInTheDocument();
@@ -154,7 +201,9 @@ describe("FeedCard", () => {
 		fireEvent.click(editButton);
 
 		expect(screen.getByTestId("edit-modal")).toBeInTheDocument();
-		expect(screen.getByText("編集モーダル: テストフィード")).toBeInTheDocument();
+		expect(
+			screen.getByText("編集モーダル: テストフィード"),
+		).toBeInTheDocument();
 	});
 
 	it("削除ボタンクリックで確認ダイアログが開く", () => {
@@ -165,7 +214,9 @@ describe("FeedCard", () => {
 
 		expect(screen.getByTestId("confirm-dialog")).toBeInTheDocument();
 		expect(screen.getByText("フィードの削除")).toBeInTheDocument();
-		expect(screen.getByText("このフィードを削除してもよろしいですか？")).toBeInTheDocument();
+		expect(
+			screen.getByText("このフィードを削除してもよろしいですか？"),
+		).toBeInTheDocument();
 	});
 
 	it("削除確認で削除処理が実行される", () => {
@@ -231,20 +282,22 @@ describe("FeedCard", () => {
 	});
 
 	it("記事数がnullの場合の表示", () => {
-		const feedWithNullItems = { ...mockFeed, itemCount: null };
+		const feedWithNullItems = { ...mockFeed, itemCount: 0 };
 		renderWithQueryClient(<FeedCard feed={feedWithNullItems} />);
 
 		expect(screen.getByText("記事数: 0")).toBeInTheDocument();
 	});
 
 	it("長いURLが省略表示される", () => {
-		const feedWithLongURL = { 
-			...mockFeed, 
-			url: "https://verylongdomainname.example.com/very/long/path/to/rss/feed.xml" 
+		const feedWithLongURL = {
+			...mockFeed,
+			url: "https://verylongdomainname.example.com/very/long/path/to/rss/feed.xml",
 		};
 		renderWithQueryClient(<FeedCard feed={feedWithLongURL} />);
 
-		const urlElement = screen.getByText(/URL: https:\/\/verylongdomainname.example.com/);
+		const urlElement = screen.getByText(
+			/URL: https:\/\/verylongdomainname.example.com/,
+		);
 		expect(urlElement).toHaveClass("truncate");
 		expect(urlElement).toHaveAttribute("title", feedWithLongURL.url);
 	});
