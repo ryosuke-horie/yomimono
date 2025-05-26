@@ -64,7 +64,6 @@ describe("useCreateRSSFeed", () => {
 			updateInterval: 60,
 			nextFetchAt: "2023-01-01T01:00:00Z",
 			lastFetchedAt: null,
-			itemCount: 0,
 		};
 
 		mockFeedsApi.createFeed.mockResolvedValueOnce(mockCreatedFeed);
@@ -139,7 +138,6 @@ describe("useCreateRSSFeed", () => {
 			updateInterval: 60,
 			nextFetchAt: "2023-01-01T01:00:00Z",
 			lastFetchedAt: null,
-			itemCount: 0,
 		});
 
 		const wrapper = ({ children }: { children: React.ReactNode }) => (

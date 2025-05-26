@@ -76,7 +76,6 @@ export function FeedCard({ feed }: FeedCardProps) {
 					<span className="text-gray-600">
 						最終更新: {formatLastFetch(feed.lastFetchedAt)}
 					</span>
-					<span className="text-gray-600">記事数: {feed.itemCount || 0}</span>
 					<div className="flex items-center gap-1">
 						<span className="text-gray-600">ステータス:</span>
 						<div className={`w-3 h-3 rounded-full ${statusColor}`} />

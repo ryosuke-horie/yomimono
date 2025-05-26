@@ -6,7 +6,6 @@ export interface RSSFeed {
 	updateInterval: number;
 	lastFetchedAt: string | null;
 	nextFetchAt: string | null;
-	itemCount: number;
 	createdAt: string;
 	updatedAt: string;
 }
