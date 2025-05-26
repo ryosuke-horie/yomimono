@@ -1,3 +1,7 @@
+/**
+ * ブックマークのお気に入り状態を切り替えるカスタムフック
+ * 楽観的更新で複数のキャッシュを即座に更新
+ */
 import type { Bookmark } from "@/features/bookmarks/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addBookmarkToFavorites, removeBookmarkFromFavorites } from "./api";
@@ -140,3 +144,95 @@ export const useToggleFavoriteBookmark = () => {
 		},
 	});
 };
+
+if (import.meta.vitest) {
+	const { QueryClient, QueryClientProvider } = await import(
+		"@tanstack/react-query"
+	);
+	const { renderHook, act } = await import("@testing-library/react");
+	const { vi, describe, it, expect, beforeEach } = import.meta.vitest;
+	const React = await import("react");
+	type ReactNode = React.ReactNode;
+
+	// API関数のモック
+	vi.mock("./api", () => ({
+		addBookmarkToFavorites: vi.fn(),
+		removeBookmarkFromFavorites: vi.fn(),
+	}));
+
+	const createTestWrapper = () => {
+		const queryClient = new QueryClient({
+			defaultOptions: {
+				queries: {
+					retry: false,
+					staleTime: 0,
+					gcTime: 0,
+				},
+				mutations: {
+					retry: false,
+				},
+			},
+		});
+
+		return ({ children }: { children: ReactNode }) => {
+			return React.createElement(
+				QueryClientProvider,
+				{ client: queryClient },
+				children,
+			);
+		};
+	};
+
+	describe("useToggleFavoriteBookmark", () => {
+		let wrapper: ({ children }: { children: ReactNode }) => React.ReactElement;
+
+		beforeEach(() => {
+			wrapper = createTestWrapper();
+			vi.clearAllMocks();
+		});
+
+		it("お気に入り切り替えのmutationが正しく初期化される", () => {
+			const { result } = renderHook(() => useToggleFavoriteBookmark(), {
+				wrapper,
+			});
+
+			expect(result.current.mutate).toBeDefined();
+			expect(result.current.mutateAsync).toBeDefined();
+			expect(result.current.isPending).toBe(false);
+			expect(result.current.isError).toBe(false);
+			expect(result.current.isSuccess).toBe(false);
+		});
+
+		it("お気に入り追加時に正しいAPIが呼ばれる", async () => {
+			const { addBookmarkToFavorites } = await import("./api");
+			vi.mocked(addBookmarkToFavorites).mockResolvedValue({ success: true });
+
+			const { result } = renderHook(() => useToggleFavoriteBookmark(), {
+				wrapper,
+			});
+
+			await act(async () => {
+				result.current.mutate({ id: 1, isCurrentlyFavorite: false });
+			});
+
+			expect(addBookmarkToFavorites).toHaveBeenCalledWith(1);
+		});
+
+		it("お気に入り削除時に正しいAPIが呼ばれる", async () => {
+			const { removeBookmarkFromFavorites } = await import("./api");
+			vi.mocked(removeBookmarkFromFavorites).mockResolvedValue({
+				success: true,
+			});
+
+			const { result } = renderHook(() => useToggleFavoriteBookmark(), {
+				wrapper,
+			});
+
+			await act(async () => {
+				result.current.mutate({ id: 1, isCurrentlyFavorite: true });
+			});
+
+			expect(removeBookmarkFromFavorites).toHaveBeenCalledWith(1);
+		});
+	});
+}

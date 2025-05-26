@@ -1,3 +1,7 @@
+/**
+ * ブックマークを既読にするカスタムフック
+ * 楽観的更新で複数のキャッシュを即座に更新
+ */
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { markBookmarkAsRead } from "./api";
@@ -142,3 +146,85 @@ export const useMarkBookmarkAsRead = () => {
 		},
 	});
 };
+
+if (import.meta.vitest) {
+	const { QueryClient, QueryClientProvider } = await import(
+		"@tanstack/react-query"
+	);
+	const { renderHook, act } = await import("@testing-library/react");
+	const { vi, describe, it, expect, beforeEach } = import.meta.vitest;
+	const React = await import("react");
+	type ReactNode = React.ReactNode;
+
+	// markBookmarkAsRead APIのモック
+	vi.mock("./api", () => ({
+		markBookmarkAsRead: vi.fn(),
+	}));
+
+	const createTestWrapper = () => {
+		const queryClient = new QueryClient({
+			defaultOptions: {
+				queries: {
+					retry: false,
+					staleTime: 0,
+					gcTime: 0,
+				},
+				mutations: {
+					retry: false,
+				},
+			},
+		});
+
+		return ({ children }: { children: ReactNode }) => {
+			return React.createElement(
+				QueryClientProvider,
+				{ client: queryClient },
+				children,
+			);
+		};
+	};
+
+	describe("useMarkBookmarkAsRead", () => {
+		let wrapper: ({ children }: { children: ReactNode }) => React.ReactElement;
+
+		beforeEach(() => {
+			wrapper = createTestWrapper();
+			vi.clearAllMocks();
+		});
+
+		it("既読マークのmutationが正しく初期化される", () => {
+			const { result } = renderHook(() => useMarkBookmarkAsRead(), { wrapper });
+
+			expect(result.current.mutate).toBeDefined();
+			expect(result.current.mutateAsync).toBeDefined();
+			expect(result.current.isPending).toBe(false);
+			expect(result.current.isError).toBe(false);
+			expect(result.current.isSuccess).toBe(false);
+		});
+
+		it("既読マーク実行時にローディング状態が正しく管理される", () => {
+			const { result } = renderHook(() => useMarkBookmarkAsRead(), { wrapper });
+
+			expect(result.current.isPending).toBe(false);
+
+			act(() => {
+				result.current.mutate(1);
+			});
+
+			expect(result.current.isPending).toBe(true);
+		});
+
+		it("既読マーク成功時にAPIが正しく呼ばれる", async () => {
+			const { markBookmarkAsRead } = await import("./api");
+			vi.mocked(markBookmarkAsRead).mockResolvedValue({ success: true });
+
+			const { result } = renderHook(() => useMarkBookmarkAsRead(), { wrapper });
+
+			await act(async () => {
+				result.current.mutate(123);
+			});
+
+			expect(markBookmarkAsRead).toHaveBeenCalledWith(123);
+		});
+	});
+}

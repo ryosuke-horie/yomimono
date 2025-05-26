@@ -1,3 +1,7 @@
+/**
+ * ラベル管理のための包括的なカスタムフック
+ * 作成、編集、削除の状態管理とAPI呼び出しを統合
+ */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
@@ -137,4 +141,129 @@ export function useManageLabels() {
 		isDeletingLabel: deleteLabelMutation.isPending,
 		deleteLabelError: deleteLabelMutation.error,
 	};
+}
+
+if (import.meta.vitest) {
+	const { QueryClient, QueryClientProvider } = await import(
+		"@tanstack/react-query"
+	);
+	const { renderHook, act } = await import("@testing-library/react");
+	const { vi, describe, it, expect, beforeEach } = import.meta.vitest;
+	const React = await import("react");
+	type ReactNode = React.ReactNode;
+
+	// API関数のモック
+	vi.mock("../queries/api", () => ({
+		createLabel: vi.fn(),
+		deleteLabel: vi.fn(),
+		fetchLabels: vi.fn(),
+		updateLabelDescription: vi.fn(),
+	}));
+
+	const createTestWrapper = () => {
+		const queryClient = new QueryClient({
+			defaultOptions: {
+				queries: {
+					retry: false,
+					staleTime: 0,
+					gcTime: 0,
+				},
+				mutations: {
+					retry: false,
+				},
+			},
+		});
+
+		return ({ children }: { children: ReactNode }) => {
+			return React.createElement(
+				QueryClientProvider,
+				{ client: queryClient },
+				children,
+			);
+		};
+	};
+
+	describe("useManageLabels", () => {
+		let wrapper: ({ children }: { children: ReactNode }) => React.ReactElement;
+
+		beforeEach(() => {
+			wrapper = createTestWrapper();
+			vi.clearAllMocks();
+		});
+
+		it("ラベル管理フックが正しく初期化される", async () => {
+			const { fetchLabels } = await import("../queries/api");
+			vi.mocked(fetchLabels).mockResolvedValue([]);
+
+			const { result } = renderHook(() => useManageLabels(), { wrapper });
+
+			expect(result.current.labels).toEqual([]);
+			expect(result.current.isCreateFormOpen).toBe(false);
+			expect(result.current.editingLabelId).toBe(null);
+			expect(result.current.deleteConfirmLabelId).toBe(null);
+		});
+
+		it("作成フォームの開閉が正しく動作する", async () => {
+			const { fetchLabels } = await import("../queries/api");
+			vi.mocked(fetchLabels).mockResolvedValue([]);
+
+			const { result } = renderHook(() => useManageLabels(), { wrapper });
+
+			expect(result.current.isCreateFormOpen).toBe(false);
+
+			act(() => {
+				result.current.openCreateForm();
+			});
+
+			expect(result.current.isCreateFormOpen).toBe(true);
+
+			act(() => {
+				result.current.closeCreateForm();
+			});
+
+			expect(result.current.isCreateFormOpen).toBe(false);
+		});
+
+		it("編集状態の管理が正しく動作する", async () => {
+			const { fetchLabels } = await import("../queries/api");
+			vi.mocked(fetchLabels).mockResolvedValue([]);
+
+			const { result } = renderHook(() => useManageLabels(), { wrapper });
+
+			expect(result.current.editingLabelId).toBe(null);
+
+			act(() => {
+				result.current.startEdit(1);
+			});
+
+			expect(result.current.editingLabelId).toBe(1);
+
+			act(() => {
+				result.current.cancelEdit();
+			});
+
+			expect(result.current.editingLabelId).toBe(null);
+		});
+
+		it("削除確認ダイアログの管理が正しく動作する", async () => {
+			const { fetchLabels } = await import("../queries/api");
+			vi.mocked(fetchLabels).mockResolvedValue([]);
+
+			const { result } = renderHook(() => useManageLabels(), { wrapper });
+
+			expect(result.current.deleteConfirmLabelId).toBe(null);
+
+			act(() => {
+				result.current.openDeleteConfirm(2);
+			});
+
+			expect(result.current.deleteConfirmLabelId).toBe(2);
+
+			act(() => {
+				result.current.closeDeleteConfirm();
+			});
+
+			expect(result.current.deleteConfirmLabelId).toBe(null);
+		});
+	});
 }
