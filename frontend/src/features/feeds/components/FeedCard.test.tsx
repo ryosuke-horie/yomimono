@@ -159,8 +159,8 @@ describe("FeedCard", () => {
 	it("最終更新時刻を正しくフォーマットする", () => {
 		renderWithQueryClient(<FeedCard feed={mockFeed} />);
 
-		// 10:00 -> 11:00 なので60分前
-		expect(screen.getByText("最終更新: 60分前")).toBeInTheDocument();
+		// 10:00 -> 11:00 なので1時間前
+		expect(screen.getByText("最終更新: 1時間前")).toBeInTheDocument();
 	});
 
 	it("最終更新時刻がnullの場合の表示", () => {

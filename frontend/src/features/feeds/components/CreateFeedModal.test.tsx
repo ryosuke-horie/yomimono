@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CreateFeedModal } from "./CreateFeedModal";
@@ -189,7 +189,9 @@ describe("CreateFeedModal", () => {
 		if (form) fireEvent.submit(form);
 
 		// 成功コールバックを実行
-		successCallback?.();
+		act(() => {
+			successCallback?.();
+		});
 
 		expect(onCloseMock).toHaveBeenCalled();
 	});
@@ -216,11 +218,19 @@ describe("CreateFeedModal", () => {
 
 		renderWithQueryClient(<CreateFeedModal {...defaultProps} />);
 
+		// 有効なデータを入力してバリデーションを通す
+		const nameInput = screen.getByLabelText("フィード名");
+		const urlInput = screen.getByLabelText("RSS URL");
+		fireEvent.change(nameInput, { target: { value: "テスト" } });
+		fireEvent.change(urlInput, { target: { value: "https://example.com/test" } });
+
 		const form = screen.getByTestId("modal").querySelector("form");
 		if (form) fireEvent.submit(form);
 
 		// エラーコールバックを実行
-		errorCallback?.(new Error("テストエラー"));
+		act(() => {
+			errorCallback?.(new Error("テストエラー"));
+		});
 
 		await waitFor(() => {
 			expect(screen.getByText("テストエラー")).toBeInTheDocument();

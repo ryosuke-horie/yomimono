@@ -149,9 +149,7 @@ describe("EditFeedModal", () => {
 		const nameInput = screen.getByLabelText("フィード名");
 		fireEvent.change(nameInput, { target: { value: "更新フィード" } });
 
-		const form =
-			screen.getByRole("form") ||
-			screen.getByTestId("modal").querySelector("form");
+		const form = screen.getByTestId("modal").querySelector("form");
 		if (form) fireEvent.submit(form);
 
 		expect(mockMutate).toHaveBeenCalledWith(
