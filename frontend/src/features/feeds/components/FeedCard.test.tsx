@@ -109,7 +109,6 @@ describe("FeedCard", () => {
 		updateInterval: 3600,
 		lastFetchedAt: "2024-01-01T10:00:00Z",
 		nextFetchAt: "2024-01-01T11:00:00Z",
-		itemCount: 15,
 		createdAt: "2024-01-01T00:00:00Z",
 		updatedAt: "2024-01-01T00:00:00Z",
 	};
@@ -136,7 +135,6 @@ describe("FeedCard", () => {
 		expect(
 			screen.getByText("URL: https://example.com/rss"),
 		).toBeInTheDocument();
-		expect(screen.getByText("記事数: 15")).toBeInTheDocument();
 		expect(screen.getByText("編集")).toBeInTheDocument();
 		expect(screen.getByText("削除")).toBeInTheDocument();
 	});
@@ -272,20 +270,6 @@ describe("FeedCard", () => {
 
 		expect(screen.getByText("削除中...")).toBeInTheDocument();
 		expect(screen.getByText("削除中...")).toBeDisabled();
-	});
-
-	it("記事数が0の場合の表示", () => {
-		const feedWithZeroItems = { ...mockFeed, itemCount: 0 };
-		renderWithQueryClient(<FeedCard feed={feedWithZeroItems} />);
-
-		expect(screen.getByText("記事数: 0")).toBeInTheDocument();
-	});
-
-	it("記事数がnullの場合の表示", () => {
-		const feedWithNullItems = { ...mockFeed, itemCount: 0 };
-		renderWithQueryClient(<FeedCard feed={feedWithNullItems} />);
-
-		expect(screen.getByText("記事数: 0")).toBeInTheDocument();
 	});
 
 	it("長いURLが省略表示される", () => {

@@ -88,7 +88,6 @@ describe("EditFeedModal", () => {
 		updateInterval: 3600,
 		lastFetchedAt: "2024-01-01T00:00:00Z",
 		nextFetchAt: "2024-01-01T01:00:00Z",
-		itemCount: 10,
 		createdAt: "2024-01-01T00:00:00Z",
 		updatedAt: "2024-01-01T00:00:00Z",
 	};
@@ -239,7 +238,6 @@ describe("EditFeedModal", () => {
 			updateInterval: 7200,
 			lastFetchedAt: "2024-01-01T00:00:00Z",
 			nextFetchAt: "2024-01-01T02:00:00Z",
-			itemCount: 5,
 			createdAt: "2024-01-01T00:00:00Z",
 			updatedAt: "2024-01-01T00:00:00Z",
 		};

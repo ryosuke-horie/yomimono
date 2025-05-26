@@ -63,7 +63,6 @@ describe("RSSフィード関連フック", () => {
 						updateInterval: 60,
 						nextFetchAt: "2023-01-01T01:00:00Z",
 						lastFetchedAt: null,
-						itemCount: 0,
 					},
 				],
 				total: 1,
@@ -117,7 +116,6 @@ describe("RSSフィード関連フック", () => {
 				updateInterval: 60,
 				nextFetchAt: "2023-01-01T13:00:00Z",
 				lastFetchedAt: null,
-				itemCount: 0,
 			};
 
 			mockFeedsApi.updateFeed.mockResolvedValueOnce(mockUpdatedFeed);
