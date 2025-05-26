@@ -128,6 +128,38 @@ describe("FeedProcessor", () => {
 			);
 		});
 
+		it("publishedAtが正しく保存される", async () => {
+			const publishedDate = new Date("2024-01-01T10:00:00Z");
+			const mockArticles: Article[] = [
+				{
+					guid: "guid1",
+					url: "https://example.com/article1",
+					title: "Article 1",
+					description: "Description 1",
+					publishedAt: publishedDate,
+				},
+			];
+
+			mockFetcher.fetchFeed.mockResolvedValue("<xml>feed data</xml>");
+			mockParser.parseFeed.mockResolvedValue(mockArticles);
+			mockDb.where.mockResolvedValue([]); // 既存URLなし
+			mockDb.returning.mockResolvedValue([{ id: 1 }]);
+
+			await processor.process();
+
+			// RSS記事のinsertでpublishedAtが正しく渡されることを確認
+			expect(mockDb.values).toHaveBeenCalledWith(
+				expect.objectContaining({
+					feedId: mockFeed.id,
+					guid: "guid1",
+					url: "https://example.com/article1",
+					title: "Article 1",
+					description: "Description 1",
+					publishedAt: publishedDate,
+				}),
+			);
+		});
+
 		it("既存の記事を除外して処理する", async () => {
 			const mockArticles: Article[] = [
 				{

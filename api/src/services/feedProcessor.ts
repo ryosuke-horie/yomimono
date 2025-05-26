@@ -191,7 +191,7 @@ export class FeedProcessor {
 						url: article.url,
 						title: article.title,
 						description: article.description || "",
-						// D1はDateオブジェクトを直接扱えないので、必要に応じて変換
+						publishedAt: article.publishedAt,
 					};
 					console.log("Inserting feed item:", JSON.stringify(feedItemData));
 
