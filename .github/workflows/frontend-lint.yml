@@ -59,17 +59,16 @@ jobs:
           echo "$COVERAGE_DETAIL" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      # TODO: カバレッジが8割を超えるまで一時的に無効化
-      # - name: Check coverage threshold
-      #   run: |
-      #     COVERAGE=${{ steps.coverage.outputs.coverage }}
-      #     echo "Checking if coverage ($COVERAGE%) meets threshold (80%)..."
-      #     if [ "$(echo "$COVERAGE < 80" | bc -l)" -eq 1 ]; then
-      #       echo "❌ Coverage ($COVERAGE%) is below threshold (80%)"
-      #       exit 1
-      #     else
-      #       echo "✅ Coverage ($COVERAGE%) meets or exceeds threshold (80%)"
-      #     fi
+      - name: Check coverage threshold
+        run: |
+          COVERAGE=${{ steps.coverage.outputs.coverage }}
+          echo "Checking if coverage ($COVERAGE%) meets threshold (80%)..."
+          if [ "$(echo "$COVERAGE < 80" | bc -l)" -eq 1 ]; then
+            echo "❌ Coverage ($COVERAGE%) is below threshold (80%)"
+            exit 1
+          else
+            echo "✅ Coverage ($COVERAGE%) meets or exceeds threshold (80%)"
+          fi
 
       - name: Post coverage comment
         if: github.event_name == 'pull_request'
@@ -80,11 +79,11 @@ jobs:
             ### フロントエンドテストカバレッジレポート
 
             フロントエンド全体のカバレッジ: ${{ steps.coverage.outputs.coverage }}%
-            必要なカバレッジ閾値: 80% (現在は無効化中)
+            必要なカバレッジ閾値: 80%
 
             ${{ steps.coverage.outputs.detail }}
 
-            判定: ✅ カバレッジチェック無効化中（8割到達まで）
+            判定: ${{ steps.coverage.outputs.coverage >= 80 && '✅ カバレッジ閾値（80%）をクリア' || '❌ カバレッジ閾値（80%）未達成' }}
 
       - name: Upload coverage report
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
