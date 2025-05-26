@@ -7,7 +7,13 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": ["node_modules", ".wrangler", "drizzle.config.ts", "coverage"]
+		"ignore": [
+			"node_modules",
+			".wrangler",
+			"drizzle.config.ts",
+			"coverage",
+			"drizzle/**"
+		]
 	},
 	"formatter": {
 		"enabled": true,
