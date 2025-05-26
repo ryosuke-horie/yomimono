@@ -1,5 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+	act,
+	fireEvent,
+	render,
+	screen,
+	waitFor,
+} from "@testing-library/react";
 import type React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CreateFeedModal } from "./CreateFeedModal";
@@ -222,7 +228,9 @@ describe("CreateFeedModal", () => {
 		const nameInput = screen.getByLabelText("フィード名");
 		const urlInput = screen.getByLabelText("RSS URL");
 		fireEvent.change(nameInput, { target: { value: "テスト" } });
-		fireEvent.change(urlInput, { target: { value: "https://example.com/test" } });
+		fireEvent.change(urlInput, {
+			target: { value: "https://example.com/test" },
+		});
 
 		const form = screen.getByTestId("modal").querySelector("form");
 		if (form) fireEvent.submit(form);
