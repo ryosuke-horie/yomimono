@@ -6,6 +6,14 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll, vi } from "vitest";
 
+declare global {
+	namespace ImportMeta {
+		interface Meta {
+			vitest?: typeof import("vitest");
+		}
+	}
+}
+
 // テスト実行後のクリーンアップ
 afterEach(() => {
 	cleanup();
