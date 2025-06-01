@@ -380,6 +380,5 @@ export const createBookmarksRouter = (
 		}
 	});
 
-
 	return app;
 };

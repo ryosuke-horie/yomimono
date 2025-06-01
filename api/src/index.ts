@@ -77,7 +77,6 @@ export const createApp = (env: Env) => {
 	app.route("/api/bookmarks", bookmarksRouter);
 	app.route("/api/labels", labelsRouter);
 
-
 	// RSSフィードルートの追加
 	const rssFeedsRouter = createRssFeedsRouter(rssFeedService);
 	app.route("/api/rss", rssFeedsRouter);

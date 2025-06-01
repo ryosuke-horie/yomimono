@@ -58,5 +58,4 @@ export interface IBookmarkRepository {
 	 * @returns ブックマークのマップ（ID => BookmarkWithLabel）
 	 */
 	findByIds(ids: number[]): Promise<Map<number, BookmarkWithLabel>>;
-
 }

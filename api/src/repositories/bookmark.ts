@@ -458,6 +458,4 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 			throw error;
 		}
 	}
-
-
 }

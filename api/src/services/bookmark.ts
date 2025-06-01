@@ -174,7 +174,6 @@ export class DefaultBookmarkService implements IBookmarkService {
 		}
 	}
 
-
 	async getReadBookmarks(): Promise<BookmarkWithLabel[]> {
 		try {
 			return await this.repository.findRead();
