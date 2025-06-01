@@ -3,7 +3,6 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import * as dotenv from "dotenv";
 import { z } from "zod";
 import * as apiClient from "./lib/apiClient.js";
-import { getSummaryPrompt } from "./lib/promptTemplates.js";
 
 // Configure dotenv to load environment variables
 dotenv.config();
@@ -326,159 +325,6 @@ server.tool(
 	},
 );
 
-// 9. Tool to get bookmarks without summary
-server.tool(
-	"getBookmarksWithoutSummary",
-	{
-		limit: z.number().int().positive().optional(),
-		orderBy: z.enum(["createdAt", "readAt"]).optional(),
-	},
-	async ({ limit, orderBy }) => {
-		try {
-			const bookmarks = await apiClient.getBookmarksWithoutSummary(
-				limit,
-				orderBy,
-			);
-			return {
-				content: [{ type: "text", text: JSON.stringify(bookmarks, null, 2) }],
-				isError: false,
-			};
-		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
-			console.error(
-				`Error in getBookmarksWithoutSummary tool (limit: ${limit}, orderBy: ${orderBy}):`,
-				errorMessage,
-			);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `Failed to get bookmarks without summary: ${errorMessage}`,
-					},
-				],
-				isError: true,
-			};
-		}
-	},
-);
-
-// 9.1 Compatibility tool for typo in "getBookmarkWithoutSummry"
-server.tool(
-	"getBookmarkWithoutSummry", // Intentional typo for backward compatibility
-	{
-		limit: z.number().int().positive().optional(),
-		orderBy: z.enum(["createdAt", "readAt"]).optional(),
-	},
-	async ({ limit, orderBy }) => {
-		try {
-			// Forward to the correctly named function
-			const bookmarks = await apiClient.getBookmarksWithoutSummary(
-				limit,
-				orderBy,
-			);
-			return {
-				content: [{ type: "text", text: JSON.stringify(bookmarks, null, 2) }],
-				isError: false,
-			};
-		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
-			console.error(
-				`Error in getBookmarkWithoutSummry tool (typo-compatibility) (limit: ${limit}, orderBy: ${orderBy}):`,
-				errorMessage,
-			);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `Failed to get bookmarks without summary: ${errorMessage}`,
-					},
-				],
-				isError: true,
-			};
-		}
-	},
-);
-
-// 10. Tool to save summary
-server.tool(
-	"saveSummary",
-	{
-		bookmarkId: z.number().int().positive(),
-		summary: z.string().min(1),
-	},
-	async ({ bookmarkId, summary }) => {
-		try {
-			const bookmark = await apiClient.saveSummary(bookmarkId, summary);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `Successfully saved summary for bookmark ID ${bookmarkId}: ${JSON.stringify(bookmark, null, 2)}`,
-					},
-				],
-				isError: false,
-			};
-		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
-			console.error(
-				`Error in saveSummary tool (bookmarkId: ${bookmarkId}):`,
-				errorMessage,
-			);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `Failed to save summary: ${errorMessage}`,
-					},
-				],
-				isError: true,
-			};
-		}
-	},
-);
-
-// 11. Tool to update summary
-server.tool(
-	"updateSummary",
-	{
-		bookmarkId: z.number().int().positive(),
-		summary: z.string().min(1),
-	},
-	async ({ bookmarkId, summary }) => {
-		try {
-			const bookmark = await apiClient.updateSummary(bookmarkId, summary);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `Successfully updated summary for bookmark ID ${bookmarkId}: ${JSON.stringify(bookmark, null, 2)}`,
-					},
-				],
-				isError: false,
-			};
-		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
-			console.error(
-				`Error in updateSummary tool (bookmarkId: ${bookmarkId}):`,
-				errorMessage,
-			);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `Failed to update summary: ${errorMessage}`,
-					},
-				],
-				isError: true,
-			};
-		}
-	},
-);
-
 // 12. Tool to get bookmark by ID
 server.tool(
 	"getBookmarkById",
@@ -517,73 +363,7 @@ server.tool(
 	},
 );
 
-// 13. Tool to generate summary for a bookmark
-// このツールはClaude Desktopに記事アクセスと要約生成の指示を返す
-server.tool(
-	"generateSummary",
-	{
-		bookmarkId: z.number().int().positive(),
-		includeKeyPoints: z.boolean().optional().default(true),
-		maxLength: z.number().int().positive().optional().default(500),
-	},
-	async ({ bookmarkId, includeKeyPoints, maxLength }) => {
-		try {
-			// 記事情報を取得
-			const bookmark = await apiClient.getBookmarkById(bookmarkId);
-
-			// 既に要約が存在する場合は警告
-			if (bookmark.summary) {
-				return {
-					content: [
-						{
-							type: "text",
-							text: `Bookmark ${bookmarkId} already has a summary. Use updateSummary to modify it.`,
-						},
-					],
-					isError: true,
-				};
-			}
-
-			// Claude Desktopに記事内容の取得と要約生成を依頼
-			// 最適化されたプロンプトテンプレートを使用
-			const instructionForClaude = getSummaryPrompt({
-				url: bookmark.url,
-				title: bookmark.title || "タイトルなし",
-				bookmarkId,
-				maxLength,
-				includeKeyPoints,
-			});
-
-			return {
-				content: [
-					{
-						type: "text",
-						text: instructionForClaude,
-					},
-				],
-				isError: false,
-			};
-		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
-			console.error(
-				`Error in generateSummary tool (bookmarkId: ${bookmarkId}):`,
-				errorMessage,
-			);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `Failed to generate summary: ${errorMessage}`,
-					},
-				],
-				isError: true,
-			};
-		}
-	},
-);
-
-// 14. Tool to get unread articles by label
+// 13. Tool to get unread articles by label
 server.tool(
 	"getUnreadArticlesByLabel",
 	{
@@ -621,7 +401,7 @@ server.tool(
 	},
 );
 
-// 15. Tool to get unread bookmarks
+// 14. Tool to get unread bookmarks
 server.tool(
 	"getUnreadBookmarks",
 	{}, // No input arguments
@@ -654,7 +434,7 @@ server.tool(
 	},
 );
 
-// 16. Tool to get read bookmarks
+// 15. Tool to get read bookmarks
 server.tool(
 	"getReadBookmarks",
 	{}, // No input arguments
@@ -687,7 +467,7 @@ server.tool(
 	},
 );
 
-// 17. Tool to mark bookmark as read
+// 16. Tool to mark bookmark as read
 server.tool(
 	"markBookmarkAsRead",
 	{

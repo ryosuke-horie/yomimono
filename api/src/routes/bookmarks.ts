@@ -380,60 +380,6 @@ export const createBookmarksRouter = (
 		}
 	});
 
-	// 要約なしブックマーク取得エンドポイント
-	app.get("/without-summary", async (c) => {
-		try {
-			const limit = Number.parseInt(c.req.query("limit") || "10");
-			const orderBy = c.req.query("orderBy") as
-				| "createdAt"
-				| "readAt"
-				| undefined;
-
-			// パラメータのバリデーション
-			if (Number.isNaN(limit) || limit <= 0 || limit > 100) {
-				return c.json(
-					{ success: false, message: "Invalid limit parameter" },
-					400,
-				);
-			}
-			if (orderBy && !["createdAt", "readAt"].includes(orderBy)) {
-				return c.json(
-					{ success: false, message: "Invalid orderBy parameter" },
-					400,
-				);
-			}
-
-			const bookmarks = await bookmarkService.getBookmarksWithoutSummary(
-				limit,
-				orderBy || "createdAt",
-				0,
-			);
-
-			return c.json({
-				success: true,
-				bookmarks: bookmarks.map((bookmark) => ({
-					id: bookmark.id,
-					url: bookmark.url,
-					title: bookmark.title,
-					isRead: bookmark.isRead,
-					summary: bookmark.summary,
-					summaryCreatedAt: bookmark.summaryCreatedAt?.toISOString() ?? null,
-					summaryUpdatedAt: bookmark.summaryUpdatedAt?.toISOString() ?? null,
-					createdAt: bookmark.createdAt.toISOString(),
-					updatedAt: bookmark.updatedAt.toISOString(),
-				})),
-			});
-		} catch (error) {
-			console.error("Failed to fetch bookmarks without summary:", error);
-			return c.json(
-				{
-					success: false,
-					message: "Failed to fetch bookmarks without summary",
-				},
-				500,
-			);
-		}
-	});
 
 	return app;
 };
