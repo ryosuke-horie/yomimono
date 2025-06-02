@@ -579,3 +579,304 @@ export async function markBookmarkAsRead(bookmarkId: number) {
 	}
 	return parsed.data;
 }
+
+// --- 記事評価関連の型定義とスキーマ ---
+
+export interface CreateRatingData {
+	practicalValue: number;
+	technicalDepth: number;
+	understanding: number;
+	novelty: number;
+	importance: number;
+	comment?: string;
+}
+
+export interface UpdateRatingData {
+	practicalValue?: number;
+	technicalDepth?: number;
+	understanding?: number;
+	novelty?: number;
+	importance?: number;
+	comment?: string;
+}
+
+const ArticleRatingSchema = z.object({
+	id: z.number(),
+	articleId: z.number(),
+	practicalValue: z.number(),
+	technicalDepth: z.number(),
+	understanding: z.number(),
+	novelty: z.number(),
+	importance: z.number(),
+	totalScore: z.number(),
+	comment: z.string().nullable(),
+	createdAt: z.string(),
+	updatedAt: z.string(),
+});
+
+const CreateRatingResponseSchema = z.object({
+	success: z.literal(true),
+	rating: ArticleRatingSchema,
+});
+
+const GetRatingResponseSchema = z.object({
+	success: z.literal(true),
+	rating: ArticleRatingSchema,
+});
+
+const UpdateRatingResponseSchema = z.object({
+	success: z.literal(true),
+	rating: ArticleRatingSchema,
+});
+
+// --- 記事評価関連のAPI関数 ---
+
+/**
+ * 記事の評価を作成する
+ * @param articleId - 記事ID
+ * @param ratingData - 評価データ
+ * @returns 作成された評価オブジェクト
+ */
+export async function createArticleRating(
+	articleId: number,
+	ratingData: CreateRatingData,
+) {
+	const response = await fetch(`${getApiBaseUrl()}/api/ratings`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({
+			articleId,
+			...ratingData,
+		}),
+	});
+
+	if (!response.ok) {
+		throw new Error(
+			`Failed to create rating for article ${articleId}: ${response.statusText}`,
+		);
+	}
+
+	let data: unknown;
+	try {
+		data = await response.json();
+	} catch (parseError: unknown) {
+		const errorMessage =
+			parseError instanceof Error ? parseError.message : String(parseError);
+		throw new Error(
+			`Failed to parse response when creating rating for article ${articleId}: ${errorMessage}`,
+		);
+	}
+
+	const parsed = CreateRatingResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response after creating rating: ${parsed.error.message}`,
+		);
+	}
+
+	return parsed.data.rating;
+}
+
+/**
+ * 記事の評価を取得する
+ * @param articleId - 記事ID
+ * @returns 評価オブジェクト（存在しない場合はnull）
+ */
+export async function getArticleRating(articleId: number) {
+	const response = await fetch(
+		`${getApiBaseUrl()}/api/ratings/article/${articleId}`,
+	);
+
+	if (response.status === 404) {
+		return null; // 評価が存在しない場合
+	}
+
+	if (!response.ok) {
+		throw new Error(
+			`Failed to get rating for article ${articleId}: ${response.statusText}`,
+		);
+	}
+
+	let data: unknown;
+	try {
+		data = await response.json();
+	} catch (parseError: unknown) {
+		const errorMessage =
+			parseError instanceof Error ? parseError.message : String(parseError);
+		throw new Error(
+			`Failed to parse response when getting rating for article ${articleId}: ${errorMessage}`,
+		);
+	}
+
+	const parsed = GetRatingResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response for rating ${articleId}: ${parsed.error.message}`,
+		);
+	}
+
+	return parsed.data.rating;
+}
+
+/**
+ * 記事の評価を更新する
+ * @param articleId - 記事ID
+ * @param updateData - 更新データ
+ * @returns 更新された評価オブジェクト
+ */
+export async function updateArticleRating(
+	articleId: number,
+	updateData: UpdateRatingData,
+) {
+	const response = await fetch(
+		`${getApiBaseUrl()}/api/ratings/article/${articleId}`,
+		{
+			method: "PATCH",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(updateData),
+		},
+	);
+
+	if (!response.ok) {
+		throw new Error(
+			`Failed to update rating for article ${articleId}: ${response.statusText}`,
+		);
+	}
+
+	let data: unknown;
+	try {
+		data = await response.json();
+	} catch (parseError: unknown) {
+		const errorMessage =
+			parseError instanceof Error ? parseError.message : String(parseError);
+		throw new Error(
+			`Failed to parse response when updating rating for article ${articleId}: ${errorMessage}`,
+		);
+	}
+
+	const parsed = UpdateRatingResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response after updating rating: ${parsed.error.message}`,
+		);
+	}
+
+	return parsed.data.rating;
+}
+
+/**
+ * 記事の評価を削除する
+ * @param articleId - 記事ID
+ */
+export async function deleteArticleRating(articleId: number): Promise<void> {
+	const response = await fetch(
+		`${getApiBaseUrl()}/api/ratings/article/${articleId}`,
+		{
+			method: "DELETE",
+		},
+	);
+
+	if (!response.ok) {
+		throw new Error(
+			`Failed to delete rating for article ${articleId}: ${response.statusText}`,
+		);
+	}
+}
+
+if (import.meta.vitest) {
+	const { test, expect, describe, vi, beforeEach } = import.meta.vitest;
+
+	describe("Article Rating API Functions", () => {
+		beforeEach(() => {
+			vi.clearAllMocks();
+			process.env.API_BASE_URL = "https://api.example.com";
+		});
+
+		const mockRating = {
+			id: 1,
+			articleId: 123,
+			practicalValue: 8,
+			technicalDepth: 9,
+			understanding: 7,
+			novelty: 6,
+			importance: 8,
+			totalScore: 38,
+			comment: "非常に有用な記事でした",
+			createdAt: "2024-01-01T00:00:00Z",
+			updatedAt: "2024-01-01T00:00:00Z",
+		};
+
+		test("createArticleRating - 正常なケース", async () => {
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => ({
+					success: true,
+					rating: mockRating,
+				}),
+			});
+
+			const ratingData: CreateRatingData = {
+				practicalValue: 8,
+				technicalDepth: 9,
+				understanding: 7,
+				novelty: 6,
+				importance: 8,
+				comment: "非常に有用な記事でした",
+			};
+
+			const result = await createArticleRating(123, ratingData);
+			expect(result).toEqual(mockRating);
+		});
+
+		test("getArticleRating - 評価が存在する場合", async () => {
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				status: 200,
+				json: async () => ({
+					success: true,
+					rating: mockRating,
+				}),
+			});
+
+			const result = await getArticleRating(123);
+			expect(result).toEqual(mockRating);
+		});
+
+		test("getArticleRating - 評価が存在しない場合", async () => {
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: false,
+				status: 404,
+			});
+
+			const result = await getArticleRating(123);
+			expect(result).toBeNull();
+		});
+
+		test("updateArticleRating - 正常なケース", async () => {
+			const updatedRating = {
+				...mockRating,
+				practicalValue: 9,
+				totalScore: 39,
+			};
+
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => ({
+					success: true,
+					rating: updatedRating,
+				}),
+			});
+
+			const updateData: UpdateRatingData = {
+				practicalValue: 9,
+			};
+
+			const result = await updateArticleRating(123, updateData);
+			expect(result).toEqual(updatedRating);
+		});
+	});
+}
