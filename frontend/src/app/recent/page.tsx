@@ -94,11 +94,7 @@ export default function RecentPage() {
 						</h2>
 						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 							{groupedBookmarks[date].map((bookmark) => (
-								<BookmarkCard
-									key={bookmark.id}
-									bookmark={bookmark}
-									showSummary={false}
-								/>
+								<BookmarkCard key={bookmark.id} bookmark={bookmark} />
 							))}
 						</div>
 					</div>

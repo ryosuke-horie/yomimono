@@ -33,19 +33,6 @@ export interface IBookmarkService {
 	getBookmarksByLabel(labelName: string): Promise<BookmarkWithLabel[]>;
 
 	/**
-	 * 要約がないブックマークを取得します。
-	 * @param limit 取得件数の上限
-	 * @param orderBy ソート順（createdAt または readAt）
-	 * @param offset 取得開始位置
-	 * @returns 要約がないブックマークのリスト
-	 */
-	getBookmarksWithoutSummary(
-		limit?: number,
-		orderBy?: "createdAt" | "readAt",
-		offset?: number,
-	): Promise<BookmarkWithLabel[]>;
-
-	/**
 	 * 既読のブックマークを取得します。
 	 * @returns 既読のブックマーク配列
 	 */

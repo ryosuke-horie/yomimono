@@ -6,9 +6,6 @@ export const bookmarks = sqliteTable("bookmarks", {
 	url: text("url").notNull(),
 	title: text("title"),
 	isRead: integer("is_read", { mode: "boolean" }).notNull().default(false),
-	summary: text("summary"), // 記事の要約（マークダウン形式）
-	summaryCreatedAt: integer("summary_created_at", { mode: "timestamp" }), // 要約が最初に生成された日時
-	summaryUpdatedAt: integer("summary_updated_at", { mode: "timestamp" }), // 要約が最後に更新された日時
 	createdAt: integer("created_at", { mode: "timestamp" })
 		.notNull()
 		.default(new Date()),

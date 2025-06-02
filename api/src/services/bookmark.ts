@@ -174,19 +174,6 @@ export class DefaultBookmarkService implements IBookmarkService {
 		}
 	}
 
-	async getBookmarksWithoutSummary(
-		limit = 10,
-		orderBy: "createdAt" | "readAt" = "createdAt",
-		offset = 0,
-	): Promise<BookmarkWithLabel[]> {
-		try {
-			return await this.repository.findWithoutSummary(limit, orderBy, offset);
-		} catch (error) {
-			console.error("Failed to get bookmarks without summary:", error);
-			throw new Error("Failed to get bookmarks without summary");
-		}
-	}
-
 	async getReadBookmarks(): Promise<BookmarkWithLabel[]> {
 		try {
 			return await this.repository.findRead();

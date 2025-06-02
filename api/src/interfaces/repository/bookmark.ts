@@ -58,28 +58,4 @@ export interface IBookmarkRepository {
 	 * @returns ブックマークのマップ（ID => BookmarkWithLabel）
 	 */
 	findByIds(ids: number[]): Promise<Map<number, BookmarkWithLabel>>;
-
-	/**
-	 * 要約がないブックマークを取得します。
-	 * @param limit - 取得する件数の上限。
-	 * @param orderBy - ソート順（createdAt または readAt）。
-	 * @param offset - 取得開始位置。
-	 * @returns 要約がないブックマークの配列。
-	 */
-	findWithoutSummary(
-		limit?: number,
-		orderBy?: "createdAt" | "readAt",
-		offset?: number,
-	): Promise<BookmarkWithLabel[]>;
-
-	/**
-	 * ブックマークの要約を更新します。
-	 * @param id - ブックマークのID。
-	 * @param summary - 要約テキスト。
-	 * @returns 更新されたブックマーク。
-	 */
-	updateSummary(
-		id: number,
-		summary: string,
-	): Promise<BookmarkWithLabel | undefined>;
 }

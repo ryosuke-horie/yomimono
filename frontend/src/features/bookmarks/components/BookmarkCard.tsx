@@ -6,30 +6,14 @@ import { useToggleFavoriteBookmark } from "@/features/bookmarks/queries/useToggl
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 import { LabelDisplay } from "@/features/labels/components/LabelDisplay";
 import { useState } from "react";
-import { BookmarkSummary } from "./BookmarkSummary";
 
 interface Props {
 	bookmark: BookmarkWithLabel;
 	onLabelClick?: (labelName: string) => void;
-	showSummary?: boolean;
 }
 
-export function BookmarkCard({
-	bookmark,
-	onLabelClick,
-	showSummary = true,
-}: Props) {
-	const {
-		id,
-		title,
-		url,
-		createdAt,
-		isRead,
-		isFavorite,
-		label,
-		summary,
-		summaryUpdatedAt,
-	} = bookmark;
+export function BookmarkCard({ bookmark, onLabelClick }: Props) {
+	const { id, title, url, createdAt, isRead, isFavorite, label } = bookmark;
 	const formattedDate = new Date(createdAt).toLocaleDateString("ja-JP");
 
 	const { mutate: toggleFavorite, isPending: isTogglingFavorite } =
@@ -40,7 +24,6 @@ export function BookmarkCard({
 		useMarkBookmarkAsUnread();
 	const [isCopied, setIsCopied] = useState(false);
 	const [isUrlCopied, setIsUrlCopied] = useState(false);
-	const [showSummaryContent, setShowSummaryContent] = useState(false);
 
 	const handleFavoriteToggle = () => {
 		toggleFavorite({ id, isCurrentlyFavorite: isFavorite });
@@ -91,56 +74,15 @@ export function BookmarkCard({
 		}
 	};
 
-	// 要約表示切り替え処理
-	const handleToggleSummary = () => {
-		setShowSummaryContent(!showSummaryContent);
-	};
-
 	return (
 		<article
 			className={`relative p-4 pb-16 border rounded-lg hover:shadow-md transition-shadow flex flex-col min-h-[150px] ${
 				isRead ? "bg-gray-50" : ""
 			}`}
 		>
-			{/* 要約ボタン - 一番左に配置 */}
-			<button
-				type="button"
-				onClick={handleToggleSummary}
-				disabled={!summary}
-				className={`absolute bottom-2 left-2 z-10 p-1 rounded-full transition-colors ${
-					!summary
-						? "text-gray-400 bg-gray-100 cursor-not-allowed"
-						: showSummaryContent
-							? "text-blue-700 bg-blue-50 hover:bg-blue-100"
-							: "text-gray-400 hover:text-blue-500 hover:bg-blue-50"
-				}`}
-				title={
-					!summary
-						? "要約がありません"
-						: showSummaryContent
-							? "要約を閉じる"
-							: "要約を表示"
-				}
-			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					strokeWidth={1.5}
-					stroke="currentColor"
-					className="w-6 h-6"
-				>
-					<path
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
-					/>
-				</svg>
-			</button>
-
-			{/* ラベル表示 - 要約ボタンの右に配置 */}
+			{/* ラベル表示 */}
 			{label && (
-				<div className="absolute bottom-2 left-12 z-10">
+				<div className="absolute bottom-2 left-2 z-10">
 					<LabelDisplay label={label} onClick={onLabelClick} />
 				</div>
 			)}
@@ -416,16 +358,6 @@ export function BookmarkCard({
 				{url}
 			</p>
 			<p className="text-xs text-gray-500">{formattedDate}</p>
-
-			{/* 要約表示 - アイコンの下に配置 */}
-			{showSummaryContent && summary && (
-				<div className="mt-12">
-					<BookmarkSummary
-						summary={summary || null}
-						summaryUpdatedAt={summaryUpdatedAt || null}
-					/>
-				</div>
-			)}
 		</article>
 	);
 }
