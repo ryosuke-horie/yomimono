@@ -118,3 +118,28 @@ export type RssFeedItem = typeof rssFeedItems.$inferSelect;
 export type InsertRssFeedItem = typeof rssFeedItems.$inferInsert;
 export type RssBatchLog = typeof rssBatchLogs.$inferSelect;
 export type InsertRssBatchLog = typeof rssBatchLogs.$inferInsert;
+
+// 記事評価ポイント
+export const articleRatings = sqliteTable("article_ratings", {
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	articleId: integer("article_id")
+		.notNull()
+		.unique()
+		.references(() => bookmarks.id, { onDelete: "cascade" }),
+	practicalValue: integer("practical_value").notNull(), // 実用性 (1-10)
+	technicalDepth: integer("technical_depth").notNull(), // 技術深度 (1-10)
+	understanding: integer("understanding").notNull(), // 理解度 (1-10)
+	novelty: integer("novelty").notNull(), // 新規性 (1-10)
+	importance: integer("importance").notNull(), // 重要度 (1-10)
+	totalScore: integer("total_score", { mode: "number" }).notNull(), // 総合スコア (平均値 * 10で整数化)
+	comment: text("comment"), // コメント（最大1000文字）
+	createdAt: integer("created_at", { mode: "timestamp" })
+		.notNull()
+		.default(new Date()),
+	updatedAt: integer("updated_at", { mode: "timestamp" })
+		.notNull()
+		.default(new Date()),
+});
+
+export type ArticleRating = typeof articleRatings.$inferSelect;
+export type InsertArticleRating = typeof articleRatings.$inferInsert;
