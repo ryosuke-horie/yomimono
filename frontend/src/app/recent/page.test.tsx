@@ -87,27 +87,27 @@ describe("RecentPage", () => {
 	});
 
 	it("グループ化されたブックマークを正しく表示する", () => {
-		const today = new Date();
-		const yesterday = new Date(today);
-		yesterday.setDate(yesterday.getDate() - 1);
+		// 現在時刻を固定
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date("2024-06-01T10:00:00.000Z"));
 
 		const mockData = {
-			[today.toISOString().split("T")[0]]: [
+			"2024-06-01": [
 				{
 					id: 1,
 					title: "今日の記事",
 					url: "https://today.com",
-					created_at: today.toISOString(),
+					created_at: "2024-06-01T10:00:00.000Z",
 					is_read: true,
 					is_favorite: false,
 				},
 			],
-			[yesterday.toISOString().split("T")[0]]: [
+			"2024-05-31": [
 				{
 					id: 2,
 					title: "昨日の記事",
 					url: "https://yesterday.com",
-					created_at: yesterday.toISOString(),
+					created_at: "2024-05-31T10:00:00.000Z",
 					is_read: true,
 					is_favorite: false,
 				},
@@ -127,6 +127,9 @@ describe("RecentPage", () => {
 		expect(screen.getByText("昨日")).toBeInTheDocument();
 		expect(screen.getByText("今日の記事")).toBeInTheDocument();
 		expect(screen.getByText("昨日の記事")).toBeInTheDocument();
+
+		// タイマーをリストア
+		vi.useRealTimers();
 	});
 
 	it("日付フォーマット関数が正しく動作する", () => {
