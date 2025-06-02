@@ -57,6 +57,13 @@
       "when": 1748819485853,
       "tag": "0007_tricky_bucky",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1748841539289,
+      "tag": "0008_eager_revanche",
+      "breakpoints": true
     }
   ]
 }
