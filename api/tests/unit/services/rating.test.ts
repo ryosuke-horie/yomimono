@@ -336,7 +336,7 @@ describe("DefaultRatingService", () => {
 			const result = await service.getRatings({
 				// @ts-expect-error Testing invalid values
 				sortBy: "invalid",
-				// @ts-expect-error Testing invalid values  
+				// @ts-expect-error Testing invalid values
 				order: "invalid",
 				limit: 200, // 上限を超える値
 				offset: -1, // 負の値
