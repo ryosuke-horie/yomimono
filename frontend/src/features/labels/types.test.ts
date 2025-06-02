@@ -9,22 +9,22 @@ describe("ラベル型定義", () => {
 		const label: Label = {
 			id: 1,
 			name: "テストラベル",
-			color: "#ff0000",
 		};
 
 		expect(label).toBeDefined();
 		expect(typeof label.id).toBe("number");
 		expect(typeof label.name).toBe("string");
-		expect(typeof label.color).toBe("string");
 	});
 
-	it("Label型のcolorプロパティが正しいフォーマットになっている", () => {
+	it("Label型のオプショナルプロパティが正しく動作する", () => {
 		const label: Label = {
 			id: 1,
-			name: "青いラベル",
-			color: "#0000ff",
+			name: "詳細ラベル",
+			description: "テスト用のラベルです",
+			articleCount: 5,
 		};
 
-		expect(label.color).toMatch(/^#[0-9a-fA-F]{6}$/);
+		expect(label.description).toBe("テスト用のラベルです");
+		expect(label.articleCount).toBe(5);
 	});
 });

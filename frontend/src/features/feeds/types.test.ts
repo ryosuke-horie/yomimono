@@ -11,8 +11,11 @@ describe("フィード型定義", () => {
 			name: "テストフィード",
 			url: "https://example.com/rss",
 			isActive: true,
-			createdAt: "2024-01-01T00:00:00.000Z",
+			updateInterval: 60,
 			lastFetchedAt: null,
+			nextFetchAt: null,
+			createdAt: "2024-01-01T00:00:00.000Z",
+			updatedAt: "2024-01-01T00:00:00.000Z",
 		};
 
 		expect(rssFeed).toBeDefined();
@@ -30,8 +33,11 @@ describe("フィード型定義", () => {
 			name: "テストフィード",
 			url: "https://example.com/rss",
 			isActive: true,
-			createdAt: "2024-01-01T00:00:00.000Z",
+			updateInterval: 60,
 			lastFetchedAt: "2024-01-01T12:00:00.000Z",
+			nextFetchAt: "2024-01-01T13:00:00.000Z",
+			createdAt: "2024-01-01T00:00:00.000Z",
+			updatedAt: "2024-01-01T00:00:00.000Z",
 		};
 
 		expect(rssFeed).toBeDefined();

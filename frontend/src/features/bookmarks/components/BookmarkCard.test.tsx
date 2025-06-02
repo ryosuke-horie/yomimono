@@ -44,6 +44,7 @@ const mockBookmark: BookmarkWithLabel = {
 	title: "テスト記事",
 	url: "https://example.com",
 	createdAt: "2024-01-01T00:00:00.000Z",
+	updatedAt: "2024-01-01T00:00:00.000Z",
 	isRead: false,
 	isFavorite: false,
 	label: null,
@@ -142,7 +143,7 @@ describe("BookmarkCard", () => {
 	it("ラベルがある場合、ラベルを表示する", () => {
 		const bookmarkWithLabel = {
 			...mockBookmark,
-			label: { id: 1, name: "テストラベル", color: "#ff0000" },
+			label: { id: 1, name: "テストラベル" },
 		};
 		renderWithQueryClient(<BookmarkCard bookmark={bookmarkWithLabel} />);
 
@@ -153,7 +154,7 @@ describe("BookmarkCard", () => {
 		const onLabelClick = vi.fn();
 		const bookmarkWithLabel = {
 			...mockBookmark,
-			label: { id: 1, name: "テストラベル", color: "#ff0000" },
+			label: { id: 1, name: "テストラベル" },
 		};
 		renderWithQueryClient(
 			<BookmarkCard bookmark={bookmarkWithLabel} onLabelClick={onLabelClick} />,

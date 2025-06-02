@@ -11,6 +11,7 @@ describe("ブックマーク型定義", () => {
 			title: "テスト記事",
 			url: "https://example.com",
 			createdAt: "2024-01-01T00:00:00.000Z",
+			updatedAt: "2024-01-01T00:00:00.000Z",
 			isRead: false,
 			isFavorite: false,
 		};
@@ -30,12 +31,12 @@ describe("ブックマーク型定義", () => {
 			title: "テスト記事",
 			url: "https://example.com",
 			createdAt: "2024-01-01T00:00:00.000Z",
+			updatedAt: "2024-01-01T00:00:00.000Z",
 			isRead: false,
 			isFavorite: false,
 			label: {
 				id: 1,
 				name: "テストラベル",
-				color: "#ff0000",
 			},
 		};
 
@@ -50,6 +51,7 @@ describe("ブックマーク型定義", () => {
 			title: "テスト記事",
 			url: "https://example.com",
 			createdAt: "2024-01-01T00:00:00.000Z",
+			updatedAt: "2024-01-01T00:00:00.000Z",
 			isRead: false,
 			isFavorite: false,
 			label: null,
