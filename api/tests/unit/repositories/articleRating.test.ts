@@ -361,7 +361,7 @@ describe("DrizzleArticleRatingRepository", () => {
 
 		it("統計情報取得時にエラーが発生した場合はエラーをスローすること", async () => {
 			const error = new Error("Database error");
-			
+
 			const mockSelect1 = {
 				...mockDbClient,
 				from: vi.fn().mockRejectedValueOnce(error),

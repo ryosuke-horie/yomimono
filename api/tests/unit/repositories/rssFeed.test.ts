@@ -226,7 +226,7 @@ describe("RssFeedRepository", () => {
 
 			// モック関数をリセット
 			vi.clearAllMocks();
-			
+
 			// モックチェーンを再構築
 			mockDb.select.mockReturnThis();
 			mockDb.from.mockReturnThis();
