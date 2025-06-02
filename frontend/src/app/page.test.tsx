@@ -81,15 +81,15 @@ describe("メインページ", () => {
 		render(<Page />, { wrapper });
 
 		expect(screen.getByText("記事を追加")).toBeInTheDocument();
-		
+
 		// ローディング状態の確認
 		expect(screen.getByText("ラベルを読み込み中...")).toBeInTheDocument();
-		
+
 		// データが読み込まれるまで待機
 		await waitFor(() => {
 			expect(screen.getByText("未読: 5件")).toBeInTheDocument();
 		});
-		
+
 		expect(screen.getByText("本日既読: 3件")).toBeInTheDocument();
 	});
 
@@ -108,7 +108,9 @@ describe("メインページ", () => {
 		// モーダルが開いていることを確認（フォーム要素で判定）
 		await waitFor(() => {
 			expect(screen.getByPlaceholderText("記事のタイトル")).toBeInTheDocument();
-			expect(screen.getByPlaceholderText("https://example.com/article")).toBeInTheDocument();
+			expect(
+				screen.getByPlaceholderText("https://example.com/article"),
+			).toBeInTheDocument();
 		});
 	});
 
@@ -128,7 +130,9 @@ describe("メインページ", () => {
 		render(<Page />, { wrapper });
 
 		await waitFor(() => {
-			expect(screen.getByText(/ラベルの読み込みに失敗しました/)).toBeInTheDocument();
+			expect(
+				screen.getByText(/ラベルの読み込みに失敗しました/),
+			).toBeInTheDocument();
 		});
 	});
 
@@ -151,7 +155,9 @@ describe("メインページ", () => {
 		render(<Page />, { wrapper });
 
 		await waitFor(() => {
-			expect(screen.getByText(/ブックマークの読み込みに失敗しました/)).toBeInTheDocument();
+			expect(
+				screen.getByText(/ブックマークの読み込みに失敗しました/),
+			).toBeInTheDocument();
 		});
 	});
 
@@ -164,11 +170,11 @@ describe("メインページ", () => {
 
 		// スケルトンローディングの確認
 		expect(screen.getByText("ラベルを読み込み中...")).toBeInTheDocument();
-		
+
 		// アニメーションクラスが付いた要素の確認
-		const skeletonElements = screen.getAllByRole("generic").filter(
-			el => el.className.includes("animate-pulse")
-		);
+		const skeletonElements = screen
+			.getAllByRole("generic")
+			.filter((el) => el.className.includes("animate-pulse"));
 		expect(skeletonElements.length).toBeGreaterThan(0);
 	});
 

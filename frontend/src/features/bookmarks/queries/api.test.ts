@@ -37,12 +37,14 @@ describe("ブックマークAPI", () => {
 						"Content-Type": "application/json",
 					},
 					body: JSON.stringify({
-						bookmarks: [{
-							title: "テスト記事",
-							url: "https://example.com",
-						}],
+						bookmarks: [
+							{
+								title: "テスト記事",
+								url: "https://example.com",
+							},
+						],
 					}),
-				}
+				},
 			);
 		});
 
@@ -50,17 +52,18 @@ describe("ブックマークAPI", () => {
 			mockFetch.mockResolvedValueOnce({
 				ok: false,
 				status: 400,
-				json: () => Promise.resolve({
-					success: false,
-					message: "Invalid data",
-				}),
+				json: () =>
+					Promise.resolve({
+						success: false,
+						message: "Invalid data",
+					}),
 			});
 
 			await expect(
 				api.createBookmark({
 					title: "テスト記事",
 					url: "https://example.com",
-				})
+				}),
 			).rejects.toThrow("Invalid data");
 		});
 	});
@@ -98,7 +101,7 @@ describe("ブックマークAPI", () => {
 						Accept: "application/json",
 						"Content-Type": "application/json",
 					},
-				}
+				},
 			);
 			expect(result).toEqual(mockResponse.bookmarks);
 		});
@@ -111,7 +114,7 @@ describe("ブックマークAPI", () => {
 			});
 
 			await expect(api.getRecentlyReadBookmarks()).rejects.toThrow(
-				"Failed to fetch recently read bookmarks: 500"
+				"Failed to fetch recently read bookmarks: 500",
 			);
 		});
 	});
@@ -137,7 +140,7 @@ describe("ブックマークAPI", () => {
 						Accept: "application/json",
 						"Content-Type": "application/json",
 					},
-				}
+				},
 			);
 		});
 
@@ -148,7 +151,7 @@ describe("ブックマークAPI", () => {
 			});
 
 			await expect(api.addBookmarkToFavorites(1)).rejects.toThrow(
-				"Failed to add to favorites: 404"
+				"Failed to add to favorites: 404",
 			);
 		});
 	});
@@ -174,7 +177,7 @@ describe("ブックマークAPI", () => {
 						Accept: "application/json",
 						"Content-Type": "application/json",
 					},
-				}
+				},
 			);
 		});
 
@@ -185,7 +188,7 @@ describe("ブックマークAPI", () => {
 			});
 
 			await expect(api.removeBookmarkFromFavorites(1)).rejects.toThrow(
-				"Failed to remove from favorites: 404"
+				"Failed to remove from favorites: 404",
 			);
 		});
 	});
@@ -211,7 +214,7 @@ describe("ブックマークAPI", () => {
 						Accept: "application/json",
 						"Content-Type": "application/json",
 					},
-				}
+				},
 			);
 		});
 
@@ -223,7 +226,7 @@ describe("ブックマークAPI", () => {
 			});
 
 			await expect(api.markBookmarkAsRead(1)).rejects.toThrow(
-				"Failed to mark as read: 404"
+				"Failed to mark as read: 404",
 			);
 		});
 	});
@@ -249,7 +252,7 @@ describe("ブックマークAPI", () => {
 						Accept: "application/json",
 						"Content-Type": "application/json",
 					},
-				}
+				},
 			);
 		});
 
@@ -261,7 +264,7 @@ describe("ブックマークAPI", () => {
 			});
 
 			await expect(api.markBookmarkAsUnread(1)).rejects.toThrow(
-				"Failed to mark as unread: 404"
+				"Failed to mark as unread: 404",
 			);
 		});
 	});
