@@ -90,7 +90,7 @@ describe("RecentPage", () => {
 		// 現在時刻を固定
 		vi.useFakeTimers();
 		vi.setSystemTime(new Date("2024-06-01T10:00:00.000Z"));
-		
+
 		const mockData = {
 			"2024-06-01": [
 				{
@@ -127,7 +127,7 @@ describe("RecentPage", () => {
 		expect(screen.getByText("昨日")).toBeInTheDocument();
 		expect(screen.getByText("今日の記事")).toBeInTheDocument();
 		expect(screen.getByText("昨日の記事")).toBeInTheDocument();
-		
+
 		// タイマーをリストア
 		vi.useRealTimers();
 	});
