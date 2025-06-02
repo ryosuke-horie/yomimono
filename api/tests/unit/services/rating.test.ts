@@ -350,6 +350,31 @@ describe("DefaultRatingService", () => {
 				offset: 0, // 最小値
 			});
 		});
+
+		it("最小スコアが最大スコアより大きい場合はエラーを投げること", async () => {
+			await expect(
+				service.getRatings({
+					minScore: 8,
+					maxScore: 5, // 最小スコアより小さい
+				}),
+			).rejects.toThrow("最小スコアは最大スコア以下である必要があります");
+		});
+
+		it("hasCommentオプションを正しく処理すること", async () => {
+			const ratings: ArticleRating[] = [];
+
+			vi.mocked(mockRepository.findMany).mockResolvedValueOnce(ratings);
+
+			await service.getRatings({
+				hasComment: true,
+			});
+
+			expect(mockRepository.findMany).toHaveBeenCalledWith(
+				expect.objectContaining({
+					hasComment: true,
+				}),
+			);
+		});
 	});
 
 	describe("getRatingStats", () => {

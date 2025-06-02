@@ -72,6 +72,15 @@ describe("RssFeedService", () => {
 			expect(mockRepository.findById).toHaveBeenCalledWith(1);
 			expect(result).toEqual(expectedFeed);
 		});
+
+		it("存在しないIDの場合404エラーを投げる", async () => {
+			vi.mocked(mockRepository.findById).mockResolvedValueOnce(null);
+
+			await expect(service.getFeedById(999)).rejects.toThrow(
+				"RSSフィードが見つかりません: ID 999",
+			);
+			expect(mockRepository.findById).toHaveBeenCalledWith(999);
+		});
 	});
 
 	describe("createFeed", () => {
@@ -127,6 +136,19 @@ describe("RssFeedService", () => {
 			expect(mockRepository.update).toHaveBeenCalledWith(1, updateData);
 			expect(result).toEqual(expectedFeed);
 		});
+
+		it("存在しないIDの場合404エラーを投げる", async () => {
+			const updateData = {
+				name: "Updated Tech Blog",
+			};
+
+			vi.mocked(mockRepository.update).mockResolvedValueOnce(null);
+
+			await expect(service.updateFeed(999, updateData)).rejects.toThrow(
+				"RSSフィードが見つかりません: ID 999",
+			);
+			expect(mockRepository.update).toHaveBeenCalledWith(999, updateData);
+		});
 	});
 
 	describe("deleteFeed", () => {
@@ -136,6 +158,15 @@ describe("RssFeedService", () => {
 			await service.deleteFeed(1);
 
 			expect(mockRepository.delete).toHaveBeenCalledWith(1);
+		});
+
+		it("存在しないIDの場合404エラーを投げる", async () => {
+			vi.mocked(mockRepository.delete).mockResolvedValueOnce(false);
+
+			await expect(service.deleteFeed(999)).rejects.toThrow(
+				"RSSフィードが見つかりません: ID 999",
+			);
+			expect(mockRepository.delete).toHaveBeenCalledWith(999);
 		});
 	});
 });

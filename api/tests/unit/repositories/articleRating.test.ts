@@ -313,5 +313,63 @@ describe("DrizzleArticleRatingRepository", () => {
 				ratingsWithComments: 7,
 			});
 		});
+
+		it("統計データがnullの場合は0を返すこと", async () => {
+			const statsResult = [
+				{
+					totalCount: 0,
+					averageScore: null,
+					averagePracticalValue: null,
+					averageTechnicalDepth: null,
+					averageUnderstanding: null,
+					averageNovelty: null,
+					averageImportance: null,
+				},
+			];
+
+			const commentsResult = [{ ratingsWithComments: 0 }];
+
+			// 1回目の呼び出し（統計情報）
+			const mockSelect1 = {
+				...mockDbClient,
+				from: vi.fn().mockResolvedValueOnce(statsResult),
+			};
+
+			// 2回目の呼び出し（コメント統計）
+			const mockSelect2 = {
+				...mockDbClient,
+				where: vi.fn().mockResolvedValueOnce(commentsResult),
+			};
+
+			mockDbClient.select
+				.mockReturnValueOnce(mockSelect1)
+				.mockReturnValueOnce(mockSelect2);
+
+			const result = await repository.getStats();
+
+			expect(result).toEqual({
+				totalCount: 0,
+				averageScore: 0,
+				averagePracticalValue: 0,
+				averageTechnicalDepth: 0,
+				averageUnderstanding: 0,
+				averageNovelty: 0,
+				averageImportance: 0,
+				ratingsWithComments: 0,
+			});
+		});
+
+		it("統計情報取得時にエラーが発生した場合はエラーをスローすること", async () => {
+			const error = new Error("Database error");
+			
+			const mockSelect1 = {
+				...mockDbClient,
+				from: vi.fn().mockRejectedValueOnce(error),
+			};
+
+			mockDbClient.select.mockReturnValueOnce(mockSelect1);
+
+			await expect(repository.getStats()).rejects.toThrow("Database error");
+		});
 	});
 });
