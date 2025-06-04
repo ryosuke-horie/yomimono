@@ -5,7 +5,7 @@
 		"moduleResolution": "Bundler",
 		"strict": true,
 		"skipLibCheck": true,
-		"lib": ["ESNext"],
+		"lib": ["ESNext", "DOM"],
 		"types": ["@types/node", "vitest/importMeta"],
 		"esModuleInterop": true, // Recommended for compatibility
 		"forceConsistentCasingInFileNames": true, // Recommended for consistency
