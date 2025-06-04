@@ -641,16 +641,16 @@ export async function createArticleRating(
 	articleId: number,
 	ratingData: CreateRatingData,
 ) {
-	const response = await fetch(`${getApiBaseUrl()}/api/ratings`, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
+	const response = await fetch(
+		`${getApiBaseUrl()}/api/bookmarks/${articleId}/rating`,
+		{
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(ratingData),
 		},
-		body: JSON.stringify({
-			articleId,
-			...ratingData,
-		}),
-	});
+	);
 
 	if (!response.ok) {
 		throw new Error(
@@ -686,7 +686,7 @@ export async function createArticleRating(
  */
 export async function getArticleRating(articleId: number) {
 	const response = await fetch(
-		`${getApiBaseUrl()}/api/ratings/article/${articleId}`,
+		`${getApiBaseUrl()}/api/bookmarks/${articleId}/rating`,
 	);
 
 	if (response.status === 404) {
@@ -731,7 +731,7 @@ export async function updateArticleRating(
 	updateData: UpdateRatingData,
 ) {
 	const response = await fetch(
-		`${getApiBaseUrl()}/api/ratings/article/${articleId}`,
+		`${getApiBaseUrl()}/api/bookmarks/${articleId}/rating`,
 		{
 			method: "PATCH",
 			headers: {
@@ -774,7 +774,7 @@ export async function updateArticleRating(
  */
 export async function deleteArticleRating(articleId: number): Promise<void> {
 	const response = await fetch(
-		`${getApiBaseUrl()}/api/ratings/article/${articleId}`,
+		`${getApiBaseUrl()}/api/bookmarks/${articleId}/rating`,
 		{
 			method: "DELETE",
 		},
@@ -785,6 +785,183 @@ export async function deleteArticleRating(articleId: number): Promise<void> {
 			`Failed to delete rating for article ${articleId}: ${response.statusText}`,
 		);
 	}
+}
+
+// --- Phase 2: 高度なMCP機能のための追加API関数 ---
+
+export interface GetRatingsOptions {
+	sortBy?:
+		| "totalScore"
+		| "createdAt"
+		| "practicalValue"
+		| "technicalDepth"
+		| "understanding"
+		| "novelty"
+		| "importance";
+	order?: "asc" | "desc";
+	limit?: number;
+	offset?: number;
+	minScore?: number;
+	maxScore?: number;
+	hasComment?: boolean;
+}
+
+export interface RatingStats {
+	totalRatings: number;
+	averageScore: number;
+	medianScore: number;
+	dimensionAverages: {
+		practicalValue: number;
+		technicalDepth: number;
+		understanding: number;
+		novelty: number;
+		importance: number;
+	};
+	scoreDistribution: Array<{
+		range: string;
+		count: number;
+		percentage: number;
+	}>;
+	topRatedArticles: Array<{
+		id: number;
+		title: string;
+		url: string;
+		totalScore: number;
+	}>;
+}
+
+export interface SearchRatingConditions {
+	practicalValue?: { min?: number; max?: number };
+	technicalDepth?: { min?: number; max?: number };
+	totalScore?: { min?: number; max?: number };
+	hasComment?: boolean;
+	keywords?: string[];
+}
+
+export interface RatingWithArticle {
+	rating: z.infer<typeof ArticleRatingSchema>;
+	article: {
+		id: number;
+		title: string;
+		url: string;
+	};
+}
+
+const RatingsListResponseSchema = z.object({
+	success: z.literal(true),
+	ratings: z.array(ArticleRatingSchema),
+	count: z.number(),
+});
+
+const RatingStatsResponseSchema = z.object({
+	success: z.literal(true),
+	stats: z.object({
+		totalRatings: z.number(),
+		averageScore: z.number(),
+		medianScore: z.number(),
+		dimensionAverages: z.object({
+			practicalValue: z.number(),
+			technicalDepth: z.number(),
+			understanding: z.number(),
+			novelty: z.number(),
+			importance: z.number(),
+		}),
+		scoreDistribution: z.array(
+			z.object({
+				range: z.string(),
+				count: z.number(),
+				percentage: z.number(),
+			}),
+		),
+		topRatedArticles: z.array(
+			z.object({
+				id: z.number(),
+				title: z.string(),
+				url: z.string(),
+				totalScore: z.number(),
+			}),
+		),
+	}),
+});
+
+/**
+ * 評価一覧を取得する（フィルター・ソート対応）
+ * @param options - 検索・ソートオプション
+ * @returns 評価一覧
+ */
+export async function getArticleRatings(options: GetRatingsOptions = {}) {
+	const queryParams = new URLSearchParams();
+
+	if (options.sortBy) queryParams.append("sortBy", options.sortBy);
+	if (options.order) queryParams.append("order", options.order);
+	if (options.limit) queryParams.append("limit", options.limit.toString());
+	if (options.offset) queryParams.append("offset", options.offset.toString());
+	if (options.minScore)
+		queryParams.append("minScore", options.minScore.toString());
+	if (options.maxScore)
+		queryParams.append("maxScore", options.maxScore.toString());
+	if (options.hasComment !== undefined)
+		queryParams.append("hasComment", options.hasComment.toString());
+
+	const response = await fetch(
+		`${getApiBaseUrl()}/api/ratings?${queryParams.toString()}`,
+	);
+
+	if (!response.ok) {
+		throw new Error(`Failed to get article ratings: ${response.statusText}`);
+	}
+
+	let data: unknown;
+	try {
+		data = await response.json();
+	} catch (parseError: unknown) {
+		const errorMessage =
+			parseError instanceof Error ? parseError.message : String(parseError);
+		throw new Error(
+			`Failed to parse response when getting article ratings: ${errorMessage}`,
+		);
+	}
+
+	const parsed = RatingsListResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response for article ratings: ${parsed.error.message}`,
+		);
+	}
+
+	return parsed.data.ratings;
+}
+
+/**
+ * 評価統計情報を取得する
+ * @returns 統計情報
+ */
+export async function getRatingStats(): Promise<RatingStats> {
+	const response = await fetch(`${getApiBaseUrl()}/api/ratings/stats`);
+
+	if (!response.ok) {
+		throw new Error(`Failed to get rating stats: ${response.statusText}`);
+	}
+
+	let data: unknown;
+	try {
+		data = await response.json();
+	} catch (parseError: unknown) {
+		const errorMessage =
+			parseError instanceof Error ? parseError.message : String(parseError);
+		throw new Error(
+			`Failed to parse response when getting rating stats: ${errorMessage}`,
+		);
+	}
+
+	const parsed = RatingStatsResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response for rating stats: ${parsed.error.message}`,
+		);
+	}
+
+	return parsed.data.stats;
 }
 
 if (import.meta.vitest) {

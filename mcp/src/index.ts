@@ -15,7 +15,7 @@ dotenv.config();
 // Create an MCP server instance
 const server = new McpServer({
 	name: "EffectiveYomimonoLabeler", // Descriptive name for the server
-	version: "0.5.0", // Updated with article rating tools and Playwright content fetching
+	version: "0.6.0", // Phase 2: Advanced MCP rating tools with filtering, stats, and bulk operations
 });
 
 // --- Tool Definitions ---
@@ -814,6 +814,316 @@ ${rating.comment ? `コメント: ${rating.comment}` : "コメントなし"}
 					{
 						type: "text",
 						text: `記事評価の更新に失敗しました: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
+// --- Phase 2: 高度なMCP機能ツール ---
+
+// 21. Tool to get article ratings list with filters and sorting
+server.tool(
+	"getArticleRatings",
+	{
+		sortBy: z
+			.enum([
+				"totalScore",
+				"createdAt",
+				"practicalValue",
+				"technicalDepth",
+				"understanding",
+				"novelty",
+				"importance",
+			])
+			.optional(),
+		order: z.enum(["asc", "desc"]).optional(),
+		limit: z.number().int().positive().max(100).optional(),
+		offset: z.number().int().min(0).optional(),
+		minScore: z.number().min(1).max(10).optional(),
+		maxScore: z.number().min(1).max(10).optional(),
+		hasComment: z.boolean().optional(),
+	},
+	async (params) => {
+		try {
+			const ratings = await apiClient.getArticleRatings(params);
+
+			// フォーマット用のヘルパー関数
+			const formatRatingForDisplay = (rating: {
+				id: number;
+				articleId: number;
+				practicalValue: number;
+				technicalDepth: number;
+				understanding: number;
+				novelty: number;
+				importance: number;
+				totalScore: number;
+				comment: string | null;
+				createdAt: string;
+			}) => {
+				const totalScore = (rating.totalScore / 10).toFixed(1);
+				return `📊 評価ID: ${rating.id}
+   記事ID: ${rating.articleId}
+   📈 総合スコア: ${totalScore}/10
+   📋 詳細評価:
+      • 実用性: ${rating.practicalValue}/10
+      • 技術深度: ${rating.technicalDepth}/10  
+      • 理解度: ${rating.understanding}/10
+      • 新規性: ${rating.novelty}/10
+      • 重要度: ${rating.importance}/10
+   💭 コメント: ${rating.comment || "なし"}
+   📅 作成日: ${new Date(rating.createdAt).toLocaleDateString("ja-JP")}`;
+			};
+
+			const formatted = ratings.map(formatRatingForDisplay).join("\n\n");
+
+			// ソート・フィルター情報
+			const filterInfo = [];
+			if (params.sortBy)
+				filterInfo.push(`ソート: ${params.sortBy} (${params.order || "asc"})`);
+			if (params.minScore || params.maxScore) {
+				const min = params.minScore || 1;
+				const max = params.maxScore || 10;
+				filterInfo.push(`スコア範囲: ${min}-${max}`);
+			}
+			if (params.hasComment !== undefined) {
+				filterInfo.push(`コメント: ${params.hasComment ? "あり" : "なし"}`);
+			}
+
+			return {
+				content: [
+					{
+						type: "text",
+						text: `📊 記事評価一覧 (${ratings.length}件)
+${filterInfo.length > 0 ? `\n🔍 フィルター条件: ${filterInfo.join(", ")}\n` : ""}
+${formatted || "📭 条件に合致する評価がありません"}`,
+					},
+				],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error("Error in getArticleRatings tool:", errorMessage);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `記事評価一覧の取得に失敗しました: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
+// 22. Tool to get rating statistics
+server.tool(
+	"getRatingStats",
+	{}, // No parameters needed
+	async () => {
+		try {
+			const stats = await apiClient.getRatingStats();
+
+			const summary = `📈 記事評価統計情報
+
+## サマリー
+📊 総評価数: ${stats.totalRatings}件
+⭐ 平均スコア: ${stats.averageScore.toFixed(1)}/10
+📊 中央値: ${stats.medianScore.toFixed(1)}/10
+
+## 評価軸別平均
+🔧 実用性: ${stats.dimensionAverages.practicalValue.toFixed(1)}/10
+🧠 技術深度: ${stats.dimensionAverages.technicalDepth.toFixed(1)}/10
+📚 理解度: ${stats.dimensionAverages.understanding.toFixed(1)}/10
+✨ 新規性: ${stats.dimensionAverages.novelty.toFixed(1)}/10
+⚡ 重要度: ${stats.dimensionAverages.importance.toFixed(1)}/10
+
+## スコア分布
+${stats.scoreDistribution
+	.map((d) => `${d.range}: ${d.count}件 (${d.percentage.toFixed(1)}%)`)
+	.join("\n")}
+
+## 高評価記事 Top 5
+${stats.topRatedArticles
+	.slice(0, 5)
+	.map(
+		(article, i) =>
+			`${i + 1}. ${article.title} (${(article.totalScore / 10).toFixed(1)}/10)\n   URL: ${article.url}`,
+	)
+	.join("\n\n")}`;
+
+			return {
+				content: [{ type: "text", text: summary }],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error("Error in getRatingStats tool:", errorMessage);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `評価統計情報の取得に失敗しました: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
+// 23. Tool to get top rated articles (convenience wrapper)
+server.tool(
+	"getTopRatedArticles",
+	{
+		limit: z.number().int().positive().max(50).optional().default(10),
+	},
+	async ({ limit }) => {
+		try {
+			const ratings = await apiClient.getArticleRatings({
+				sortBy: "totalScore",
+				order: "desc",
+				limit,
+			});
+
+			if (ratings.length === 0) {
+				return {
+					content: [
+						{
+							type: "text",
+							text: "📭 評価された記事がありません",
+						},
+					],
+					isError: false,
+				};
+			}
+
+			const formatted = ratings
+				.map(
+					(rating, index) =>
+						`${index + 1}. 📊 スコア: ${(rating.totalScore / 10).toFixed(1)}/10
+   🆔 記事ID: ${rating.articleId}
+   📋 評価内訳: 実用${rating.practicalValue} | 技術${rating.technicalDepth} | 理解${rating.understanding} | 新規${rating.novelty} | 重要${rating.importance}
+   💭 ${rating.comment || "コメントなし"}`,
+				)
+				.join("\n\n");
+
+			return {
+				content: [
+					{
+						type: "text",
+						text: `🏆 高評価記事 Top ${limit}\n\n${formatted}`,
+					},
+				],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error("Error in getTopRatedArticles tool:", errorMessage);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `高評価記事の取得に失敗しました: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
+// 24. Tool for bulk rating multiple articles
+server.tool(
+	"bulkRateArticles",
+	{
+		ratings: z
+			.array(
+				z.object({
+					articleId: z.number().int().positive(),
+					practicalValue: z.number().int().min(1).max(10),
+					technicalDepth: z.number().int().min(1).max(10),
+					understanding: z.number().int().min(1).max(10),
+					novelty: z.number().int().min(1).max(10),
+					importance: z.number().int().min(1).max(10),
+					comment: z.string().optional(),
+				}),
+			)
+			.max(10), // 一度に最大10件
+	},
+	async ({ ratings }) => {
+		try {
+			const results = await Promise.allSettled(
+				ratings.map((ratingData) => {
+					const { articleId, ...ratingFields } = ratingData;
+					return apiClient.createArticleRating(articleId, ratingFields);
+				}),
+			);
+
+			const succeeded = results.filter((r) => r.status === "fulfilled").length;
+			const failed = results.filter((r) => r.status === "rejected").length;
+
+			const successfulRatings = results
+				.map((result, index) => ({ result, originalData: ratings[index] }))
+				.filter(({ result }) => result.status === "fulfilled")
+				.map(({ result, originalData }) => ({
+					...(
+						result as PromiseFulfilledResult<{ totalScore: number; id: number }>
+					).value,
+					originalArticleId: originalData.articleId,
+				}));
+
+			const failedRatings = results
+				.map((result, index) => ({ result, originalData: ratings[index] }))
+				.filter(({ result }) => result.status === "rejected")
+				.map(({ result, originalData }) => ({
+					articleId: originalData.articleId,
+					error: (result as PromiseRejectedResult).reason,
+				}));
+
+			let responseText = `📝 一括評価完了\n✅ 成功: ${succeeded}件 | ❌ 失敗: ${failed}件`;
+
+			if (successfulRatings.length > 0) {
+				responseText += "\n\n✅ 成功した評価:\n";
+				responseText += successfulRatings
+					.map(
+						(rating) =>
+							`• 記事ID ${rating.originalArticleId}: 総合スコア ${(rating.totalScore / 10).toFixed(1)}/10`,
+					)
+					.join("\n");
+			}
+
+			if (failedRatings.length > 0) {
+				responseText += "\n\n❌ 失敗した評価:\n";
+				responseText += failedRatings
+					.map((failure) => `• 記事ID ${failure.articleId}: ${failure.error}`)
+					.join("\n");
+			}
+
+			return {
+				content: [
+					{
+						type: "text",
+						text: responseText,
+					},
+				],
+				isError: failed > 0,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error("Error in bulkRateArticles tool:", errorMessage);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `一括評価の実行に失敗しました: ${errorMessage}`,
 					},
 				],
 				isError: true,
