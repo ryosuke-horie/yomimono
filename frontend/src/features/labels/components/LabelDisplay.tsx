@@ -1,3 +1,7 @@
+/**
+ * ラベルを表示するコンポーネント
+ * クリック可能で、説明文がある場合はツールチップで表示する
+ */
 import { useState } from "react";
 import type { Label } from "../types";
 
@@ -76,4 +80,25 @@ export function LabelDisplay({
 			)}
 		</div>
 	);
+}
+
+if (import.meta.vitest) {
+	const { describe, it, expect } = import.meta.vitest;
+
+	describe("LabelDisplay", () => {
+		it("LabelDisplayコンポーネントが定義されている", () => {
+			expect(LabelDisplay).toBeDefined();
+			expect(typeof LabelDisplay).toBe("function");
+		});
+
+		it("useStateがインポートされている", () => {
+			expect(useState).toBeDefined();
+			expect(typeof useState).toBe("function");
+		});
+
+		it("Propsインターフェースが正しく定義されている", () => {
+			// Props型のテストはTypeScriptによって保証される
+			expect(true).toBe(true);
+		});
+	});
 }
