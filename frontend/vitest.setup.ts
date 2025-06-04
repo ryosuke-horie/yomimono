@@ -79,3 +79,28 @@ vi.mock("next/image", () => ({
 		return createElement("img", { ...props, alt: props.alt });
 	},
 }));
+
+// Rating関連クエリのモック
+vi.mock("@/features/ratings/queries/useRatings", () => ({
+	useRatings: vi.fn(() => ({
+		data: [],
+		isLoading: false,
+		error: null,
+	})),
+}));
+
+vi.mock("@/features/ratings/queries/useRatingStats", () => ({
+	useRatingStats: vi.fn(() => ({
+		data: null,
+		isLoading: false,
+		error: null,
+	})),
+}));
+
+vi.mock("@/features/ratings/queries/useArticleRating", () => ({
+	useArticleRating: vi.fn(() => ({
+		data: null,
+		isLoading: false,
+		error: null,
+	})),
+}));

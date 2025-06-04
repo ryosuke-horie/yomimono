@@ -11,5 +11,6 @@ export const useRatings = (filters?: RatingFilters) => {
 		queryKey: ratingQueryKeys.list(filters),
 		queryFn: () => fetchRatings(filters),
 		staleTime: 5 * 60 * 1000, // 5分間はキャッシュを使用
+		retry: false, // テスト環境でのリトライを無効化
 	});
 };

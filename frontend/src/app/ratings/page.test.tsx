@@ -8,14 +8,6 @@ import { expect, test, vi } from "vitest";
 import RatingsPage from "./page";
 
 if (import.meta.vitest) {
-	// モック
-	vi.mock("@/features/ratings/queries/useRatings", () => ({
-		useRatings: vi.fn(),
-	}));
-
-	vi.mock("@/features/ratings/queries/useRatingStats", () => ({
-		useRatingStats: vi.fn(),
-	}));
 
 	const createWrapper = () => {
 		const queryClient = new QueryClient({
@@ -32,26 +24,6 @@ if (import.meta.vitest) {
 	};
 
 	test("ページタイトルが正しく表示される", () => {
-		// モックの設定
-		const mockUseRatings = vi.fn().mockReturnValue({
-			data: [],
-			isLoading: false,
-			error: null,
-		});
-		const mockUseRatingStats = vi.fn().mockReturnValue({
-			data: null,
-			isLoading: false,
-			error: null,
-		});
-
-		// モジュールのモック
-		vi.doMock("@/features/ratings/queries/useRatings", () => ({
-			useRatings: mockUseRatings,
-		}));
-		vi.doMock("@/features/ratings/queries/useRatingStats", () => ({
-			useRatingStats: mockUseRatingStats,
-		}));
-
 		render(<RatingsPage />, { wrapper: createWrapper() });
 
 		expect(screen.getByText("記事評価一覧")).toBeInTheDocument();

@@ -10,5 +10,6 @@ export const useRatingStats = () => {
 		queryKey: ratingQueryKeys.stats(),
 		queryFn: fetchRatingStats,
 		staleTime: 10 * 60 * 1000, // 10分間はキャッシュを使用
+		retry: false, // テスト環境でのリトライを無効化
 	});
 };

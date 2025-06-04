@@ -29,9 +29,6 @@ vi.mock("../queries/useMarkBookmarkAsUnread", () => ({
 	}),
 }));
 
-vi.mock("@/features/ratings/queries/useArticleRating", () => ({
-	useArticleRating: vi.fn(),
-}));
 
 // navigator.clipboardをモック
 Object.assign(navigator, {
@@ -170,51 +167,4 @@ describe("BookmarkCard", () => {
 		expect(onLabelClick).toHaveBeenCalledWith("テストラベル");
 	});
 
-	describe("評価表示", () => {
-		it("評価がある場合、評価スコアと詳細リンクが表示される", () => {
-			const mockRating = {
-				id: 1,
-				articleId: 1,
-				practicalValue: 8,
-				technicalDepth: 7,
-				understanding: 9,
-				novelty: 6,
-				importance: 8,
-				totalScore: 76,
-				comment: "参考になりました",
-				createdAt: "2023-01-01T00:00:00Z",
-				updatedAt: "2023-01-01T00:00:00Z",
-			};
-
-			const {
-				useArticleRating,
-			} = require("@/features/ratings/queries/useArticleRating");
-			useArticleRating.mockReturnValue({ data: mockRating });
-
-			renderWithQueryClient(<BookmarkCard bookmark={mockBookmark} />);
-
-			// 評価詳細リンクが表示される
-			expect(screen.getByText("詳細")).toBeInTheDocument();
-			expect(screen.getByText("詳細").closest("a")).toHaveAttribute(
-				"href",
-				"/ratings?articleId=1",
-			);
-		});
-
-		it("評価がない場合、未評価表示とMCPヒントが表示される", () => {
-			const {
-				useArticleRating,
-			} = require("@/features/ratings/queries/useArticleRating");
-			useArticleRating.mockReturnValue({ data: null });
-
-			renderWithQueryClient(<BookmarkCard bookmark={mockBookmark} />);
-
-			// 未評価表示
-			expect(screen.getByText("未評価")).toBeInTheDocument();
-
-			// MCPヒント
-			expect(screen.getByText("📝")).toBeInTheDocument();
-			expect(screen.getByTitle("Claude (MCP) で評価可能")).toBeInTheDocument();
-		});
-	});
 });

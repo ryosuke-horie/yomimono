@@ -35,9 +35,16 @@ export default function RatingsPage() {
 
 	return (
 		<div className="min-h-screen bg-gray-50">
-			<Header title="記事評価一覧" />
+			<Header />
 
 			<main className="container mx-auto px-4 py-8 max-w-6xl">
+				{/* ページタイトル */}
+				<div className="mb-8">
+					<h1 className="text-3xl font-bold text-gray-900">記事評価一覧</h1>
+					<p className="text-gray-600 mt-2">
+						Claude (MCP) で評価した記事の一覧・分析ページです
+					</p>
+				</div>
 				{/* エラー表示 */}
 				{hasError && (
 					<div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
