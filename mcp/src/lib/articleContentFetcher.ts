@@ -131,7 +131,8 @@ export async function fetchArticleContent(
 
 		// ページの設定
 		await page.setExtraHTTPHeaders({
-			"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+			"User-Agent":
+				"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
 		});
 		await page.setViewportSize({ width: 1280, height: 800 });
 
@@ -159,7 +160,9 @@ export async function fetchArticleContent(
 
 			for (const selector of elementsToRemove) {
 				const elements = document.querySelectorAll(selector);
-				elements.forEach((element) => element.remove());
+				for (const element of Array.from(elements)) {
+					element.remove();
+				}
 			}
 		});
 
@@ -292,11 +295,16 @@ async function extractStructuredData(
 			content,
 			metadata: {
 				author:
-					articleData?.author?.name || articleData?.author || metadata.author || undefined,
-				publishedDate: articleData?.datePublished || metadata.publishedTime || undefined,
+					articleData?.author?.name ||
+					articleData?.author ||
+					metadata.author ||
+					undefined,
+				publishedDate:
+					articleData?.datePublished || metadata.publishedTime || undefined,
 				tags: articleData?.keywords || [],
 				readingTime,
-				description: articleData?.description || metadata.description || undefined,
+				description:
+					articleData?.description || metadata.description || undefined,
 				language: metadata.language || undefined,
 				wordCount,
 			},
@@ -592,7 +600,8 @@ async function extractBasicMetadata(page: Page) {
 
 		return {
 			author: getMeta('meta[name="author"]') || undefined,
-			publishedDate: getMeta('meta[property="article:published_time"]') || undefined,
+			publishedDate:
+				getMeta('meta[property="article:published_time"]') || undefined,
 			description: getMeta('meta[name="description"]') || undefined,
 			language: document.documentElement.lang || undefined,
 		};
