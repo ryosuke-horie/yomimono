@@ -8,7 +8,6 @@ import { expect, test, vi } from "vitest";
 import RatingsPage from "./page";
 
 if (import.meta.vitest) {
-
 	const createWrapper = () => {
 		const queryClient = new QueryClient({
 			defaultOptions: {
