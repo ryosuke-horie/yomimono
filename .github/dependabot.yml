@@ -33,6 +33,18 @@ updates:
         patterns:
           # 開発ツール関連
           - "@biomejs/biome"
+      testing-frameworks:
+        patterns:
+          # テスト関連パッケージ
+          - "vitest"
+          - "@vitest/*"
+          - "@testing-library/*"
+          - "jsdom"
+          - "msw"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
 
   # apiディレクトリの依存関係を管理
   - package-ecosystem: "npm"
