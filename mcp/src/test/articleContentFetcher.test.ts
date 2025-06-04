@@ -88,31 +88,37 @@ describe("generateRatingPrompt", () => {
 			publishedDate: "2024-01-01",
 			tags: ["JavaScript", "技術"],
 			readingTime: 5,
+			wordCount: 100,
+			description: "サンプル記事の説明",
 		},
+		extractionMethod: "structured-data",
+		qualityScore: 0.9,
 	};
 
 	it("記事内容から適切な評価プロンプトを生成する", () => {
 		const url = "https://example.com/article";
 		const prompt = generateRatingPrompt(sampleArticle, url);
 
-		expect(prompt).toContain("記事の内容を5つの軸で評価してください");
+		expect(prompt).toContain("以下の5つの軸で記事を評価してください");
 		expect(prompt).toContain(sampleArticle.title);
 		expect(prompt).toContain(url);
 		expect(prompt).toContain(sampleArticle.content);
-		expect(prompt).toContain("実用性");
-		expect(prompt).toContain("技術深度");
-		expect(prompt).toContain("理解度");
-		expect(prompt).toContain("新規性");
-		expect(prompt).toContain("重要度");
+		expect(prompt).toContain("実用性評価");
+		expect(prompt).toContain("技術深度評価");
+		expect(prompt).toContain("理解度評価");
+		expect(prompt).toContain("新規性評価");
+		expect(prompt).toContain("重要度評価");
+		expect(prompt).toContain("JSON形式");
 	});
 
 	it("記事内容がnullの場合でもプロンプトを生成する", () => {
 		const url = "https://example.com/article";
 		const prompt = generateRatingPrompt(null, url);
 
-		expect(prompt).toContain("記事の内容を5つの軸で評価してください");
+		expect(prompt).toContain("以下の5つの軸で評価してください");
 		expect(prompt).toContain(url);
-		expect(prompt).toContain("記事内容の取得に失敗しました");
+		expect(prompt).toContain("記事内容の自動取得に失敗しました");
+		expect(prompt).toContain("直接確認し");
 	});
 
 	it("メタデータが不完全でもプロンプトを生成する", () => {
@@ -122,6 +128,8 @@ describe("generateRatingPrompt", () => {
 			metadata: {
 				readingTime: 3,
 			},
+			extractionMethod: "fallback-html",
+			qualityScore: 0.3,
 		};
 		const url = "https://example.com/article";
 		const prompt = generateRatingPrompt(incompleteArticle, url);

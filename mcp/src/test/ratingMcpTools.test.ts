@@ -31,6 +31,8 @@ describe("rateArticleWithContent tool", () => {
 				tags: ["TypeScript", "型安全性"],
 				readingTime: 10,
 			},
+			extractionMethod: "structured-data",
+			qualityScore: 0.9,
 		};
 
 		const mockPrompt = "記事の内容を5つの軸で評価してください...";
