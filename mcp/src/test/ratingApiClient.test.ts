@@ -55,16 +55,16 @@ describe("createArticleRating", () => {
 
 		const result = await createArticleRating(123, ratingData);
 
-		expect(fetch).toHaveBeenCalledWith("https://api.example.com/api/ratings", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
+		expect(fetch).toHaveBeenCalledWith(
+			"https://api.example.com/api/bookmarks/123/rating",
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(ratingData),
 			},
-			body: JSON.stringify({
-				articleId: 123,
-				...ratingData,
-			}),
-		});
+		);
 		expect(result).toEqual(mockRating);
 	});
 
@@ -108,7 +108,7 @@ describe("getArticleRating", () => {
 		const result = await getArticleRating(123);
 
 		expect(fetch).toHaveBeenCalledWith(
-			"https://api.example.com/api/ratings/article/123",
+			"https://api.example.com/api/bookmarks/123/rating",
 		);
 		expect(result).toEqual(mockRating);
 	});
@@ -170,7 +170,7 @@ describe("updateArticleRating", () => {
 		const result = await updateArticleRating(123, updateData);
 
 		expect(fetch).toHaveBeenCalledWith(
-			"https://api.example.com/api/ratings/article/123",
+			"https://api.example.com/api/bookmarks/123/rating",
 			{
 				method: "PATCH",
 				headers: {
