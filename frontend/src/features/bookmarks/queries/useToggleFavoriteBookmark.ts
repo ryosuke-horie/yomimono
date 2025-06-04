@@ -1,3 +1,7 @@
+/**
+ * ブックマークのお気に入り状態をトグルするフック
+ * お気に入りに追加または削除を行い、楽観的更新でキャッシュを即座に更新する
+ */
 import type { Bookmark } from "@/features/bookmarks/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addBookmarkToFavorites, removeBookmarkFromFavorites } from "./api";
@@ -140,3 +144,24 @@ export const useToggleFavoriteBookmark = () => {
 		},
 	});
 };
+
+if (import.meta.vitest) {
+	const { describe, it, expect } = import.meta.vitest;
+
+	describe("useToggleFavoriteBookmark", () => {
+		it("addBookmarkToFavorites関数がインポートされている", () => {
+			expect(addBookmarkToFavorites).toBeDefined();
+			expect(typeof addBookmarkToFavorites).toBe("function");
+		});
+
+		it("removeBookmarkFromFavorites関数がインポートされている", () => {
+			expect(removeBookmarkFromFavorites).toBeDefined();
+			expect(typeof removeBookmarkFromFavorites).toBe("function");
+		});
+
+		it("useToggleFavoriteBookmark関数が定義されている", () => {
+			expect(useToggleFavoriteBookmark).toBeDefined();
+			expect(typeof useToggleFavoriteBookmark).toBe("function");
+		});
+	});
+}

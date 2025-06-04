@@ -1,3 +1,7 @@
+/**
+ * ブックマークを既読にするフック
+ * 楽観的更新により、サーバーへのリクエスト前にキャッシュを即座に更新する
+ */
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { markBookmarkAsRead } from "./api";
@@ -142,3 +146,24 @@ export const useMarkBookmarkAsRead = () => {
 		},
 	});
 };
+
+if (import.meta.vitest) {
+	const { describe, it, expect } = import.meta.vitest;
+
+	describe("useMarkBookmarkAsRead", () => {
+		it("markBookmarkAsRead関数がインポートされている", () => {
+			expect(markBookmarkAsRead).toBeDefined();
+			expect(typeof markBookmarkAsRead).toBe("function");
+		});
+
+		it("bookmarkKeysがインポートされている", () => {
+			expect(bookmarkKeys).toBeDefined();
+			expect(bookmarkKeys.all).toBeDefined();
+		});
+
+		it("useMarkBookmarkAsRead関数が定義されている", () => {
+			expect(useMarkBookmarkAsRead).toBeDefined();
+			expect(typeof useMarkBookmarkAsRead).toBe("function");
+		});
+	});
+}
