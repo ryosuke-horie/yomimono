@@ -137,4 +137,87 @@ describe("generateRatingPrompt", () => {
 		expect(prompt).toContain(incompleteArticle.title);
 		expect(prompt).toContain("N/A"); // 不足データのデフォルト値
 	});
+
+	describe("エラーハンドリングテスト", () => {
+		it("ネットワークエラーを適切に処理する", async () => {
+			// biome-ignore lint/suspicious/noExplicitAny: テスト用のfetchモックのため
+			(fetch as any).mockRejectedValueOnce(new Error("Network error"));
+
+			await expect(
+				fetchArticleContent("https://example.com/network-error"),
+			).rejects.toThrow("Network error");
+		});
+
+		it("JSONパースエラーを適切に処理する", async () => {
+			const invalidJsonHtml = `
+				<html>
+					<head>
+						<script type="application/ld+json">{invalid json}</script>
+					</head>
+					<body>
+						<h1>タイトル</h1>
+						<p>内容</p>
+					</body>
+				</html>
+			`;
+
+			// biome-ignore lint/suspicious/noExplicitAny: テスト用のfetchモックのため
+			(fetch as any).mockResolvedValueOnce({
+				ok: true,
+				text: async () => invalidJsonHtml,
+			});
+
+			const result = await fetchArticleContent(
+				"https://example.com/invalid-json",
+			);
+
+			expect(result.title).toBe("記事タイトル不明");
+			expect(result.content).toContain("内容");
+			expect(result.extractionMethod).toBe("fallback-html");
+		});
+
+		it("空のHTMLドキュメントを処理する", async () => {
+			const emptyHtml = "<html><head></head><body></body></html>";
+
+			// biome-ignore lint/suspicious/noExplicitAny: テスト用のfetchモックのため
+			(fetch as any).mockResolvedValueOnce({
+				ok: true,
+				text: async () => emptyHtml,
+			});
+
+			const result = await fetchArticleContent("https://example.com/empty");
+
+			expect(result.title).toBe("記事タイトル不明");
+			expect(result.content).toBe("");
+			expect(result.qualityScore).toBeLessThan(0.5);
+		});
+	});
 });
+
+// vitestのインライン関数テスト
+if (import.meta.vitest) {
+	const { test, expect } = import.meta.vitest;
+
+	test("記事内容取得機能が正しくエクスポートされている", () => {
+		expect(fetchArticleContent).toBeDefined();
+		expect(generateRatingPrompt).toBeDefined();
+
+		expect(typeof fetchArticleContent).toBe("function");
+		expect(typeof generateRatingPrompt).toBe("function");
+	});
+
+	test("ArticleContent型が適切に定義されている", () => {
+		const sampleArticle: ArticleContent = {
+			title: "テスト",
+			content: "テスト内容",
+			metadata: {
+				readingTime: 5,
+			},
+			extractionMethod: "structured-data",
+			qualityScore: 0.8,
+		};
+
+		expect(sampleArticle.title).toBe("テスト");
+		expect(sampleArticle.qualityScore).toBe(0.8);
+	});
+}
