@@ -67,7 +67,7 @@ export const fetchRatings = async (
 
 	const data: RatingsListResponse = await response.json();
 	if (!data.success) {
-		throw new Error(data.message || "評価一覧の取得に失敗しました");
+		throw new Error("評価一覧の取得に失敗しました");
 	}
 
 	return data.ratings;
@@ -84,7 +84,7 @@ export const fetchRatingStats = async (): Promise<RatingStats> => {
 
 	const data: RatingStatsResponse = await response.json();
 	if (!data.success) {
-		throw new Error(data.message || "評価統計の取得に失敗しました");
+		throw new Error("評価統計の取得に失敗しました");
 	}
 
 	return data.stats;
@@ -110,7 +110,7 @@ export const fetchArticleRating = async (
 
 	const data: SingleRatingResponse = await response.json();
 	if (!data.success) {
-		throw new Error(data.message || "評価の取得に失敗しました");
+		throw new Error("評価の取得に失敗しました");
 	}
 
 	return data.rating;
@@ -140,7 +140,7 @@ export const createRating = async (
 
 	const data: SingleRatingResponse = await response.json();
 	if (!data.success) {
-		throw new Error(data.message || "評価の作成に失敗しました");
+		throw new Error("評価の作成に失敗しました");
 	}
 
 	return data.rating;
@@ -170,7 +170,7 @@ export const updateRating = async (
 
 	const data: SingleRatingResponse = await response.json();
 	if (!data.success) {
-		throw new Error(data.message || "評価の更新に失敗しました");
+		throw new Error("評価の更新に失敗しました");
 	}
 
 	return data.rating;
@@ -193,6 +193,6 @@ export const deleteRating = async (articleId: number): Promise<void> => {
 
 	const data: ApiResponse<void> = await response.json();
 	if (!data.success) {
-		throw new Error(data.message || "評価の削除に失敗しました");
+		throw new Error("評価の削除に失敗しました");
 	}
 };
