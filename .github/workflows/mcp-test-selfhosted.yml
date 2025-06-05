@@ -9,17 +9,17 @@ on:
 
 jobs:
   mcp-tests:
-    runs-on: [self-hosted, linux, mcp]
+    runs-on: self-hosted
     defaults:
       run:
         working-directory: ./mcp
 
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: pinact/actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: pinact/actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -28,19 +28,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
-      - name: Install Playwright browsers
-        run: npx playwright install
-      
-      - name: Run tests
-        run: npm run test
-      
-      - name: Run coverage
+      - name: Run tests with coverage
         run: npm run test:coverage
       
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          directory: mcp/coverage
-          flags: mcp
-          name: mcp-coverage
-          fail_ci_if_error: false
+      - name: Extract coverage percentage
+        run: |
+          COVERAGE=$(jq -r '.total.lines.pct' coverage/coverage-summary.json)
+          echo "Coverage: ${COVERAGE}%"
+          echo "COVERAGE_PCT=${COVERAGE}" >> $GITHUB_ENV
+      
+      - name: Comment PR with coverage
+        run: |
+          gh pr comment ${{ github.event.number }} --body "📊 **MCP Test Coverage**: ${COVERAGE_PCT}%"
+        env:
+          GH_TOKEN: ${{ github.token }}
