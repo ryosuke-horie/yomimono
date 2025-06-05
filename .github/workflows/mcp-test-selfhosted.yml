@@ -39,6 +39,9 @@ jobs:
       
       - name: Comment PR with coverage
         run: |
-          gh pr comment ${{ github.event.number }} --body "📊 **MCP Test Coverage**: ${COVERAGE_PCT}%"
-        env:
-          GH_TOKEN: ${{ github.token }}
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ github.token }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"body\": \"📊 **MCP Test Coverage**: ${COVERAGE_PCT}%\"}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/comments"
