@@ -5,10 +5,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type {
 	CreateRatingData,
-	GetRatingsOptions,
-	RatingStats,
 	UpdateRatingData,
 } from "../../src/interfaces/service/rating";
+import type { FindManyOptions, RatingStats } from "../../src/interfaces/repository/articleRating";
 import { DefaultRatingService } from "../../src/services/rating";
 
 // セキュリティテスト用のモックリポジトリ
@@ -67,9 +66,11 @@ class SecurityTestRepository {
 			`INSERT INTO article_ratings VALUES (${JSON.stringify(rating)})`,
 		);
 
+		// セキュリティテストでは固定のarticleIdを使用
+		const articleId = 1;
 		const newRating: MockRating = {
 			id: this.data.length + 1,
-			articleId: rating.articleId,
+			articleId: articleId,
 			practicalValue: rating.practicalValue,
 			technicalDepth: rating.technicalDepth,
 			understanding: rating.understanding,
@@ -132,7 +133,7 @@ class SecurityTestRepository {
 		return this.data.length < initialLength;
 	}
 
-	async findMany(options: GetRatingsOptions): Promise<MockRating[]> {
+	async findMany(options: FindManyOptions): Promise<MockRating[]> {
 		this.recordQuery(
 			`SELECT * FROM article_ratings WHERE ${JSON.stringify(options)}`,
 		);
