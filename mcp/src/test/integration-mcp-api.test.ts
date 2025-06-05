@@ -127,11 +127,15 @@ describe("MCP↔API統合テスト", () => {
 
 			// APIが正しく呼び出されたことを確認
 			expect(fetch).toHaveBeenCalledTimes(3);
-			expect(fetch).toHaveBeenNthCalledWith(1, url, expect.objectContaining({
-				headers: expect.objectContaining({
-					"User-Agent": expect.stringContaining("EffectiveYomimono")
-				})
-			}));
+			expect(fetch).toHaveBeenNthCalledWith(
+				1,
+				url,
+				expect.objectContaining({
+					headers: expect.objectContaining({
+						"User-Agent": expect.stringContaining("EffectiveYomimono"),
+					}),
+				}),
+			);
 			expect(fetch).toHaveBeenNthCalledWith(
 				2,
 				"https://api.test.com/api/bookmarks/123/rating",
@@ -347,13 +351,15 @@ describe("MCP↔API統合テスト", () => {
 			// biome-ignore lint/suspicious/noExplicitAny: テスト用のfetchモック
 			(fetch as any).mockRejectedValue(new Error("Network timeout"));
 
-			await expect(createArticleRating(123, {
-				practicalValue: 8,
-				technicalDepth: 7,
-				understanding: 8,
-				novelty: 7,
-				importance: 8,
-			})).rejects.toThrow("Network timeout");
+			await expect(
+				createArticleRating(123, {
+					practicalValue: 8,
+					technicalDepth: 7,
+					understanding: 8,
+					novelty: 7,
+					importance: 8,
+				}),
+			).rejects.toThrow("Network timeout");
 
 			await expect(getArticleRating(123)).rejects.toThrow("Network timeout");
 

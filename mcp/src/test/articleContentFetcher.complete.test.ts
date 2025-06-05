@@ -3,11 +3,11 @@
  * src/lib/articleContentFetcher.tsの完全なカバレッジを目的とする
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+	type ArticleContent,
 	fetchArticleContent,
 	generateRatingPrompt,
-	type ArticleContent,
 } from "../lib/articleContentFetcher.js";
 
 // fetchのモック
@@ -25,7 +25,9 @@ describe("記事内容取得機能完全テスト", () => {
 
 	describe("fetchArticleContent", () => {
 		it("無効なURLでエラーをスローする", async () => {
-			await expect(fetchArticleContent("invalid-url")).rejects.toThrow("Invalid URL");
+			await expect(fetchArticleContent("invalid-url")).rejects.toThrow(
+				"Invalid URL",
+			);
 		});
 
 		it("ブラウザなしでフォールバック取得を実行する", async () => {
@@ -66,7 +68,7 @@ describe("記事内容取得機能完全テスト", () => {
 			});
 
 			await expect(
-				fetchArticleContent("https://example.com/nonexistent")
+				fetchArticleContent("https://example.com/nonexistent"),
 			).rejects.toThrow("Fallback fetch failed: HTTP error! status: 404");
 		});
 
@@ -74,7 +76,7 @@ describe("記事内容取得機能完全テスト", () => {
 			mockFetch.mockRejectedValue(new Error("Network error"));
 
 			await expect(
-				fetchArticleContent("https://example.com/article")
+				fetchArticleContent("https://example.com/article"),
 			).rejects.toThrow("Fallback fetch failed: Network error");
 		});
 
@@ -165,7 +167,9 @@ describe("記事内容取得機能完全テスト", () => {
 				text: () => Promise.resolve(mockHtml),
 			});
 
-			const result = await fetchArticleContent("https://example.com/with-scripts");
+			const result = await fetchArticleContent(
+				"https://example.com/with-scripts",
+			);
 			expect(result.content).not.toContain("alert");
 			expect(result.content).not.toContain("color: red");
 			expect(result.content).toContain("通常のコンテンツ");
@@ -185,7 +189,9 @@ describe("記事内容取得機能完全テスト", () => {
 				text: () => Promise.resolve(mockHtml),
 			});
 
-			const result = await fetchArticleContent("https://example.com/long-content");
+			const result = await fetchArticleContent(
+				"https://example.com/long-content",
+			);
 			expect(result.content.length).toBeLessThanOrEqual(2000);
 			expect(result.content).toContain("A");
 		});
@@ -203,7 +209,9 @@ describe("記事内容取得機能完全テスト", () => {
 				text: () => Promise.resolve(mockHtml),
 			});
 
-			const result = await fetchArticleContent("https://example.com/no-metadata");
+			const result = await fetchArticleContent(
+				"https://example.com/no-metadata",
+			);
 			expect(result.metadata.author).toBeUndefined();
 			expect(result.metadata.publishedDate).toBeUndefined();
 		});
@@ -221,13 +229,16 @@ describe("記事内容取得機能完全テスト", () => {
 				text: () => Promise.resolve(mockHtml),
 			});
 
-			const result = await fetchArticleContent("https://example.com/word-count");
+			const result = await fetchArticleContent(
+				"https://example.com/word-count",
+			);
 			expect(result.metadata.wordCount).toBeGreaterThan(300);
 			expect(result.metadata.readingTime).toBeGreaterThan(1);
 		});
 
 		it("非常に短いコンテンツ", async () => {
-			const shortHtml = `<html><head><title>短い</title></head><body>短</body></html>`;
+			const shortHtml =
+				"<html><head><title>短い</title></head><body>短</body></html>";
 
 			mockFetch.mockResolvedValue({
 				ok: true,
@@ -281,7 +292,8 @@ describe("記事内容取得機能完全テスト", () => {
 		it("完全な記事内容から詳細なプロンプトを生成する", () => {
 			const articleContent: ArticleContent = {
 				title: "React Hooksの完全ガイド",
-				content: "React Hooksは関数コンポーネントで状態管理を行うための仕組みです。useStateやuseEffectなどの基本的なHooksから、カスタムHooksの作成方法まで詳しく解説します。",
+				content:
+					"React Hooksは関数コンポーネントで状態管理を行うための仕組みです。useStateやuseEffectなどの基本的なHooksから、カスタムHooksの作成方法まで詳しく解説します。",
 				metadata: {
 					author: "フロントエンド太郎",
 					publishedDate: "2024-01-15",
@@ -295,7 +307,7 @@ describe("記事内容取得機能完全テスト", () => {
 
 			const prompt = generateRatingPrompt(
 				articleContent,
-				"https://example.com/react-hooks"
+				"https://example.com/react-hooks",
 			);
 
 			expect(prompt).toContain("React Hooksの完全ガイド");
@@ -319,7 +331,7 @@ describe("記事内容取得機能完全テスト", () => {
 		it("記事内容がnullの場合のフォールバックプロンプト", () => {
 			const prompt = generateRatingPrompt(
 				null,
-				"https://example.com/unknown-article"
+				"https://example.com/unknown-article",
 			);
 
 			expect(prompt).toContain("記事評価タスク（内容取得失敗）");
@@ -327,7 +339,8 @@ describe("記事内容取得機能完全テスト", () => {
 			expect(prompt).toContain("記事内容の自動取得に失敗しました");
 			expect(prompt).toContain("上記URLにアクセスして記事内容を直接確認し");
 			expect(prompt).toContain("実用性") && expect(prompt).toContain("1-10点");
-			expect(prompt).toContain("技術深度") && expect(prompt).toContain("1-10点");
+			expect(prompt).toContain("技術深度") &&
+				expect(prompt).toContain("1-10点");
 			expect(prompt).toContain("理解度") && expect(prompt).toContain("1-10点");
 			expect(prompt).toContain("新規性") && expect(prompt).toContain("1-10点");
 			expect(prompt).toContain("重要度") && expect(prompt).toContain("1-10点");
@@ -351,7 +364,7 @@ describe("記事内容取得機能完全テスト", () => {
 
 			const prompt = generateRatingPrompt(
 				incompleteContent,
-				"https://example.com/partial"
+				"https://example.com/partial",
 			);
 
 			expect(prompt).toContain("部分的な記事");
@@ -374,7 +387,7 @@ describe("記事内容取得機能完全テスト", () => {
 
 			const prompt = generateRatingPrompt(
 				emptyContent,
-				"https://example.com/empty"
+				"https://example.com/empty",
 			);
 
 			expect(prompt).toContain("N/A"); // 各種メタデータ
@@ -399,11 +412,11 @@ describe("記事内容取得機能完全テスト", () => {
 
 			const prompt = generateRatingPrompt(
 				articleContent,
-				"https://example.com/long"
+				"https://example.com/long",
 			);
 
 			// 内容が2000文字でトリミングされ、"..."が追加されることを確認
-			expect(prompt).toContain("A".repeat(2000) + "...");
+			expect(prompt).toContain(`${"A".repeat(2000)}...`);
 			expect(prompt).not.toContain("A".repeat(2500));
 		});
 	});
@@ -449,7 +462,10 @@ describe("記事内容取得機能完全テスト", () => {
 			expect(contentWithOptionals.metadata.tags).toEqual([]);
 
 			// generateRatingPromptでもundefined値が適切に処理されることを確認
-			const prompt = generateRatingPrompt(contentWithOptionals, "https://example.com");
+			const prompt = generateRatingPrompt(
+				contentWithOptionals,
+				"https://example.com",
+			);
 			expect(prompt).toContain("N/A");
 		});
 	});
@@ -468,7 +484,10 @@ describe("記事内容取得機能完全テスト", () => {
 			};
 
 			const startTime = Date.now();
-			const prompt = generateRatingPrompt(largeContent, "https://example.com/large");
+			const prompt = generateRatingPrompt(
+				largeContent,
+				"https://example.com/large",
+			);
 			const endTime = Date.now();
 
 			expect(prompt).toContain("大きな記事");

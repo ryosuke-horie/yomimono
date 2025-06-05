@@ -109,19 +109,21 @@ class MemoryArticleRatingRepository implements IArticleRatingRepository {
 		// フィルタリング
 		if (options.minScore !== undefined) {
 			filtered = filtered.filter(
-				(r) => r.totalScore >= Math.round(options.minScore! * 10),
+				(r) => r.totalScore >= Math.round(options.minScore * 10),
 			);
 		}
 		if (options.maxScore !== undefined) {
 			filtered = filtered.filter(
-				(r) => r.totalScore <= Math.round(options.maxScore! * 10),
+				(r) => r.totalScore <= Math.round(options.maxScore * 10),
 			);
 		}
 		if (options.hasComment !== undefined) {
 			if (options.hasComment) {
 				filtered = filtered.filter((r) => r.comment && r.comment.trim() !== "");
 			} else {
-				filtered = filtered.filter((r) => !r.comment || r.comment.trim() === "");
+				filtered = filtered.filter(
+					(r) => !r.comment || r.comment.trim() === "",
+				);
 			}
 		}
 
@@ -133,7 +135,7 @@ class MemoryArticleRatingRepository implements IArticleRatingRepository {
 			const aVal = (a as any)[sortBy];
 			// biome-ignore lint/suspicious/noExplicitAny: 動的プロパティアクセス
 			const bVal = (b as any)[sortBy];
-			
+
 			if (aVal < bVal) return order === "asc" ? -1 : 1;
 			if (aVal > bVal) return order === "asc" ? 1 : -1;
 			return 0;
@@ -234,7 +236,10 @@ describe("記事評価ポイント API↔DB 統合テスト", () => {
 			};
 
 			// 1. 評価作成
-			const createdRating = await service.createRating(articleId, initialRatingData);
+			const createdRating = await service.createRating(
+				articleId,
+				initialRatingData,
+			);
 			expect(createdRating).toMatchObject({
 				articleId: articleId,
 				practicalValue: 8,

@@ -675,7 +675,7 @@ ${formatted || "📭 条件に合致する評価がありません"}`,
 					{ range: "3-4", count: 10, percentage: 10.0 },
 					{ range: "5-6", count: 25, percentage: 25.0 },
 					{ range: "7-8", count: 45, percentage: 45.0 },
-					{ range: "9-10", count: 15, percentage: 15.0 }
+					{ range: "9-10", count: 15, percentage: 15.0 },
 				],
 				topRatedArticles: [],
 			};

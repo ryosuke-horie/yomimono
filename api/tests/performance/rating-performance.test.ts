@@ -67,7 +67,7 @@ class PerformanceTestRepository implements IArticleRatingRepository {
 
 	async findByArticleId(articleId: number): Promise<ArticleRating | null> {
 		// 線形検索の意図的な実装（パフォーマンステスト用）
-		return this.data.find(r => r.articleId === articleId) || null;
+		return this.data.find((r) => r.articleId === articleId) || null;
 	}
 
 	async update(
@@ -81,7 +81,7 @@ class PerformanceTestRepository implements IArticleRatingRepository {
 			comment: string;
 		}>,
 	): Promise<ArticleRating | null> {
-		const index = this.data.findIndex(r => r.articleId === articleId);
+		const index = this.data.findIndex((r) => r.articleId === articleId);
 		if (index === -1) return null;
 
 		this.data[index] = {
@@ -95,7 +95,7 @@ class PerformanceTestRepository implements IArticleRatingRepository {
 
 	async delete(articleId: number): Promise<boolean> {
 		const initialLength = this.data.length;
-		this.data = this.data.filter(r => r.articleId !== articleId);
+		this.data = this.data.filter((r) => r.articleId !== articleId);
 		return this.data.length < initialLength;
 	}
 
@@ -112,16 +112,22 @@ class PerformanceTestRepository implements IArticleRatingRepository {
 
 		// フィルタリング処理
 		if (options.minScore !== undefined) {
-			filtered = filtered.filter(r => r.totalScore >= Math.round(options.minScore! * 10));
+			filtered = filtered.filter(
+				(r) => r.totalScore >= Math.round(options.minScore * 10),
+			);
 		}
 		if (options.maxScore !== undefined) {
-			filtered = filtered.filter(r => r.totalScore <= Math.round(options.maxScore! * 10));
+			filtered = filtered.filter(
+				(r) => r.totalScore <= Math.round(options.maxScore * 10),
+			);
 		}
 		if (options.hasComment !== undefined) {
 			if (options.hasComment) {
-				filtered = filtered.filter(r => r.comment && r.comment.trim() !== "");
+				filtered = filtered.filter((r) => r.comment && r.comment.trim() !== "");
 			} else {
-				filtered = filtered.filter(r => !r.comment || r.comment.trim() === "");
+				filtered = filtered.filter(
+					(r) => !r.comment || r.comment.trim() === "",
+				);
 			}
 		}
 
@@ -133,7 +139,7 @@ class PerformanceTestRepository implements IArticleRatingRepository {
 			const aVal = (a as any)[sortBy];
 			// biome-ignore lint/suspicious/noExplicitAny: 動的プロパティアクセス
 			const bVal = (b as any)[sortBy];
-			
+
 			if (aVal < bVal) return order === "asc" ? -1 : 1;
 			if (aVal > bVal) return order === "asc" ? 1 : -1;
 			return 0;
@@ -190,7 +196,7 @@ class PerformanceTestRepository implements IArticleRatingRepository {
 		);
 
 		const ratingsWithComments = this.data.filter(
-			r => r.comment && r.comment.trim() !== "",
+			(r) => r.comment && r.comment.trim() !== "",
 		).length;
 
 		return {
@@ -219,7 +225,11 @@ class PerformanceTestRepository implements IArticleRatingRepository {
 const measurePerformance = async <T>(
 	operation: () => Promise<T>,
 	label: string,
-): Promise<{ result: T; duration: number; memoryUsage?: NodeJS.MemoryUsage }> => {
+): Promise<{
+	result: T;
+	duration: number;
+	memoryUsage?: NodeJS.MemoryUsage;
+}> => {
 	const startTime = performance.now();
 	const startMemory = process.memoryUsage();
 
@@ -238,7 +248,9 @@ const measurePerformance = async <T>(
 	};
 
 	console.log(`Performance: ${label} - ${duration.toFixed(2)}ms`);
-	console.log(`Memory: ${label} - ${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)}MB heap used`);
+	console.log(
+		`Memory: ${label} - ${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)}MB heap used`,
+	);
 
 	return { result, duration, memoryUsage };
 };
@@ -260,17 +272,14 @@ describe("記事評価ポイント パフォーマンステスト", () => {
 			service = new DefaultRatingService(repository);
 
 			// 検索パフォーマンス測定
-			const { duration } = await measurePerformance(
-				async () => {
-					return await service.getRatings({
-						limit: 100,
-						minScore: 7.0,
-						sortBy: "totalScore",
-						order: "desc",
-					});
-				},
-				"10,000件データ検索",
-			);
+			const { duration } = await measurePerformance(async () => {
+				return await service.getRatings({
+					limit: 100,
+					minScore: 7.0,
+					sortBy: "totalScore",
+					order: "desc",
+				});
+			}, "10,000件データ検索");
 
 			// 1秒以内の完了を期待
 			expect(duration).toBeLessThan(1000);
@@ -283,12 +292,9 @@ describe("記事評価ポイント パフォーマンステスト", () => {
 			service = new DefaultRatingService(repository);
 
 			// 統計計算パフォーマンス測定
-			const { duration, result } = await measurePerformance(
-				async () => {
-					return await service.getRatingStats();
-				},
-				"1,000件統計計算",
-			);
+			const { duration, result } = await measurePerformance(async () => {
+				return await service.getRatingStats();
+			}, "1,000件統計計算");
 
 			// 500ms以内の完了を期待
 			expect(duration).toBeLessThan(500);
@@ -309,17 +315,14 @@ describe("記事評価ポイント パフォーマンステスト", () => {
 			}
 
 			// 一括作成パフォーマンス測定
-			const { duration } = await measurePerformance(
-				async () => {
-					const results = [];
-					for (let i = 0; i < ratingsToCreate.length; i++) {
-						const result = await service.createRating(i + 1, ratingsToCreate[i]);
-						results.push(result);
-					}
-					return results;
-				},
-				"100件一括作成",
-			);
+			const { duration } = await measurePerformance(async () => {
+				const results = [];
+				for (let i = 0; i < ratingsToCreate.length; i++) {
+					const result = await service.createRating(i + 1, ratingsToCreate[i]);
+					results.push(result);
+				}
+				return results;
+			}, "100件一括作成");
 
 			// 200ms以内の完了を期待
 			expect(duration).toBeLessThan(200);
@@ -361,25 +364,22 @@ describe("記事評価ポイント パフォーマンステスト", () => {
 			repository = new PerformanceTestRepository(mockData);
 			service = new DefaultRatingService(repository);
 
-			const { duration } = await measurePerformance(
-				async () => {
-					const promises = [];
-					for (let i = 101; i <= 110; i++) {
-						promises.push(
-							service.createRating(i, {
-								practicalValue: 8,
-								technicalDepth: 7,
-								understanding: 9,
-								novelty: 6,
-								importance: 8,
-								comment: `並列作成テスト ${i}`,
-							}),
-						);
-					}
-					return await Promise.all(promises);
-				},
-				"10並列評価作成",
-			);
+			const { duration } = await measurePerformance(async () => {
+				const promises = [];
+				for (let i = 101; i <= 110; i++) {
+					promises.push(
+						service.createRating(i, {
+							practicalValue: 8,
+							technicalDepth: 7,
+							understanding: 9,
+							novelty: 6,
+							importance: 8,
+							comment: `並列作成テスト ${i}`,
+						}),
+					);
+				}
+				return await Promise.all(promises);
+			}, "10並列評価作成");
 
 			// 並列処理が100ms以内に完了することを期待
 			expect(duration).toBeLessThan(100);
@@ -391,35 +391,32 @@ describe("記事評価ポイント パフォーマンステスト", () => {
 			repository = new PerformanceTestRepository(mockData);
 			service = new DefaultRatingService(repository);
 
-			const { duration } = await measurePerformance(
-				async () => {
-					const results = await Promise.all([
-						// 作成処理
-						service.createRating(501, {
-							practicalValue: 8,
-							technicalDepth: 7,
-							understanding: 9,
-							novelty: 6,
-							importance: 8,
-						}),
-						// 更新処理
-						service.updateRating(1, {
-							practicalValue: 10,
-							comment: "更新テスト",
-						}),
-						// 検索処理
-						service.getRatings({
-							limit: 50,
-							sortBy: "totalScore",
-							order: "desc",
-						}),
-						// 統計処理
-						service.getRatingStats(),
-					]);
-					return results;
-				},
-				"混合処理実行",
-			);
+			const { duration } = await measurePerformance(async () => {
+				const results = await Promise.all([
+					// 作成処理
+					service.createRating(501, {
+						practicalValue: 8,
+						technicalDepth: 7,
+						understanding: 9,
+						novelty: 6,
+						importance: 8,
+					}),
+					// 更新処理
+					service.updateRating(1, {
+						practicalValue: 10,
+						comment: "更新テスト",
+					}),
+					// 検索処理
+					service.getRatings({
+						limit: 50,
+						sortBy: "totalScore",
+						order: "desc",
+					}),
+					// 統計処理
+					service.getRatingStats(),
+				]);
+				return results;
+			}, "混合処理実行");
 
 			// 混合処理が300ms以内に完了することを期待
 			expect(duration).toBeLessThan(300);
@@ -454,7 +451,9 @@ describe("記事評価ポイント パフォーマンステスト", () => {
 			const p95 = responseTimes[Math.floor(responseTimes.length * 0.95)];
 			const p99 = responseTimes[Math.floor(responseTimes.length * 0.99)];
 
-			console.log(`Response times - P50: ${p50.toFixed(2)}ms, P95: ${p95.toFixed(2)}ms, P99: ${p99.toFixed(2)}ms`);
+			console.log(
+				`Response times - P50: ${p50.toFixed(2)}ms, P95: ${p95.toFixed(2)}ms, P99: ${p99.toFixed(2)}ms`,
+			);
 
 			// P95レスポンス時間が50ms以下であることを期待
 			expect(p95).toBeLessThan(50);
@@ -470,17 +469,14 @@ describe("記事評価ポイント パフォーマンステスト", () => {
 			service = new DefaultRatingService(repository);
 
 			// CPU集約的な処理をシミュレート
-			const { duration } = await measurePerformance(
-				async () => {
-					const results = [];
-					// 複数の統計計算を並列実行
-					for (let i = 0; i < 10; i++) {
-						results.push(await service.getRatingStats());
-					}
-					return results;
-				},
-				"CPU集約処理",
-			);
+			const { duration } = await measurePerformance(async () => {
+				const results = [];
+				// 複数の統計計算を並列実行
+				for (let i = 0; i < 10; i++) {
+					results.push(await service.getRatingStats());
+				}
+				return results;
+			}, "CPU集約処理");
 
 			// 5秒以内に完了することを期待
 			expect(duration).toBeLessThan(5000);

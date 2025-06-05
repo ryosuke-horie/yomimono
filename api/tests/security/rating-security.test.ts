@@ -3,12 +3,31 @@
  * SQLインジェクション、XSS、入力検証、権限制御をテスト
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { CreateRatingData, UpdateRatingData } from "../../src/interfaces/service/rating";
+import type {
+	CreateRatingData,
+	GetRatingsOptions,
+	RatingStats,
+	UpdateRatingData,
+} from "../../src/interfaces/service/rating";
 import { DefaultRatingService } from "../../src/services/rating";
 
 // セキュリティテスト用のモックリポジトリ
+interface MockRating {
+	id: number;
+	articleId: number;
+	practicalValue: number;
+	technicalDepth: number;
+	understanding: number;
+	novelty: number;
+	importance: number;
+	totalScore: number;
+	comment?: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
 class SecurityTestRepository {
-	private data: any[] = [];
+	private data: MockRating[] = [];
 	private executedQueries: string[] = [];
 
 	// SQLクエリ記録用（SQLインジェクション検出）
@@ -24,7 +43,7 @@ class SecurityTestRepository {
 		this.executedQueries = [];
 	}
 
-	async create(rating: any): Promise<any> {
+	async create(rating: CreateRatingData): Promise<MockRating> {
 		// 悪意のあるSQLが含まれていないかチェック
 		const maliciousPatterns = [
 			"DROP TABLE",
@@ -44,11 +63,19 @@ class SecurityTestRepository {
 			}
 		}
 
-		this.recordQuery(`INSERT INTO article_ratings VALUES (${JSON.stringify(rating)})`);
-		
-		const newRating = {
+		this.recordQuery(
+			`INSERT INTO article_ratings VALUES (${JSON.stringify(rating)})`,
+		);
+
+		const newRating: MockRating = {
 			id: this.data.length + 1,
-			...rating,
+			articleId: rating.articleId,
+			practicalValue: rating.practicalValue,
+			technicalDepth: rating.technicalDepth,
+			understanding: rating.understanding,
+			novelty: rating.novelty,
+			importance: rating.importance,
+			comment: rating.comment,
 			totalScore: Math.round(
 				((rating.practicalValue +
 					rating.technicalDepth +
@@ -58,48 +85,61 @@ class SecurityTestRepository {
 					5) *
 					10,
 			),
-			createdAt: new Date(),
-			updatedAt: new Date(),
+			createdAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString(),
 		};
 
 		this.data.push(newRating);
 		return newRating;
 	}
 
-	async findByArticleId(articleId: number): Promise<any> {
-		this.recordQuery(`SELECT * FROM article_ratings WHERE article_id = ${articleId}`);
-		return this.data.find(r => r.articleId === articleId) || null;
+	async findByArticleId(articleId: number): Promise<MockRating | null> {
+		this.recordQuery(
+			`SELECT * FROM article_ratings WHERE article_id = ${articleId}`,
+		);
+		return this.data.find((r) => r.articleId === articleId) || null;
 	}
 
-	async update(articleId: number, rating: any): Promise<any> {
-		this.recordQuery(`UPDATE article_ratings SET ${JSON.stringify(rating)} WHERE article_id = ${articleId}`);
-		
-		const index = this.data.findIndex(r => r.articleId === articleId);
-		if (index === -1) return null;
+	async update(
+		articleId: number,
+		rating: UpdateRatingData,
+	): Promise<MockRating> {
+		this.recordQuery(
+			`UPDATE article_ratings SET ${JSON.stringify(rating)} WHERE article_id = ${articleId}`,
+		);
+
+		const index = this.data.findIndex((r) => r.articleId === articleId);
+		if (index === -1) {
+			throw new Error("Rating not found");
+		}
 
 		this.data[index] = {
 			...this.data[index],
 			...rating,
-			updatedAt: new Date(),
+			updatedAt: new Date().toISOString(),
 		};
 
 		return this.data[index];
 	}
 
 	async delete(articleId: number): Promise<boolean> {
-		this.recordQuery(`DELETE FROM article_ratings WHERE article_id = ${articleId}`);
-		
+		this.recordQuery(
+			`DELETE FROM article_ratings WHERE article_id = ${articleId}`,
+		);
+
 		const initialLength = this.data.length;
-		this.data = this.data.filter(r => r.articleId !== articleId);
+		this.data = this.data.filter((r) => r.articleId !== articleId);
 		return this.data.length < initialLength;
 	}
 
-	async findMany(options: any): Promise<any[]> {
-		this.recordQuery(`SELECT * FROM article_ratings WHERE ${JSON.stringify(options)}`);
+	async findMany(options: GetRatingsOptions): Promise<MockRating[]> {
+		this.recordQuery(
+			`SELECT * FROM article_ratings WHERE ${JSON.stringify(options)}`,
+		);
 		return this.data;
 	}
 
-	async getStats(): Promise<any> {
+	async getStats(): Promise<RatingStats> {
 		this.recordQuery("SELECT COUNT(*), AVG(total_score) FROM article_ratings");
 		return {
 			totalCount: this.data.length,
@@ -143,7 +183,7 @@ describe("記事評価ポイント セキュリティテスト", () => {
 			};
 
 			await expect(service.createRating(123, maliciousRating)).rejects.toThrow(
-				"Potential security threat detected"
+				"Potential security threat detected",
 			);
 
 			// テーブル削除クエリが実行されていないことを確認
@@ -162,7 +202,7 @@ describe("記事評価ポイント セキュリティテスト", () => {
 			};
 
 			await expect(service.createRating(124, maliciousRating)).rejects.toThrow(
-				"Potential security threat detected"
+				"Potential security threat detected",
 			);
 		});
 
@@ -177,7 +217,7 @@ describe("記事評価ポイント セキュリティテスト", () => {
 			};
 
 			await expect(service.createRating(125, maliciousRating)).rejects.toThrow(
-				"Potential security threat detected"
+				"Potential security threat detected",
 			);
 		});
 	});
@@ -194,7 +234,7 @@ describe("記事評価ポイント セキュリティテスト", () => {
 			};
 
 			await expect(service.createRating(126, xssRating)).rejects.toThrow(
-				"Potential security threat detected"
+				"Potential security threat detected",
 			);
 		});
 
@@ -209,7 +249,7 @@ describe("記事評価ポイント セキュリティテスト", () => {
 			};
 
 			await expect(service.createRating(127, jsRating)).rejects.toThrow(
-				"Potential security threat detected"
+				"Potential security threat detected",
 			);
 		});
 
@@ -224,7 +264,7 @@ describe("記事評価ポイント セキュリティテスト", () => {
 			};
 
 			await expect(service.createRating(128, eventRating)).rejects.toThrow(
-				"Potential security threat detected"
+				"Potential security threat detected",
 			);
 		});
 	});
@@ -240,7 +280,7 @@ describe("記事評価ポイント セキュリティテスト", () => {
 			};
 
 			await expect(service.createRating(129, oversizedRating)).rejects.toThrow(
-				"評価スコアは1から10の整数である必要があります"
+				"評価スコアは1から10の整数である必要があります",
 			);
 		});
 
@@ -254,13 +294,13 @@ describe("記事評価ポイント セキュリティテスト", () => {
 			};
 
 			await expect(service.createRating(130, negativeRating)).rejects.toThrow(
-				"評価スコアは1から10の整数である必要があります"
+				"評価スコアは1から10の整数である必要があります",
 			);
 		});
 
 		it("NaN値の入力を拒否すること", async () => {
 			const nanRating: CreateRatingData = {
-				practicalValue: NaN,
+				practicalValue: Number.NaN,
 				technicalDepth: 7,
 				understanding: 9,
 				novelty: 6,
@@ -268,7 +308,7 @@ describe("記事評価ポイント セキュリティテスト", () => {
 			};
 
 			await expect(service.createRating(131, nanRating)).rejects.toThrow(
-				"評価スコアは1から10の整数である必要があります"
+				"評価スコアは1から10の整数である必要があります",
 			);
 		});
 
@@ -282,7 +322,7 @@ describe("記事評価ポイント セキュリティテスト", () => {
 			};
 
 			await expect(service.createRating(132, floatRating)).rejects.toThrow(
-				"評価スコアは1から10の整数である必要があります"
+				"評価スコアは1から10の整数である必要があります",
 			);
 		});
 	});
@@ -298,9 +338,9 @@ describe("記事評価ポイント セキュリティテスト", () => {
 				comment: "a".repeat(1001), // 1001文字
 			};
 
-			await expect(service.createRating(133, longCommentRating)).rejects.toThrow(
-				"コメントは1000文字以内で入力してください"
-			);
+			await expect(
+				service.createRating(133, longCommentRating),
+			).rejects.toThrow("コメントは1000文字以内で入力してください");
 		});
 
 		it("空文字列のコメントは受け入れること", async () => {
@@ -371,13 +411,13 @@ describe("記事評価ポイント セキュリティテスト", () => {
 
 			// 重複作成の試行
 			await expect(service.createRating(200, ratingData)).rejects.toThrow(
-				"この記事には既に評価が存在します"
+				"この記事には既に評価が存在します",
 			);
 		});
 
 		it("存在しない評価の更新試行を適切に処理すること", async () => {
 			await expect(
-				service.updateRating(999, { practicalValue: 8 })
+				service.updateRating(999, { practicalValue: 8 }),
 			).rejects.toThrow("指定された記事の評価が見つかりません");
 		});
 	});
@@ -404,7 +444,7 @@ describe("記事評価ポイント セキュリティテスト", () => {
 
 			// 空の更新データは拒否される
 			await expect(service.updateRating(300, {})).rejects.toThrow(
-				"更新するデータが指定されていません"
+				"更新するデータが指定されていません",
 			);
 		});
 
@@ -433,7 +473,7 @@ describe("記事評価ポイント セキュリティテスト", () => {
 	describe("レート制限とDDoS対策", () => {
 		it("短時間での大量リクエストを適切に処理すること", async () => {
 			const requests = [];
-			
+
 			// 100並列リクエストをシミュレート
 			for (let i = 400; i < 500; i++) {
 				requests.push(
@@ -444,14 +484,14 @@ describe("記事評価ポイント セキュリティテスト", () => {
 						novelty: 6,
 						importance: 8,
 						comment: `大量リクエストテスト ${i}`,
-					})
+					}),
 				);
 			}
 
 			// 全てのリクエストが正常に処理されることを確認
 			const results = await Promise.allSettled(requests);
-			const successful = results.filter(r => r.status === "fulfilled");
-			
+			const successful = results.filter((r) => r.status === "fulfilled");
+
 			// 全て成功する（実際の環境ではレート制限が適用される）
 			expect(successful.length).toBe(100);
 		});
@@ -459,7 +499,9 @@ describe("記事評価ポイント セキュリティテスト", () => {
 
 	describe("ログ記録とセキュリティ監査", () => {
 		it("セキュリティ関連の操作が適切にログ記録されること", async () => {
-			const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+			const consoleSpy = vi
+				.spyOn(console, "error")
+				.mockImplementation(() => {});
 
 			// 悪意のある入力でエラーを発生させる
 			try {
@@ -491,7 +533,9 @@ describe("記事評価ポイント セキュリティテスト", () => {
 			const queries = repository.getExecutedQueries();
 			expect(queries.length).toBeGreaterThan(0);
 			// 最初のクエリは存在チェックのSELECT文、その後INSERTが実行される
-			const hasInsertQuery = queries.some(query => query.includes("INSERT INTO article_ratings"));
+			const hasInsertQuery = queries.some((query) =>
+				query.includes("INSERT INTO article_ratings"),
+			);
 			expect(hasInsertQuery).toBe(true);
 		});
 	});

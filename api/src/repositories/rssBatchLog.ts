@@ -1,5 +1,5 @@
 import { desc, eq } from "drizzle-orm";
-import { type D1Database, drizzle } from "drizzle-orm/d1";
+import { type AnyD1Database, drizzle } from "drizzle-orm/d1";
 import {
 	type InsertRssBatchLog,
 	type RssBatchLog,

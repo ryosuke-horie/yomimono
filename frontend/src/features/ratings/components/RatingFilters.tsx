@@ -116,7 +116,10 @@ export function RatingFilters({ filters, onChange }: Props) {
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
 				{/* 最小スコアフィルター */}
 				<div>
-					<label htmlFor="minScore" className="block text-sm font-medium text-gray-700 mb-2">
+					<label
+						htmlFor="minScore"
+						className="block text-sm font-medium text-gray-700 mb-2"
+					>
 						最小スコア
 					</label>
 					<input
@@ -217,7 +220,7 @@ export function RatingFilters({ filters, onChange }: Props) {
 						</button>
 					</div>
 				</div>
-				
+
 				{/* アクションボタン */}
 				<div className="flex gap-2">
 					<button

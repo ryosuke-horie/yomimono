@@ -3,26 +3,26 @@
  * src/lib/apiClient.tsのカバレッジ向上を目的とする
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-	getUnlabeledArticles,
-	getLabels,
 	assignLabelToArticle,
-	createLabel,
-	getLabelById,
-	deleteLabel,
-	updateLabelDescription,
 	assignLabelsToMultipleArticles,
+	createArticleRating,
+	createLabel,
+	deleteLabel,
+	getArticleRating,
+	getArticleRatings,
 	getBookmarkById,
+	getLabelById,
+	getLabels,
+	getRatingStats,
+	getReadBookmarks,
+	getUnlabeledArticles,
 	getUnreadArticlesByLabel,
 	getUnreadBookmarks,
-	getReadBookmarks,
 	markBookmarkAsRead,
-	createArticleRating,
-	getArticleRating,
 	updateArticleRating,
-	getArticleRatings,
-	getRatingStats,
+	updateLabelDescription,
 } from "../lib/apiClient.js";
 
 // fetchのモック
@@ -69,7 +69,7 @@ describe("APIクライアント包括テスト", () => {
 				"http://localhost:8787/api/unlabeledArticles",
 				expect.objectContaining({
 					method: "GET",
-				})
+				}),
 			);
 			expect(result).toEqual(mockData.bookmarks);
 		});
@@ -94,7 +94,7 @@ describe("APIクライアント包括テスト", () => {
 				"http://localhost:8787/api/labels",
 				expect.objectContaining({
 					method: "GET",
-				})
+				}),
 			);
 			expect(result).toEqual(mockLabels.labels);
 		});
@@ -115,12 +115,16 @@ describe("APIクライアント包括テスト", () => {
 						labelName: "Tech",
 						description: "詳しい説明",
 					}),
-				})
+				}),
 			);
 		});
 
 		it("createLabel - 成功ケース", async () => {
-			const mockLabel = { id: 3, name: "NewLabel", description: "新しいラベル" };
+			const mockLabel = {
+				id: 3,
+				name: "NewLabel",
+				description: "新しいラベル",
+			};
 
 			mockFetch.mockResolvedValue({
 				ok: true,
@@ -137,7 +141,7 @@ describe("APIクライアント包括テスト", () => {
 						name: "NewLabel",
 						description: "新しいラベル",
 					}),
-				})
+				}),
 			);
 			expect(result).toEqual(mockLabel);
 		});
@@ -156,7 +160,7 @@ describe("APIクライアント包括テスト", () => {
 				"http://localhost:8787/api/labels/1",
 				expect.objectContaining({
 					method: "GET",
-				})
+				}),
 			);
 			expect(result).toEqual(mockLabel);
 		});
@@ -173,12 +177,16 @@ describe("APIクライアント包括テスト", () => {
 				"http://localhost:8787/api/labels/1",
 				expect.objectContaining({
 					method: "DELETE",
-				})
+				}),
 			);
 		});
 
 		it("updateLabelDescription - 成功ケース", async () => {
-			const mockUpdatedLabel = { id: 1, name: "Tech", description: "更新された説明" };
+			const mockUpdatedLabel = {
+				id: 1,
+				name: "Tech",
+				description: "更新された説明",
+			};
 
 			mockFetch.mockResolvedValue({
 				ok: true,
@@ -194,7 +202,7 @@ describe("APIクライアント包括テスト", () => {
 					body: JSON.stringify({
 						description: "更新された説明",
 					}),
-				})
+				}),
 			);
 			expect(result).toEqual(mockUpdatedLabel);
 		});
@@ -214,7 +222,7 @@ describe("APIクライアント包括テスト", () => {
 			const result = await assignLabelsToMultipleArticles(
 				[1, 2, 3],
 				"Tech",
-				"技術記事"
+				"技術記事",
 			);
 
 			expect(fetch).toHaveBeenCalledWith(
@@ -226,7 +234,7 @@ describe("APIクライアント包括テスト", () => {
 						labelName: "Tech",
 						description: "技術記事",
 					}),
-				})
+				}),
 			);
 			expect(result).toEqual(mockResult);
 		});
@@ -256,7 +264,7 @@ describe("APIクライアント包括テスト", () => {
 				"http://localhost:8787/api/bookmarks/1",
 				expect.objectContaining({
 					method: "GET",
-				})
+				}),
 			);
 			expect(result).toEqual(mockBookmark);
 		});
@@ -286,7 +294,7 @@ describe("APIクライアント包括テスト", () => {
 				"http://localhost:8787/api/bookmarks/unread",
 				expect.objectContaining({
 					method: "GET",
-				})
+				}),
 			);
 			expect(result).toEqual(mockBookmarks);
 		});
@@ -316,7 +324,7 @@ describe("APIクライアント包括テスト", () => {
 				"http://localhost:8787/api/bookmarks/read",
 				expect.objectContaining({
 					method: "GET",
-				})
+				}),
 			);
 			expect(result).toEqual(mockBookmarks);
 		});
@@ -335,7 +343,7 @@ describe("APIクライアント包括テスト", () => {
 				"http://localhost:8787/api/bookmarks/1/read",
 				expect.objectContaining({
 					method: "PUT",
-				})
+				}),
 			);
 			expect(result).toEqual(mockResult);
 		});
@@ -356,7 +364,7 @@ describe("APIクライアント包括テスト", () => {
 				"http://localhost:8787/api/bookmarks/unread/label/Tech",
 				expect.objectContaining({
 					method: "GET",
-				})
+				}),
 			);
 			expect(result).toEqual(mockArticles);
 		});
@@ -394,7 +402,7 @@ describe("APIクライアント包括テスト", () => {
 				expect.objectContaining({
 					method: "POST",
 					body: JSON.stringify(ratingData),
-				})
+				}),
 			);
 			expect(result).toEqual(mockResponse);
 		});
@@ -425,7 +433,7 @@ describe("APIクライアント包括テスト", () => {
 				"http://localhost:8787/api/ratings/article/1",
 				expect.objectContaining({
 					method: "GET",
-				})
+				}),
 			);
 			expect(result).toEqual(mockRating);
 		});
@@ -474,7 +482,7 @@ describe("APIクライアント包括テスト", () => {
 				expect.objectContaining({
 					method: "PUT",
 					body: JSON.stringify(updateData),
-				})
+				}),
 			);
 			expect(result).toEqual(mockUpdatedRating);
 		});
@@ -507,7 +515,7 @@ describe("APIクライアント包括テスト", () => {
 				"http://localhost:8787/api/ratings",
 				expect.objectContaining({
 					method: "GET",
-				})
+				}),
 			);
 			expect(result).toEqual(mockRatings);
 		});
@@ -534,7 +542,7 @@ describe("APIクライアント包括テスト", () => {
 				expect.stringContaining("sortBy=totalScore"),
 				expect.objectContaining({
 					method: "GET",
-				})
+				}),
 			);
 		});
 
@@ -576,7 +584,7 @@ describe("APIクライアント包括テスト", () => {
 				"http://localhost:8787/api/ratings/stats",
 				expect.objectContaining({
 					method: "GET",
-				})
+				}),
 			);
 			expect(result).toEqual(mockStats);
 		});
@@ -596,7 +604,9 @@ describe("APIクライアント包括テスト", () => {
 				statusText: "Internal Server Error",
 			});
 
-			await expect(getUnlabeledArticles()).rejects.toThrow("Failed to fetch unlabeled articles: Internal Server Error");
+			await expect(getUnlabeledArticles()).rejects.toThrow(
+				"Failed to fetch unlabeled articles: Internal Server Error",
+			);
 		});
 
 		it("JSONパースエラーを適切に処理する", async () => {

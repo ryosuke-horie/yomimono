@@ -3,11 +3,14 @@
  * src/index.tsの包括的なテストカバレッジを提供
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // 必要なライブラリをインポート
 import * as apiClient from "../lib/apiClient.js";
-import { fetchArticleContent, generateRatingPrompt } from "../lib/articleContentFetcher.js";
+import {
+	fetchArticleContent,
+	generateRatingPrompt,
+} from "../lib/articleContentFetcher.js";
 
 // モック設定
 vi.mock("../lib/apiClient.js");
@@ -41,9 +44,11 @@ describe("MCPサーバーメイン機能テスト", () => {
 	it("MCPサーバーのインポートが正常に動作する", async () => {
 		// index.tsをインポートしてコードを実行させることでカバレッジを向上
 		await import("../index.js");
-		
+
 		// McpServerのコンストラクタが呼ばれていることを確認
-		const { McpServer } = await import("@modelcontextprotocol/sdk/server/mcp.js");
+		const { McpServer } = await import(
+			"@modelcontextprotocol/sdk/server/mcp.js"
+		);
 		expect(McpServer).toHaveBeenCalledWith({
 			name: "EffectiveYomimonoLabeler",
 			version: "0.6.0",
@@ -51,7 +56,9 @@ describe("MCPサーバーメイン機能テスト", () => {
 	});
 
 	it("ツール登録が正常に実行される", async () => {
-		const { McpServer } = await import("@modelcontextprotocol/sdk/server/mcp.js");
+		const { McpServer } = await import(
+			"@modelcontextprotocol/sdk/server/mcp.js"
+		);
 		const mockServer = {
 			tool: vi.fn(),
 			connect: vi.fn(),
@@ -60,7 +67,7 @@ describe("MCPサーバーメイン機能テスト", () => {
 
 		// index.tsを再インポートしてツール登録を実行
 		await import("../index.js");
-		
+
 		// 多数のツールが登録されていることを確認
 		expect(mockServer.tool).toHaveBeenCalled();
 		expect(mockServer.tool.mock.calls.length).toBeGreaterThan(20);
@@ -70,12 +77,28 @@ describe("MCPサーバーメイン機能テスト", () => {
 		// APIクライアント関数のモック設定
 		vi.mocked(apiClient.getUnlabeledArticles).mockResolvedValue([]);
 		vi.mocked(apiClient.getLabels).mockResolvedValue([]);
-		vi.mocked(apiClient.createLabel).mockResolvedValue({ id: 1, name: "test", description: null });
+		vi.mocked(apiClient.createLabel).mockResolvedValue({
+			id: 1,
+			name: "test",
+			description: null,
+		});
 		vi.mocked(apiClient.assignLabelToArticle).mockResolvedValue();
 		vi.mocked(apiClient.deleteLabel).mockResolvedValue();
-		vi.mocked(apiClient.getLabelById).mockResolvedValue({ id: 1, name: "test", description: null });
-		vi.mocked(apiClient.updateLabelDescription).mockResolvedValue({ id: 1, name: "test", description: "updated" });
-		vi.mocked(apiClient.assignLabelsToMultipleArticles).mockResolvedValue({ success: true, assigned: [], failed: [] });
+		vi.mocked(apiClient.getLabelById).mockResolvedValue({
+			id: 1,
+			name: "test",
+			description: null,
+		});
+		vi.mocked(apiClient.updateLabelDescription).mockResolvedValue({
+			id: 1,
+			name: "test",
+			description: "updated",
+		});
+		vi.mocked(apiClient.assignLabelsToMultipleArticles).mockResolvedValue({
+			success: true,
+			assigned: [],
+			failed: [],
+		});
 		vi.mocked(apiClient.getBookmarkById).mockResolvedValue({
 			id: 1,
 			title: "test",
@@ -89,7 +112,10 @@ describe("MCPサーバーメイン機能テスト", () => {
 		vi.mocked(apiClient.getUnreadArticlesByLabel).mockResolvedValue([]);
 		vi.mocked(apiClient.getUnreadBookmarks).mockResolvedValue([]);
 		vi.mocked(apiClient.getReadBookmarks).mockResolvedValue([]);
-		vi.mocked(apiClient.markBookmarkAsRead).mockResolvedValue({ message: "success", success: true });
+		vi.mocked(apiClient.markBookmarkAsRead).mockResolvedValue({
+			message: "success",
+			success: true,
+		});
 
 		// 記事評価関連のモック
 		vi.mocked(apiClient.createArticleRating).mockResolvedValue({
@@ -201,9 +227,13 @@ describe("MCPサーバーメイン機能テスト", () => {
 	});
 
 	it("サーバー接続処理が実行される", async () => {
-		const { McpServer } = await import("@modelcontextprotocol/sdk/server/mcp.js");
-		const { StdioServerTransport } = await import("@modelcontextprotocol/sdk/server/stdio.js");
-		
+		const { McpServer } = await import(
+			"@modelcontextprotocol/sdk/server/mcp.js"
+		);
+		const { StdioServerTransport } = await import(
+			"@modelcontextprotocol/sdk/server/stdio.js"
+		);
+
 		const mockServer = {
 			tool: vi.fn(),
 			connect: vi.fn().mockResolvedValue(undefined),
@@ -227,7 +257,9 @@ describe("MCPサーバーメイン機能テスト", () => {
 	});
 
 	it("各種ツールの名前とスキーマが正しく設定される", async () => {
-		const { McpServer } = await import("@modelcontextprotocol/sdk/server/mcp.js");
+		const { McpServer } = await import(
+			"@modelcontextprotocol/sdk/server/mcp.js"
+		);
 		const mockServer = {
 			tool: vi.fn(),
 			connect: vi.fn(),
@@ -239,11 +271,11 @@ describe("MCPサーバーメイン機能テスト", () => {
 
 		// ツール登録が複数回呼ばれていることを確認
 		expect(mockServer.tool).toHaveBeenCalled();
-		
+
 		// 期待されるツール名のチェック（部分的）
 		const toolCalls = mockServer.tool.mock.calls;
-		const toolNames = toolCalls.map(call => call[0]);
-		
+		const toolNames = toolCalls.map((call) => call[0]);
+
 		// 重要なツールが登録されていることを確認
 		expect(toolNames).toContain("getUnlabeledArticles");
 		expect(toolNames).toContain("getLabels");
@@ -259,7 +291,9 @@ describe("MCPサーバーメイン機能テスト", () => {
 	});
 
 	it("Zodスキーマ検証が正しく設定される", async () => {
-		const { McpServer } = await import("@modelcontextprotocol/sdk/server/mcp.js");
+		const { McpServer } = await import(
+			"@modelcontextprotocol/sdk/server/mcp.js"
+		);
 		const mockServer = {
 			tool: vi.fn(),
 			connect: vi.fn(),
@@ -271,7 +305,7 @@ describe("MCPサーバーメイン機能テスト", () => {
 
 		// ツール登録時にスキーマが渡されていることを確認
 		const toolCalls = mockServer.tool.mock.calls;
-		
+
 		// 各ツール呼び出しでスキーマ（2番目の引数）が存在することを確認
 		for (const call of toolCalls) {
 			expect(call).toHaveLength(3); // [name, schema, handler]

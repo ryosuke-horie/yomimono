@@ -108,7 +108,7 @@ function RatingItem({ item }: { item: RatingWithArticle }) {
 	];
 
 	return (
-		<article 
+		<article
 			className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow"
 			data-testid="rating-card"
 		>

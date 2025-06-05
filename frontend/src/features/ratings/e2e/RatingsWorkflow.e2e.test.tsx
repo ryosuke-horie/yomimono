@@ -7,7 +7,15 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http } from "msw";
 import { setupServer } from "msw/node";
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+	afterAll,
+	afterEach,
+	beforeAll,
+	beforeEach,
+	describe,
+	expect,
+	it,
+} from "vitest";
 import RatingsPage from "../../../app/ratings/page";
 
 // テスト用のモックデータ
@@ -75,13 +83,17 @@ const server = setupServer(
 		// フィルタリング
 		if (minScore) {
 			const minScoreNum = Number.parseFloat(minScore);
-			filteredRatings = filteredRatings.filter(r => r.totalScore >= minScoreNum);
+			filteredRatings = filteredRatings.filter(
+				(r) => r.totalScore >= minScoreNum,
+			);
 		}
 
 		// ソート
 		if (sortBy === "totalScore") {
 			filteredRatings.sort((a, b) => {
-				return order === "asc" ? a.totalScore - b.totalScore : b.totalScore - a.totalScore;
+				return order === "asc"
+					? a.totalScore - b.totalScore
+					: b.totalScore - a.totalScore;
 			});
 		}
 
@@ -103,8 +115,8 @@ const server = setupServer(
 	// 個別評価取得
 	http.get("/api/bookmarks/:id/rating", ({ params }) => {
 		const articleId = Number(params.id);
-		const rating = mockRatings.find(r => r.articleId === articleId);
-		
+		const rating = mockRatings.find((r) => r.articleId === articleId);
+
 		if (!rating) {
 			return new Response(null, { status: 404 });
 		}
@@ -119,28 +131,37 @@ const server = setupServer(
 	http.post("/api/bookmarks/:id/rating", async ({ params, request }) => {
 		const articleId = Number(params.id);
 		const body = await request.json();
-		
+
 		const newRating = {
 			id: mockRatings.length + 1,
 			articleId,
 			...body,
-			totalScore: (body.practicalValue + body.technicalDepth + body.understanding + body.novelty + body.importance) / 5,
+			totalScore:
+				(body.practicalValue +
+					body.technicalDepth +
+					body.understanding +
+					body.novelty +
+					body.importance) /
+				5,
 			createdAt: new Date().toISOString(),
 			updatedAt: new Date().toISOString(),
 		};
 
-		return Response.json({
-			success: true,
-			rating: newRating,
-		}, { status: 201 });
+		return Response.json(
+			{
+				success: true,
+				rating: newRating,
+			},
+			{ status: 201 },
+		);
 	}),
 
 	// 評価更新
 	http.patch("/api/bookmarks/:id/rating", async ({ params, request }) => {
 		const articleId = Number(params.id);
 		const body = await request.json();
-		
-		const existingRating = mockRatings.find(r => r.articleId === articleId);
+
+		const existingRating = mockRatings.find((r) => r.articleId === articleId);
 		if (!existingRating) {
 			return new Response(null, { status: 404 });
 		}
@@ -148,9 +169,14 @@ const server = setupServer(
 		const updatedRating = {
 			...existingRating,
 			...body,
-			totalScore: body.practicalValue ? 
-				(body.practicalValue + existingRating.technicalDepth + existingRating.understanding + existingRating.novelty + existingRating.importance) / 5 :
-				existingRating.totalScore,
+			totalScore: body.practicalValue
+				? (body.practicalValue +
+						existingRating.technicalDepth +
+						existingRating.understanding +
+						existingRating.novelty +
+						existingRating.importance) /
+					5
+				: existingRating.totalScore,
 			updatedAt: new Date().toISOString(),
 		};
 
@@ -172,9 +198,7 @@ const renderWithQueryClient = (component: React.ReactElement) => {
 	});
 
 	return render(
-		<QueryClientProvider client={queryClient}>
-			{component}
-		</QueryClientProvider>
+		<QueryClientProvider client={queryClient}>{component}</QueryClientProvider>,
 	);
 };
 
@@ -243,12 +267,16 @@ describe("記事評価ポイント E2E ワークフロー", () => {
 			await user.clear(minScoreInput);
 			await user.type(minScoreInput, "8.0");
 
-			const filterButton = screen.getByRole("button", { name: /フィルター適用/i });
+			const filterButton = screen.getByRole("button", {
+				name: /フィルター適用/i,
+			});
 			await user.click(filterButton);
 
 			// フィルター結果の確認（スコア8.2の評価のみ表示）
 			await waitFor(() => {
-				expect(screen.queryByText("非常に実用的な記事です")).not.toBeInTheDocument();
+				expect(
+					screen.queryByText("非常に実用的な記事です"),
+				).not.toBeInTheDocument();
 				expect(screen.getByText("技術的に深い内容")).toBeInTheDocument();
 			});
 		});
@@ -285,11 +313,14 @@ describe("記事評価ポイント E2E ワークフロー", () => {
 			// APIエラーをシミュレート
 			server.use(
 				http.get("/api/ratings", () => {
-					return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-						status: 500,
-						headers: { "Content-Type": "application/json" }
-					});
-				})
+					return new Response(
+						JSON.stringify({ error: "Internal Server Error" }),
+						{
+							status: 500,
+							headers: { "Content-Type": "application/json" },
+						},
+					);
+				}),
 			);
 
 			renderWithQueryClient(<RatingsPage />);
@@ -302,12 +333,12 @@ describe("記事評価ポイント E2E ワークフロー", () => {
 
 		it("ネットワークエラー時にリトライ機能が動作すること", async () => {
 			const user = userEvent.setup();
-			
+
 			// 最初はネットワークエラー
 			server.use(
 				http.get("/api/ratings", () => {
 					return Response.error();
-				})
+				}),
 			);
 
 			renderWithQueryClient(<RatingsPage />);
@@ -319,7 +350,7 @@ describe("記事評価ポイント E2E ワークフロー", () => {
 
 			// リトライボタンをクリック
 			const retryButton = screen.getByRole("button", { name: /再試行/i });
-			
+
 			// 正常なレスポンスに変更してからリトライ
 			server.resetHandlers();
 			await user.click(retryButton);
@@ -377,7 +408,9 @@ describe("記事評価ポイント E2E ワークフロー", () => {
 			expect(screen.getByLabelText(/並び順/i)).toHaveFocus();
 
 			await user.tab();
-			expect(screen.getByRole("button", { name: /フィルター適用/i })).toHaveFocus();
+			expect(
+				screen.getByRole("button", { name: /フィルター適用/i }),
+			).toHaveFocus();
 		});
 
 		it("スクリーンリーダー用のARIAラベルが適切に設定されていること", async () => {
@@ -388,9 +421,16 @@ describe("記事評価ポイント E2E ワークフロー", () => {
 			});
 
 			// ARIAラベルの確認
-			expect(screen.getByRole("main")).toHaveAttribute("aria-label", "記事評価一覧");
-			expect(screen.getByRole("region", { name: "統計情報" })).toBeInTheDocument();
-			expect(screen.getByRole("region", { name: "評価フィルター" })).toBeInTheDocument();
+			expect(screen.getByRole("main")).toHaveAttribute(
+				"aria-label",
+				"記事評価一覧",
+			);
+			expect(
+				screen.getByRole("region", { name: "統計情報" }),
+			).toBeInTheDocument();
+			expect(
+				screen.getByRole("region", { name: "評価フィルター" }),
+			).toBeInTheDocument();
 		});
 	});
 });
