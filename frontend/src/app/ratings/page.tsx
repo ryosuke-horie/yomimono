@@ -37,7 +37,7 @@ export default function RatingsPage() {
 		<div className="min-h-screen bg-gray-50">
 			<Header />
 
-			<main className="container mx-auto px-4 py-8 max-w-6xl">
+			<main className="container mx-auto px-4 py-8 max-w-6xl" role="main" aria-label="記事評価一覧">
 				{/* ページタイトル */}
 				<div className="mb-8">
 					<h1 className="text-3xl font-bold text-gray-900">記事評価一覧</h1>
@@ -63,12 +63,12 @@ export default function RatingsPage() {
 				)}
 
 				{/* 統計サマリー */}
-				<div className="mb-8">
+				<div className="mb-8" role="region" aria-label="統計情報">
 					<RatingStatsSummary stats={stats} isLoading={isLoadingStats} />
 				</div>
 
 				{/* フィルター・ソートコントロール */}
-				<div className="mb-6">
+				<div className="mb-6" role="region" aria-label="評価フィルター">
 					<RatingFilters filters={filters} onChange={setFilters} />
 				</div>
 

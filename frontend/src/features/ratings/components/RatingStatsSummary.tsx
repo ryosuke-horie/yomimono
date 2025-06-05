@@ -14,6 +14,10 @@ export function RatingStatsSummary({ stats, isLoading = false }: Props) {
 	if (isLoading) {
 		return (
 			<div className="bg-white rounded-lg shadow-sm border p-6">
+				<div className="text-center py-4 mb-4">
+					<div className="text-lg text-gray-600 mb-2">読み込み中...</div>
+					<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto" />
+				</div>
 				<div className="animate-pulse">
 					<div className="h-6 bg-gray-200 rounded w-1/3 mb-4" />
 					<div className="grid grid-cols-1 md:grid-cols-4 gap-4">

@@ -17,6 +17,10 @@ export function RatingsList({ ratings = [], isLoading = false }: Props) {
 	if (isLoading) {
 		return (
 			<div className="space-y-4">
+				<div className="text-center py-8">
+					<div className="text-lg text-gray-600 mb-4">読み込み中...</div>
+					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto" />
+				</div>
 				{Array.from({ length: 3 }).map((_, i) => (
 					<div
 						key={`loading-${i}`}
@@ -104,7 +108,10 @@ function RatingItem({ item }: { item: RatingWithArticle }) {
 	];
 
 	return (
-		<article className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+		<article 
+			className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow"
+			data-testid="rating-card"
+		>
 			<div className="p-6">
 				{/* 記事情報 */}
 				<div className="mb-4">

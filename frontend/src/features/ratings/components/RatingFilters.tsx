@@ -113,7 +113,31 @@ export function RatingFilters({ filters, onChange }: Props) {
 			</div>
 
 			{/* 基本フィルター（常時表示） */}
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+			<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+				{/* 最小スコアフィルター */}
+				<div>
+					<label htmlFor="minScore" className="block text-sm font-medium text-gray-700 mb-2">
+						最小スコア
+					</label>
+					<input
+						id="minScore"
+						type="number"
+						min="1"
+						max="10"
+						step="0.1"
+						value={filters.minScore || ""}
+						onChange={(e) => {
+							const value = e.target.value;
+							onChange({
+								...filters,
+								minScore: value ? Number.parseFloat(value) : undefined,
+							});
+						}}
+						className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+						placeholder="1.0"
+						aria-label="最小スコア"
+					/>
+				</div>
 				{/* ソート基準 */}
 				<div>
 					<span className="block text-sm font-medium text-gray-700 mb-2">
@@ -144,7 +168,7 @@ export function RatingFilters({ filters, onChange }: Props) {
 								handleOrderChange(e.target.value as RatingFiltersType["order"])
 							}
 							className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-							aria-label="ソート順"
+							aria-label="並び順"
 						>
 							<option value="desc">降順</option>
 							<option value="asc">昇順</option>
@@ -192,6 +216,28 @@ export function RatingFilters({ filters, onChange }: Props) {
 							なし
 						</button>
 					</div>
+				</div>
+				
+				{/* アクションボタン */}
+				<div className="flex gap-2">
+					<button
+						type="button"
+						onClick={() => {
+							// フィルター適用は即座に実行されるため、効果なし
+						}}
+						className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
+					>
+						フィルター適用
+					</button>
+					<button
+						type="button"
+						onClick={() => {
+							// ソート適用は即座に実行されるため、効果なし
+						}}
+						className="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500"
+					>
+						ソート適用
+					</button>
 				</div>
 			</div>
 

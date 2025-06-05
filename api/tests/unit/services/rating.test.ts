@@ -375,6 +375,34 @@ describe("DefaultRatingService", () => {
 				}),
 			);
 		});
+
+		it("範囲外の最小スコアでエラーを投げること", async () => {
+			await expect(
+				service.getRatings({
+					minScore: 0.5, // 1.0未満
+				}),
+			).rejects.toThrow("最小スコアは1.0から10.0の範囲で指定してください");
+
+			await expect(
+				service.getRatings({
+					minScore: 10.5, // 10.0超過
+				}),
+			).rejects.toThrow("最小スコアは1.0から10.0の範囲で指定してください");
+		});
+
+		it("範囲外の最大スコアでエラーを投げること", async () => {
+			await expect(
+				service.getRatings({
+					maxScore: 0.5, // 1.0未満
+				}),
+			).rejects.toThrow("最大スコアは1.0から10.0の範囲で指定してください");
+
+			await expect(
+				service.getRatings({
+					maxScore: 10.5, // 10.0超過
+				}),
+			).rejects.toThrow("最大スコアは1.0から10.0の範囲で指定してください");
+		});
 	});
 
 	describe("getRatingStats", () => {
