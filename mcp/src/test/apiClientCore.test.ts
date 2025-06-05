@@ -34,7 +34,7 @@ describe("API Client Core Functions", () => {
 		test("正常なラベル割り当て", async () => {
 			vi.mocked(fetch).mockResolvedValue({
 				ok: true,
-			} as Response);
+			} as unknown as Response);
 
 			await expect(
 				assignLabelToArticle(123, "技術", "技術記事"),
@@ -53,7 +53,7 @@ describe("API Client Core Functions", () => {
 			vi.mocked(fetch).mockResolvedValue({
 				ok: false,
 				statusText: "Bad Request",
-			} as Response);
+			} as unknown as Response);
 
 			await expect(assignLabelToArticle(123, "技術")).rejects.toThrow(
 				'Failed to assign label "技術" to article 123: Bad Request',
@@ -77,7 +77,7 @@ describe("API Client Core Functions", () => {
 					success: true,
 					label: mockLabel,
 				}),
-			} as Response);
+			} as unknown as Response);
 
 			const result = await createLabel("新ラベル", "説明");
 			expect(result).toEqual(mockLabel);
@@ -91,7 +91,7 @@ describe("API Client Core Functions", () => {
 				json: async () => {
 					throw new Error("JSON parse error");
 				},
-			} as Response);
+			} as unknown as Response);
 
 			await expect(createLabel("無効ラベル")).rejects.toThrow(
 				'Failed to create label "無効ラベル". Status: 400 Bad Request',
@@ -113,7 +113,7 @@ describe("API Client Core Functions", () => {
 					success: true,
 					label: mockLabel,
 				}),
-			} as Response);
+			} as unknown as Response);
 
 			const result = await getLabelById(1);
 			expect(result).toEqual(mockLabel);
@@ -128,7 +128,7 @@ describe("API Client Core Functions", () => {
 				json: async () => {
 					throw new Error("Parse failed");
 				},
-			} as Response);
+			} as unknown as Response);
 
 			await expect(getLabelById(1)).rejects.toThrow(
 				"Failed to parse response when fetching label 1: Parse failed",
@@ -150,7 +150,7 @@ describe("API Client Core Functions", () => {
 					success: true,
 					label: updatedLabel,
 				}),
-			} as Response);
+			} as unknown as Response);
 
 			const result = await updateLabelDescription(1, "新しい説明");
 			expect(result).toEqual(updatedLabel);
@@ -169,7 +169,7 @@ describe("API Client Core Functions", () => {
 					success: true,
 					label: updatedLabel,
 				}),
-			} as Response);
+			} as unknown as Response);
 
 			const result = await updateLabelDescription(1, null);
 			expect(result).toEqual(updatedLabel);
@@ -192,7 +192,7 @@ describe("API Client Core Functions", () => {
 					success: true,
 					message: "削除完了",
 				}),
-			} as Response);
+			} as unknown as Response);
 
 			await expect(deleteLabel(1)).resolves.not.toThrow();
 			expect(fetch).toHaveBeenCalledWith(
@@ -209,7 +209,7 @@ describe("API Client Core Functions", () => {
 				json: async () => ({
 					message: "ラベルが見つかりません",
 				}),
-			} as Response);
+			} as unknown as Response);
 
 			await expect(deleteLabel(999)).rejects.toThrow(
 				"ラベルが見つかりません: Not Found (Status: 404)",
@@ -234,7 +234,7 @@ describe("API Client Core Functions", () => {
 					success: true,
 					bookmark: mockBookmark,
 				}),
-			} as Response);
+			} as unknown as Response);
 
 			const result = await getBookmarkById(1);
 			expect(result).toEqual(mockBookmark);
@@ -262,7 +262,7 @@ describe("API Client Core Functions", () => {
 					success: true,
 					bookmarks: mockBookmarks,
 				}),
-			} as Response);
+			} as unknown as Response);
 
 			const result = await getUnreadBookmarks();
 			expect(result).toEqual(mockBookmarks);
@@ -293,7 +293,7 @@ describe("API Client Core Functions", () => {
 					success: true,
 					bookmarks: mockBookmarks,
 				}),
-			} as Response);
+			} as unknown as Response);
 
 			const result = await getReadBookmarks();
 			expect(result).toEqual(mockBookmarks);
@@ -311,7 +311,7 @@ describe("API Client Core Functions", () => {
 					success: true,
 					message: "既読にマークしました",
 				}),
-			} as Response);
+			} as unknown as Response);
 
 			const result = await markBookmarkAsRead(123);
 			expect(result).toEqual({
@@ -332,7 +332,7 @@ describe("API Client Core Functions", () => {
 				json: async () => {
 					throw new Error("Invalid JSON");
 				},
-			} as Response);
+			} as unknown as Response);
 
 			const ratingData: CreateRatingData = {
 				practicalValue: 8,
@@ -355,7 +355,7 @@ describe("API Client Core Functions", () => {
 				json: async () => {
 					throw new Error("Parse error");
 				},
-			} as Response);
+			} as unknown as Response);
 
 			await expect(getArticleRating(123)).rejects.toThrow(
 				"Failed to parse response when getting rating for article 123: Parse error",
@@ -370,7 +370,7 @@ describe("API Client Core Functions", () => {
 				json: async () => {
 					throw new Error("Update parse error");
 				},
-			} as Response);
+			} as unknown as Response);
 
 			const updateData: UpdateRatingData = {
 				practicalValue: 9,
@@ -389,7 +389,7 @@ describe("API Client Core Functions", () => {
 				json: async () => {
 					throw new Error("Batch parse error");
 				},
-			} as Response);
+			} as unknown as Response);
 
 			await expect(
 				assignLabelsToMultipleArticles([1, 2, 3], "バッチ"),
@@ -405,7 +405,7 @@ describe("API Client Core Functions", () => {
 				json: async () => ({
 					message: "バッチ処理に失敗しました",
 				}),
-			} as Response);
+			} as unknown as Response);
 
 			await expect(
 				assignLabelsToMultipleArticles([1, 2], "失敗"),

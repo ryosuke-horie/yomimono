@@ -30,11 +30,11 @@ describe("API Client Extended Tests", () => {
 
 			vi.mocked(fetch).mockResolvedValue({
 				ok: true,
-				json: async () => ({
+				json: vi.fn().mockResolvedValue({
 					success: true,
 					bookmarks: mockArticles,
 				}),
-			} as Response);
+			} as unknown as Response);
 
 			const result = await getUnlabeledArticles();
 			expect(result).toEqual(mockArticles);
@@ -47,7 +47,7 @@ describe("API Client Extended Tests", () => {
 			vi.mocked(fetch).mockResolvedValue({
 				ok: false,
 				statusText: "Internal Server Error",
-			} as Response);
+			} as unknown as Response);
 
 			await expect(getUnlabeledArticles()).rejects.toThrow(
 				"Failed to fetch unlabeled articles: Internal Server Error",
@@ -58,7 +58,7 @@ describe("API Client Extended Tests", () => {
 			vi.mocked(fetch).mockResolvedValue({
 				ok: true,
 				json: async () => ({ invalid: "response" }),
-			} as Response);
+			} as unknown as Response);
 
 			await expect(getUnlabeledArticles()).rejects.toThrow(
 				"Invalid API response for unlabeled articles",
@@ -76,7 +76,7 @@ describe("API Client Extended Tests", () => {
 					success: true,
 					labels: mockLabels,
 				}),
-			} as Response);
+			} as unknown as Response);
 
 			const result = await getLabels();
 			expect(result).toEqual(mockLabels);
@@ -87,7 +87,7 @@ describe("API Client Extended Tests", () => {
 			vi.mocked(fetch).mockResolvedValue({
 				ok: false,
 				statusText: "Not Found",
-			} as Response);
+			} as unknown as Response);
 
 			await expect(getLabels()).rejects.toThrow(
 				"Failed to fetch labels: Not Found",
@@ -98,7 +98,7 @@ describe("API Client Extended Tests", () => {
 			vi.mocked(fetch).mockResolvedValue({
 				ok: true,
 				json: async () => ({ success: false }),
-			} as Response);
+			} as unknown as Response);
 
 			await expect(getLabels()).rejects.toThrow(
 				"Invalid API response for labels",
@@ -110,7 +110,7 @@ describe("API Client Extended Tests", () => {
 		test("記事評価の正常な削除", async () => {
 			vi.mocked(fetch).mockResolvedValue({
 				ok: true,
-			} as Response);
+			} as unknown as Response);
 
 			await expect(deleteArticleRating(123)).resolves.not.toThrow();
 			expect(fetch).toHaveBeenCalledWith(
@@ -123,7 +123,7 @@ describe("API Client Extended Tests", () => {
 			vi.mocked(fetch).mockResolvedValue({
 				ok: false,
 				statusText: "Not Found",
-			} as Response);
+			} as unknown as Response);
 
 			await expect(deleteArticleRating(123)).rejects.toThrow(
 				"Failed to delete rating for article 123: Not Found",
@@ -156,7 +156,7 @@ describe("API Client Extended Tests", () => {
 					ratings: mockRatings,
 					count: 1,
 				}),
-			} as Response);
+			} as unknown as Response);
 
 			const options: GetRatingsOptions = {
 				sortBy: "totalScore",
@@ -182,7 +182,7 @@ describe("API Client Extended Tests", () => {
 					ratings: [],
 					count: 0,
 				}),
-			} as Response);
+			} as unknown as Response);
 
 			const result = await getArticleRatings();
 			expect(result).toEqual([]);
@@ -199,7 +199,7 @@ describe("API Client Extended Tests", () => {
 					ratings: [],
 					count: 0,
 				}),
-			} as Response);
+			} as unknown as Response);
 
 			const options: GetRatingsOptions = {
 				sortBy: "createdAt",
@@ -222,7 +222,7 @@ describe("API Client Extended Tests", () => {
 			vi.mocked(fetch).mockResolvedValue({
 				ok: false,
 				statusText: "Bad Request",
-			} as Response);
+			} as unknown as Response);
 
 			await expect(getArticleRatings()).rejects.toThrow(
 				"Failed to get article ratings: Bad Request",
@@ -235,7 +235,7 @@ describe("API Client Extended Tests", () => {
 				json: async () => {
 					throw new Error("JSON parse error");
 				},
-			} as Response);
+			} as unknown as Response);
 
 			await expect(getArticleRatings()).rejects.toThrow(
 				"Failed to parse response when getting article ratings: JSON parse error",
@@ -246,7 +246,7 @@ describe("API Client Extended Tests", () => {
 			vi.mocked(fetch).mockResolvedValue({
 				ok: true,
 				json: async () => ({ invalid: "response" }),
-			} as Response);
+			} as unknown as Response);
 
 			await expect(getArticleRatings()).rejects.toThrow(
 				"Invalid API response for article ratings",
@@ -290,7 +290,7 @@ describe("API Client Extended Tests", () => {
 					success: true,
 					stats: mockStats,
 				}),
-			} as Response);
+			} as unknown as Response);
 
 			const result = await getRatingStats();
 			expect(result).toEqual(mockStats);
@@ -303,7 +303,7 @@ describe("API Client Extended Tests", () => {
 			vi.mocked(fetch).mockResolvedValue({
 				ok: false,
 				statusText: "Service Unavailable",
-			} as Response);
+			} as unknown as Response);
 
 			await expect(getRatingStats()).rejects.toThrow(
 				"Failed to get rating stats: Service Unavailable",
@@ -316,7 +316,7 @@ describe("API Client Extended Tests", () => {
 				json: async () => {
 					throw new Error("Malformed JSON");
 				},
-			} as Response);
+			} as unknown as Response);
 
 			await expect(getRatingStats()).rejects.toThrow(
 				"Failed to parse response when getting rating stats: Malformed JSON",
@@ -327,7 +327,7 @@ describe("API Client Extended Tests", () => {
 			vi.mocked(fetch).mockResolvedValue({
 				ok: true,
 				json: async () => ({ invalid: "stats" }),
-			} as Response);
+			} as unknown as Response);
 
 			await expect(getRatingStats()).rejects.toThrow(
 				"Invalid API response for rating stats",
