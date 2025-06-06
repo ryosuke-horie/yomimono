@@ -13,13 +13,13 @@ export default defineConfig({
 			include: ["src/**/*.ts"],
 			exclude: [
 				"src/test/**",
-				"src/types/**", 
+				"src/types/**",
 				"*.config.{js,ts}",
 				"**/*.test.{js,ts}",
 				"**/*.spec.{js,ts}",
 				"build/**",
 				"coverage/**",
-				"node_modules/**"
+				"node_modules/**",
 			],
 		},
 	},
