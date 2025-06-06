@@ -122,6 +122,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 84,
 					comment: "最高評価の記事",
 					createdAt: "2024-01-01T10:00:00Z",
+					updatedAt: "2024-01-01T10:00:00Z",
 				},
 				{
 					id: 2,
@@ -134,6 +135,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 64,
 					comment: null,
 					createdAt: "2024-01-02T10:00:00Z",
+					updatedAt: "2024-01-02T10:00:00Z",
 				},
 			];
 
@@ -171,6 +173,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 74,
 					comment: "良い記事です",
 					createdAt: "2024-01-03T10:00:00Z",
+					updatedAt: "2024-01-03T10:00:00Z",
 				},
 			];
 
@@ -204,6 +207,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 70,
 					comment: "新しいアプローチ",
 					createdAt: "2024-01-04T10:00:00Z",
+					updatedAt: "2024-01-04T10:00:00Z",
 				},
 			];
 
@@ -235,6 +239,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 78,
 					comment: "範囲内の記事",
 					createdAt: "2024-01-05T10:00:00Z",
+					updatedAt: "2024-01-05T10:00:00Z",
 				},
 			];
 
@@ -268,6 +273,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 88,
 					comment: "高品質記事",
 					createdAt: "2024-01-06T10:00:00Z",
+					updatedAt: "2024-01-06T10:00:00Z",
 				},
 			];
 
@@ -296,6 +302,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 50,
 					comment: null,
 					createdAt: "2024-01-07T10:00:00Z",
+					updatedAt: "2024-01-07T10:00:00Z",
 				},
 			];
 
@@ -324,6 +331,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 70,
 					comment: "詳細なコメント付き",
 					createdAt: "2024-01-08T10:00:00Z",
+					updatedAt: "2024-01-08T10:00:00Z",
 				},
 			];
 
@@ -357,6 +365,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 60,
 					comment: null,
 					createdAt: "2024-01-09T10:00:00Z",
+					updatedAt: "2024-01-09T10:00:00Z",
 				},
 			];
 
@@ -387,6 +396,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 74,
 					comment: "ページネーションテスト",
 					createdAt: "2024-01-10T10:00:00Z",
+					updatedAt: "2024-01-10T10:00:00Z",
 				},
 			];
 
@@ -407,7 +417,19 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 		});
 
 		test("境界値テスト - 最大リミット", async () => {
-			const mockRatings = [];
+			const mockRatings: Array<{
+				id: number;
+				articleId: number;
+				practicalValue: number;
+				technicalDepth: number;
+				understanding: number;
+				novelty: number;
+				importance: number;
+				totalScore: number;
+				comment: string | null;
+				createdAt: string;
+				updatedAt: string;
+			}> = [];
 
 			vi.mocked(apiClient.getArticleRatings).mockResolvedValue(mockRatings);
 
@@ -438,6 +460,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 64,
 					comment: "最初のページ",
 					createdAt: "2024-01-11T10:00:00Z",
+					updatedAt: "2024-01-11T10:00:00Z",
 				},
 			];
 
@@ -472,6 +495,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 84,
 					comment: "複合条件テスト用記事",
 					createdAt: "2024-01-12T10:00:00Z",
+					updatedAt: "2024-01-12T10:00:00Z",
 				},
 			];
 
@@ -517,6 +541,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 72,
 					comment: null,
 					createdAt: "2024-01-13T10:00:00Z",
+					updatedAt: "2024-01-13T10:00:00Z",
 				},
 			];
 
@@ -548,6 +573,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 72,
 					comment: "革新的なアプローチ",
 					createdAt: "2024-01-14T10:00:00Z",
+					updatedAt: "2024-01-14T10:00:00Z",
 				},
 			];
 
@@ -644,6 +670,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 				totalScore: 70 + (i % 20),
 				comment: i % 3 === 0 ? `コメント${i}` : null,
 				createdAt: `2024-01-${String((i % 28) + 1).padStart(2, "0")}T10:00:00Z`,
+				updatedAt: `2024-01-${String((i % 28) + 1).padStart(2, "0")}T10:00:00Z`,
 			}));
 
 			vi.mocked(apiClient.getArticleRatings).mockResolvedValue(mockRatings);
@@ -672,6 +699,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 74,
 					comment: "日付フォーマットテスト",
 					createdAt: "2024-12-25T15:30:45Z",
+					updatedAt: "2024-12-25T15:30:45Z",
 				},
 			];
 
@@ -697,6 +725,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 75, // 7.5/10表示になる
 					comment: "スコア表示テスト",
 					createdAt: "2024-01-16T10:00:00Z",
+					updatedAt: "2024-01-16T10:00:00Z",
 				},
 			];
 
@@ -722,6 +751,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 64,
 					comment: "基本表示テスト",
 					createdAt: "2024-01-17T10:00:00Z",
+					updatedAt: "2024-01-17T10:00:00Z",
 				},
 			];
 
@@ -809,6 +839,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 88,
 					comment: "素晴らしい記事",
 					createdAt: "2024-01-01T10:00:00Z",
+					updatedAt: "2024-01-01T10:00:00Z",
 				},
 				{
 					id: 2,
@@ -821,6 +852,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 78,
 					comment: null,
 					createdAt: "2024-01-02T10:00:00Z",
+					updatedAt: "2024-01-02T10:00:00Z",
 				},
 			];
 
@@ -856,6 +888,7 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 					totalScore: 84,
 					comment: "Top 5記事",
 					createdAt: "2024-01-03T10:00:00Z",
+					updatedAt: "2024-01-03T10:00:00Z",
 				},
 			];
 
@@ -998,8 +1031,32 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 
 		test("全て成功した場合の一括評価", async () => {
 			const mockCreatedRatings = [
-				{ id: 1, totalScore: 80 },
-				{ id: 2, totalScore: 75 },
+				{
+					id: 1,
+					articleId: 101,
+					practicalValue: 8,
+					technicalDepth: 8,
+					understanding: 8,
+					novelty: 8,
+					importance: 8,
+					totalScore: 80,
+					comment: null,
+					createdAt: "2024-01-01T10:00:00Z",
+					updatedAt: "2024-01-01T10:00:00Z",
+				},
+				{
+					id: 2,
+					articleId: 102,
+					practicalValue: 7,
+					technicalDepth: 8,
+					understanding: 7,
+					novelty: 8,
+					importance: 7,
+					totalScore: 75,
+					comment: "良い記事",
+					createdAt: "2024-01-02T10:00:00Z",
+					updatedAt: "2024-01-02T10:00:00Z",
+				},
 			];
 
 			vi.mocked(apiClient.createArticleRating)
@@ -1038,7 +1095,19 @@ describe("Issue #588: getArticleRatings ツール詳細テスト", () => {
 		});
 
 		test("部分的に失敗した場合の一括評価", async () => {
-			const mockCreatedRating = { id: 1, totalScore: 85 };
+			const mockCreatedRating = {
+				id: 1,
+				articleId: 101,
+				practicalValue: 9,
+				technicalDepth: 8,
+				understanding: 9,
+				novelty: 8,
+				importance: 9,
+				totalScore: 85,
+				comment: null,
+				createdAt: "2024-01-01T10:00:00Z",
+				updatedAt: "2024-01-01T10:00:00Z",
+			};
 
 			vi.mocked(apiClient.createArticleRating)
 				.mockResolvedValueOnce(mockCreatedRating)

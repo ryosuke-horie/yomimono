@@ -219,7 +219,18 @@ describe("Issue #588: index.ts 未カバー行の詳細テスト", () => {
 				fetchContent: boolean,
 			) => {
 				try {
-					let articleContent: typeof mockArticleContent | null = null;
+					let articleContent: {
+						title: string;
+						content: string;
+						metadata: {
+							author?: string;
+							publishedDate?: string;
+							readingTime?: number;
+							wordCount?: number;
+						};
+						extractionMethod: string;
+						qualityScore: number;
+					} | null = null;
 
 					if (fetchContent) {
 						try {
@@ -297,8 +308,32 @@ describe("Issue #588: index.ts 未カバー行の詳細テスト", () => {
 		});
 
 		test("bulkRateArticles ツール - 成功・失敗の詳細カウント処理", async () => {
-			const mockSuccessRating1 = { id: 1, totalScore: 85 };
-			const mockSuccessRating2 = { id: 2, totalScore: 78 };
+			const mockSuccessRating1 = {
+				id: 1,
+				articleId: 101,
+				practicalValue: 9,
+				technicalDepth: 8,
+				understanding: 9,
+				novelty: 8,
+				importance: 9,
+				totalScore: 85,
+				comment: null,
+				createdAt: "2024-01-01T10:00:00Z",
+				updatedAt: "2024-01-01T10:00:00Z",
+			};
+			const mockSuccessRating2 = {
+				id: 2,
+				articleId: 102,
+				practicalValue: 7,
+				technicalDepth: 8,
+				understanding: 8,
+				novelty: 7,
+				importance: 8,
+				totalScore: 78,
+				comment: null,
+				createdAt: "2024-01-02T10:00:00Z",
+				updatedAt: "2024-01-02T10:00:00Z",
+			};
 
 			vi.mocked(apiClient.createArticleRating)
 				.mockResolvedValueOnce(mockSuccessRating1)

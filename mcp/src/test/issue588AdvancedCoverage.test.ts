@@ -233,6 +233,7 @@ describe("Issue #588: 高度なMCP機能の詳細テスト", () => {
 					totalScore: 100,
 					comment: "完璧な記事",
 					createdAt: "2024-01-01T10:00:00Z",
+					updatedAt: "2024-01-01T10:00:00Z",
 				},
 			];
 
@@ -266,6 +267,7 @@ describe("Issue #588: 高度なMCP機能の詳細テスト", () => {
 				totalScore: 80 + (i % 20),
 				comment: i % 5 === 0 ? `Top記事${i + 1}` : null,
 				createdAt: `2024-01-${String((i % 28) + 1).padStart(2, "0")}T10:00:00Z`,
+				updatedAt: `2024-01-${String((i % 28) + 1).padStart(2, "0")}T10:00:00Z`,
 			}));
 
 			vi.mocked(apiClient.getArticleRatings).mockResolvedValue(mockRatings);
@@ -296,6 +298,7 @@ describe("Issue #588: 高度なMCP機能の詳細テスト", () => {
 				totalScore: 74,
 				comment: null,
 				createdAt: "2024-01-10T10:00:00Z",
+				updatedAt: "2024-01-10T10:00:00Z",
 			}));
 
 			vi.mocked(apiClient.getArticleRatings).mockResolvedValue(mockRatings);
@@ -343,9 +346,45 @@ describe("Issue #588: 高度なMCP機能の詳細テスト", () => {
 
 	describe("bulkRateArticles 複合シナリオテスト", () => {
 		test("混在した成功・失敗パターン（大量データ）", async () => {
-			const mockSuccessRating1 = { id: 1, totalScore: 85 };
-			const mockSuccessRating2 = { id: 2, totalScore: 92 };
-			const mockSuccessRating3 = { id: 3, totalScore: 78 };
+			const mockSuccessRating1 = {
+				id: 1,
+				articleId: 201,
+				practicalValue: 9,
+				technicalDepth: 8,
+				understanding: 9,
+				novelty: 7,
+				importance: 9,
+				totalScore: 85,
+				comment: "テスト記事1",
+				createdAt: "2024-01-01T10:00:00Z",
+				updatedAt: "2024-01-01T10:00:00Z",
+			};
+			const mockSuccessRating2 = {
+				id: 2,
+				articleId: 203,
+				practicalValue: 8,
+				technicalDepth: 9,
+				understanding: 9,
+				novelty: 8,
+				importance: 10,
+				totalScore: 92,
+				comment: "テスト記事2",
+				createdAt: "2024-01-02T10:00:00Z",
+				updatedAt: "2024-01-02T10:00:00Z",
+			};
+			const mockSuccessRating3 = {
+				id: 3,
+				articleId: 205,
+				practicalValue: 7,
+				technicalDepth: 8,
+				understanding: 8,
+				novelty: 6,
+				importance: 8,
+				totalScore: 78,
+				comment: "テスト記事3",
+				createdAt: "2024-01-03T10:00:00Z",
+				updatedAt: "2024-01-03T10:00:00Z",
+			};
 
 			vi.mocked(apiClient.createArticleRating)
 				.mockResolvedValueOnce(mockSuccessRating1)
@@ -459,7 +498,16 @@ describe("Issue #588: 高度なMCP機能の詳細テスト", () => {
 		test("最大10件制限での境界値テスト", async () => {
 			const mockRatings = Array.from({ length: 10 }, (_, i) => ({
 				id: i + 10,
+				articleId: 400 + i,
+				practicalValue: 8,
+				technicalDepth: 7,
+				understanding: 8,
+				novelty: 6,
+				importance: 8,
 				totalScore: 75 + i,
+				comment: `一括テスト${i + 1}`,
+				createdAt: "2024-01-01T10:00:00Z",
+				updatedAt: "2024-01-01T10:00:00Z",
 			}));
 
 			for (let i = 0; i < 10; i++) {
