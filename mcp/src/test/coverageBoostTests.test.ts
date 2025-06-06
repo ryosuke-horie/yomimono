@@ -128,14 +128,12 @@ describe("カバレッジ向上テスト", () => {
 			const unknownError = "文字列エラー";
 
 			expect(error instanceof Error).toBe(true);
-			expect(unknownError instanceof Error).toBe(false);
+			expect(typeof unknownError === "string").toBe(true);
 
 			const errorMessage1 =
 				error instanceof Error ? error.message : String(error);
 			const errorMessage2 =
-				unknownError instanceof Error
-					? unknownError.message
-					: String(unknownError);
+				typeof unknownError === "string" ? unknownError : String(unknownError);
 
 			expect(errorMessage1).toBe("テストエラー");
 			expect(errorMessage2).toBe("文字列エラー");

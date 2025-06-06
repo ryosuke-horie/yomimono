@@ -136,14 +136,20 @@ const mockUnreadBookmarks = [
 		title: "未読記事1",
 		url: "https://example.com/article1",
 		createdAt: "2024-01-01T00:00:00Z",
+		labels: [],
 		isRead: false,
+		isFavorite: false,
+		readAt: null,
 	},
 	{
 		id: 2,
 		title: "未読記事2",
 		url: "https://example.com/article2",
 		createdAt: "2024-01-02T00:00:00Z",
+		labels: [],
 		isRead: false,
+		isFavorite: false,
+		readAt: null,
 	},
 ];
 
@@ -153,7 +159,10 @@ const mockReadBookmarks = [
 		title: "既読記事1",
 		url: "https://example.com/article3",
 		createdAt: "2024-01-03T00:00:00Z",
+		labels: [],
 		isRead: true,
+		isFavorite: false,
+		readAt: "2024-01-03T10:00:00Z",
 	},
 ];
 
@@ -230,10 +239,8 @@ describe("ブックマーク管理ツールのテスト", () => {
 	describe("markBookmarkAsRead ツール", () => {
 		test("ブックマークの既読マークが成功する", async () => {
 			const mockResult = {
-				id: 1,
-				title: "記事タイトル",
-				isRead: true,
-				updatedAt: "2024-01-01T12:00:00Z",
+				message: "ブックマークを既読にマークしました",
+				success: true as const,
 			};
 
 			vi.mocked(apiClient.markBookmarkAsRead).mockResolvedValue(mockResult);
@@ -245,7 +252,9 @@ describe("ブックマーク管理ツールのテスト", () => {
 			expect(result.content[0].text).toContain(
 				"ブックマークID: 1を既読にマーク",
 			);
-			expect(result.content[0].text).toContain("記事タイトル");
+			expect(result.content[0].text).toContain(
+				"ブックマークを既読にマークしました",
+			);
 			expect(apiClient.markBookmarkAsRead).toHaveBeenCalledWith(1);
 		});
 
@@ -276,6 +285,7 @@ describe("ブックマーク管理ツールのテスト", () => {
 				title: "特定のブックマーク",
 				url: "https://example.com/specific",
 				createdAt: "2024-01-01T00:00:00Z",
+				updatedAt: "2024-01-01T00:00:00Z",
 				isRead: false,
 			};
 

@@ -414,6 +414,7 @@ describe("記事評価ツールのテスト", () => {
 				totalScore: 76,
 				comment: "非常に参考になりました",
 				createdAt: "2024-01-01T12:00:00Z",
+				updatedAt: "2024-01-01T12:00:00Z",
 			};
 
 			vi.mocked(apiClient.createArticleRating).mockResolvedValue(mockRating);
