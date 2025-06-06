@@ -10,7 +10,17 @@ export default defineConfig({
 			reportsDirectory: "./coverage",
 			provider: "v8",
 			excludeNodeModules: true,
-			exclude: ["src/test/**", "src/types/**", "*.config.{js,ts}"],
+			include: ["src/**/*.ts"],
+			exclude: [
+				"src/test/**",
+				"src/types/**", 
+				"*.config.{js,ts}",
+				"**/*.test.{js,ts}",
+				"**/*.spec.{js,ts}",
+				"build/**",
+				"coverage/**",
+				"node_modules/**"
+			],
 		},
 	},
 });
