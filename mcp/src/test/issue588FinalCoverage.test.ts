@@ -307,7 +307,17 @@ describe("Issue #588: index.ts 未カバー行の詳細テスト", () => {
 				.mockRejectedValueOnce(new Error("無効な評価値です"));
 
 			// index.tsのbulkRateArticlesツールの動作を模倣
-			const bulkRateArticlesHandler = async (ratings: Array<any>) => {
+			const bulkRateArticlesHandler = async (
+				ratings: Array<{
+					articleId: number;
+					practicalValue: number;
+					technicalDepth: number;
+					understanding: number;
+					novelty: number;
+					importance: number;
+					comment?: string;
+				}>,
+			) => {
 				try {
 					const results = await Promise.allSettled(
 						ratings.map((ratingData) => {
@@ -455,7 +465,18 @@ describe("Issue #588: index.ts 未カバー行の詳細テスト", () => {
 				fetchContent: boolean,
 			) => {
 				try {
-					let articleContent: any = null;
+					let articleContent: {
+						title: string;
+						content: string;
+						metadata: {
+							author?: string;
+							publishedDate?: string;
+							readingTime?: number;
+							wordCount?: number;
+						};
+						extractionMethod: string;
+						qualityScore: number;
+					} | null = null;
 
 					// この部分をテスト - fetchContent=falseの場合の分岐
 					if (fetchContent) {
@@ -474,7 +495,7 @@ describe("Issue #588: index.ts 未カバー行の詳細テスト", () => {
 					const evaluationPrompt = generateRatingPrompt(articleContent, url);
 
 					const contentSummary = articleContent
-						? `詳細な記事情報`
+						? "詳細な記事情報"
 						: "記事内容の取得に失敗しました。URLを直接確認して評価を行ってください。";
 
 					return {
@@ -670,7 +691,9 @@ if (import.meta.vitest) {
 	});
 
 	test("Promise.allSettledの結果フィルタリング確認", () => {
-		const mockResults: Array<PromiseSettledResult<any>> = [
+		const mockResults: Array<
+			PromiseSettledResult<{ id: number; totalScore: number }>
+		> = [
 			{ status: "fulfilled", value: { id: 1, totalScore: 80 } },
 			{ status: "rejected", reason: new Error("テストエラー") },
 			{ status: "fulfilled", value: { id: 2, totalScore: 90 } },
@@ -687,7 +710,11 @@ if (import.meta.vitest) {
 
 		const successfulResults = mockResults
 			.filter((result) => result.status === "fulfilled")
-			.map((result) => (result as PromiseFulfilledResult<any>).value);
+			.map(
+				(result) =>
+					(result as PromiseFulfilledResult<{ id: number; totalScore: number }>)
+						.value,
+			);
 
 		expect(successfulResults).toEqual([
 			{ id: 1, totalScore: 80 },
