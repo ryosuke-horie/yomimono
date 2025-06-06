@@ -298,15 +298,24 @@ describe("エラーハンドリングの網羅的テスト", () => {
 	});
 
 	test("API_BASE_URL未設定時のエラー", async () => {
-		process.env.API_BASE_URL = undefined;
+		// 環境変数を完全にクリア
+		const originalApiBaseUrl = process.env.API_BASE_URL;
+		delete process.env.API_BASE_URL;
 
 		const updateData: UpdateRatingData = {
 			practicalValue: 8,
 		};
 
-		await expect(updateArticleRating(1, updateData)).rejects.toThrow(
-			"API_BASE_URL environment variable is not set",
-		);
+		try {
+			await expect(updateArticleRating(1, updateData)).rejects.toThrow(
+				"API_BASE_URL environment variable is not set",
+			);
+		} finally {
+			// テスト後に元の値を復元
+			if (originalApiBaseUrl) {
+				process.env.API_BASE_URL = originalApiBaseUrl;
+			}
+		}
 	});
 
 	test("レスポンスの不正なContent-Type", async () => {
