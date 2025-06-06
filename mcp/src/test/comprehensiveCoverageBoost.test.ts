@@ -447,9 +447,13 @@ describe("包括的カバレッジ向上テスト", () => {
 				obj: unknown,
 			): obj is { title: string; content: string } => {
 				return (
-					obj &&
-					typeof obj.title === "string" &&
-					typeof obj.content === "string"
+					Boolean(obj) &&
+					typeof obj === "object" &&
+					obj !== null &&
+					"title" in obj &&
+					"content" in obj &&
+					typeof (obj as any).title === "string" &&
+					typeof (obj as any).content === "string"
 				);
 			};
 
