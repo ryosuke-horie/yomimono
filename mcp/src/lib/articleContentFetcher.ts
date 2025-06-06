@@ -1026,5 +1026,342 @@ if (import.meta.vitest) {
 			expect(qiitaStrategy.selectors).toContain(".it-MdContent");
 			expect(qiitaStrategy.metadata.author).toContain(".p-items_authorName");
 		});
+
+		test("noteの戦略設定が正しい", () => {
+			const noteStrategy = SITE_STRATEGIES["note.com"];
+
+			expect(noteStrategy.selectors).toContain(
+				".note-common-styles__textnote-body",
+			);
+			expect(noteStrategy.metadata.author).toContain(
+				".o-noteContentHeader__authorName",
+			);
+		});
+
+		test("Mediumの戦略設定が正しい", () => {
+			const mediumStrategy = SITE_STRATEGIES["medium.com"];
+
+			expect(mediumStrategy.selectors).toContain("article section");
+			expect(mediumStrategy.metadata.author).toContain(
+				'[data-testid="authorName"]',
+			);
+		});
+
+		test("デフォルト戦略が適用される", () => {
+			const defaultStrategy = SITE_STRATEGIES.default;
+
+			expect(defaultStrategy.selectors).toContain("article");
+			expect(defaultStrategy.selectors).toContain("main");
+			expect(defaultStrategy.fallbackSelectors).toContain("body");
+		});
+	});
+
+	describe("extractContentFromHTML", () => {
+		test("HTMLからタイトルと内容を抽出する", () => {
+			const html = `
+				<html>
+					<head><title>テストタイトル</title></head>
+					<body>
+						<article>
+							<h1>記事タイトル</h1>
+							<p>これは記事の内容です。</p>
+							<script>console.log('スクリプト');</script>
+							<style>.test { color: red; }</style>
+						</article>
+					</body>
+				</html>
+			`;
+
+			const result = extractContentFromHTML(html);
+
+			expect(result.title).toBe("テストタイトル");
+			expect(result.content).toContain("記事の内容");
+			expect(result.content).not.toContain("console.log");
+			expect(result.content).not.toContain("color: red");
+			expect(result.extractionMethod).toBe("fallback-html");
+			expect(result.qualityScore).toBe(0.3);
+		});
+
+		test("メタデータ付きHTMLの処理", () => {
+			const html = `
+				<html>
+					<head>
+						<title>テスト記事</title>
+						<meta name="author" content="テスト著者">
+						<meta property="article:published_time" content="2024-01-01T12:00:00Z">
+					</head>
+					<body>
+						<p>記事内容です。</p>
+					</body>
+				</html>
+			`;
+
+			const result = extractContentFromHTML(html);
+
+			expect(result.metadata.author).toBe("テスト著者");
+			expect(result.metadata.publishedDate).toBe("2024-01-01T12:00:00Z");
+			expect(result.metadata.wordCount).toBeGreaterThan(0);
+			expect(result.metadata.readingTime).toBeGreaterThan(0);
+		});
+
+		test("不正なHTMLの処理", () => {
+			const html = "<invalid>html</invalid>";
+
+			const result = extractContentFromHTML(html);
+
+			expect(result.title).toBe("記事タイトル不明");
+			expect(result.content).toBe("記事内容の取得に失敗しました");
+			expect(result.qualityScore).toBe(0.3);
+		});
+	});
+
+	describe("fallbackFetchContent", () => {
+		test("フォールバック取得が成功する", async () => {
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				text: async () => `
+					<html>
+						<head><title>フォールバック記事</title></head>
+						<body><p>フォールバック内容です。</p></body>
+					</html>
+				`,
+			});
+
+			const result = await fallbackFetchContent("https://example.com");
+
+			expect(result.title).toBe("フォールバック記事");
+			expect(result.content).toContain("フォールバック内容");
+			expect(result.extractionMethod).toBe("fallback-html");
+		});
+
+		test("HTTPエラー時の例外処理", async () => {
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: false,
+				status: 404,
+			});
+
+			await expect(fallbackFetchContent("https://example.com")).rejects.toThrow(
+				"HTTP error! status: 404",
+			);
+		});
+
+		test("ネットワークエラー時の例外処理", async () => {
+			global.fetch = vi.fn().mockRejectedValue(new Error("ネットワークエラー"));
+
+			await expect(fallbackFetchContent("https://example.com")).rejects.toThrow(
+				"Fallback fetch failed: ネットワークエラー",
+			);
+		});
+	});
+
+	describe("品質スコア計算の詳細テスト", () => {
+		test("構造化データがある場合の高スコア", () => {
+			const score = calculateQualityScore({
+				hasStructuredData: true,
+				contentLength: 1500,
+				hasMetadata: true,
+				hasDescription: true,
+			});
+
+			expect(score).toBe(1.0);
+		});
+
+		test("中程度の品質スコア", () => {
+			const score = calculateQualityScore({
+				hasStructuredData: false,
+				contentLength: 300,
+				hasMetadata: true,
+				hasDescription: false,
+			});
+
+			expect(score).toBe(0.4); // 0.2 (content) + 0.2 (metadata)
+		});
+
+		test("最低品質スコア", () => {
+			const score = calculateQualityScore({
+				hasStructuredData: false,
+				contentLength: 50,
+				hasMetadata: false,
+				hasDescription: false,
+			});
+
+			expect(score).toBe(0.0);
+		});
+
+		test("コンテンツ長による段階的スコア", () => {
+			const score100 = calculateQualityScore({
+				hasStructuredData: false,
+				contentLength: 100,
+				hasMetadata: false,
+				hasDescription: false,
+			});
+			const score300 = calculateQualityScore({
+				hasStructuredData: false,
+				contentLength: 300,
+				hasMetadata: false,
+				hasDescription: false,
+			});
+			const score600 = calculateQualityScore({
+				hasStructuredData: false,
+				contentLength: 600,
+				hasMetadata: false,
+				hasDescription: false,
+			});
+
+			expect(score100).toBe(0.1);
+			expect(score300).toBe(0.2);
+			expect(score600).toBe(0.3);
+		});
+	});
+
+	describe("評価プロンプト生成の詳細テスト", () => {
+		test("完全な記事情報でのプロンプト生成", () => {
+			const articleContent: ArticleContent = {
+				title: "React Hooks完全ガイド",
+				content: "React Hooksについての詳細な解説...".repeat(50),
+				metadata: {
+					author: "React専門家",
+					publishedDate: "2024-01-15T10:00:00Z",
+					description: "React Hooksの使い方を詳しく解説",
+					readingTime: 10,
+					wordCount: 1000,
+					tags: ["React", "JavaScript", "Frontend"],
+					language: "ja",
+				},
+				extractionMethod: "structured-data",
+				qualityScore: 0.95,
+			};
+
+			const prompt = generateRatingPrompt(
+				articleContent,
+				"https://react-guide.com",
+			);
+
+			expect(prompt).toContain("React Hooks完全ガイド");
+			expect(prompt).toContain("React専門家");
+			expect(prompt).toContain("2024-01-15");
+			expect(prompt).toContain("10分");
+			expect(prompt).toContain("1000文字");
+			expect(prompt).toContain("95%");
+			expect(prompt).toContain("React Hooksの使い方");
+			expect(prompt).toContain("practicalValue");
+			expect(prompt).toContain("createArticleRating");
+		});
+
+		test("最小限の記事情報でのプロンプト生成", () => {
+			const articleContent: ArticleContent = {
+				title: "最小記事",
+				content: "短い内容",
+				metadata: {},
+				extractionMethod: "generic-selectors",
+				qualityScore: 0.2,
+			};
+
+			const prompt = generateRatingPrompt(
+				articleContent,
+				"https://minimal.com",
+			);
+
+			expect(prompt).toContain("最小記事");
+			expect(prompt).toContain("N/A"); // 不明な情報
+			expect(prompt).toContain("20%"); // 品質スコア
+			expect(prompt).toContain("generic-selectors");
+		});
+
+		test("長いコンテンツの切り詰め処理", () => {
+			const longContent = "長いテキスト ".repeat(500); // 2000文字を超える
+			const articleContent: ArticleContent = {
+				title: "長い記事",
+				content: longContent,
+				metadata: {},
+				extractionMethod: "structured-data",
+				qualityScore: 0.8,
+			};
+
+			const prompt = generateRatingPrompt(articleContent, "https://long.com");
+
+			expect(prompt).toContain("長いテキスト");
+			expect(prompt).toContain("..."); // 切り詰めを示す
+			expect(prompt.length).toBeLessThan(longContent.length + 1000); // 適切に切り詰められている
+		});
+
+		test("フォールバックプロンプトのテスト", () => {
+			const prompt = generateFallbackPrompt("https://example.com/test");
+
+			expect(prompt).toContain("内容取得失敗");
+			expect(prompt).toContain("https://example.com/test");
+			expect(prompt).toContain("直接確認");
+			expect(prompt).toContain("practicalValue");
+			expect(prompt).toContain("createArticleRating");
+		});
+
+		test("プロンプト内のEVALUATION_PROMPTSの使用", () => {
+			const articleContent: ArticleContent = {
+				title: "テスト記事",
+				content: "テスト内容",
+				metadata: { author: "テスト著者" },
+				extractionMethod: "test",
+				qualityScore: 0.5,
+			};
+
+			const prompt = generateRatingPrompt(articleContent, "https://test.com");
+
+			// 各評価軸のプロンプトが含まれているか確認
+			expect(prompt).toContain("実用性評価");
+			expect(prompt).toContain("技術深度評価");
+			expect(prompt).toContain("理解度評価");
+			expect(prompt).toContain("新規性評価");
+			expect(prompt).toContain("重要度評価");
+		});
+	});
+
+	describe("抽出戦略の詳細テスト", () => {
+		test("getExtractionStrategies関数の戦略一覧", () => {
+			const strategies = getExtractionStrategies();
+
+			expect(strategies).toHaveLength(4);
+			expect(strategies[0].name).toBe("structured-data");
+			expect(strategies[1].name).toBe("semantic-elements");
+			expect(strategies[2].name).toBe("site-specific");
+			expect(strategies[3].name).toBe("generic-selectors");
+
+			// 優先度の確認
+			expect(strategies[0].priority).toBe(1);
+			expect(strategies[1].priority).toBe(2);
+			expect(strategies[2].priority).toBe(3);
+			expect(strategies[3].priority).toBe(4);
+		});
+
+		test("品質スコア閾値の確認", () => {
+			const strategies = getExtractionStrategies();
+
+			expect(
+				strategies[0].validate({ qualityScore: 0.8 } as ArticleContent),
+			).toBe(true);
+			expect(
+				strategies[0].validate({ qualityScore: 0.7 } as ArticleContent),
+			).toBe(false);
+
+			expect(
+				strategies[1].validate({ qualityScore: 0.6 } as ArticleContent),
+			).toBe(true);
+			expect(
+				strategies[1].validate({ qualityScore: 0.5 } as ArticleContent),
+			).toBe(false);
+
+			expect(
+				strategies[2].validate({ qualityScore: 0.7 } as ArticleContent),
+			).toBe(true);
+			expect(
+				strategies[2].validate({ qualityScore: 0.6 } as ArticleContent),
+			).toBe(false);
+
+			expect(
+				strategies[3].validate({ qualityScore: 0.4 } as ArticleContent),
+			).toBe(true);
+			expect(
+				strategies[3].validate({ qualityScore: 0.3 } as ArticleContent),
+			).toBe(false);
+		});
 	});
 }
