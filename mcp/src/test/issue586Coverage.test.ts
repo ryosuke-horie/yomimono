@@ -300,7 +300,7 @@ describe("エラーハンドリングの網羅的テスト", () => {
 	test("API_BASE_URL未設定時のエラー", async () => {
 		// 環境変数を完全にクリア
 		const originalApiBaseUrl = process.env.API_BASE_URL;
-		delete process.env.API_BASE_URL;
+		process.env.API_BASE_URL = undefined;
 
 		const updateData: UpdateRatingData = {
 			practicalValue: 8,
