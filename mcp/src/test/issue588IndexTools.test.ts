@@ -7,6 +7,18 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import * as apiClient from "../lib/apiClient.js";
 
+type RatingParams = {
+	sortBy?: string;
+	order?: string;
+	minScore?: number;
+	maxScore?: number;
+	hasComment?: boolean;
+};
+
+type BulkRatingParams = {
+	ratings: unknown[];
+};
+
 // APIクライアントをモック
 vi.mock("../lib/apiClient.js");
 
@@ -48,7 +60,7 @@ describe("Issue #588: index.ts高度な評価ツールテスト", () => {
 			vi.mocked(apiClient.getArticleRatings).mockResolvedValue(mockRatings);
 
 			// getArticleRatingsツールの実行をシミュレート
-			const toolHandler = async (params: unknown) => {
+			const toolHandler = async (params: RatingParams) => {
 				try {
 					const ratings = await apiClient.getArticleRatings(params);
 					const formatted = ratings
@@ -110,7 +122,7 @@ describe("Issue #588: index.ts高度な評価ツールテスト", () => {
 				mockSortedRatings,
 			);
 
-			const toolHandler = async (params: unknown) => {
+			const toolHandler = async (params: RatingParams) => {
 				try {
 					const ratings = await apiClient.getArticleRatings(params);
 					const filterInfo = [];
@@ -182,7 +194,7 @@ describe("Issue #588: index.ts高度な評価ツールテスト", () => {
 				mockFilteredRatings,
 			);
 
-			const toolHandler = async (params: unknown) => {
+			const toolHandler = async (params: RatingParams) => {
 				try {
 					const ratings = await apiClient.getArticleRatings(params);
 					const filterInfo = [];
@@ -234,7 +246,7 @@ describe("Issue #588: index.ts高度な評価ツールテスト", () => {
 				new Error("API Error"),
 			);
 
-			const toolHandler = async (params: unknown) => {
+			const toolHandler = async (params: RatingParams) => {
 				try {
 					await apiClient.getArticleRatings(params);
 					return { content: [{ type: "text", text: "成功" }], isError: false };
@@ -512,7 +524,7 @@ describe("Issue #588: index.ts高度な評価ツールテスト", () => {
 					updatedAt: "2024-01-02T00:00:00Z",
 				});
 
-			const toolHandler = async (params: { ratings: unknown[] }) => {
+			const toolHandler = async (params: BulkRatingParams) => {
 				try {
 					const { ratings } = params;
 					const results = await Promise.allSettled(
@@ -595,7 +607,7 @@ describe("Issue #588: index.ts高度な評価ツールテスト", () => {
 				})
 				.mockRejectedValueOnce(new Error("記事が見つかりません"));
 
-			const toolHandler = async (params: { ratings: unknown[] }) => {
+			const toolHandler = async (params: BulkRatingParams) => {
 				try {
 					const { ratings } = params;
 					const results = await Promise.allSettled(

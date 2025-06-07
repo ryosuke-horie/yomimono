@@ -176,7 +176,7 @@ describe("Issue #588: index.ts main実行パステスト", () => {
 			// getApiBaseUrl関数の模擬テスト
 			const getApiBaseUrl = () => {
 				const API_BASE_URL = process.env.API_BASE_URL;
-				if (!API_BASE_URL || API_BASE_URL === undefined) {
+				if (!API_BASE_URL) {
 					throw new Error("API_BASE_URL environment variable is not set.");
 				}
 				return API_BASE_URL;

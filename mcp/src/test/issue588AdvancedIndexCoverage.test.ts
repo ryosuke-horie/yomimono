@@ -7,6 +7,18 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import * as apiClient from "../lib/apiClient.js";
 
+type RatingParams = {
+	sortBy?: string;
+	order?: string;
+	minScore?: number;
+	maxScore?: number;
+	hasComment?: boolean;
+};
+
+type BulkRatingParams = {
+	ratings: unknown[];
+};
+
 // APIクライアントをモック
 vi.mock("../lib/apiClient.js");
 
@@ -40,12 +52,13 @@ describe("Issue #588: index.ts詳細カバレッジ向上", () => {
 				totalScore: 86,
 				comment: "とても参考になる記事でした。実装例が豊富で理解しやすい。",
 				createdAt: "2024-01-15T10:30:00Z",
+				updatedAt: "2024-01-15T10:30:00Z",
 			};
 
 			vi.mocked(apiClient.getArticleRatings).mockResolvedValue([mockRating]);
 
 			// getArticleRatingsツールの実際のフォーマット処理をシミュレート
-			const toolHandler = async (params: unknown) => {
+			const toolHandler = async (params: RatingParams) => {
 				try {
 					const ratings = await apiClient.getArticleRatings(params);
 
@@ -129,7 +142,7 @@ ${formatted || "📭 条件に合致する評価がありません"}`,
 		test("空の結果セットでのフォールバック表示", async () => {
 			vi.mocked(apiClient.getArticleRatings).mockResolvedValue([]);
 
-			const toolHandler = async (params: unknown) => {
+			const toolHandler = async (params: RatingParams) => {
 				try {
 					const ratings = await apiClient.getArticleRatings(params);
 					const formatted = ratings.map(() => "").join("\n\n");
@@ -179,6 +192,7 @@ ${formatted || "📭 条件に合致する評価がありません"}`,
 					totalScore: 76,
 					comment: null,
 					createdAt: "2024-12-25T14:30:45.123Z", // 詳細なタイムスタンプ
+					updatedAt: "2024-12-25T14:30:45.123Z",
 				},
 				{
 					id: 2,
@@ -191,6 +205,7 @@ ${formatted || "📭 条件に合致する評価がありません"}`,
 					totalScore: 78,
 					comment: "年末の総まとめ記事",
 					createdAt: "2024-01-01T00:00:00Z", // 年始のタイムスタンプ
+					updatedAt: "2024-01-01T00:00:00Z",
 				},
 			];
 
@@ -529,7 +544,7 @@ ${stats.topRatedArticles
 				.mockRejectedValueOnce(new Error("記事ID 3が見つかりません"))
 				.mockRejectedValueOnce(new Error("評価データが不正です"));
 
-			const toolHandler = async (params: { ratings: unknown[] }) => {
+			const toolHandler = async (params: BulkRatingParams) => {
 				try {
 					const { ratings } = params;
 					const results = await Promise.allSettled(
@@ -685,7 +700,7 @@ ${stats.topRatedArticles
 					updatedAt: "2024-01-02T00:00:00Z",
 				});
 
-			const toolHandler = async (params: { ratings: unknown[] }) => {
+			const toolHandler = async (params: BulkRatingParams) => {
 				const { ratings } = params;
 				const results = await Promise.allSettled(
 					ratings.map((ratingData) => {
