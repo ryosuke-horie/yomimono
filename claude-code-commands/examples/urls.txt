@@ -1,0 +1,23 @@
+# サンプルURLリスト
+# 技術記事の評価用URLリスト
+
+# Zenn記事例
+https://zenn.dev/example/articles/sample-article-1
+https://zenn.dev/example/articles/sample-article-2
+
+# Qiita記事例
+https://qiita.com/user/items/sample-item-1
+https://qiita.com/user/items/sample-item-2
+
+# 技術ブログ例
+https://example.com/blog/technical-post-1
+https://example.com/blog/technical-post-2
+
+# コメント行は無視されます
+# https://example.com/disabled-url
+
+# Note記事例
+https://note.com/user/n/sample-note-1
+
+# 個人ブログ例
+https://personal-blog.example.com/posts/programming-tips
