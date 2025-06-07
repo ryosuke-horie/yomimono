@@ -9,7 +9,8 @@ on:
 jobs:
   lint:
     # runs-on: ubuntu-latest
-    runs-on: self-hosted
+    # runs-on: self-hosted
+    runs-on: arc-runner-shared
     defaults:
       run:
         working-directory: ./api
