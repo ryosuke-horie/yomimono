@@ -2,6 +2,9 @@ name: Claude Auto labeling
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 21 * * *'  # 毎日日本時間午前6時 (UTC午後9時)
+    - cron: '0 8 * * *'   # 毎日日本時間午後17時 (UTC午前8時)
 
 jobs:
   lint:
