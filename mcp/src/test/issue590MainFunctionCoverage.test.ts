@@ -22,11 +22,14 @@ describe("Issue #590: main関数カバレッジテスト", () => {
 		// console.errorをスパイ
 		consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 		// process.exitをスパイ（実際には終了させない）
+		// @ts-ignore - process.exit mock type issues with vitest
 		processExitSpy = vi
 			.spyOn(process, "exit")
-			.mockImplementation((code?: number) => {
-				throw new Error(`Process.exit(${code}) called`);
-			});
+			.mockImplementation(
+				(code?: string | number | null | undefined): never => {
+					throw new Error(`Process.exit(${code}) called`);
+				},
+			);
 	});
 
 	afterEach(() => {
@@ -141,10 +144,15 @@ describe("ツールハンドラーのエラー処理カバレッジ", () => {
 				// 評価処理のシミュレーション
 				const results = await Promise.allSettled(
 					ratings.map(async (rating) => {
-						if (!rating.articleId) {
+						if (
+							!rating ||
+							typeof rating !== "object" ||
+							!("articleId" in rating)
+						) {
 							throw new Error("articleId is required");
 						}
-						return { success: true, articleId: rating.articleId };
+						const typedRating = rating as { articleId: number };
+						return { success: true, articleId: typedRating.articleId };
 					}),
 				);
 
