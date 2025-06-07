@@ -133,9 +133,8 @@ describe("apiClient - getUnratedArticles", () => {
 	});
 
 	it("API_BASE_URLが設定されていない場合、エラーをスローする", async () => {
-		// 環境変数を削除
-		process.env = { ...originalEnv };
-		process.env.API_BASE_URL = undefined as any;
+		// 環境変数を空の文字列に設定（undefinedと同じ扱い）
+		process.env = { ...originalEnv, API_BASE_URL: "" };
 
 		// getApiBaseUrl関数を再度呼び出すために、モジュールをリロード
 		vi.resetModules();
