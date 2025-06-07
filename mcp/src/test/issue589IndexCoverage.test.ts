@@ -121,7 +121,9 @@ describe("Issue #589 - index.ts getRatingStats ツール実行テスト", () => 
 				process.env.API_BASE_URL = undefined;
 
 				// 動的インポートで環境変数の変更を反映
-				const apiClientModule = await import("../lib/apiClient.js?t=" + Date.now());
+				const apiClientModule = await import(
+					`../lib/apiClient.js?t=${Date.now()}`
+				);
 
 				await expect(apiClientModule.getRatingStats()).rejects.toThrow(
 					"API_BASE_URL environment variable is not set.",
