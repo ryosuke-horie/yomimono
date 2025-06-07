@@ -35,6 +35,7 @@ const mockUnratedArticles: BookmarkWithLabel[] = [
 			id: 1,
 			name: "JavaScript",
 			createdAt: new Date("2024-01-01"),
+			updatedAt: new Date("2024-01-01"),
 			description: null,
 		},
 	},

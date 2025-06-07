@@ -11,7 +11,7 @@ const ArticleSchema = z.object({
 		.object({
 			id: z.number(),
 			name: z.string(),
-			description: z.string(),
+			description: z.string().nullable(),
 			createdAt: z.string().or(z.instanceof(Date)),
 			updatedAt: z.string().or(z.instanceof(Date)),
 		})
