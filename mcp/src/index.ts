@@ -1132,6 +1132,39 @@ server.tool(
 	},
 );
 
+// 25. Tool to get unrated articles
+server.tool(
+	"getUnratedArticles",
+	{}, // No input arguments
+	async () => {
+		try {
+			const articles = await apiClient.getUnratedArticles();
+			return {
+				content: [
+					{
+						type: "text",
+						text: `未評価記事リスト:\n${JSON.stringify(articles, null, 2)}`,
+					},
+				],
+				isError: false,
+			};
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error("Error in getUnratedArticles tool:", errorMessage);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `未評価記事の取得に失敗しました: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	},
+);
+
 // --- End Tool Definition ---
 
 async function main() {
