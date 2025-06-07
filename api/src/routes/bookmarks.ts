@@ -308,6 +308,19 @@ export const createBookmarksRouter = (
 		}
 	});
 
+	app.get("/unrated", async (c) => {
+		try {
+			const unratedBookmarks = await bookmarkService.getUnratedBookmarks();
+			return c.json({ success: true, bookmarks: unratedBookmarks });
+		} catch (error) {
+			console.error("Failed to fetch unrated bookmarks:", error);
+			return c.json(
+				{ success: false, message: "Failed to fetch unrated bookmarks" },
+				500,
+			);
+		}
+	});
+
 	// 一括ラベル付け
 	app.put("/batch-label", async (c) => {
 		try {

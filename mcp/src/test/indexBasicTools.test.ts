@@ -16,8 +16,26 @@ describe("MCP Server Basic Tools", () => {
 	describe("getUnlabeledArticles tool logic", () => {
 		test("正常な未ラベル記事の取得", async () => {
 			const mockArticles = [
-				{ id: 1, title: "Test Article 1", url: "https://example.com/1" },
-				{ id: 2, title: "Test Article 2", url: "https://example.com/2" },
+				{
+					id: 1,
+					title: "Test Article 1",
+					url: "https://example.com/1",
+					isRead: false,
+					isFavorite: false,
+					label: null,
+					createdAt: "2024-01-01T00:00:00.000Z",
+					updatedAt: "2024-01-01T00:00:00.000Z",
+				},
+				{
+					id: 2,
+					title: "Test Article 2",
+					url: "https://example.com/2",
+					isRead: true,
+					isFavorite: false,
+					label: null,
+					createdAt: "2024-01-02T00:00:00.000Z",
+					updatedAt: "2024-01-02T00:00:00.000Z",
+				},
 			];
 
 			vi.mocked(apiClient.getUnlabeledArticles).mockResolvedValue(mockArticles);

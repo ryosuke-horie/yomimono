@@ -5,7 +5,19 @@ const ArticleSchema = z.object({
 	id: z.number(),
 	title: z.string(),
 	url: z.string(),
-	// Add other relevant fields if needed
+	isRead: z.boolean(),
+	isFavorite: z.boolean(),
+	label: z
+		.object({
+			id: z.number(),
+			name: z.string(),
+			description: z.string(),
+			createdAt: z.string().or(z.instanceof(Date)),
+			updatedAt: z.string().or(z.instanceof(Date)),
+		})
+		.nullable(),
+	createdAt: z.string().or(z.instanceof(Date)),
+	updatedAt: z.string().or(z.instanceof(Date)),
 });
 // Correct schema to match API response { success: boolean, bookmarks: [...] }
 const ArticlesResponseSchema = z.object({
@@ -962,4 +974,24 @@ export async function getRatingStats(): Promise<RatingStats> {
 	}
 
 	return parsed.data.stats;
+}
+
+/**
+ * 未評価記事を取得します
+ * @returns 未評価記事のリスト
+ */
+export async function getUnratedArticles() {
+	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks/unrated`);
+	if (!response.ok) {
+		throw new Error(`Failed to fetch unrated articles: ${response.statusText}`);
+	}
+
+	const data = await response.json();
+	const parsed = ArticlesResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response for unrated articles: ${parsed.error.message}`,
+		);
+	}
+	return parsed.data.bookmarks;
 }

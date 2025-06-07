@@ -25,7 +25,16 @@ describe("API Client Extended Tests", () => {
 	describe("getUnlabeledArticles", () => {
 		test("正常な未ラベル記事の取得", async () => {
 			const mockArticles = [
-				{ id: 1, title: "Test Article", url: "https://example.com" },
+				{
+					id: 1,
+					title: "Test Article",
+					url: "https://example.com",
+					isRead: false,
+					isFavorite: false,
+					label: null,
+					createdAt: "2024-01-01T00:00:00.000Z",
+					updatedAt: "2024-01-01T00:00:00.000Z",
+				},
 			];
 
 			vi.mocked(fetch).mockResolvedValue({
