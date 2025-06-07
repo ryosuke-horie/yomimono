@@ -584,7 +584,10 @@ async function extractElementContent(
 	page: Page,
 	element: any,
 ): Promise<string> {
-	return await page.evaluate((el: any) => el.textContent?.trim() || "", element);
+	return await page.evaluate(
+		(el: any) => el.textContent?.trim() || "",
+		element,
+	);
 }
 
 async function extractTitle(page: Page): Promise<string> {
