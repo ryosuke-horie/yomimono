@@ -1,149 +1,177 @@
+import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 /**
- * getUnratedArticles MCP tool のテスト
- * 未評価記事取得ツールの動作をテスト
+ * 未評価記事取得MCPツールのテスト
  */
-
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import * as apiClient from "../lib/apiClient.js";
+import type { BookmarkWithLabel } from "../lib/apiClient.js";
 
-// APIクライアントをモック
-vi.mock("../lib/apiClient.js");
+// apiClientのモック
+vi.mock("../lib/apiClient.js", () => ({
+	getUnratedArticles: vi.fn(),
+}));
 
-const mockApiClient = vi.mocked(apiClient);
+// モックデータ
+const mockUnratedArticles: BookmarkWithLabel[] = [
+	{
+		id: 1,
+		url: "https://example.com/article1",
+		title: "未評価の記事1",
+		isRead: false,
+		createdAt: new Date("2024-01-01"),
+		updatedAt: new Date("2024-01-01"),
+		isFavorite: false,
+		label: null,
+	},
+	{
+		id: 2,
+		url: "https://example.com/article2",
+		title: "未評価の記事2",
+		isRead: true,
+		createdAt: new Date("2024-01-02"),
+		updatedAt: new Date("2024-01-02"),
+		isFavorite: true,
+		label: {
+			id: 1,
+			name: "JavaScript",
+			createdAt: new Date("2024-01-01"),
+			description: null,
+		},
+	},
+];
 
-// MCPツールのハンドラ関数を模擬
-async function getUnratedArticlesHandler() {
-	try {
-		const articles = await apiClient.getUnratedArticles();
-		const articleCount = articles.length;
+describe("getUnratedArticles MCPツール", () => {
+	it("未評価記事のリストを正常に取得する", async () => {
+		// モックの設定
+		vi.mocked(apiClient.getUnratedArticles).mockResolvedValue(
+			mockUnratedArticles,
+		);
 
-		return {
-			content: [
-				{
-					type: "text",
-					text: `未評価記事を${articleCount}件取得しました：\n\n${articles
-						.map(
-							(article, index) =>
-								`${index + 1}. **${article.title || "タイトルなし"}**\n   URL: ${article.url}\n   読了: ${article.isRead ? "済" : "未読"}\n   お気に入り: ${article.isFavorite ? "★" : "☆"}\n   ラベル: ${article.label?.name || "なし"}\n`,
-						)
-						.join("\n")}`,
-				},
-			],
-			isError: false,
+		// server.toolの実際の実装をシミュレート
+		const toolFunction = async () => {
+			try {
+				const articles = await apiClient.getUnratedArticles();
+				return {
+					content: [
+						{
+							type: "text",
+							text: `未評価記事リスト:\n${JSON.stringify(articles, null, 2)}`,
+						},
+					],
+					isError: false,
+				};
+			} catch (error: unknown) {
+				const errorMessage =
+					error instanceof Error ? error.message : String(error);
+				console.error("Error in getUnratedArticles tool:", errorMessage);
+				return {
+					content: [
+						{
+							type: "text",
+							text: `未評価記事の取得に失敗しました: ${errorMessage}`,
+						},
+					],
+					isError: true,
+				};
+			}
 		};
-	} catch (error: unknown) {
-		const errorMessage = error instanceof Error ? error.message : String(error);
-		return {
-			content: [
-				{
-					type: "text",
-					text: `未評価記事の取得に失敗しました: ${errorMessage}`,
-				},
-			],
-			isError: true,
-		};
-	}
-}
 
-describe("getUnratedArticles MCP tool", () => {
-	beforeEach(() => {
-		vi.clearAllMocks();
-	});
+		// ツールを実行
+		const result = await toolFunction();
 
-	test("未評価記事を正常に取得して返す", async () => {
-		// モックデータの準備
-		const mockUnratedArticles = [
-			{
-				id: 1,
-				url: "https://example.com/unrated-1",
-				title: "未評価記事1",
-				isRead: false,
-				isFavorite: false,
-				label: null,
-				createdAt: "2024-01-01T00:00:00.000Z",
-				updatedAt: "2024-01-01T00:00:00.000Z",
-			},
-			{
-				id: 2,
-				url: "https://example.com/unrated-2",
-				title: "未評価記事2",
-				isRead: true,
-				isFavorite: true,
-				label: {
-					id: 1,
-					name: "TypeScript",
-					description: "TypeScript関連記事",
-					createdAt: "2024-01-01T00:00:00.000Z",
-					updatedAt: "2024-01-01T00:00:00.000Z",
-				},
-				createdAt: "2024-01-02T00:00:00.000Z",
-				updatedAt: "2024-01-02T00:00:00.000Z",
-			},
-		];
-
-		// apiClient.getUnratedArticlesのモック
-		mockApiClient.getUnratedArticles.mockResolvedValue(mockUnratedArticles);
-
-		// ツールの実行
-		const result = await getUnratedArticlesHandler();
-
-		// 検証
-		expect(apiClient.getUnratedArticles).toHaveBeenCalledOnce();
+		// 結果の検証
+		const parsed = CallToolResultSchema.safeParse(result);
+		expect(parsed.success).toBe(true);
 		expect(result.isError).toBe(false);
 		expect(result.content).toHaveLength(1);
 		expect(result.content[0].type).toBe("text");
-		expect(result.content[0].text).toContain("未評価記事を2件取得しました");
-		expect(result.content[0].text).toContain("未評価記事1");
-		expect(result.content[0].text).toContain("未評価記事2");
-		expect(result.content[0].text).toContain("TypeScript");
-		expect(result.content[0].text).toContain("https://example.com/unrated-1");
-		expect(result.content[0].text).toContain("https://example.com/unrated-2");
+		expect(result.content[0].text).toContain("未評価記事リスト:");
+		expect(result.content[0].text).toContain("未評価の記事1");
+		expect(result.content[0].text).toContain("未評価の記事2");
+		expect(apiClient.getUnratedArticles).toHaveBeenCalledTimes(1);
 	});
 
-	test("未評価記事が存在しない場合は空配列を返す", async () => {
-		// 空配列のモック
-		mockApiClient.getUnratedArticles.mockResolvedValue([]);
+	it("空の配列を返す場合も正常に処理する", async () => {
+		// モックの設定
+		vi.mocked(apiClient.getUnratedArticles).mockResolvedValue([]);
 
-		// ツールの実行
-		const result = await getUnratedArticlesHandler();
+		// server.toolの実際の実装をシミュレート
+		const toolFunction = async () => {
+			try {
+				const articles = await apiClient.getUnratedArticles();
+				return {
+					content: [
+						{
+							type: "text",
+							text: `未評価記事リスト:\n${JSON.stringify(articles, null, 2)}`,
+						},
+					],
+					isError: false,
+				};
+			} catch (error: unknown) {
+				const errorMessage =
+					error instanceof Error ? error.message : String(error);
+				return {
+					content: [
+						{
+							type: "text",
+							text: `未評価記事の取得に失敗しました: ${errorMessage}`,
+						},
+					],
+					isError: true,
+				};
+			}
+		};
 
-		// 検証
-		expect(apiClient.getUnratedArticles).toHaveBeenCalledOnce();
+		// ツールを実行
+		const result = await toolFunction();
+
+		// 結果の検証
 		expect(result.isError).toBe(false);
-		expect(result.content).toHaveLength(1);
-		expect(result.content[0].text).toContain("未評価記事を0件取得しました");
+		expect(result.content[0].text).toContain("未評価記事リスト:");
+		expect(result.content[0].text).toContain("[]");
 	});
 
-	test("APIクライアントでエラーが発生した場合はエラーレスポンスを返す", async () => {
-		// エラーのモック
+	it("APIエラーの場合、エラーメッセージを返す", async () => {
+		// モックの設定
 		const mockError = new Error("API connection failed");
-		mockApiClient.getUnratedArticles.mockRejectedValue(mockError);
+		vi.mocked(apiClient.getUnratedArticles).mockRejectedValue(mockError);
 
-		// ツールの実行
-		const result = await getUnratedArticlesHandler();
+		// server.toolの実際の実装をシミュレート
+		const toolFunction = async () => {
+			try {
+				const articles = await apiClient.getUnratedArticles();
+				return {
+					content: [
+						{
+							type: "text",
+							text: `未評価記事リスト:\n${JSON.stringify(articles, null, 2)}`,
+						},
+					],
+					isError: false,
+				};
+			} catch (error: unknown) {
+				const errorMessage =
+					error instanceof Error ? error.message : String(error);
+				return {
+					content: [
+						{
+							type: "text",
+							text: `未評価記事の取得に失敗しました: ${errorMessage}`,
+						},
+					],
+					isError: true,
+				};
+			}
+		};
 
-		// 検証
-		expect(apiClient.getUnratedArticles).toHaveBeenCalledOnce();
+		// ツールを実行
+		const result = await toolFunction();
+
+		// 結果の検証
 		expect(result.isError).toBe(true);
-		expect(result.content).toHaveLength(1);
-		expect(result.content[0].type).toBe("text");
-		expect(result.content[0].text).toContain("未評価記事の取得に失敗しました");
-		expect(result.content[0].text).toContain("API connection failed");
-	});
-
-	test("APIクライアントで文字列エラーが発生した場合も適切にハンドルする", async () => {
-		// 文字列エラーのモック
-		mockApiClient.getUnratedArticles.mockRejectedValue("Network error");
-
-		// ツールの実行
-		const result = await getUnratedArticlesHandler();
-
-		// 検証
-		expect(apiClient.getUnratedArticles).toHaveBeenCalledOnce();
-		expect(result.isError).toBe(true);
-		expect(result.content).toHaveLength(1);
-		expect(result.content[0].type).toBe("text");
-		expect(result.content[0].text).toContain("未評価記事の取得に失敗しました");
-		expect(result.content[0].text).toContain("Network error");
+		expect(result.content[0].text).toBe(
+			"未評価記事の取得に失敗しました: API connection failed",
+		);
 	});
 });

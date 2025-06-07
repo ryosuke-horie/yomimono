@@ -692,6 +692,26 @@ export async function createArticleRating(
 }
 
 /**
+ * 未評価記事を取得します
+ * @returns 未評価記事のリスト
+ */
+export async function getUnratedArticles() {
+	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks/unrated`);
+	if (!response.ok) {
+		throw new Error(`Failed to fetch unrated articles: ${response.statusText}`);
+	}
+
+	const data = await response.json();
+	const parsed = ArticlesResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response for unrated articles: ${parsed.error.message}`,
+		);
+	}
+	return parsed.data.bookmarks;
+}
+
+/**
  * 記事の評価を取得する
  * @param articleId - 記事ID
  * @returns 評価オブジェクト（存在しない場合はnull）
@@ -974,24 +994,4 @@ export async function getRatingStats(): Promise<RatingStats> {
 	}
 
 	return parsed.data.stats;
-}
-
-/**
- * 未評価記事を取得します
- * @returns 未評価記事のリスト
- */
-export async function getUnratedArticles() {
-	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks/unrated`);
-	if (!response.ok) {
-		throw new Error(`Failed to fetch unrated articles: ${response.statusText}`);
-	}
-
-	const data = await response.json();
-	const parsed = ArticlesResponseSchema.safeParse(data);
-	if (!parsed.success) {
-		throw new Error(
-			`Invalid API response for unrated articles: ${parsed.error.message}`,
-		);
-	}
-	return parsed.data.bookmarks;
 }
