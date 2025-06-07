@@ -24,9 +24,7 @@ jobs:
 
       - name: Frontend Clean and Install dependencies
         run: |
-          rm -rf node_modules package-lock.json
-          npm install --include=optional
-          rm -f package-lock.json
+          rm -rf node_modules
           npm ci --include=optional
         working-directory: ./frontend
 
