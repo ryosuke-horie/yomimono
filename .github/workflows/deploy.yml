@@ -23,7 +23,7 @@ jobs:
         working-directory: ./api
 
       - name: Frontend Install dependencies
-        run: npm ci
+        run: npm ci --include=optional
         working-directory: ./frontend
 
       - name: Deploy API
