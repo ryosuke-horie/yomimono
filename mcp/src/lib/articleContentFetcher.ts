@@ -3,7 +3,9 @@
  * Playwright MCPとの連携による高度な記事抽出システム
  */
 
-import type { Browser, Page } from "playwright";
+// Playwright型定義（オプショナル）
+type Browser = any;
+type Page = any;
 
 export interface ArticleContent {
 	title: string;
@@ -580,9 +582,9 @@ async function extractMainContent(page: Page): Promise<string> {
 
 async function extractElementContent(
 	page: Page,
-	element: import("playwright").ElementHandle,
+	element: any,
 ): Promise<string> {
-	return await page.evaluate((el) => el.textContent?.trim() || "", element);
+	return await page.evaluate((el: any) => el.textContent?.trim() || "", element);
 }
 
 async function extractTitle(page: Page): Promise<string> {
@@ -614,7 +616,7 @@ async function extractMetadataBySelectors(
 ): Promise<string | null> {
 	for (const selector of selectors) {
 		try {
-			const result = await page.evaluate((sel) => {
+			const result = await page.evaluate((sel: string) => {
 				const element = document.querySelector(sel);
 				if (!element) return null;
 
