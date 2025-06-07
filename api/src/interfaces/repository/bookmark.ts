@@ -58,4 +58,10 @@ export interface IBookmarkRepository {
 	 * @returns ブックマークのマップ（ID => BookmarkWithLabel）
 	 */
 	findByIds(ids: number[]): Promise<Map<number, BookmarkWithLabel>>;
+
+	/**
+	 * 評価が存在しないブックマークを取得します。
+	 * @returns 未評価のブックマーク配列
+	 */
+	findUnrated(): Promise<BookmarkWithLabel[]>;
 }

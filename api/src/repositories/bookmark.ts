@@ -5,6 +5,7 @@ import {
 	type Bookmark,
 	type InsertBookmark,
 	articleLabels,
+	articleRatings,
 	bookmarks,
 	favorites,
 	labels,
@@ -455,6 +456,39 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 				"[ERROR] BookmarkRepository.findByIds: Failed to fetch bookmarks by ids:",
 				error,
 			);
+			throw error;
+		}
+	}
+
+	/**
+	 * 評価が存在しないブックマークを取得します。
+	 * @returns 未評価のブックマーク配列
+	 */
+	async findUnrated(): Promise<BookmarkWithLabel[]> {
+		try {
+			const results = await this.db
+				.select({
+					bookmark: bookmarks,
+					favorite: favorites,
+					label: labels,
+				})
+				.from(bookmarks)
+				.leftJoin(favorites, eq(bookmarks.id, favorites.bookmarkId))
+				.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
+				.leftJoin(labels, eq(articleLabels.labelId, labels.id))
+				.leftJoin(articleRatings, eq(bookmarks.id, articleRatings.articleId))
+				.where(isNull(articleRatings.id)) // 評価が存在しない記事
+				.all();
+
+			return results.map(
+				(row): BookmarkWithLabel => ({
+					...row.bookmark,
+					isFavorite: !!row.favorite,
+					label: row.label || null,
+				}),
+			);
+		} catch (error) {
+			console.error("Failed to fetch unrated bookmarks:", error);
 			throw error;
 		}
 	}
