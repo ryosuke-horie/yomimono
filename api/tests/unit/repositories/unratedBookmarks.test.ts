@@ -1,225 +1,175 @@
+import { eq, isNull } from "drizzle-orm";
 /**
- * 未評価ブックマーク取得機能のテスト
- * Repository層のfindUnrated()メソッドをテスト
+ * 未評価ブックマーク取得機能のリポジトリ層テスト
  */
-
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	type Bookmark,
+	type Label,
+	articleLabels,
+	articleRatings,
+	bookmarks,
+	favorites,
+	labels,
+} from "../../../src/db/schema";
+import type { BookmarkWithLabel } from "../../../src/interfaces/repository/bookmark";
 import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
 
 const mockDbClient = {
 	select: vi.fn().mockReturnThis(),
 	from: vi.fn().mockReturnThis(),
-	leftJoin: vi.fn().mockReturnThis(),
 	where: vi.fn().mockReturnThis(),
+	leftJoin: vi.fn().mockReturnThis(),
 	all: vi.fn(),
-	get: vi.fn(),
-	set: vi.fn().mockReturnThis(),
-	values: vi.fn().mockReturnThis(),
-	run: vi.fn().mockResolvedValue({ meta: { changes: 1 } }),
-	delete: vi.fn().mockReturnThis(),
-	innerJoin: vi.fn().mockReturnThis(),
-	limit: vi.fn().mockReturnThis(),
-	offset: vi.fn().mockReturnThis(),
-	orderBy: vi.fn().mockReturnThis(),
-	update: vi.fn().mockReturnThis(),
-	insert: vi.fn().mockReturnThis(),
-	returning: vi.fn().mockReturnThis(),
-	groupBy: vi.fn().mockReturnThis(),
 };
 
 vi.mock("drizzle-orm/d1", () => ({
 	drizzle: vi.fn(() => mockDbClient),
 }));
 
-describe("DrizzleBookmarkRepository.findUnrated", () => {
+describe("BookmarkRepository - findUnrated", () => {
 	let repository: DrizzleBookmarkRepository;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-
-		// モックのリセット
-		mockDbClient.select.mockReturnThis();
-		mockDbClient.from.mockReturnThis();
-		mockDbClient.where.mockReturnThis();
-		mockDbClient.set.mockReturnThis();
-		mockDbClient.values.mockReturnThis();
-		mockDbClient.run.mockResolvedValue({ meta: { changes: 1 } });
-		mockDbClient.delete.mockReturnThis();
-		mockDbClient.innerJoin.mockReturnThis();
-		mockDbClient.leftJoin.mockReturnThis();
-		mockDbClient.orderBy.mockReturnThis();
-		mockDbClient.update.mockReturnThis();
-		mockDbClient.insert.mockReturnThis();
-
 		repository = new DrizzleBookmarkRepository({} as D1Database);
 	});
 
-	test("評価がない記事を正確に取得する", async () => {
+	it("評価されていないブックマークのみを取得する", async () => {
 		// モックデータの準備
-		const mockResult = [
+		const mockBookmark1: Bookmark = {
+			id: 1,
+			url: "https://example.com/article1",
+			title: "未評価の記事1",
+			isRead: false,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		};
+
+		const mockBookmark2: Bookmark = {
+			id: 2,
+			url: "https://example.com/article2",
+			title: "未評価の記事2",
+			isRead: false,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		};
+
+		const mockResults = [
 			{
-				bookmark: {
-					id: 1,
-					url: "https://example.com/unrated-article",
-					title: "未評価記事",
-					isRead: false,
-					createdAt: new Date(),
-					updatedAt: new Date(),
-				},
+				bookmark: mockBookmark1,
+				favorite: null,
+				label: null,
+			},
+			{
+				bookmark: mockBookmark2,
 				favorite: null,
 				label: null,
 			},
 		];
 
-		mockDbClient.all.mockResolvedValue(mockResult);
+		mockDbClient.all.mockResolvedValue(mockResults);
 
-		// 実行
-		const result = await repository.findUnrated();
-
-		// 検証
-		expect(mockDbClient.select).toHaveBeenCalled();
-		expect(mockDbClient.from).toHaveBeenCalled();
-		expect(mockDbClient.leftJoin).toHaveBeenCalledTimes(4); // favorites, articleLabels, labels, articleRatings
-		expect(mockDbClient.where).toHaveBeenCalled();
-		expect(mockDbClient.all).toHaveBeenCalled();
-
-		expect(result).toHaveLength(1);
-		expect(result[0].id).toBe(1);
-		expect(result[0].url).toBe("https://example.com/unrated-article");
-		expect(result[0].title).toBe("未評価記事");
-		expect(result[0].isFavorite).toBe(false);
-		expect(result[0].label).toBeNull();
-	});
-
-	test("全て評価済みの場合は空配列を返す", async () => {
-		// モックデータの準備（空配列）
-		mockDbClient.all.mockResolvedValue([]);
-
-		// 実行
-		const result = await repository.findUnrated();
+		// 未評価のブックマークを取得
+		const unratedBookmarks = await repository.findUnrated();
 
 		// 検証
-		expect(result).toHaveLength(0);
+		expect(mockDbClient.select).toHaveBeenCalledWith({
+			bookmark: bookmarks,
+			favorite: favorites,
+			label: labels,
+		});
+		expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
+		expect(mockDbClient.leftJoin).toHaveBeenCalledTimes(4);
+		expect(mockDbClient.where).toHaveBeenCalledWith(isNull(articleRatings.id));
+
+		expect(unratedBookmarks).toHaveLength(2);
+		expect(unratedBookmarks[0]).toMatchObject({
+			id: 1,
+			title: "未評価の記事1",
+			isFavorite: false,
+			label: null,
+		});
+		expect(unratedBookmarks[1]).toMatchObject({
+			id: 2,
+			title: "未評価の記事2",
+			isFavorite: false,
+			label: null,
+		});
 	});
 
-	test("記事が存在しない場合は空配列を返す", async () => {
-		// モックデータの準備（空配列）
-		mockDbClient.all.mockResolvedValue([]);
-
-		// 実行
-		const result = await repository.findUnrated();
-
-		// 検証
-		expect(result).toHaveLength(0);
-	});
-
-	test("ラベル付き未評価記事を正確に取得する", async () => {
+	it("お気に入りステータスとラベル情報を含む未評価ブックマークを返す", async () => {
 		// モックデータの準備
-		const mockResult = [
+		const mockBookmark: Bookmark = {
+			id: 1,
+			url: "https://example.com/article1",
+			title: "未評価でお気に入りの記事",
+			isRead: false,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		};
+
+		const mockLabel: Label = {
+			id: 1,
+			name: "JavaScript",
+			createdAt: new Date(),
+			updatedAt: new Date(),
+			description: null,
+		};
+
+		const mockResults = [
 			{
-				bookmark: {
-					id: 1,
-					url: "https://example.com/labeled-unrated",
-					title: "ラベル付き未評価記事",
-					isRead: false,
-					createdAt: new Date(),
-					updatedAt: new Date(),
-				},
-				favorite: null,
-				label: {
-					id: 1,
-					name: "JavaScript",
-					description: "JavaScript関連記事",
-					createdAt: new Date(),
-					updatedAt: new Date(),
-				},
-			},
-		];
-
-		mockDbClient.all.mockResolvedValue(mockResult);
-
-		// 実行
-		const result = await repository.findUnrated();
-
-		// 検証
-		expect(result).toHaveLength(1);
-		expect(result[0].id).toBe(1);
-		expect(result[0].label?.name).toBe("JavaScript");
-		expect(result[0].label?.description).toBe("JavaScript関連記事");
-	});
-
-	test("お気に入り付き未評価記事を正確に取得する", async () => {
-		// モックデータの準備
-		const mockResult = [
-			{
-				bookmark: {
-					id: 1,
-					url: "https://example.com/favorite-unrated",
-					title: "お気に入り未評価記事",
-					isRead: false,
-					createdAt: new Date(),
-					updatedAt: new Date(),
-				},
+				bookmark: mockBookmark,
 				favorite: {
 					id: 1,
 					bookmarkId: 1,
 					createdAt: new Date(),
 				},
-				label: null,
+				label: mockLabel,
 			},
 		];
 
-		mockDbClient.all.mockResolvedValue(mockResult);
+		mockDbClient.all.mockResolvedValue(mockResults);
 
-		// 実行
-		const result = await repository.findUnrated();
+		// 未評価のブックマークを取得
+		const unratedBookmarks = await repository.findUnrated();
 
 		// 検証
-		expect(result).toHaveLength(1);
-		expect(result[0].id).toBe(1);
-		expect(result[0].isFavorite).toBe(true);
+		expect(unratedBookmarks).toHaveLength(1);
+		const bookmark = unratedBookmarks[0];
+		expect(bookmark.id).toBe(1);
+		expect(bookmark.isFavorite).toBe(true);
+		expect(bookmark.label).toEqual(mockLabel);
 	});
 
-	test("既読・未読を問わず未評価記事を取得する", async () => {
-		// モックデータの準備
-		const mockResult = [
-			{
-				bookmark: {
-					id: 1,
-					url: "https://example.com/unread-unrated",
-					title: "未読未評価記事",
-					isRead: false,
-					createdAt: new Date(),
-					updatedAt: new Date(),
-				},
-				favorite: null,
-				label: null,
-			},
-			{
-				bookmark: {
-					id: 2,
-					url: "https://example.com/read-unrated",
-					title: "既読未評価記事",
-					isRead: true,
-					createdAt: new Date(),
-					updatedAt: new Date(),
-				},
-				favorite: null,
-				label: null,
-			},
-		];
+	it("評価済みのブックマークは除外される", async () => {
+		// 評価済みのブックマークが返されない（空配列）
+		mockDbClient.all.mockResolvedValue([]);
 
-		mockDbClient.all.mockResolvedValue(mockResult);
+		// 未評価のブックマークを取得
+		const unratedBookmarks = await repository.findUnrated();
 
-		// 実行
-		const result = await repository.findUnrated();
+		// 検証 - 評価済みのブックマークは含まれない
+		expect(unratedBookmarks).toHaveLength(0);
+	});
+
+	it("ブックマークが存在しない場合は空配列を返す", async () => {
+		// 空の結果を返す
+		mockDbClient.all.mockResolvedValue([]);
+
+		// 未評価のブックマークを取得
+		const unratedBookmarks = await repository.findUnrated();
 
 		// 検証
-		expect(result).toHaveLength(2);
-		const unreadArticle = result.find((r) => r.id === 1);
-		const readArticle = result.find((r) => r.id === 2);
+		expect(unratedBookmarks).toEqual([]);
+	});
 
-		expect(unreadArticle?.isRead).toBe(false);
-		expect(readArticle?.isRead).toBe(true);
+	it("エラーが発生した場合は例外を再スローする", async () => {
+		// エラーをシミュレート
+		const mockError = new Error("Database error");
+		mockDbClient.all.mockRejectedValue(mockError);
+
+		// 検証
+		await expect(repository.findUnrated()).rejects.toThrow("Database error");
 	});
 });

@@ -11,7 +11,7 @@ const ArticleSchema = z.object({
 		.object({
 			id: z.number(),
 			name: z.string(),
-			description: z.string(),
+			description: z.string().nullable(),
 			createdAt: z.string().or(z.instanceof(Date)),
 			updatedAt: z.string().or(z.instanceof(Date)),
 		})
@@ -19,6 +19,9 @@ const ArticleSchema = z.object({
 	createdAt: z.string().or(z.instanceof(Date)),
 	updatedAt: z.string().or(z.instanceof(Date)),
 });
+
+// Export type for use in other modules
+export type BookmarkWithLabel = z.infer<typeof ArticleSchema>;
 // Correct schema to match API response { success: boolean, bookmarks: [...] }
 const ArticlesResponseSchema = z.object({
 	success: z.literal(true),
@@ -692,6 +695,26 @@ export async function createArticleRating(
 }
 
 /**
+ * 未評価記事を取得します
+ * @returns 未評価記事のリスト
+ */
+export async function getUnratedArticles() {
+	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks/unrated`);
+	if (!response.ok) {
+		throw new Error(`Failed to fetch unrated articles: ${response.statusText}`);
+	}
+
+	const data = await response.json();
+	const parsed = ArticlesResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response for unrated articles: ${parsed.error.message}`,
+		);
+	}
+	return parsed.data.bookmarks;
+}
+
+/**
  * 記事の評価を取得する
  * @param articleId - 記事ID
  * @returns 評価オブジェクト（存在しない場合はnull）
@@ -974,24 +997,4 @@ export async function getRatingStats(): Promise<RatingStats> {
 	}
 
 	return parsed.data.stats;
-}
-
-/**
- * 未評価記事を取得します
- * @returns 未評価記事のリスト
- */
-export async function getUnratedArticles() {
-	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks/unrated`);
-	if (!response.ok) {
-		throw new Error(`Failed to fetch unrated articles: ${response.statusText}`);
-	}
-
-	const data = await response.json();
-	const parsed = ArticlesResponseSchema.safeParse(data);
-	if (!parsed.success) {
-		throw new Error(
-			`Invalid API response for unrated articles: ${parsed.error.message}`,
-		);
-	}
-	return parsed.data.bookmarks;
 }

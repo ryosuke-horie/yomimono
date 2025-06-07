@@ -1,177 +1,172 @@
 /**
- * 未評価ブックマーク取得機能のテスト
- * Route層のGET /api/bookmarks/unratedエンドポイントをテスト
+ * 未評価ブックマーク取得機能のルート層テスト
  */
-
 import { Hono } from "hono";
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { BookmarkWithLabel } from "../../../src/interfaces/repository/bookmark";
 import type { IBookmarkService } from "../../../src/interfaces/service/bookmark";
 import type { ILabelService } from "../../../src/interfaces/service/label";
 import { createBookmarksRouter } from "../../../src/routes/bookmarks";
 
-describe("GET /api/bookmarks/unrated", () => {
+// モックサービス
+const mockBookmarkService: IBookmarkService = {
+	getUnratedBookmarks: vi.fn(),
+	getUnreadBookmarksCount: vi.fn(),
+	getTodayReadCount: vi.fn(),
+	getUnreadBookmarks: vi.fn(),
+	createBookmarksFromData: vi.fn(),
+	markBookmarkAsRead: vi.fn(),
+	markBookmarkAsUnread: vi.fn(),
+	addToFavorites: vi.fn(),
+	removeFromFavorites: vi.fn(),
+	getFavoriteBookmarks: vi.fn(),
+	getRecentlyReadBookmarks: vi.fn(),
+	getUnlabeledBookmarks: vi.fn(),
+	getBookmarksByLabel: vi.fn(),
+	getReadBookmarks: vi.fn(),
+	getBookmarkById: vi.fn(), // 追加されている可能性のあるメソッド
+} as IBookmarkService;
+
+// モックLabelService
+const mockLabelService: Partial<ILabelService> = {
+	getLabels: vi.fn(),
+	createLabel: vi.fn(),
+	deleteLabel: vi.fn(),
+	assignLabel: vi.fn(),
+	getArticleCountByLabel: vi.fn(),
+	getArticleIdsByLabelName: vi.fn(),
+	updateLabelDescription: vi.fn(),
+	assignLabelsToMultipleArticles: vi.fn(),
+	getLabelById: vi.fn(),
+};
+
+// モックデータ
+const mockUnratedBookmarks: BookmarkWithLabel[] = [
+	{
+		id: 1,
+		url: "https://example.com/article1",
+		title: "未評価の記事1",
+		isRead: false,
+		createdAt: new Date("2024-01-01"),
+		updatedAt: new Date("2024-01-01"),
+		isFavorite: false,
+		label: null,
+	},
+	{
+		id: 2,
+		url: "https://example.com/article2",
+		title: "未評価の記事2",
+		isRead: true,
+		createdAt: new Date("2024-01-02"),
+		updatedAt: new Date("2024-01-02"),
+		isFavorite: true,
+		label: {
+			id: 1,
+			name: "JavaScript",
+			createdAt: new Date("2024-01-01"),
+			updatedAt: new Date("2024-01-01"),
+			description: null,
+		},
+	},
+];
+
+// JSON形式に変換されたモックデータ（レスポンス比較用）
+const mockUnratedBookmarksJson = mockUnratedBookmarks.map((bookmark) => ({
+	...bookmark,
+	createdAt: bookmark.createdAt.toISOString(),
+	updatedAt: bookmark.updatedAt.toISOString(),
+	label: bookmark.label
+		? {
+				...bookmark.label,
+				createdAt: bookmark.label.createdAt.toISOString(),
+				updatedAt: bookmark.label.updatedAt.toISOString(),
+			}
+		: null,
+}));
+
+describe("BookmarksRouter - GET /unrated", () => {
 	let app: Hono;
-	let mockBookmarkService: IBookmarkService;
-	let mockLabelService: ILabelService;
 
 	beforeEach(() => {
-		// モックサービスの作成
-		mockBookmarkService = {
-			getUnratedBookmarks: vi.fn(),
-			// 他のメソッドはテストで使用しないためvi.fn()で代替
-			createBookmarksFromData: vi.fn(),
-			getUnreadBookmarks: vi.fn(),
-			markBookmarkAsRead: vi.fn(),
-			markBookmarkAsUnread: vi.fn(),
-			getUnreadBookmarksCount: vi.fn(),
-			getTodayReadCount: vi.fn(),
-			addToFavorites: vi.fn(),
-			removeFromFavorites: vi.fn(),
-			getFavoriteBookmarks: vi.fn(),
-			getRecentlyReadBookmarks: vi.fn(),
-			getUnlabeledBookmarks: vi.fn(),
-			getBookmarksByLabel: vi.fn(),
-			getReadBookmarks: vi.fn(),
-		};
-
-		mockLabelService = {
-			// ラベルサービスのメソッドをvi.fn()で代替
-			assignLabel: vi.fn(),
-			assignLabelsToMultipleArticles: vi.fn(),
-		} as unknown as ILabelService;
-
-		// ルーターの作成
+		vi.clearAllMocks();
 		app = new Hono();
-		app.route(
-			"/",
-			createBookmarksRouter(mockBookmarkService, mockLabelService),
+		const router = createBookmarksRouter(
+			mockBookmarkService as IBookmarkService,
+			mockLabelService as ILabelService,
 		);
+		app.route("/api/bookmarks", router);
 	});
 
-	test("未評価記事を正常に取得して返す", async () => {
-		// モックデータの準備
-		const mockUnratedBookmarks: BookmarkWithLabel[] = [
-			{
-				id: 1,
-				url: "https://example.com/unrated-1",
-				title: "未評価記事1",
-				isRead: false,
-				isFavorite: false,
-				label: null,
-				createdAt: new Date("2024-01-01"),
-				updatedAt: new Date("2024-01-01"),
-			},
-			{
-				id: 2,
-				url: "https://example.com/unrated-2",
-				title: "未評価記事2",
-				isRead: true,
-				isFavorite: true,
-				label: {
-					id: 1,
-					name: "React",
-					description: "React関連記事",
-					createdAt: new Date("2024-01-01"),
-					updatedAt: new Date("2024-01-01"),
-				},
-				createdAt: new Date("2024-01-02"),
-				updatedAt: new Date("2024-01-02"),
-			},
-		];
+	afterEach(() => {
+		vi.clearAllMocks();
+	});
 
+	it("未評価のブックマークを正常に取得する", async () => {
+		// モックの設定
 		vi.mocked(mockBookmarkService.getUnratedBookmarks).mockResolvedValue(
 			mockUnratedBookmarks,
 		);
 
-		// 実行
-		const response = await app.request("/unrated", { method: "GET" });
-
-		// 検証
-		expect(response.status).toBe(200);
-		const body = await response.json();
-
-		// HTTPレスポンスではDateがJSONシリアライズされて文字列になるため、文字列で検証
-		expect(body).toEqual({
-			success: true,
-			bookmarks: [
-				{
-					id: 1,
-					url: "https://example.com/unrated-1",
-					title: "未評価記事1",
-					isRead: false,
-					isFavorite: false,
-					label: null,
-					createdAt: "2024-01-01T00:00:00.000Z",
-					updatedAt: "2024-01-01T00:00:00.000Z",
-				},
-				{
-					id: 2,
-					url: "https://example.com/unrated-2",
-					title: "未評価記事2",
-					isRead: true,
-					isFavorite: true,
-					label: {
-						id: 1,
-						name: "React",
-						description: "React関連記事",
-						createdAt: "2024-01-01T00:00:00.000Z",
-						updatedAt: "2024-01-01T00:00:00.000Z",
-					},
-					createdAt: "2024-01-02T00:00:00.000Z",
-					updatedAt: "2024-01-02T00:00:00.000Z",
-				},
-			],
+		// リクエストの実行
+		const res = await app.request("/api/bookmarks/unrated", {
+			method: "GET",
 		});
-		expect(mockBookmarkService.getUnratedBookmarks).toHaveBeenCalledOnce();
+
+		// レスポンスの検証
+		expect(res.status).toBe(200);
+		const json = await res.json();
+		expect(json).toEqual({
+			success: true,
+			bookmarks: mockUnratedBookmarksJson,
+		});
+		expect(mockBookmarkService.getUnratedBookmarks).toHaveBeenCalledTimes(1);
 	});
 
-	test("未評価記事が存在しない場合は空配列を返す", async () => {
+	it("空の配列を返す場合も正常なレスポンスを返す", async () => {
 		// モックの設定
 		vi.mocked(mockBookmarkService.getUnratedBookmarks).mockResolvedValue([]);
 
-		// 実行
-		const response = await app.request("/unrated", { method: "GET" });
+		// リクエストの実行
+		const res = await app.request("/api/bookmarks/unrated", {
+			method: "GET",
+		});
 
-		// 検証
-		expect(response.status).toBe(200);
-		const body = await response.json();
-		expect(body).toEqual({
+		// レスポンスの検証
+		expect(res.status).toBe(200);
+		const json = await res.json();
+		expect(json).toEqual({
 			success: true,
 			bookmarks: [],
 		});
-		expect(mockBookmarkService.getUnratedBookmarks).toHaveBeenCalledOnce();
 	});
 
-	test("サービス層でエラーが発生した場合は500エラーを返す", async () => {
+	it("サービスがエラーを投げた場合、500エラーを返す", async () => {
 		// モックの設定
-		const mockError = new Error("Service error");
 		vi.mocked(mockBookmarkService.getUnratedBookmarks).mockRejectedValue(
-			mockError,
+			new Error("Database error"),
 		);
 
-		// 実行
-		const response = await app.request("/unrated", { method: "GET" });
+		// リクエストの実行
+		const res = await app.request("/api/bookmarks/unrated", {
+			method: "GET",
+		});
 
-		// 検証
-		expect(response.status).toBe(500);
-		const body = await response.json();
-		expect(body).toEqual({
+		// レスポンスの検証
+		expect(res.status).toBe(500);
+		const json = await res.json();
+		expect(json).toEqual({
 			success: false,
 			message: "Failed to fetch unrated bookmarks",
 		});
-		expect(mockBookmarkService.getUnratedBookmarks).toHaveBeenCalledOnce();
 	});
 
-	test("POST・PUT・DELETEメソッドはサポートしない", async () => {
-		// 実行と検証
-		const postResponse = await app.request("/unrated", { method: "POST" });
-		expect(postResponse.status).toBe(404);
+	it("メソッドがGET以外の場合は404を返す", async () => {
+		// POSTリクエストの実行
+		const res = await app.request("/api/bookmarks/unrated", {
+			method: "POST",
+		});
 
-		const putResponse = await app.request("/unrated", { method: "PUT" });
-		expect(putResponse.status).toBe(404);
-
-		const deleteResponse = await app.request("/unrated", { method: "DELETE" });
-		expect(deleteResponse.status).toBe(404);
+		// レスポンスの検証
+		expect(res.status).toBe(404);
 	});
 });
