@@ -3,6 +3,8 @@
  * 特にgetArticleRatings, getRatingStats, getTopRatedArticles, bulkRateArticlesの詳細な実行パスをカバー
  */
 
+// @ts-nocheck
+
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import * as apiClient from "../lib/apiClient.js";

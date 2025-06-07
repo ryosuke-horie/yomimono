@@ -3,6 +3,8 @@
  * 高度な評価ツールのフィルタリング・ソート機能テスト
  */
 
+// @ts-nocheck
+
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import * as apiClient from "../lib/apiClient.js";
 

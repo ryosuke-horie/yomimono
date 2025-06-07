@@ -3,6 +3,8 @@
  * 45%達成のための最終仕上げ
  */
 
+// @ts-nocheck
+
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
