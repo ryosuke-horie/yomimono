@@ -19,6 +19,9 @@ const ArticleSchema = z.object({
 	createdAt: z.string().or(z.instanceof(Date)),
 	updatedAt: z.string().or(z.instanceof(Date)),
 });
+
+// Export type for use in other modules
+export type BookmarkWithLabel = z.infer<typeof ArticleSchema>;
 // Correct schema to match API response { success: boolean, bookmarks: [...] }
 const ArticlesResponseSchema = z.object({
 	success: z.literal(true),

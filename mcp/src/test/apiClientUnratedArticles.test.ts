@@ -135,8 +135,7 @@ describe("apiClient - getUnratedArticles", () => {
 	it("API_BASE_URLが設定されていない場合、エラーをスローする", async () => {
 		// 環境変数を削除
 		process.env = { ...originalEnv };
-		// @ts-expect-error - テストのため意図的にundefinedを設定
-		process.env.API_BASE_URL = undefined;
+		process.env.API_BASE_URL = undefined as any;
 
 		// getApiBaseUrl関数を再度呼び出すために、モジュールをリロード
 		vi.resetModules();
