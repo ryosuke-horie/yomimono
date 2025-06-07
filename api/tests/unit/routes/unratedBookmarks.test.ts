@@ -9,7 +9,7 @@ import type { ILabelService } from "../../../src/interfaces/service/label";
 import { createBookmarksRouter } from "../../../src/routes/bookmarks";
 
 // モックサービス
-const mockBookmarkService: Partial<IBookmarkService> = {
+const mockBookmarkService: IBookmarkService = {
 	getUnratedBookmarks: vi.fn(),
 	getUnreadBookmarksCount: vi.fn(),
 	getTodayReadCount: vi.fn(),
@@ -24,7 +24,8 @@ const mockBookmarkService: Partial<IBookmarkService> = {
 	getUnlabeledBookmarks: vi.fn(),
 	getBookmarksByLabel: vi.fn(),
 	getReadBookmarks: vi.fn(),
-};
+	getBookmarkById: vi.fn(), // 追加されている可能性のあるメソッド
+} as IBookmarkService;
 
 // モックLabelService
 const mockLabelService: Partial<ILabelService> = {
@@ -102,7 +103,7 @@ describe("BookmarksRouter - GET /unrated", () => {
 
 	it("未評価のブックマークを正常に取得する", async () => {
 		// モックの設定
-		vi.mocked(mockBookmarkService.getUnratedBookmarks!).mockResolvedValue(
+		vi.mocked(mockBookmarkService.getUnratedBookmarks).mockResolvedValue(
 			mockUnratedBookmarks,
 		);
 
@@ -118,12 +119,12 @@ describe("BookmarksRouter - GET /unrated", () => {
 			success: true,
 			bookmarks: mockUnratedBookmarksJson,
 		});
-		expect(mockBookmarkService.getUnratedBookmarks!).toHaveBeenCalledTimes(1);
+		expect(mockBookmarkService.getUnratedBookmarks).toHaveBeenCalledTimes(1);
 	});
 
 	it("空の配列を返す場合も正常なレスポンスを返す", async () => {
 		// モックの設定
-		vi.mocked(mockBookmarkService.getUnratedBookmarks!).mockResolvedValue([]);
+		vi.mocked(mockBookmarkService.getUnratedBookmarks).mockResolvedValue([]);
 
 		// リクエストの実行
 		const res = await app.request("/api/bookmarks/unrated", {
@@ -141,7 +142,7 @@ describe("BookmarksRouter - GET /unrated", () => {
 
 	it("サービスがエラーを投げた場合、500エラーを返す", async () => {
 		// モックの設定
-		vi.mocked(mockBookmarkService.getUnratedBookmarks!).mockRejectedValue(
+		vi.mocked(mockBookmarkService.getUnratedBookmarks).mockRejectedValue(
 			new Error("Database error"),
 		);
 
