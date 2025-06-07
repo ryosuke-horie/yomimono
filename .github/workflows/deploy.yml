@@ -26,6 +26,7 @@ jobs:
         run: |
           rm -rf node_modules
           npm ci --include=optional
+          npm install @ast-grep/napi-linux-x64-gnu@0.35.0 --no-save
         working-directory: ./frontend
 
       - name: Deploy API
