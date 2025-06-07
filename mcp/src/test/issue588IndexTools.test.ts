@@ -6,17 +6,18 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import * as apiClient from "../lib/apiClient.js";
-
-type RatingParams = {
-	sortBy?: string;
-	order?: string;
-	minScore?: number;
-	maxScore?: number;
-	hasComment?: boolean;
-};
+import type { GetRatingsOptions } from "../lib/apiClient.js";
 
 type BulkRatingParams = {
-	ratings: unknown[];
+	ratings: {
+		articleId: number;
+		practicalValue: number;
+		technicalDepth: number;
+		understanding: number;
+		novelty: number;
+		importance: number;
+		comment?: string;
+	}[];
 };
 
 // APIクライアントをモック
@@ -60,7 +61,7 @@ describe("Issue #588: index.ts高度な評価ツールテスト", () => {
 			vi.mocked(apiClient.getArticleRatings).mockResolvedValue(mockRatings);
 
 			// getArticleRatingsツールの実行をシミュレート
-			const toolHandler = async (params: RatingParams) => {
+			const toolHandler = async (params: GetRatingsOptions) => {
 				try {
 					const ratings = await apiClient.getArticleRatings(params);
 					const formatted = ratings
@@ -122,7 +123,7 @@ describe("Issue #588: index.ts高度な評価ツールテスト", () => {
 				mockSortedRatings,
 			);
 
-			const toolHandler = async (params: RatingParams) => {
+			const toolHandler = async (params: GetRatingsOptions) => {
 				try {
 					const ratings = await apiClient.getArticleRatings(params);
 					const filterInfo = [];
@@ -194,7 +195,7 @@ describe("Issue #588: index.ts高度な評価ツールテスト", () => {
 				mockFilteredRatings,
 			);
 
-			const toolHandler = async (params: RatingParams) => {
+			const toolHandler = async (params: GetRatingsOptions) => {
 				try {
 					const ratings = await apiClient.getArticleRatings(params);
 					const filterInfo = [];
@@ -246,7 +247,7 @@ describe("Issue #588: index.ts高度な評価ツールテスト", () => {
 				new Error("API Error"),
 			);
 
-			const toolHandler = async (params: RatingParams) => {
+			const toolHandler = async (params: GetRatingsOptions) => {
 				try {
 					await apiClient.getArticleRatings(params);
 					return { content: [{ type: "text", text: "成功" }], isError: false };

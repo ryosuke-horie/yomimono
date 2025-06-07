@@ -171,7 +171,7 @@ describe("Issue #588: index.ts main実行パステスト", () => {
 
 			// 環境変数が未設定の場合のテスト
 			const originalValue = process.env.API_BASE_URL;
-			process.env.API_BASE_URL = undefined;
+			process.env.API_BASE_URL = "";
 
 			// getApiBaseUrl関数の模擬テスト
 			const getApiBaseUrl = () => {

@@ -6,17 +6,18 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import * as apiClient from "../lib/apiClient.js";
-
-type RatingParams = {
-	sortBy?: string;
-	order?: string;
-	minScore?: number;
-	maxScore?: number;
-	hasComment?: boolean;
-};
+import type { GetRatingsOptions } from "../lib/apiClient.js";
 
 type BulkRatingParams = {
-	ratings: unknown[];
+	ratings: {
+		articleId: number;
+		practicalValue: number;
+		technicalDepth: number;
+		understanding: number;
+		novelty: number;
+		importance: number;
+		comment?: string;
+	}[];
 };
 
 // APIクライアントをモック
@@ -58,11 +59,13 @@ describe("Issue #588: index.ts詳細カバレッジ向上", () => {
 			vi.mocked(apiClient.getArticleRatings).mockResolvedValue([mockRating]);
 
 			// getArticleRatingsツールの実際のフォーマット処理をシミュレート
-			const toolHandler = async (params: RatingParams) => {
+			const toolHandler = async (params: GetRatingsOptions) => {
 				try {
 					const ratings = await apiClient.getArticleRatings(params);
 
-					const formatRatingForDisplay = (rating: typeof mockRating) => {
+					const formatRatingForDisplay = (
+						rating: typeof mockRating & { comment: string | null },
+					) => {
 						const totalScore = (rating.totalScore / 10).toFixed(1);
 						return `📊 評価ID: ${rating.id}
    記事ID: ${rating.articleId}
@@ -142,7 +145,7 @@ ${formatted || "📭 条件に合致する評価がありません"}`,
 		test("空の結果セットでのフォールバック表示", async () => {
 			vi.mocked(apiClient.getArticleRatings).mockResolvedValue([]);
 
-			const toolHandler = async (params: RatingParams) => {
+			const toolHandler = async (params: GetRatingsOptions) => {
 				try {
 					const ratings = await apiClient.getArticleRatings(params);
 					const formatted = ratings.map(() => "").join("\n\n");
@@ -400,6 +403,7 @@ ${stats.topRatedArticles
 				totalScore: 85 - index,
 				comment: `記事${index + 1}のコメント`,
 				createdAt: `2024-01-${String(index + 1).padStart(2, "0")}T00:00:00Z`,
+				updatedAt: `2024-01-${String(index + 1).padStart(2, "0")}T00:00:00Z`,
 			}));
 
 			vi.mocked(apiClient.getArticleRatings).mockResolvedValue(mockTopRatings);
@@ -478,6 +482,7 @@ ${stats.topRatedArticles
 				totalScore: 80,
 				comment: "素晴らしい記事です",
 				createdAt: "2024-01-01T00:00:00Z",
+				updatedAt: "2024-01-01T00:00:00Z",
 			};
 
 			vi.mocked(apiClient.getArticleRatings).mockResolvedValue([mockRating]);
