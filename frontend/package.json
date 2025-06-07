@@ -28,6 +28,7 @@
 		"zod": "^3.25.48"
 	},
 	"devDependencies": {
+		"@ast-grep/napi-linux-x64-gnu": "0.35.0",
 		"@biomejs/biome": "^1.9.4",
 		"@cloudflare/workers-types": "^4.20250603.0",
 		"@opennextjs/cloudflare": "1.1.0",
