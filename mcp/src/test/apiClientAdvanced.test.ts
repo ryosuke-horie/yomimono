@@ -1,6 +1,6 @@
 /**
- * Issue #590: apiClient.tsの未カバーラインをカバーするテスト
- * 特にlines 689-692, 750-753のカバレッジ向上
+ * apiClient.ts の高度なエラーハンドリングと境界値テスト
+ * 旧issue590ApiClientCoverage.test.ts, issue590BookmarkCoverage.test.ts, issue590Final50Coverage.test.tsから統合
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -8,21 +8,26 @@ import {
 	type CreateRatingData,
 	type UpdateRatingData,
 	createArticleRating,
+	deleteArticleRating,
 	getArticleRating,
+	getReadBookmarks,
+	getUnreadArticlesByLabel,
+	getUnreadBookmarks,
+	markBookmarkAsRead,
 	updateArticleRating,
 } from "../lib/apiClient.js";
 
 // fetch のモック
 global.fetch = vi.fn();
 
-describe("Issue #590: apiClient.ts カバレッジ向上テスト", () => {
+describe("apiClient.ts 高度なテスト", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		process.env.API_BASE_URL = "https://api.example.com";
 	});
 
 	describe("createArticleRating の詳細なエラーハンドリング", () => {
-		it("JSON解析エラー時の処理（lines 689-692をカバー）", async () => {
+		it("JSON解析エラー時の処理", async () => {
 			const ratingData: CreateRatingData = {
 				practicalValue: 8,
 				technicalDepth: 9,
@@ -32,7 +37,6 @@ describe("Issue #590: apiClient.ts カバレッジ向上テスト", () => {
 				comment: "テスト評価",
 			};
 
-			// 不正なJSONレスポンスをモック
 			(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 				ok: true,
 				json: async () => {
@@ -54,7 +58,6 @@ describe("Issue #590: apiClient.ts カバレッジ向上テスト", () => {
 				importance: 8,
 			};
 
-			// 非Errorオブジェクトでの拒否をモック
 			(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 				ok: true,
 				json: async () => {
@@ -76,13 +79,11 @@ describe("Issue #590: apiClient.ts カバレッジ向上テスト", () => {
 				importance: 8,
 			};
 
-			// 不正な形式のレスポンスをモック
 			(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({
 					success: true,
 					rating: {
-						// 必須フィールドが欠けている
 						id: 1,
 						articleId: 123,
 						// practicalValue が欠けている
@@ -97,8 +98,7 @@ describe("Issue #590: apiClient.ts カバレッジ向上テスト", () => {
 	});
 
 	describe("getArticleRating の詳細なエラーハンドリング", () => {
-		it("JSON解析エラー時の処理（lines 750-753をカバー）", async () => {
-			// HTMLレスポンスなどが返ってきた場合をモック
+		it("JSON解析エラー時の処理", async () => {
 			(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 				ok: true,
 				status: 200,
@@ -203,6 +203,174 @@ describe("Issue #590: apiClient.ts カバレッジ向上テスト", () => {
 
 			await expect(updateArticleRating(123, updateData)).rejects.toThrow(
 				"Failed to parse response when updating rating for article 123: null",
+			);
+		});
+	});
+
+	describe("markBookmarkAsRead のエラーハンドリング", () => {
+		it("APIエラーレスポンスの処理", async () => {
+			(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+				ok: false,
+				status: 404,
+				statusText: "Not Found",
+			});
+
+			await expect(markBookmarkAsRead(999)).rejects.toThrow(
+				"Failed to mark bookmark 999 as read: Not Found",
+			);
+
+			expect(fetch).toHaveBeenCalledWith(
+				"https://api.example.com/api/bookmarks/999/read",
+				{
+					method: "PATCH",
+				},
+			);
+		});
+
+		it("Zodスキーマ検証エラーの処理", async () => {
+			(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+				ok: true,
+				json: async () => ({
+					// success フィールドが欠けている
+					message: "Bookmark marked as read",
+				}),
+			});
+
+			await expect(markBookmarkAsRead(123)).rejects.toThrow(
+				"Invalid API response after marking bookmark as read:",
+			);
+		});
+
+		it("正常なレスポンスの処理", async () => {
+			const mockResponse = {
+				success: true,
+				message: "Bookmark marked as read successfully",
+			};
+
+			(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+				ok: true,
+				json: async () => mockResponse,
+			});
+
+			const result = await markBookmarkAsRead(123);
+
+			expect(result).toEqual(mockResponse);
+			expect(fetch).toHaveBeenCalledWith(
+				"https://api.example.com/api/bookmarks/123/read",
+				{
+					method: "PATCH",
+				},
+			);
+		});
+	});
+
+	describe("getUnreadBookmarks の詳細なエラーハンドリング", () => {
+		it("APIエラーレスポンスの処理", async () => {
+			(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+				ok: false,
+				status: 503,
+				statusText: "Service Unavailable",
+			});
+
+			await expect(getUnreadBookmarks()).rejects.toThrow(
+				"Failed to fetch unread bookmarks: Service Unavailable",
+			);
+		});
+
+		it("Zodスキーマ検証エラーの処理", async () => {
+			(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+				ok: true,
+				json: async () => ({
+					// successフィールドが欠けている不正なレスポンス
+					bookmarks: [
+						{
+							id: 1,
+							url: "https://example.com",
+							title: "Test",
+							labels: [],
+							isRead: false,
+							isFavorite: false,
+							createdAt: "2024-01-01T00:00:00Z",
+							readAt: null,
+						},
+					],
+				}),
+			});
+
+			await expect(getUnreadBookmarks()).rejects.toThrow(
+				"Invalid API response for unread bookmarks:",
+			);
+		});
+	});
+
+	describe("getUnreadArticlesByLabel のエラーハンドリング", () => {
+		it("APIエラーの処理", async () => {
+			(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+				ok: false,
+				status: 400,
+				statusText: "Bad Request",
+			});
+
+			await expect(
+				getUnreadArticlesByLabel("非存在ラベル"),
+			).rejects.toThrow(
+				'Failed to fetch unread articles for label "非存在ラベル": Bad Request',
+			);
+		});
+
+		it("Zodスキーマ検証エラーの処理", async () => {
+			(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+				ok: true,
+				json: async () => ({
+					// 不正な構造
+					articles: [], // 正しくは bookmarks フィールド
+				}),
+			});
+
+			await expect(
+				getUnreadArticlesByLabel("テストラベル"),
+			).rejects.toThrow("Invalid API response for unread articles by label:");
+		});
+	});
+
+	describe("getReadBookmarks のエラーハンドリング", () => {
+		it("APIエラー時の処理", async () => {
+			(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+				ok: false,
+				status: 500,
+				statusText: "Internal Server Error",
+			});
+
+			await expect(getReadBookmarks()).rejects.toThrow(
+				"Failed to fetch read bookmarks: Internal Server Error",
+			);
+		});
+
+		it("Zodスキーマ検証エラー", async () => {
+			(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+				ok: true,
+				json: async () => ({
+					// successフィールドが欠けている
+					bookmarks: [],
+				}),
+			});
+
+			await expect(getReadBookmarks()).rejects.toThrow(
+				"Invalid API response for read bookmarks:",
+			);
+		});
+	});
+
+	describe("deleteArticleRating のエラーハンドリング", () => {
+		it("エラーハンドリング", async () => {
+			(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+				ok: false,
+				status: 404,
+				statusText: "Not Found",
+			});
+
+			await expect(deleteArticleRating(999)).rejects.toThrow(
+				"Failed to delete rating for article 999: Not Found",
 			);
 		});
 	});
