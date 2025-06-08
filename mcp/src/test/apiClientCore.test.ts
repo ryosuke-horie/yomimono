@@ -243,7 +243,28 @@ describe("API Client Core Functions", () => {
 
 	describe("getUnreadBookmarks", () => {
 		test("正常な未読ブックマーク取得", async () => {
-			const mockBookmarks = [
+			// APIレスポンスはArticleSchemaの形式
+			const mockApiResponse = [
+				{
+					id: 1,
+					url: "https://example.com",
+					title: "未読記事",
+					label: {
+						id: 10,
+						name: "技術",
+						description: null,
+						createdAt: "2024-01-01T00:00:00Z",
+						updatedAt: "2024-01-01T00:00:00Z",
+					},
+					isRead: false,
+					isFavorite: false,
+					createdAt: "2024-01-01T00:00:00Z",
+					updatedAt: "2024-01-01T00:00:00Z",
+				},
+			];
+
+			// 期待される返却値（BookmarkWithReadStatusSchemaの形式）
+			const expectedResult = [
 				{
 					id: 1,
 					url: "https://example.com",
@@ -253,6 +274,7 @@ describe("API Client Core Functions", () => {
 					isFavorite: false,
 					createdAt: "2024-01-01T00:00:00Z",
 					readAt: null,
+					updatedAt: "2024-01-01T00:00:00Z",
 				},
 			];
 
@@ -260,12 +282,12 @@ describe("API Client Core Functions", () => {
 				ok: true,
 				json: async () => ({
 					success: true,
-					bookmarks: mockBookmarks,
+					bookmarks: mockApiResponse,
 				}),
 			} as unknown as Response);
 
 			const result = await getUnreadBookmarks();
-			expect(result).toEqual(mockBookmarks);
+			expect(result).toEqual(expectedResult);
 			expect(fetch).toHaveBeenCalledWith(
 				"https://api.example.com/api/bookmarks",
 			);
