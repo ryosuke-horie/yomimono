@@ -179,21 +179,23 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 
 		it("メタデータ抽出の統合パターン", async () => {
 			// 複数ソースからのメタデータ統合
-			const mergeMetadata = (sources: Record<string, any>) => {
-				const result: any = {};
+			const mergeMetadata = (
+				sources: Record<string, Record<string, unknown>>,
+			) => {
+				const result: Record<string, unknown> = {};
 
 				// 優先順位: structured-data > meta-tags > page-content
 				const priorityOrder = ["structured", "meta", "content"];
 
-				priorityOrder.forEach((source) => {
+				for (const source of priorityOrder) {
 					if (sources[source]) {
-						Object.keys(sources[source]).forEach((key) => {
+						for (const key of Object.keys(sources[source])) {
 							if (!result[key] && sources[source][key]) {
 								result[key] = sources[source][key];
 							}
-						});
+						}
 					}
-				});
+				}
 
 				return result;
 			};
@@ -334,7 +336,7 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 
 		it("エラー処理とリトライロジック", async () => {
 			const handleExtractionError = (
-				error: any,
+				error: unknown,
 				context: { url: string; selector: string; attempt: number },
 			) => {
 				const errorInfo = {
@@ -444,7 +446,7 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 			expect(optimized).not.toContain(""); // 空文字除外
 
 			// キャッシュシミュレーション
-			const cache = new Map<string, any>();
+			const cache = new Map<string, string>();
 			const cacheKey = (url: string, selector: string) => `${url}:${selector}`;
 
 			const getCachedResult = (url: string, selector: string) => {
@@ -452,7 +454,11 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 				return cache.get(key);
 			};
 
-			const setCachedResult = (url: string, selector: string, result: any) => {
+			const setCachedResult = (
+				url: string,
+				selector: string,
+				result: string,
+			) => {
 				const key = cacheKey(url, selector);
 				cache.set(key, result);
 			};
@@ -587,9 +593,9 @@ if (import.meta.vitest) {
 			}
 
 			if (config.attributes) {
-				Object.entries(config.attributes).forEach(([attr, value]) => {
+				for (const [attr, value] of Object.entries(config.attributes)) {
 					selector += `[${attr}="${value}"]`;
-				});
+				}
 			}
 
 			return selector;

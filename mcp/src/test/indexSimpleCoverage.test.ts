@@ -287,7 +287,7 @@ describe("index.ts カバレッジ向上テスト", () => {
 
 	describe("レスポンス形式", () => {
 		it("成功レスポンスの形式", () => {
-			const createSuccessResponse = (data: any) => ({
+			const createSuccessResponse = (data: unknown) => ({
 				content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
 				isError: false,
 			});

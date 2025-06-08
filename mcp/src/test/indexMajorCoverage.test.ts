@@ -107,15 +107,15 @@ describe("index.ts 主要機能カバレッジ向上", () => {
 
 	test("ツール引数バリデーション用のヘルパー関数", () => {
 		// 引数検証ロジックのテスト
-		const validatePositiveInteger = (value: any): boolean => {
+		const validatePositiveInteger = (value: unknown): boolean => {
 			return typeof value === "number" && value > 0 && Number.isInteger(value);
 		};
 
-		const validateNonEmptyString = (value: any): boolean => {
+		const validateNonEmptyString = (value: unknown): boolean => {
 			return typeof value === "string" && value.trim().length > 0;
 		};
 
-		const validateRatingRange = (value: any): boolean => {
+		const validateRatingRange = (value: unknown): boolean => {
 			return (
 				typeof value === "number" &&
 				value >= 1 &&
@@ -155,7 +155,7 @@ describe("index.ts 主要機能カバレッジ向上", () => {
 	});
 
 	test("JSON応答フォーマット用のヘルパー関数", () => {
-		const formatSuccessResponse = (data: any) => ({
+		const formatSuccessResponse = (data: unknown) => ({
 			content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
 		});
 
@@ -178,11 +178,11 @@ describe("index.ts 主要機能カバレッジ向上", () => {
 	});
 
 	test("配列パラメータのバリデーション", () => {
-		const validateRatingsArray = (ratings: any): boolean => {
+		const validateRatingsArray = (ratings: unknown): boolean => {
 			if (!Array.isArray(ratings)) return false;
 			if (ratings.length === 0) return false;
 
-			return ratings.every((rating: any) => {
+			return (ratings as unknown[]).every((rating: unknown) => {
 				if (typeof rating !== "object" || rating === null) return false;
 
 				const requiredFields = [
@@ -257,7 +257,7 @@ describe("index.ts 主要機能カバレッジ向上", () => {
 	});
 
 	test("URL バリデーション", () => {
-		const validateUrl = (url: any): boolean => {
+		const validateUrl = (url: unknown): boolean => {
 			if (typeof url !== "string") return false;
 			try {
 				new URL(url);
@@ -333,7 +333,7 @@ if (import.meta.vitest) {
 	});
 
 	test("パラメータの深い検証", () => {
-		const deepValidateRating = (rating: any): string[] => {
+		const deepValidateRating = (rating: unknown): string[] => {
 			const errors: string[] = [];
 
 			if (typeof rating !== "object" || rating === null) {

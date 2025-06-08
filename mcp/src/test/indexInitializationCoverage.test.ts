@@ -170,10 +170,10 @@ describe("index.ts 初期化・設定カバレッジテスト", () => {
 			expect(uniqueTools).toHaveLength(expectedTools.length);
 
 			// 命名規則チェック
-			expectedTools.forEach((toolName) => {
+			for (const toolName of expectedTools) {
 				expect(toolName).toMatch(/^[a-zA-Z][a-zA-Z0-9]*$/); // camelCase
 				expect(toolName.length).toBeGreaterThan(3);
-			});
+			}
 		});
 
 		it("ツールカテゴリ分類", () => {
@@ -243,7 +243,7 @@ describe("index.ts 初期化・設定カバレッジテスト", () => {
 		it("コンソールエラーログの形式", () => {
 			const formatConsoleError = (
 				toolName: string,
-				params: Record<string, any>,
+				params: Record<string, unknown>,
 				error: unknown,
 			): string => {
 				const paramStr = Object.entries(params)
@@ -268,7 +268,7 @@ describe("index.ts 初期化・設定カバレッジテスト", () => {
 
 	describe("レスポンス形式の標準化", () => {
 		it("成功レスポンスの形式", () => {
-			const createSuccessResponse = (data: any) => ({
+			const createSuccessResponse = (data: unknown) => ({
 				content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
 				isError: false,
 			});

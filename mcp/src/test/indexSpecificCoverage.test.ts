@@ -163,7 +163,7 @@ describe("index.ts 特定未カバー行テスト", () => {
 				importance?: number;
 				comment?: string;
 			}) => {
-				const updateData: Record<string, any> = {};
+				const updateData: Record<string, unknown> = {};
 
 				if (params.practicalValue !== undefined)
 					updateData.practicalValue = params.practicalValue;
@@ -353,7 +353,7 @@ describe("index.ts 特定未カバー行テスト", () => {
 				articleContent: {
 					title: string;
 					content: string;
-					metadata: any;
+					metadata: unknown;
 				} | null,
 			) => {
 				return articleContent
@@ -389,7 +389,7 @@ describe("index.ts 特定未カバー行テスト", () => {
 		});
 
 		it("配列の長さによる分岐", () => {
-			const formatList = (items: any[]) => {
+			const formatList = (items: unknown[]) => {
 				if (items.length === 0) {
 					return "項目がありません";
 				}
@@ -441,7 +441,7 @@ if (import.meta.vitest) {
 
 	test("配列のsliceパターン", () => {
 		// .slice(0, 5) のようなパターン
-		const getTopItems = (items: any[], count = 5) => {
+		const getTopItems = (items: unknown[], count = 5) => {
 			return items.slice(0, count);
 		};
 
