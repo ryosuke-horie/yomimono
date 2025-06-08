@@ -485,6 +485,22 @@ describe("DefaultRatingService", () => {
 			).rejects.toThrow("最小スコアは最大スコア以下である必要があります");
 		});
 
+		it("最小スコアが範囲外の場合はエラーを投げること", async () => {
+			await expect(
+				service.getRatings({
+					minScore: 0.5, // 1.0未満
+				}),
+			).rejects.toThrow("最小スコアは1.0から10.0の範囲で指定してください");
+		});
+
+		it("最大スコアが範囲外の場合はエラーを投げること", async () => {
+			await expect(
+				service.getRatings({
+					maxScore: 11.0, // 10.0超過
+				}),
+			).rejects.toThrow("最大スコアは1.0から10.0の範囲で指定してください");
+		});
+
 		it("hasCommentオプションを正しく処理すること", async () => {
 			const ratings: ArticleRating[] = [];
 
