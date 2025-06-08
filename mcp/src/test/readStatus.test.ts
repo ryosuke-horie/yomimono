@@ -23,6 +23,7 @@ describe("Read/Unread Bookmarks MCP API Client", () => {
 					isRead: false,
 					isFavorite: false,
 					createdAt: "2024-01-01T00:00:00Z",
+					updatedAt: "2024-01-01T00:00:00Z",
 					readAt: null,
 				},
 				{
@@ -33,6 +34,7 @@ describe("Read/Unread Bookmarks MCP API Client", () => {
 					isRead: false,
 					isFavorite: false,
 					createdAt: "2024-01-02T00:00:00Z",
+					updatedAt: "2024-01-02T00:00:00Z",
 					readAt: null,
 				},
 			];
