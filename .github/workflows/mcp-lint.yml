@@ -22,17 +22,11 @@ jobs:
           node-version: 20
           cache: 'npm'
           cache-dependency-path: mcp/package-lock.json
-
-      - name: Setup npm path
+          
+      - name: Verify Node.js and npm
         run: |
-          echo "Current PATH: $PATH"
-          # Add common Node.js paths to PATH  
-          export PATH="/home/runner-user/yomimono-runnner/_work/_tool/node/20.19.2/x64/bin:$PATH"
-          echo "Updated PATH: $PATH"
-          echo "PATH=/home/runner-user/yomimono-runnner/_work/_tool/node/20.19.2/x64/bin:$PATH" >> $GITHUB_ENV
-          # Verify installations
-          which node && node --version
-          which npm && npm --version
+          node --version
+          npm --version
 
       - name: Install dependencies
         run: npm ci
