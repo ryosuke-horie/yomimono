@@ -1,10 +1,10 @@
-name: MCP Tests (Self-hosted)
+name: MCP Tests
 
 on:
   pull_request:
     paths:
       - 'mcp/**'
-      - '.github/workflows/mcp-test-selfhosted.yml'
+      - '.github/workflows/mcp-test.yml'
     types: [opened, synchronize, reopened]
 
 jobs:
