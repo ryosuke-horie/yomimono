@@ -96,6 +96,46 @@ describe("DrizzleArticleRatingRepository", () => {
 				"Failed to create article rating",
 			);
 		});
+
+		it("FOREIGN KEY制約エラーの場合は分かりやすいメッセージに変換すること", async () => {
+			const insertData: InsertArticleRating = {
+				articleId: 999,
+				practicalValue: 8,
+				technicalDepth: 7,
+				understanding: 9,
+				novelty: 6,
+				importance: 8,
+				totalScore: 0,
+			};
+
+			const foreignKeyError = new Error("FOREIGN KEY constraint failed");
+			mockDbClient.returning.mockRejectedValueOnce(foreignKeyError);
+
+			await expect(repository.create(insertData)).rejects.toThrow(
+				"指定された記事が見つかりません",
+			);
+		});
+
+		it("SQLITE_CONSTRAINT エラーの場合は分かりやすいメッセージに変換すること", async () => {
+			const insertData: InsertArticleRating = {
+				articleId: 999,
+				practicalValue: 8,
+				technicalDepth: 7,
+				understanding: 9,
+				novelty: 6,
+				importance: 8,
+				totalScore: 0,
+			};
+
+			const sqliteError = new Error(
+				"SQLITE_CONSTRAINT: foreign key constraint failed",
+			);
+			mockDbClient.returning.mockRejectedValueOnce(sqliteError);
+
+			await expect(repository.create(insertData)).rejects.toThrow(
+				"指定された記事が見つかりません",
+			);
+		});
 	});
 
 	describe("findByArticleId", () => {
@@ -186,6 +226,30 @@ describe("DrizzleArticleRatingRepository", () => {
 
 			expect(result).toBeNull();
 		});
+
+		it("更新時にFOREIGN KEY制約エラーの場合は分かりやすいメッセージに変換すること", async () => {
+			const currentRating: ArticleRating = {
+				id: 1,
+				articleId: 1,
+				practicalValue: 8,
+				technicalDepth: 7,
+				understanding: 9,
+				novelty: 6,
+				importance: 8,
+				totalScore: 76,
+				comment: "元のコメント",
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+
+			const foreignKeyError = new Error("FOREIGN KEY constraint failed");
+			mockDbClient.limit.mockResolvedValueOnce([currentRating]);
+			mockDbClient.returning.mockRejectedValueOnce(foreignKeyError);
+
+			await expect(repository.update(1, { practicalValue: 9 })).rejects.toThrow(
+				"指定された記事が見つかりません",
+			);
+		});
 	});
 
 	describe("delete", () => {
@@ -218,6 +282,15 @@ describe("DrizzleArticleRatingRepository", () => {
 			const result = await repository.delete(999);
 
 			expect(result).toBe(false);
+		});
+
+		it("削除時にFOREIGN KEY制約エラーの場合は分かりやすいメッセージに変換すること", async () => {
+			const foreignKeyError = new Error("FOREIGN KEY constraint failed");
+			mockDbClient.returning.mockRejectedValueOnce(foreignKeyError);
+
+			await expect(repository.delete(1)).rejects.toThrow(
+				"指定された記事が見つかりません",
+			);
 		});
 	});
 

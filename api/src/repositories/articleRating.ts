@@ -68,6 +68,17 @@ export class DrizzleArticleRatingRepository
 			return result[0];
 		} catch (error) {
 			console.error("Failed to create article rating:", error);
+
+			// 外部キー制約エラーの場合はより分かりやすいメッセージに変換
+			if (error instanceof Error) {
+				if (
+					error.message.includes("FOREIGN KEY constraint") ||
+					error.message.includes("SQLITE_CONSTRAINT")
+				) {
+					throw new Error("指定された記事が見つかりません");
+				}
+			}
+
 			throw error;
 		}
 	}
@@ -132,6 +143,17 @@ export class DrizzleArticleRatingRepository
 			return result[0] || null;
 		} catch (error) {
 			console.error("Failed to update article rating:", error);
+
+			// 外部キー制約エラーの場合はより分かりやすいメッセージに変換
+			if (error instanceof Error) {
+				if (
+					error.message.includes("FOREIGN KEY constraint") ||
+					error.message.includes("SQLITE_CONSTRAINT")
+				) {
+					throw new Error("指定された記事が見つかりません");
+				}
+			}
+
 			throw error;
 		}
 	}
@@ -146,6 +168,17 @@ export class DrizzleArticleRatingRepository
 			return result.length > 0;
 		} catch (error) {
 			console.error("Failed to delete article rating:", error);
+
+			// 外部キー制約エラーの場合はより分かりやすいメッセージに変換
+			if (error instanceof Error) {
+				if (
+					error.message.includes("FOREIGN KEY constraint") ||
+					error.message.includes("SQLITE_CONSTRAINT")
+				) {
+					throw new Error("指定された記事が見つかりません");
+				}
+			}
+
 			throw error;
 		}
 	}
