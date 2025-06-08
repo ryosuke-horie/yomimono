@@ -4,7 +4,14 @@
  */
 
 import type { Page } from "playwright";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	type MockedFunction,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from "vitest";
 
 describe("ArticleContentFetcher 重要未カバー部分テスト", () => {
 	describe("サイト固有抽出戦略の詳細テスト", () => {
@@ -24,7 +31,7 @@ describe("ArticleContentFetcher 重要未カバー部分テスト", () => {
 
 		it("Qiitaサイトの記事抽出戦略", async () => {
 			const qiitaUrl = "https://qiita.com/example/items/12345";
-			vi.mocked(mockPage.url).mockReturnValue(qiitaUrl);
+			(mockPage.url as MockedFunction<() => string>).mockReturnValue(qiitaUrl);
 
 			// Qiita特有のセレクター戦略をテスト
 			const qiitaSelectors = {
@@ -48,7 +55,7 @@ describe("ArticleContentFetcher 重要未カバー部分テスト", () => {
 
 		it("Zennサイトの記事抽出戦略", async () => {
 			const zennUrl = "https://zenn.dev/username/articles/article-id";
-			vi.mocked(mockPage.url).mockReturnValue(zennUrl);
+			(mockPage.url as MockedFunction<() => string>).mockReturnValue(zennUrl);
 
 			// Zenn特有のセレクター戦略
 			const zennSelectors = {
@@ -72,7 +79,7 @@ describe("ArticleContentFetcher 重要未カバー部分テスト", () => {
 
 		it("noteサイトの記事抽出戦略", async () => {
 			const noteUrl = "https://note.com/username/n/note123456";
-			vi.mocked(mockPage.url).mockReturnValue(noteUrl);
+			(mockPage.url as MockedFunction<() => string>).mockReturnValue(noteUrl);
 
 			// note特有のパターン
 			const notePatterns = {
@@ -88,7 +95,7 @@ describe("ArticleContentFetcher 重要未カバー部分テスト", () => {
 
 		it("Mediumサイトの記事抽出戦略", async () => {
 			const mediumUrl = "https://medium.com/@username/article-title-123";
-			vi.mocked(mockPage.url).mockReturnValue(mediumUrl);
+			(mockPage.url as MockedFunction<() => string>).mockReturnValue(mediumUrl);
 
 			// Medium特有のセレクター
 			const mediumSelectors = {
@@ -107,7 +114,7 @@ describe("ArticleContentFetcher 重要未カバー部分テスト", () => {
 
 		it("Dev.toサイトの記事抽出戦略", async () => {
 			const devToUrl = "https://dev.to/username/article-title-123";
-			vi.mocked(mockPage.url).mockReturnValue(devToUrl);
+			(mockPage.url as MockedFunction<() => string>).mockReturnValue(devToUrl);
 
 			// Dev.to特有のパターン
 			const devToConfig = {
@@ -148,7 +155,8 @@ describe("ArticleContentFetcher 重要未カバー部分テスト", () => {
 
 				if (jsonLd["@type"] === "Article") {
 					result.title = jsonLd.headline;
-					result.author = jsonLd.author?.name;
+					const author = jsonLd.author as { name?: string } | undefined;
+					result.author = author?.name;
 					result.publishedDate = jsonLd.datePublished;
 					result.modifiedDate = jsonLd.dateModified;
 					result.wordCount = jsonLd.wordCount;
@@ -406,7 +414,8 @@ describe("ArticleContentFetcher 重要未カバー部分テスト", () => {
 
 		it("ネットワークエラーハンドリング", () => {
 			const handleNetworkError = (error: unknown) => {
-				if (error.name === "TimeoutError") {
+				const err = error as { name?: string; message?: string };
+				if (err.name === "TimeoutError") {
 					return {
 						type: "timeout",
 						retry: true,
@@ -415,7 +424,7 @@ describe("ArticleContentFetcher 重要未カバー部分テスト", () => {
 					};
 				}
 
-				if (error.message?.includes("net::ERR_")) {
+				if (err.message?.includes("net::ERR_")) {
 					return {
 						type: "network",
 						retry: true,
@@ -424,7 +433,7 @@ describe("ArticleContentFetcher 重要未カバー部分テスト", () => {
 					};
 				}
 
-				if (error.message?.includes("403")) {
+				if (err.message?.includes("403")) {
 					return {
 						type: "forbidden",
 						retry: false,

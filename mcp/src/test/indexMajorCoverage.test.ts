@@ -185,6 +185,7 @@ describe("index.ts 主要機能カバレッジ向上", () => {
 			return (ratings as unknown[]).every((rating: unknown) => {
 				if (typeof rating !== "object" || rating === null) return false;
 
+				const ratingObj = rating as Record<string, unknown>;
 				const requiredFields = [
 					"articleId",
 					"practicalValue",
@@ -194,13 +195,16 @@ describe("index.ts 主要機能カバレッジ向上", () => {
 					"importance",
 				];
 				for (const field of requiredFields) {
-					if (!(field in rating)) return false;
+					if (!(field in ratingObj)) return false;
 
 					if (field === "articleId") {
-						if (typeof rating[field] !== "number" || rating[field] <= 0)
+						if (
+							typeof ratingObj[field] !== "number" ||
+							(ratingObj[field] as number) <= 0
+						)
 							return false;
 					} else {
-						const value = rating[field];
+						const value = ratingObj[field];
 						if (
 							typeof value !== "number" ||
 							value < 1 ||
@@ -341,11 +345,13 @@ if (import.meta.vitest) {
 				return errors;
 			}
 
-			if (!("articleId" in rating)) {
+			const ratingObj = rating as Record<string, unknown>;
+
+			if (!("articleId" in ratingObj)) {
 				errors.push("articleId is required");
 			} else if (
-				typeof rating.articleId !== "number" ||
-				rating.articleId <= 0
+				typeof ratingObj.articleId !== "number" ||
+				(ratingObj.articleId as number) <= 0
 			) {
 				errors.push("articleId must be a positive number");
 			}
@@ -358,10 +364,10 @@ if (import.meta.vitest) {
 				"importance",
 			];
 			for (const field of ratingFields) {
-				if (!(field in rating)) {
+				if (!(field in ratingObj)) {
 					errors.push(`${field} is required`);
 				} else {
-					const value = rating[field];
+					const value = ratingObj[field];
 					if (typeof value !== "number") {
 						errors.push(`${field} must be a number`);
 					} else if (value < 1 || value > 10) {

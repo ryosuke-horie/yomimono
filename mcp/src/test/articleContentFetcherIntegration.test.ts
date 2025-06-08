@@ -343,20 +343,27 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 					type: "unknown",
 					shouldRetry: false,
 					delayMs: 0,
-					fallbackStrategy: "none" as const,
+					fallbackStrategy: "none" as
+						| "none"
+						| "simplified-selectors"
+						| "cached-content"
+						| "direct-fetch"
+						| "basic-selectors",
 				};
 
-				if (error.name === "TimeoutError") {
+				const err = error as { name?: string; message?: string };
+
+				if (err.name === "TimeoutError") {
 					errorInfo.type = "timeout";
 					errorInfo.shouldRetry = context.attempt < 3;
 					errorInfo.delayMs = 2000 * context.attempt;
 					errorInfo.fallbackStrategy = "simplified-selectors";
-				} else if (error.message?.includes("net::")) {
+				} else if (err.message?.includes("net::")) {
 					errorInfo.type = "network";
 					errorInfo.shouldRetry = context.attempt < 2;
 					errorInfo.delayMs = 5000;
 					errorInfo.fallbackStrategy = "cached-content";
-				} else if (error.message?.includes("Navigation")) {
+				} else if (err.message?.includes("Navigation")) {
 					errorInfo.type = "navigation";
 					errorInfo.shouldRetry = true;
 					errorInfo.delayMs = 1000;
