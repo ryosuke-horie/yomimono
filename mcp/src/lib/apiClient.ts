@@ -6,7 +6,7 @@ const ArticleSchema = z.object({
 	title: z.string(),
 	url: z.string(),
 	isRead: z.boolean(),
-	isFavorite: z.boolean(),
+	isFavorite: z.boolean().optional(), // isFavoriteを任意項目にする
 	label: z
 		.object({
 			id: z.number(),
@@ -15,7 +15,8 @@ const ArticleSchema = z.object({
 			createdAt: z.string().or(z.instanceof(Date)),
 			updatedAt: z.string().or(z.instanceof(Date)),
 		})
-		.nullable(),
+		.nullable()
+		.optional(), // labelを任意項目にする
 	createdAt: z.string().or(z.instanceof(Date)),
 	updatedAt: z.string().or(z.instanceof(Date)),
 });
@@ -86,15 +87,34 @@ export async function getUnlabeledArticles() {
 		);
 	}
 	const data = await response.json();
-	const parsed = ArticlesResponseSchema.safeParse(data);
+	
+	// /api/bookmarks/unlabeledは基本的なBookmarkオブジェクトを返すため、
+	// labelプロパティを持たない。labelをnullとして追加する。
+	const UnlabeledArticlesResponseSchema = z.object({
+		success: z.literal(true),
+		bookmarks: z.array(z.object({
+			id: z.number(),
+			title: z.string(),
+			url: z.string(),
+			isRead: z.boolean(),
+			createdAt: z.string().or(z.instanceof(Date)),
+			updatedAt: z.string().or(z.instanceof(Date)),
+		})),
+	});
+	
+	const parsed = UnlabeledArticlesResponseSchema.safeParse(data);
 	if (!parsed.success) {
 		// Provide more context in the error message
 		throw new Error(
-			`Invalid API response for unlabeled articles. Expected { success: true, bookmarks: [...] }, received: ${JSON.stringify(data)}. Zod errors: ${parsed.error}`,
+			`Invalid API response for unlabeled articles. Expected { success: true, bookmarks: [...] }, received: ${JSON.stringify(data)}. Zod errors: ${parsed.error.message}`,
 		);
 	}
-	// Extract data from 'bookmarks' key
-	return parsed.data.bookmarks;
+	// Extract data from 'bookmarks' key and add label: null for compatibility
+	return parsed.data.bookmarks.map(bookmark => ({
+		...bookmark,
+		label: null,
+		isFavorite: false, // デフォルト値を設定
+	}));
 }
 
 /**
@@ -481,12 +501,17 @@ const BookmarkWithReadStatusSchema = z.object({
 	id: z.number(),
 	url: z.string(),
 	title: z.string(),
-	labels: z.array(z.string()),
+	labels: z.array(z.string()).optional(), // labelsを任意項目にする
 	isRead: z.boolean(),
-	isFavorite: z.boolean(),
+	isFavorite: z.boolean().optional(), // isFavoriteを任意項目にする（APIレスポンスに応じて）
 	createdAt: z.string(),
-	readAt: z.string().nullable(),
-});
+	readAt: z.string().nullable().optional(), // readAtを任意項目にする
+	updatedAt: z.string().optional(), // updatedAtを追加（通常の未読ブックマークで必要）
+}).transform((data) => ({
+	...data,
+	labels: data.labels ?? [], // labelsがundefinedの場合は空配列を設定
+	isFavorite: data.isFavorite ?? false, // isFavoriteがundefinedの場合はfalseを設定
+}));
 
 // Schema for bookmarks list response
 const BookmarksListResponseSchema = z.object({
@@ -537,13 +562,26 @@ export async function getUnreadBookmarks() {
 	}
 
 	const data = await response.json();
-	const parsed = BookmarksListResponseSchema.safeParse(data);
+	// /api/bookmarksはArticleSchemaの形式で返すため、ArticlesResponseSchemaを使用
+	const parsed = ArticlesResponseSchema.safeParse(data);
 	if (!parsed.success) {
 		throw new Error(
 			`Invalid API response for unread bookmarks: ${parsed.error.message}`,
 		);
 	}
-	return parsed.data.bookmarks;
+	// ArticleSchemaの形式をBookmarkWithReadStatusSchemaの形式に変換
+	const bookmarksWithReadStatus = parsed.data.bookmarks.map((bookmark) => ({
+		id: bookmark.id,
+		url: bookmark.url,
+		title: bookmark.title,
+		labels: bookmark.label ? [bookmark.label.name] : [],
+		isRead: bookmark.isRead,
+		isFavorite: bookmark.isFavorite ?? false,
+		createdAt: typeof bookmark.createdAt === 'string' ? bookmark.createdAt : bookmark.createdAt.toISOString(),
+		readAt: null,
+		updatedAt: typeof bookmark.updatedAt === 'string' ? bookmark.updatedAt : bookmark.updatedAt.toISOString(),
+	}));
+	return bookmarksWithReadStatus;
 }
 /**
  * 既読のブックマークを取得します
