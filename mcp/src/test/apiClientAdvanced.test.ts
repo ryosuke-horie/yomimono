@@ -311,9 +311,7 @@ describe("apiClient.ts 高度なテスト", () => {
 				statusText: "Bad Request",
 			});
 
-			await expect(
-				getUnreadArticlesByLabel("非存在ラベル"),
-			).rejects.toThrow(
+			await expect(getUnreadArticlesByLabel("非存在ラベル")).rejects.toThrow(
 				'Failed to fetch unread articles for label "非存在ラベル": Bad Request',
 			);
 		});
@@ -327,9 +325,9 @@ describe("apiClient.ts 高度なテスト", () => {
 				}),
 			});
 
-			await expect(
-				getUnreadArticlesByLabel("テストラベル"),
-			).rejects.toThrow("Invalid API response for unread articles by label:");
+			await expect(getUnreadArticlesByLabel("テストラベル")).rejects.toThrow(
+				"Invalid API response for unread articles by label:",
+			);
 		});
 	});
 
