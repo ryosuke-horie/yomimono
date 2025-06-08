@@ -11,12 +11,12 @@ describe("index.ts カバレッジ向上テスト", () => {
 		it("数値パラメータのバリデーション", () => {
 			// articleId型のスキーマ
 			const articleIdSchema = z.number().int().positive();
-			
+
 			// 正常系
 			expect(articleIdSchema.safeParse(123).success).toBe(true);
 			expect(articleIdSchema.safeParse(1).success).toBe(true);
 			expect(articleIdSchema.safeParse(999999).success).toBe(true);
-			
+
 			// 異常系
 			expect(articleIdSchema.safeParse(0).success).toBe(false);
 			expect(articleIdSchema.safeParse(-1).success).toBe(false);
@@ -29,12 +29,14 @@ describe("index.ts カバレッジ向上テスト", () => {
 		it("文字列パラメータのバリデーション", () => {
 			// labelName型のスキーマ
 			const labelNameSchema = z.string().min(1);
-			
+
 			// 正常系
 			expect(labelNameSchema.safeParse("技術").success).toBe(true);
 			expect(labelNameSchema.safeParse("a").success).toBe(true);
-			expect(labelNameSchema.safeParse("非常に長いラベル名でも問題ない").success).toBe(true);
-			
+			expect(
+				labelNameSchema.safeParse("非常に長いラベル名でも問題ない").success,
+			).toBe(true);
+
 			// 異常系
 			expect(labelNameSchema.safeParse("").success).toBe(false);
 			expect(labelNameSchema.safeParse(123).success).toBe(false);
@@ -45,13 +47,13 @@ describe("index.ts カバレッジ向上テスト", () => {
 		it("オプショナル・nullable文字列のバリデーション", () => {
 			// description型のスキーマ
 			const descriptionSchema = z.string().optional().nullable();
-			
+
 			// 全て正常系
 			expect(descriptionSchema.safeParse("説明文").success).toBe(true);
 			expect(descriptionSchema.safeParse("").success).toBe(true);
 			expect(descriptionSchema.safeParse(null).success).toBe(true);
 			expect(descriptionSchema.safeParse(undefined).success).toBe(true);
-			
+
 			// 異常系
 			expect(descriptionSchema.safeParse(123).success).toBe(false);
 			expect(descriptionSchema.safeParse({}).success).toBe(false);
@@ -61,21 +63,21 @@ describe("index.ts カバレッジ向上テスト", () => {
 		it("評価スコアのバリデーション", () => {
 			// 1-10の整数
 			const scoreSchema = z.number().int().min(1).max(10);
-			
+
 			// 正常系
 			for (let i = 1; i <= 10; i++) {
 				expect(scoreSchema.safeParse(i).success).toBe(true);
 			}
-			
+
 			// 異常系 - 範囲外
 			expect(scoreSchema.safeParse(0).success).toBe(false);
 			expect(scoreSchema.safeParse(11).success).toBe(false);
 			expect(scoreSchema.safeParse(-1).success).toBe(false);
-			
+
 			// 異常系 - 小数
 			expect(scoreSchema.safeParse(5.5).success).toBe(false);
 			expect(scoreSchema.safeParse(7.1).success).toBe(false);
-			
+
 			// 異常系 - 型違い
 			expect(scoreSchema.safeParse("5").success).toBe(false);
 			expect(scoreSchema.safeParse(null).success).toBe(false);
@@ -153,12 +155,12 @@ describe("index.ts カバレッジ向上テスト", () => {
 		it("配列のバリデーション", () => {
 			// articleIds の配列スキーマ
 			const articleIdsSchema = z.array(z.number().int().positive());
-			
+
 			// 正常系
 			expect(articleIdsSchema.safeParse([1, 2, 3]).success).toBe(true);
 			expect(articleIdsSchema.safeParse([123]).success).toBe(true);
 			expect(articleIdsSchema.safeParse([]).success).toBe(true); // 空配列もOK
-			
+
 			// 異常系
 			expect(articleIdsSchema.safeParse([1, -1, 3]).success).toBe(false);
 			expect(articleIdsSchema.safeParse([1, "2", 3]).success).toBe(false);
@@ -171,7 +173,17 @@ describe("index.ts カバレッジ向上テスト", () => {
 			const filterSchema = z.object({
 				limit: z.number().int().positive().max(100).optional(),
 				offset: z.number().int().min(0).optional(),
-				sortBy: z.enum(["totalScore", "createdAt", "practicalValue", "technicalDepth", "understanding", "novelty", "importance"]).optional(),
+				sortBy: z
+					.enum([
+						"totalScore",
+						"createdAt",
+						"practicalValue",
+						"technicalDepth",
+						"understanding",
+						"novelty",
+						"importance",
+					])
+					.optional(),
 				order: z.enum(["asc", "desc"]).optional(),
 				minScore: z.number().min(1).max(10).optional(),
 				maxScore: z.number().min(1).max(10).optional(),
@@ -192,7 +204,9 @@ describe("index.ts カバレッジ向上テスト", () => {
 
 			// 正常系 - 一部フィールドのみ
 			expect(filterSchema.safeParse({ limit: 10 }).success).toBe(true);
-			expect(filterSchema.safeParse({ sortBy: "createdAt", order: "asc" }).success).toBe(true);
+			expect(
+				filterSchema.safeParse({ sortBy: "createdAt", order: "asc" }).success,
+			).toBe(true);
 			expect(filterSchema.safeParse({}).success).toBe(true); // 全部オプショナル
 
 			// 異常系 - 範囲外
@@ -218,12 +232,14 @@ describe("index.ts カバレッジ向上テスト", () => {
 			};
 
 			// Error オブジェクト
-			expect(getErrorMessage(new Error("Database error"))).toBe("Database error");
+			expect(getErrorMessage(new Error("Database error"))).toBe(
+				"Database error",
+			);
 			expect(getErrorMessage(new TypeError("Type error"))).toBe("Type error");
-			
+
 			// 文字列
 			expect(getErrorMessage("String error")).toBe("String error");
-			
+
 			// その他の型
 			expect(getErrorMessage(null)).toBe("null");
 			expect(getErrorMessage(undefined)).toBe("undefined");
@@ -233,7 +249,9 @@ describe("index.ts カバレッジ向上テスト", () => {
 
 		it("null/undefined の処理", () => {
 			// null合体演算子のパターン
-			const processDescription = (desc: string | null | undefined): string | undefined => {
+			const processDescription = (
+				desc: string | null | undefined,
+			): string | undefined => {
 				return desc ?? undefined;
 			};
 
@@ -256,9 +274,11 @@ describe("index.ts カバレッジ向上テスト", () => {
 
 			// 正常系
 			expect(validateRatingsArray([1, 2, 3])).toBe(null);
-			
+
 			// 異常系
-			expect(validateRatingsArray("not array")).toBe("ratings must be an array");
+			expect(validateRatingsArray("not array")).toBe(
+				"ratings must be an array",
+			);
 			expect(validateRatingsArray({})).toBe("ratings must be an array");
 			expect(validateRatingsArray(null)).toBe("ratings must be an array");
 			expect(validateRatingsArray([])).toBe("ratings array cannot be empty");
@@ -293,14 +313,17 @@ describe("index.ts カバレッジ向上テスト", () => {
 
 		it("ツール固有のエラーメッセージ", () => {
 			const formatToolError = (toolName: string, error: unknown): string => {
-				const message = error instanceof Error ? error.message : "Unknown error";
+				const message =
+					error instanceof Error ? error.message : "Unknown error";
 				return `Error in ${toolName} tool: ${message}`;
 			};
 
-			expect(formatToolError("getLabels", new Error("DB error")))
-				.toBe("Error in getLabels tool: DB error");
-			expect(formatToolError("assignLabel", "String error"))
-				.toBe("Error in assignLabel tool: Unknown error");
+			expect(formatToolError("getLabels", new Error("DB error"))).toBe(
+				"Error in getLabels tool: DB error",
+			);
+			expect(formatToolError("assignLabel", "String error")).toBe(
+				"Error in assignLabel tool: Unknown error",
+			);
 		});
 	});
 });
@@ -353,22 +376,26 @@ if (import.meta.vitest) {
 		};
 
 		// パラメータパターンのテスト
-		expect(processParams({
-			required: "必須",
-			nullable: null,
-		})).toEqual({
+		expect(
+			processParams({
+				required: "必須",
+				nullable: null,
+			}),
+		).toEqual({
 			required: "必須",
 			optional: "default",
 			nullable: "default",
 			optionalNullable: "default",
 		});
 
-		expect(processParams({
-			required: "必須",
-			optional: "オプション",
-			nullable: "ヌル可能",
-			optionalNullable: null,
-		})).toEqual({
+		expect(
+			processParams({
+				required: "必須",
+				optional: "オプション",
+				nullable: "ヌル可能",
+				optionalNullable: null,
+			}),
+		).toEqual({
 			required: "必須",
 			optional: "オプション",
 			nullable: "ヌル可能",
@@ -386,8 +413,8 @@ if (import.meta.vitest) {
 		expect(isValidInteger(0)).toBe(true);
 		expect(isValidInteger(-456)).toBe(true);
 		expect(isValidInteger(1.5)).toBe(false);
-		expect(isValidInteger(NaN)).toBe(false);
-		expect(isValidInteger(Infinity)).toBe(false);
+		expect(isValidInteger(Number.NaN)).toBe(false);
+		expect(isValidInteger(Number.POSITIVE_INFINITY)).toBe(false);
 		expect(isValidInteger("123")).toBe(false);
 
 		// 正の整数チェック

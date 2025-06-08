@@ -3,8 +3,8 @@
  * 未カバー行 866-1367 を中心にカバー
  */
 
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import type { Page, Locator } from "playwright";
+import type { Locator, Page } from "playwright";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // 実際の関数パターンを模倣したテスト
 describe("ArticleContentFetcher 統合カバレッジテスト", () => {
@@ -45,62 +45,62 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 				"https://note.com/user/n/n123456",
 				"https://medium.com/@user/article-title",
 				"https://dev.to/user/article-title-123",
-				"https://unknown-site.com/article"
+				"https://unknown-site.com/article",
 			];
 
 			const getSiteConfig = (url: string) => {
 				const domain = new URL(url).hostname;
-				
+
 				if (domain.includes("qiita.com")) {
 					return {
 						type: "qiita",
 						selectors: {
 							title: ".it-MainHeader_title, .p-items_title",
 							content: ".it-MdContent, .p-items_article",
-							author: ".p-items_userLink, .it-UserInfo_name"
+							author: ".p-items_userLink, .it-UserInfo_name",
 						},
-						strategy: "site-specific"
+						strategy: "site-specific",
 					};
 				}
-				
+
 				if (domain.includes("zenn.dev")) {
 					return {
 						type: "zenn",
 						selectors: {
 							title: "[data-testid='article-title'], .article-title",
 							content: ".znc, .article-body",
-							author: "[data-testid='author-name'], .author-name"
+							author: "[data-testid='author-name'], .author-name",
 						},
-						strategy: "site-specific"
+						strategy: "site-specific",
 					};
 				}
-				
+
 				if (domain.includes("note.com")) {
 					return {
 						type: "note",
 						selectors: {
 							title: ".note-header__title, h1.o-noteContentText",
 							content: ".note-content, .o-noteContentText__body",
-							author: ".note-author, .o-userInfo__name"
+							author: ".note-author, .o-userInfo__name",
 						},
-						strategy: "site-specific"
+						strategy: "site-specific",
 					};
 				}
-				
+
 				return {
 					type: "fallback",
 					selectors: {
 						title: "h1, .title, .headline",
 						content: "article, .content, .post-content, main",
-						author: ".author, .byline, .writer"
+						author: ".author, .byline, .writer",
 					},
-					strategy: "fallback"
+					strategy: "fallback",
 				};
 			};
 
-			testUrls.forEach(url => {
+			for (const url of testUrls) {
 				const config = getSiteConfig(url);
-				
+
 				// 設定の検証
 				expect(config).toHaveProperty("type");
 				expect(config).toHaveProperty("selectors");
@@ -108,7 +108,7 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 				expect(config.selectors).toHaveProperty("title");
 				expect(config.selectors).toHaveProperty("content");
 				expect(config.selectors).toHaveProperty("author");
-			});
+			}
 
 			// 特定サイトの詳細検証
 			const qiitaConfig = getSiteConfig("https://qiita.com/user/items/123");
@@ -123,41 +123,46 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 
 		it("複数セレクターでのフォールバック抽出", async () => {
 			// 実際の抽出ロジックを模倣
-			const extractWithFallback = async (selectors: string[], mockResults: (string | null)[]) => {
+			const extractWithFallback = async (
+				selectors: string[],
+				mockResults: (string | null)[],
+			) => {
 				for (let i = 0; i < selectors.length; i++) {
 					const selector = selectors[i];
-					
+
 					try {
 						// セレクターの実行を模擬
 						const result = mockResults[i];
-						
-						if (result && result.trim()) {
+
+						if (result?.trim()) {
 							return {
 								value: result,
 								selector: selector,
 								fallbackLevel: i,
-								success: true
+								success: true,
 							};
 						}
 					} catch (error) {
 						console.log(`Selector ${selector} failed:`, error);
-						continue;
 					}
 				}
-				
+
 				return {
 					value: null,
 					selector: null,
 					fallbackLevel: -1,
-					success: false
+					success: false,
 				};
 			};
 
 			// 成功パターン
 			const titleSelectors = [".main-title", "h1.title", "h1"];
 			const successResults = ["", "", "Main Article Title"];
-			const successResult = await extractWithFallback(titleSelectors, successResults);
-			
+			const successResult = await extractWithFallback(
+				titleSelectors,
+				successResults,
+			);
+
 			expect(successResult.success).toBe(true);
 			expect(successResult.value).toBe("Main Article Title");
 			expect(successResult.fallbackLevel).toBe(2);
@@ -166,7 +171,7 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 			// 失敗パターン
 			const failResults = [null, "", null];
 			const failResult = await extractWithFallback(titleSelectors, failResults);
-			
+
 			expect(failResult.success).toBe(false);
 			expect(failResult.value).toBe(null);
 			expect(failResult.fallbackLevel).toBe(-1);
@@ -176,20 +181,20 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 			// 複数ソースからのメタデータ統合
 			const mergeMetadata = (sources: Record<string, any>) => {
 				const result: any = {};
-				
+
 				// 優先順位: structured-data > meta-tags > page-content
 				const priorityOrder = ["structured", "meta", "content"];
-				
-				priorityOrder.forEach(source => {
+
+				priorityOrder.forEach((source) => {
 					if (sources[source]) {
-						Object.keys(sources[source]).forEach(key => {
+						Object.keys(sources[source]).forEach((key) => {
 							if (!result[key] && sources[source][key]) {
 								result[key] = sources[source][key];
 							}
 						});
 					}
 				});
-				
+
 				return result;
 			};
 
@@ -197,23 +202,23 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 				structured: {
 					title: "Structured Data Title",
 					author: "JSON-LD Author",
-					publishedDate: "2024-01-01"
+					publishedDate: "2024-01-01",
 				},
 				meta: {
 					title: "Meta Title",
 					description: "Meta Description",
-					image: "meta-image.jpg"
+					image: "meta-image.jpg",
 				},
 				content: {
 					title: "Content Title",
 					author: "Content Author",
 					readingTime: 15,
-					wordCount: 1200
-				}
+					wordCount: 1200,
+				},
 			};
 
 			const merged = mergeMetadata(mockSources);
-			
+
 			// 優先順位に従った統合結果
 			expect(merged.title).toBe("Structured Data Title"); // structured優先
 			expect(merged.author).toBe("JSON-LD Author"); // structured優先
@@ -235,8 +240,8 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 				extractionMethod?: string;
 			}) => {
 				let score = 0;
-				let maxScore = 100;
-				
+				const maxScore = 100;
+
 				// タイトル品質 (25点)
 				if (extractedData.title) {
 					const titleLength = extractedData.title.length;
@@ -248,7 +253,7 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 						score += 5;
 					}
 				}
-				
+
 				// コンテンツ品質 (35点)
 				if (extractedData.content) {
 					const contentLength = extractedData.content.length;
@@ -262,26 +267,30 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 						score += 10;
 					}
 				}
-				
+
 				// メタデータ品質 (20点)
 				let metaScore = 0;
 				if (extractedData.author) metaScore += 5;
 				if (extractedData.publishedDate) metaScore += 5;
-				if (extractedData.readingTime && extractedData.readingTime > 0) metaScore += 5;
-				if (extractedData.images && extractedData.images.length > 0) metaScore += 3;
-				if (extractedData.codeBlocks && extractedData.codeBlocks.length > 0) metaScore += 2;
+				if (extractedData.readingTime && extractedData.readingTime > 0)
+					metaScore += 5;
+				if (extractedData.images && extractedData.images.length > 0)
+					metaScore += 3;
+				if (extractedData.codeBlocks && extractedData.codeBlocks.length > 0)
+					metaScore += 2;
 				score += metaScore;
-				
+
 				// 抽出方法ボーナス (20点)
 				const methodScores: Record<string, number> = {
 					"structured-data": 20,
 					"site-specific": 15,
-					"readability": 18,
+					readability: 18,
 					"meta-tags": 10,
-					"fallback": 5
+					fallback: 5,
 				};
-				score += methodScores[extractedData.extractionMethod || "fallback"] || 0;
-				
+				score +=
+					methodScores[extractedData.extractionMethod || "fallback"] || 0;
+
 				return Math.min(score / maxScore, 1.0);
 			};
 
@@ -294,44 +303,47 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 				readingTime: 25,
 				images: ["image1.jpg", "image2.jpg"],
 				codeBlocks: ["const example = 'code'"],
-				extractionMethod: "structured-data"
+				extractionMethod: "structured-data",
 			};
-			
+
 			const highScore = calculateQualityScore(highQualityData);
 			expect(highScore).toBeGreaterThan(0.9);
-			
+
 			// 中品質コンテンツ
 			const mediumQualityData = {
 				title: "技術記事",
 				content: "A".repeat(800),
 				author: "著者",
-				extractionMethod: "site-specific"
+				extractionMethod: "site-specific",
 			};
-			
+
 			const mediumScore = calculateQualityScore(mediumQualityData);
 			expect(mediumScore).toBeGreaterThanOrEqual(0.4);
 			expect(mediumScore).toBeLessThan(0.8);
-			
+
 			// 低品質コンテンツ
 			const lowQualityData = {
 				title: "短い",
 				content: "少ない内容",
-				extractionMethod: "fallback"
+				extractionMethod: "fallback",
 			};
-			
+
 			const lowScore = calculateQualityScore(lowQualityData);
 			expect(lowScore).toBeLessThan(0.4);
 		});
 
 		it("エラー処理とリトライロジック", async () => {
-			const handleExtractionError = (error: any, context: { url: string; selector: string; attempt: number }) => {
+			const handleExtractionError = (
+				error: any,
+				context: { url: string; selector: string; attempt: number },
+			) => {
 				const errorInfo = {
 					type: "unknown",
 					shouldRetry: false,
 					delayMs: 0,
-					fallbackStrategy: "none" as const
+					fallbackStrategy: "none" as const,
 				};
-				
+
 				if (error.name === "TimeoutError") {
 					errorInfo.type = "timeout";
 					errorInfo.shouldRetry = context.attempt < 3;
@@ -352,14 +364,21 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 					errorInfo.shouldRetry = false;
 					errorInfo.fallbackStrategy = "basic-selectors";
 				}
-				
+
 				return errorInfo;
 			};
 
 			// タイムアウトエラー
-			const timeoutError = { name: "TimeoutError", message: "Navigation timeout" };
-			const timeoutInfo = handleExtractionError(timeoutError, { url: "https://example.com", selector: ".title", attempt: 1 });
-			
+			const timeoutError = {
+				name: "TimeoutError",
+				message: "Navigation timeout",
+			};
+			const timeoutInfo = handleExtractionError(timeoutError, {
+				url: "https://example.com",
+				selector: ".title",
+				attempt: 1,
+			});
+
 			expect(timeoutInfo.type).toBe("timeout");
 			expect(timeoutInfo.shouldRetry).toBe(true);
 			expect(timeoutInfo.delayMs).toBe(2000);
@@ -367,16 +386,24 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 
 			// ネットワークエラー
 			const networkError = { message: "net::ERR_CONNECTION_REFUSED" };
-			const networkInfo = handleExtractionError(networkError, { url: "https://example.com", selector: ".title", attempt: 1 });
-			
+			const networkInfo = handleExtractionError(networkError, {
+				url: "https://example.com",
+				selector: ".title",
+				attempt: 1,
+			});
+
 			expect(networkInfo.type).toBe("network");
 			expect(networkInfo.shouldRetry).toBe(true);
 			expect(networkInfo.fallbackStrategy).toBe("cached-content");
 
 			// 抽出エラー
 			const extractionError = { message: "Element not found" };
-			const extractionInfo = handleExtractionError(extractionError, { url: "https://example.com", selector: ".title", attempt: 1 });
-			
+			const extractionInfo = handleExtractionError(extractionError, {
+				url: "https://example.com",
+				selector: ".title",
+				attempt: 1,
+			});
+
 			expect(extractionInfo.type).toBe("extraction");
 			expect(extractionInfo.shouldRetry).toBe(false);
 			expect(extractionInfo.fallbackStrategy).toBe("basic-selectors");
@@ -386,7 +413,7 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 			// セレクター最適化
 			const optimizeSelectors = (selectors: string[]) => {
 				return selectors
-					.filter(selector => selector.trim().length > 0)
+					.filter((selector) => selector.trim().length > 0)
 					.sort((a, b) => {
 						// ID > Class > Attribute > Tag の順で最適化
 						const getSpecificity = (sel: string) => {
@@ -407,11 +434,11 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 				"[data-testid='title']",
 				"",
 				"article h1.main-title",
-				".header .title"
+				".header .title",
 			];
 
 			const optimized = optimizeSelectors(rawSelectors);
-			
+
 			expect(optimized).toHaveLength(5);
 			expect(optimized[0]).toBe("#main-title"); // ID優先
 			expect(optimized).not.toContain(""); // 空文字除外
@@ -419,19 +446,21 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 			// キャッシュシミュレーション
 			const cache = new Map<string, any>();
 			const cacheKey = (url: string, selector: string) => `${url}:${selector}`;
-			
+
 			const getCachedResult = (url: string, selector: string) => {
 				const key = cacheKey(url, selector);
 				return cache.get(key);
 			};
-			
+
 			const setCachedResult = (url: string, selector: string, result: any) => {
 				const key = cacheKey(url, selector);
 				cache.set(key, result);
 			};
 
 			setCachedResult("https://example.com", ".title", "Cached Title");
-			expect(getCachedResult("https://example.com", ".title")).toBe("Cached Title");
+			expect(getCachedResult("https://example.com", ".title")).toBe(
+				"Cached Title",
+			);
 			expect(getCachedResult("https://example.com", ".other")).toBeUndefined();
 		});
 	});
@@ -440,15 +469,19 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 		it("日本語コンテンツの読み時間計算", () => {
 			const calculateJapaneseReadingTime = (text: string) => {
 				// 日本語文字（ひらがな、カタカナ、漢字）
-				const japaneseChars = (text.match(/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/g) || []).length;
-				
+				const japaneseChars = (
+					text.match(/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/g) || []
+				).length;
+
 				// 英数字とアルファベット
-				const englishWords = text.split(/\s+/).filter(word => /[a-zA-Z0-9]/.test(word)).length;
-				
+				const englishWords = text
+					.split(/\s+/)
+					.filter((word) => /[a-zA-Z0-9]/.test(word)).length;
+
 				// 日本語: 400文字/分, 英語: 200語/分
 				const japaneseMinutes = japaneseChars / 400;
 				const englishMinutes = englishWords / 200;
-				
+
 				const totalMinutes = japaneseMinutes + englishMinutes;
 				return Math.max(1, Math.round(totalMinutes));
 			};
@@ -458,11 +491,15 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 			expect(calculateJapaneseReadingTime(japaneseText)).toBeGreaterThan(1);
 
 			// 英語のみ
-			const englishText = "This is an English test article with many words for testing purposes.".repeat(30);
+			const englishText =
+				"This is an English test article with many words for testing purposes.".repeat(
+					30,
+				);
 			expect(calculateJapaneseReadingTime(englishText)).toBeGreaterThan(1);
 
 			// 混在
-			const mixedText = "This is a mixed content. これは混在コンテンツです。".repeat(20);
+			const mixedText =
+				"This is a mixed content. これは混在コンテンツです。".repeat(20);
 			expect(calculateJapaneseReadingTime(mixedText)).toBeGreaterThanOrEqual(1);
 		});
 
@@ -503,7 +540,7 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 			`;
 
 			const plainText = htmlToPlainText(complexHtml);
-			
+
 			expect(plainText).not.toContain("<script");
 			expect(plainText).not.toContain("<style");
 			expect(plainText).not.toContain("script");
@@ -530,52 +567,76 @@ if (import.meta.vitest) {
 			}
 		};
 
-		expect(normalizeUrl("https://example.com/article?utm_source=test#section")).toBe("https://example.com/article");
+		expect(
+			normalizeUrl("https://example.com/article?utm_source=test#section"),
+		).toBe("https://example.com/article");
 		expect(normalizeUrl("https://example.com/")).toBe("https://example.com/");
 		expect(normalizeUrl("invalid-url")).toBe("invalid-url");
 	});
 
 	test("セレクタービルダー", () => {
-		const buildSelector = (config: { tag?: string; classes?: string[]; attributes?: Record<string, string> }) => {
+		const buildSelector = (config: {
+			tag?: string;
+			classes?: string[];
+			attributes?: Record<string, string>;
+		}) => {
 			let selector = config.tag || "*";
-			
+
 			if (config.classes) {
-				selector += config.classes.map(cls => `.${cls}`).join("");
+				selector += config.classes.map((cls) => `.${cls}`).join("");
 			}
-			
+
 			if (config.attributes) {
 				Object.entries(config.attributes).forEach(([attr, value]) => {
 					selector += `[${attr}="${value}"]`;
 				});
 			}
-			
+
 			return selector;
 		};
 
-		expect(buildSelector({ tag: "h1", classes: ["title", "main"] })).toBe("h1.title.main");
-		expect(buildSelector({ tag: "div", attributes: { "data-testid": "content" } })).toBe('div[data-testid="content"]');
-		expect(buildSelector({ classes: ["btn"], attributes: { type: "button" } })).toBe('*.btn[type="button"]');
+		expect(buildSelector({ tag: "h1", classes: ["title", "main"] })).toBe(
+			"h1.title.main",
+		);
+		expect(
+			buildSelector({ tag: "div", attributes: { "data-testid": "content" } }),
+		).toBe('div[data-testid="content"]');
+		expect(
+			buildSelector({ classes: ["btn"], attributes: { type: "button" } }),
+		).toBe('*.btn[type="button"]');
 	});
 
 	test("コンテンツ品質指標", () => {
 		const analyzeContentQuality = (content: string) => {
-			const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
-			const sentenceCount = content.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
-			const paragraphCount = content.split(/\n\s*\n/).filter(p => p.trim().length > 0).length;
-			const avgWordsPerSentence = sentenceCount > 0 ? wordCount / sentenceCount : 0;
-			
+			const wordCount = content
+				.split(/\s+/)
+				.filter((word) => word.length > 0).length;
+			const sentenceCount = content
+				.split(/[.!?]+/)
+				.filter((s) => s.trim().length > 0).length;
+			const paragraphCount = content
+				.split(/\n\s*\n/)
+				.filter((p) => p.trim().length > 0).length;
+			const avgWordsPerSentence =
+				sentenceCount > 0 ? wordCount / sentenceCount : 0;
+
 			return {
 				wordCount,
 				sentenceCount,
 				paragraphCount,
 				avgWordsPerSentence: Math.round(avgWordsPerSentence * 10) / 10,
-				readability: avgWordsPerSentence > 15 ? "complex" : avgWordsPerSentence > 10 ? "moderate" : "simple"
+				readability:
+					avgWordsPerSentence > 15
+						? "complex"
+						: avgWordsPerSentence > 10
+							? "moderate"
+							: "simple",
 			};
 		};
 
 		const simpleContent = "This is simple. Easy to read. Short sentences.";
 		const analysis = analyzeContentQuality(simpleContent);
-		
+
 		expect(analysis.wordCount).toBe(8);
 		expect(analysis.sentenceCount).toBe(3);
 		expect(analysis.readability).toBe("simple");

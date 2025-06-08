@@ -3,7 +3,7 @@
  * モジュールキャッシュ問題を回避したアプローチ
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 describe("index.ts 初期化・設定カバレッジテスト", () => {
@@ -12,7 +12,7 @@ describe("index.ts 初期化・設定カバレッジテスト", () => {
 			// サーバー設定で使われる値の検証
 			const serverConfig = {
 				name: "EffectiveYomimonoLabeler",
-				version: "0.6.0"
+				version: "0.6.0",
 			};
 
 			expect(serverConfig.name).toBe("EffectiveYomimonoLabeler");
@@ -43,7 +43,9 @@ describe("index.ts 初期化・設定カバレッジテスト", () => {
 			expect(articleIdSchema.safeParse(0).success).toBe(false);
 			expect(articleIdSchema.safeParse(-1).success).toBe(false);
 			expect(articleIdSchema.safeParse(1.1).success).toBe(false);
-			expect(articleIdSchema.safeParse(Number.MAX_SAFE_INTEGER).success).toBe(true);
+			expect(articleIdSchema.safeParse(Number.MAX_SAFE_INTEGER).success).toBe(
+				true,
+			);
 		});
 
 		it("評価スコア範囲の詳細検証", () => {
@@ -65,7 +67,9 @@ describe("index.ts 初期化・設定カバレッジテスト", () => {
 			const optionalNullableSchema = z.string().optional().nullable();
 
 			// 全パターンをテスト
-			expect(optionalNullableSchema.safeParse("有効な文字列").success).toBe(true);
+			expect(optionalNullableSchema.safeParse("有効な文字列").success).toBe(
+				true,
+			);
 			expect(optionalNullableSchema.safeParse("").success).toBe(true);
 			expect(optionalNullableSchema.safeParse(null).success).toBe(true);
 			expect(optionalNullableSchema.safeParse(undefined).success).toBe(true);
@@ -79,12 +83,12 @@ describe("index.ts 初期化・設定カバレッジテスト", () => {
 		it("enum スキーマの検証", () => {
 			const sortBySchema = z.enum([
 				"totalScore",
-				"createdAt", 
+				"createdAt",
 				"practicalValue",
 				"technicalDepth",
 				"understanding",
 				"novelty",
-				"importance"
+				"importance",
 			]);
 
 			// 有効な値
@@ -155,7 +159,7 @@ describe("index.ts 初期化・設定カバレッジテスト", () => {
 				"getRatingStats",
 				"getTopRatedArticles",
 				"bulkRateArticles",
-				"getUnratedArticles"
+				"getUnratedArticles",
 			];
 
 			// ツール数の確認
@@ -166,7 +170,7 @@ describe("index.ts 初期化・設定カバレッジテスト", () => {
 			expect(uniqueTools).toHaveLength(expectedTools.length);
 
 			// 命名規則チェック
-			expectedTools.forEach(toolName => {
+			expectedTools.forEach((toolName) => {
 				expect(toolName).toMatch(/^[a-zA-Z][a-zA-Z0-9]*$/); // camelCase
 				expect(toolName.length).toBeGreaterThan(3);
 			});
@@ -174,10 +178,33 @@ describe("index.ts 初期化・設定カバレッジテスト", () => {
 
 		it("ツールカテゴリ分類", () => {
 			const toolCategories = {
-				label: ["getLabels", "assignLabel", "createLabel", "getLabelById", "deleteLabel", "updateLabelDescription", "assignLabelsToMultipleArticles"],
+				label: [
+					"getLabels",
+					"assignLabel",
+					"createLabel",
+					"getLabelById",
+					"deleteLabel",
+					"updateLabelDescription",
+					"assignLabelsToMultipleArticles",
+				],
 				article: ["getUnlabeledArticles", "getUnratedArticles"],
-				bookmark: ["getBookmarkById", "getUnreadArticlesByLabel", "getUnreadBookmarks", "getReadBookmarks", "markBookmarkAsRead"],
-				rating: ["rateArticleWithContent", "createArticleRating", "getArticleRating", "updateArticleRating", "getArticleRatings", "getRatingStats", "getTopRatedArticles", "bulkRateArticles"]
+				bookmark: [
+					"getBookmarkById",
+					"getUnreadArticlesByLabel",
+					"getUnreadBookmarks",
+					"getReadBookmarks",
+					"markBookmarkAsRead",
+				],
+				rating: [
+					"rateArticleWithContent",
+					"createArticleRating",
+					"getArticleRating",
+					"updateArticleRating",
+					"getArticleRatings",
+					"getRatingStats",
+					"getTopRatedArticles",
+					"bulkRateArticles",
+				],
 			};
 
 			// 各カテゴリのツール数確認
@@ -195,31 +222,47 @@ describe("index.ts 初期化・設定カバレッジテスト", () => {
 	describe("エラーメッセージフォーマット", () => {
 		it("統一されたエラーメッセージ形式", () => {
 			const formatErrorMessage = (toolName: string, error: unknown): string => {
-				const errorMessage = error instanceof Error ? error.message : String(error);
+				const errorMessage =
+					error instanceof Error ? error.message : String(error);
 				return `Error in ${toolName} tool: ${errorMessage}`;
 			};
 
-			expect(formatErrorMessage("getLabels", new Error("DB connection failed")))
-				.toBe("Error in getLabels tool: DB connection failed");
-			
-			expect(formatErrorMessage("assignLabel", "String error"))
-				.toBe("Error in assignLabel tool: String error");
-			
-			expect(formatErrorMessage("createLabel", null))
-				.toBe("Error in createLabel tool: null");
+			expect(
+				formatErrorMessage("getLabels", new Error("DB connection failed")),
+			).toBe("Error in getLabels tool: DB connection failed");
+
+			expect(formatErrorMessage("assignLabel", "String error")).toBe(
+				"Error in assignLabel tool: String error",
+			);
+
+			expect(formatErrorMessage("createLabel", null)).toBe(
+				"Error in createLabel tool: null",
+			);
 		});
 
 		it("コンソールエラーログの形式", () => {
-			const formatConsoleError = (toolName: string, params: Record<string, any>, error: unknown): string => {
+			const formatConsoleError = (
+				toolName: string,
+				params: Record<string, any>,
+				error: unknown,
+			): string => {
 				const paramStr = Object.entries(params)
 					.map(([key, value]) => `${key}: ${value}`)
 					.join(", ");
-				const errorMessage = error instanceof Error ? error.message : String(error);
+				const errorMessage =
+					error instanceof Error ? error.message : String(error);
 				return `Error in ${toolName} tool (${paramStr}): ${errorMessage}`;
 			};
 
-			expect(formatConsoleError("assignLabel", { articleId: 123, labelName: "技術" }, new Error("Failed")))
-				.toBe("Error in assignLabel tool (articleId: 123, labelName: 技術): Failed");
+			expect(
+				formatConsoleError(
+					"assignLabel",
+					{ articleId: 123, labelName: "技術" },
+					new Error("Failed"),
+				),
+			).toBe(
+				"Error in assignLabel tool (articleId: 123, labelName: 技術): Failed",
+			);
 		});
 	});
 
@@ -227,20 +270,22 @@ describe("index.ts 初期化・設定カバレッジテスト", () => {
 		it("成功レスポンスの形式", () => {
 			const createSuccessResponse = (data: any) => ({
 				content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
-				isError: false
+				isError: false,
 			});
 
 			const response = createSuccessResponse({ id: 1, name: "test" });
 			expect(response.isError).toBe(false);
 			expect(response.content).toHaveLength(1);
 			expect(response.content[0].type).toBe("text");
-			expect(response.content[0].text).toBe(`{\n  \"id\": 1,\n  \"name\": \"test\"\n}`);
+			expect(response.content[0].text).toBe(
+				`{\n  \"id\": 1,\n  \"name\": \"test\"\n}`,
+			);
 		});
 
 		it("エラーレスポンスの形式", () => {
 			const createErrorResponse = (message: string) => ({
 				content: [{ type: "text", text: message }],
-				isError: true
+				isError: true,
 			});
 
 			const response = createErrorResponse("Something went wrong");
@@ -260,9 +305,9 @@ if (import.meta.vitest) {
 		// Phase 2: Advanced MCP rating tools with filtering, stats, and bulk operations
 		const phase2Features = [
 			"getArticleRatings", // フィルタリング機能
-			"getRatingStats",    // 統計機能
-			"bulkRateArticles",  // 一括操作
-			"getTopRatedArticles" // 便利機能
+			"getRatingStats", // 統計機能
+			"bulkRateArticles", // 一括操作
+			"getTopRatedArticles", // 便利機能
 		];
 
 		expect(phase2Features).toHaveLength(4);
@@ -280,7 +325,7 @@ if (import.meta.vitest) {
 			"0.3.0": ["rating system"],
 			"0.4.0": ["article content fetching"],
 			"0.5.0": ["basic MCP tools"],
-			"0.6.0": ["advanced filtering", "statistics", "bulk operations"]
+			"0.6.0": ["advanced filtering", "statistics", "bulk operations"],
 		};
 
 		expect(versionFeatures["0.6.0"]).toContain("advanced filtering");
@@ -292,7 +337,7 @@ if (import.meta.vitest) {
 		// StdioServerTransport の使用確認
 		const transportConfig = {
 			type: "stdio",
-			description: "Use Stdio transport for initial development"
+			description: "Use Stdio transport for initial development",
 		};
 
 		expect(transportConfig.type).toBe("stdio");

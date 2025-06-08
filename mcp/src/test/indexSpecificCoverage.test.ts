@@ -20,7 +20,9 @@ describe("index.ts 特定未カバー行テスト", () => {
 			};
 
 			// 具体的なエラーケース
-			expect(validateRatingsInput("not array")).toBe("ratings must be an array");
+			expect(validateRatingsInput("not array")).toBe(
+				"ratings must be an array",
+			);
 			expect(validateRatingsInput({})).toBe("ratings must be an array");
 			expect(validateRatingsInput(null)).toBe("ratings must be an array");
 			expect(validateRatingsInput(undefined)).toBe("ratings must be an array");
@@ -46,31 +48,44 @@ describe("index.ts 特定未カバー行テスト", () => {
 
 		it("Promise.allSettled の結果処理", () => {
 			// bulkRateArticles で使われるパターン
-			const mockResults: PromiseSettledResult<{ totalScore: number; id: number }>[] = [
+			const mockResults: PromiseSettledResult<{
+				totalScore: number;
+				id: number;
+			}>[] = [
 				{
 					status: "fulfilled",
-					value: { totalScore: 80, id: 1 }
+					value: { totalScore: 80, id: 1 },
 				},
 				{
 					status: "rejected",
-					reason: new Error("Failed to create rating")
+					reason: new Error("Failed to create rating"),
 				},
 				{
 					status: "fulfilled",
-					value: { totalScore: 75, id: 2 }
-				}
+					value: { totalScore: 75, id: 2 },
+				},
 			];
 
-			const succeeded = mockResults.filter(r => r.status === "fulfilled").length;
-			const failed = mockResults.filter(r => r.status === "rejected").length;
+			const succeeded = mockResults.filter(
+				(r) => r.status === "fulfilled",
+			).length;
+			const failed = mockResults.filter((r) => r.status === "rejected").length;
 
 			expect(succeeded).toBe(2);
 			expect(failed).toBe(1);
 
 			// 成功した結果の抽出
 			const successfulResults = mockResults
-				.filter(result => result.status === "fulfilled")
-				.map(result => (result as PromiseFulfilledResult<{ totalScore: number; id: number }>).value);
+				.filter((result) => result.status === "fulfilled")
+				.map(
+					(result) =>
+						(
+							result as PromiseFulfilledResult<{
+								totalScore: number;
+								id: number;
+							}>
+						).value,
+				);
 
 			expect(successfulResults).toHaveLength(2);
 			expect(successfulResults[0]).toEqual({ totalScore: 80, id: 1 });
@@ -78,8 +93,8 @@ describe("index.ts 特定未カバー行テスト", () => {
 
 			// 失敗した結果の抽出
 			const failedResults = mockResults
-				.filter(result => result.status === "rejected")
-				.map(result => (result as PromiseRejectedResult).reason);
+				.filter((result) => result.status === "rejected")
+				.map((result) => (result as PromiseRejectedResult).reason);
 
 			expect(failedResults).toHaveLength(1);
 			expect(failedResults[0]).toBeInstanceOf(Error);
@@ -88,11 +103,26 @@ describe("index.ts 特定未カバー行テスト", () => {
 		it("評価データのマッピング処理", () => {
 			// bulkRateArticles でのデータ変換パターン
 			const ratings = [
-				{ articleId: 1, practicalValue: 8, technicalDepth: 7, understanding: 9, novelty: 6, importance: 8, comment: "良い記事" },
-				{ articleId: 2, practicalValue: 7, technicalDepth: 8, understanding: 8, novelty: 7, importance: 7 }
+				{
+					articleId: 1,
+					practicalValue: 8,
+					technicalDepth: 7,
+					understanding: 9,
+					novelty: 6,
+					importance: 8,
+					comment: "良い記事",
+				},
+				{
+					articleId: 2,
+					practicalValue: 7,
+					technicalDepth: 8,
+					understanding: 8,
+					novelty: 7,
+					importance: 7,
+				},
 			];
 
-			const mappedData = ratings.map(ratingData => {
+			const mappedData = ratings.map((ratingData) => {
 				const { articleId, ...ratingFields } = ratingData;
 				return { articleId, ratingFields };
 			});
@@ -100,11 +130,24 @@ describe("index.ts 特定未カバー行テスト", () => {
 			expect(mappedData).toHaveLength(2);
 			expect(mappedData[0]).toEqual({
 				articleId: 1,
-				ratingFields: { practicalValue: 8, technicalDepth: 7, understanding: 9, novelty: 6, importance: 8, comment: "良い記事" }
+				ratingFields: {
+					practicalValue: 8,
+					technicalDepth: 7,
+					understanding: 9,
+					novelty: 6,
+					importance: 8,
+					comment: "良い記事",
+				},
 			});
 			expect(mappedData[1]).toEqual({
 				articleId: 2,
-				ratingFields: { practicalValue: 7, technicalDepth: 8, understanding: 8, novelty: 7, importance: 7 }
+				ratingFields: {
+					practicalValue: 7,
+					technicalDepth: 8,
+					understanding: 8,
+					novelty: 7,
+					importance: 7,
+				},
 			});
 		});
 	});
@@ -122,42 +165,54 @@ describe("index.ts 特定未カバー行テスト", () => {
 			}) => {
 				const updateData: Record<string, any> = {};
 
-				if (params.practicalValue !== undefined) updateData.practicalValue = params.practicalValue;
-				if (params.technicalDepth !== undefined) updateData.technicalDepth = params.technicalDepth;
-				if (params.understanding !== undefined) updateData.understanding = params.understanding;
+				if (params.practicalValue !== undefined)
+					updateData.practicalValue = params.practicalValue;
+				if (params.technicalDepth !== undefined)
+					updateData.technicalDepth = params.technicalDepth;
+				if (params.understanding !== undefined)
+					updateData.understanding = params.understanding;
 				if (params.novelty !== undefined) updateData.novelty = params.novelty;
-				if (params.importance !== undefined) updateData.importance = params.importance;
+				if (params.importance !== undefined)
+					updateData.importance = params.importance;
 				if (params.comment !== undefined) updateData.comment = params.comment;
 
 				return updateData;
 			};
 
 			// 全フィールド指定
-			expect(buildUpdateData({
+			expect(
+				buildUpdateData({
+					practicalValue: 8,
+					technicalDepth: 7,
+					understanding: 9,
+					novelty: 6,
+					importance: 8,
+					comment: "更新",
+				}),
+			).toEqual({
 				practicalValue: 8,
 				technicalDepth: 7,
 				understanding: 9,
 				novelty: 6,
 				importance: 8,
-				comment: "更新"
-			})).toEqual({
-				practicalValue: 8,
-				technicalDepth: 7,
-				understanding: 9,
-				novelty: 6,
-				importance: 8,
-				comment: "更新"
+				comment: "更新",
 			});
 
 			// 一部フィールドのみ
-			expect(buildUpdateData({ practicalValue: 9 })).toEqual({ practicalValue: 9 });
-			expect(buildUpdateData({ comment: "新しいコメント" })).toEqual({ comment: "新しいコメント" });
+			expect(buildUpdateData({ practicalValue: 9 })).toEqual({
+				practicalValue: 9,
+			});
+			expect(buildUpdateData({ comment: "新しいコメント" })).toEqual({
+				comment: "新しいコメント",
+			});
 
 			// 空のケース
 			expect(buildUpdateData({})).toEqual({});
 
 			// undefined は除外される
-			expect(buildUpdateData({ practicalValue: 8, technicalDepth: undefined })).toEqual({ practicalValue: 8 });
+			expect(
+				buildUpdateData({ practicalValue: 8, technicalDepth: undefined }),
+			).toEqual({ practicalValue: 8 });
 		});
 
 		it("フィールド名のマッピング", () => {
@@ -190,24 +245,34 @@ describe("index.ts 特定未カバー行テスト", () => {
 				novelty: number;
 				importance: number;
 			}) => {
-				return scores.practicalValue + scores.technicalDepth + scores.understanding + scores.novelty + scores.importance;
+				return (
+					scores.practicalValue +
+					scores.technicalDepth +
+					scores.understanding +
+					scores.novelty +
+					scores.importance
+				);
 			};
 
-			expect(calculateTotalScore({
-				practicalValue: 8,
-				technicalDepth: 7,
-				understanding: 9,
-				novelty: 6,
-				importance: 8
-			})).toBe(38);
+			expect(
+				calculateTotalScore({
+					practicalValue: 8,
+					technicalDepth: 7,
+					understanding: 9,
+					novelty: 6,
+					importance: 8,
+				}),
+			).toBe(38);
 
-			expect(calculateTotalScore({
-				practicalValue: 10,
-				technicalDepth: 10,
-				understanding: 10,
-				novelty: 10,
-				importance: 10
-			})).toBe(50);
+			expect(
+				calculateTotalScore({
+					practicalValue: 10,
+					technicalDepth: 10,
+					understanding: 10,
+					novelty: 10,
+					importance: 10,
+				}),
+			).toBe(50);
 		});
 
 		it("スコアのフォーマット", () => {
@@ -232,13 +297,16 @@ describe("index.ts 特定未カバー行テスト", () => {
 			// 成功リストの追加
 			const successfulRatings = [
 				{ originalArticleId: 1, totalScore: 80 },
-				{ originalArticleId: 2, totalScore: 75 }
+				{ originalArticleId: 2, totalScore: 75 },
 			];
 
 			if (successfulRatings.length > 0) {
 				responseText += "\n\n✅ 成功した評価:\n";
 				responseText += successfulRatings
-					.map(rating => `• 記事ID ${rating.originalArticleId}: 総合スコア ${(rating.totalScore / 10).toFixed(1)}/10`)
+					.map(
+						(rating) =>
+							`• 記事ID ${rating.originalArticleId}: 総合スコア ${(rating.totalScore / 10).toFixed(1)}/10`,
+					)
 					.join("\n");
 			}
 
@@ -251,13 +319,13 @@ describe("index.ts 特定未カバー行テスト", () => {
 			let responseText = "初期メッセージ";
 			const failedRatings = [
 				{ articleId: 3, error: "Database error" },
-				{ articleId: 4, error: "Validation error" }
+				{ articleId: 4, error: "Validation error" },
 			];
 
 			if (failedRatings.length > 0) {
 				responseText += "\n\n❌ 失敗した評価:\n";
 				responseText += failedRatings
-					.map(failure => `• 記事ID ${failure.articleId}: ${failure.error}`)
+					.map((failure) => `• 記事ID ${failure.articleId}: ${failure.error}`)
 					.join("\n");
 			}
 
@@ -270,7 +338,8 @@ describe("index.ts 特定未カバー行テスト", () => {
 	describe("条件分岐の網羅", () => {
 		it("null合体演算子のパターン", () => {
 			// description ?? undefined パターン
-			const processDescription = (desc: string | null | undefined) => desc ?? undefined;
+			const processDescription = (desc: string | null | undefined) =>
+				desc ?? undefined;
 
 			expect(processDescription("説明文")).toBe("説明文");
 			expect(processDescription("")).toBe("");
@@ -280,8 +349,14 @@ describe("index.ts 特定未カバー行テスト", () => {
 
 		it("三項演算子のパターン", () => {
 			// 実際のindex.tsで使われるパターン: articleContent の有無
-			const generateContentSummary = (articleContent: { title: string; content: string; metadata: any } | null) => {
-				return articleContent 
+			const generateContentSummary = (
+				articleContent: {
+					title: string;
+					content: string;
+					metadata: any;
+				} | null,
+			) => {
+				return articleContent
 					? `- タイトル: ${articleContent.title}\n- 内容プレビュー: ${articleContent.content.substring(0, 200)}${articleContent.content.length > 200 ? "..." : ""}`
 					: "記事内容の取得に失敗しました。URLを直接確認して評価を行ってください。";
 			};
@@ -290,19 +365,23 @@ describe("index.ts 特定未カバー行テスト", () => {
 			const mockContent = {
 				title: "テスト記事",
 				content: "A".repeat(250), // 200文字を確実に超える内容
-				metadata: {}
+				metadata: {},
 			};
-			expect(generateContentSummary(mockContent)).toContain("- タイトル: テスト記事");
+			expect(generateContentSummary(mockContent)).toContain(
+				"- タイトル: テスト記事",
+			);
 			expect(generateContentSummary(mockContent)).toContain("...");
 
 			// articleContent が null の場合
-			expect(generateContentSummary(null)).toBe("記事内容の取得に失敗しました。URLを直接確認して評価を行ってください。");
-			
+			expect(generateContentSummary(null)).toBe(
+				"記事内容の取得に失敗しました。URLを直接確認して評価を行ってください。",
+			);
+
 			// 短い内容の場合（200文字未満）
 			const shortContent = {
 				title: "短い記事",
 				content: "短い内容です",
-				metadata: {}
+				metadata: {},
 			};
 			const result = generateContentSummary(shortContent);
 			expect(result).toContain("短い内容です");
@@ -334,7 +413,8 @@ if (import.meta.vitest) {
 			try {
 				return JSON.parse(text);
 			} catch (error: unknown) {
-				const errorMessage = error instanceof Error ? error.message : String(error);
+				const errorMessage =
+					error instanceof Error ? error.message : String(error);
 				throw new Error(`JSONパースエラー: ${errorMessage}`);
 			}
 		};
@@ -345,8 +425,10 @@ if (import.meta.vitest) {
 
 	test("文字列の長さ判定", () => {
 		// content.length > 200 の分岐
-		const truncateContent = (content: string, maxLength: number = 200) => {
-			return content.length > maxLength ? `${content.substring(0, maxLength)}...` : content;
+		const truncateContent = (content: string, maxLength = 200) => {
+			return content.length > maxLength
+				? `${content.substring(0, maxLength)}...`
+				: content;
 		};
 
 		const shortContent = "短い内容";
@@ -359,7 +441,7 @@ if (import.meta.vitest) {
 
 	test("配列のsliceパターン", () => {
 		// .slice(0, 5) のようなパターン
-		const getTopItems = (items: any[], count: number = 5) => {
+		const getTopItems = (items: any[], count = 5) => {
 			return items.slice(0, count);
 		};
 

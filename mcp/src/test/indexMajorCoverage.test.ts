@@ -52,7 +52,9 @@ describe("index.ts 主要機能カバレッジ向上", () => {
 			getLabelById: vi.fn().mockResolvedValue({ id: 1, name: "test" }),
 			deleteLabel: vi.fn().mockResolvedValue({ success: true }),
 			updateLabelDescription: vi.fn().mockResolvedValue({ success: true }),
-			assignLabelsToMultipleArticles: vi.fn().mockResolvedValue({ success: true }),
+			assignLabelsToMultipleArticles: vi
+				.fn()
+				.mockResolvedValue({ success: true }),
 			getBookmarkById: vi.fn().mockResolvedValue({ id: 1, title: "test" }),
 			getUnreadArticlesByLabel: vi.fn().mockResolvedValue([]),
 			getUnreadBookmarks: vi.fn().mockResolvedValue([]),
@@ -114,7 +116,12 @@ describe("index.ts 主要機能カバレッジ向上", () => {
 		};
 
 		const validateRatingRange = (value: any): boolean => {
-			return typeof value === "number" && value >= 1 && value <= 10 && Number.isInteger(value);
+			return (
+				typeof value === "number" &&
+				value >= 1 &&
+				value <= 10 &&
+				Number.isInteger(value)
+			);
 		};
 
 		// 正常ケース
@@ -177,16 +184,29 @@ describe("index.ts 主要機能カバレッジ向上", () => {
 
 			return ratings.every((rating: any) => {
 				if (typeof rating !== "object" || rating === null) return false;
-				
-				const requiredFields = ["articleId", "practicalValue", "technicalDepth", "understanding", "novelty", "importance"];
+
+				const requiredFields = [
+					"articleId",
+					"practicalValue",
+					"technicalDepth",
+					"understanding",
+					"novelty",
+					"importance",
+				];
 				for (const field of requiredFields) {
 					if (!(field in rating)) return false;
-					
+
 					if (field === "articleId") {
-						if (typeof rating[field] !== "number" || rating[field] <= 0) return false;
+						if (typeof rating[field] !== "number" || rating[field] <= 0)
+							return false;
 					} else {
 						const value = rating[field];
-						if (typeof value !== "number" || value < 1 || value > 10 || !Number.isInteger(value)) {
+						if (
+							typeof value !== "number" ||
+							value < 1 ||
+							value > 10 ||
+							!Number.isInteger(value)
+						) {
 							return false;
 						}
 					}
@@ -222,14 +242,18 @@ describe("index.ts 主要機能カバレッジ向上", () => {
 		expect(validateRatingsArray(null)).toBe(false); // null
 		expect(validateRatingsArray([{}])).toBe(false); // 必須フィールド不足
 		expect(validateRatingsArray([{ articleId: "invalid" }])).toBe(false); // 無効なID
-		expect(validateRatingsArray([{
-			articleId: 1,
-			practicalValue: 11, // 範囲外
-			technicalDepth: 7,
-			understanding: 9,
-			novelty: 6,
-			importance: 8,
-		}])).toBe(false);
+		expect(
+			validateRatingsArray([
+				{
+					articleId: 1,
+					practicalValue: 11, // 範囲外
+					technicalDepth: 7,
+					understanding: 9,
+					novelty: 6,
+					importance: 8,
+				},
+			]),
+		).toBe(false);
 	});
 
 	test("URL バリデーション", () => {
@@ -269,14 +293,22 @@ describe("index.ts 主要機能カバレッジ向上", () => {
 
 		// Error オブジェクトの場合
 		const errorObj = new Error("Database connection failed");
-		expect(formatToolError("getLabels", errorObj)).toBe("Error in getLabels tool: Database connection failed");
+		expect(formatToolError("getLabels", errorObj)).toBe(
+			"Error in getLabels tool: Database connection failed",
+		);
 
 		// 文字列エラーの場合
-		expect(formatToolError("assignLabel", "Invalid data")).toBe("Error in assignLabel tool: Unknown error");
+		expect(formatToolError("assignLabel", "Invalid data")).toBe(
+			"Error in assignLabel tool: Unknown error",
+		);
 
 		// null/undefined の場合
-		expect(formatToolError("createLabel", null)).toBe("Error in createLabel tool: Unknown error");
-		expect(formatToolError("updateLabel", undefined)).toBe("Error in updateLabel tool: Unknown error");
+		expect(formatToolError("createLabel", null)).toBe(
+			"Error in createLabel tool: Unknown error",
+		);
+		expect(formatToolError("updateLabel", undefined)).toBe(
+			"Error in updateLabel tool: Unknown error",
+		);
 	});
 });
 
@@ -286,10 +318,15 @@ if (import.meta.vitest) {
 
 	test("ツール名の正規化", () => {
 		const normalizeToolName = (name: string): string => {
-			return name.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+			return name
+				.trim()
+				.toLowerCase()
+				.replace(/[^a-z0-9]/g, "");
 		};
 
-		expect(normalizeToolName("getUnlabeledArticles")).toBe("getunlabeledarticles");
+		expect(normalizeToolName("getUnlabeledArticles")).toBe(
+			"getunlabeledarticles",
+		);
 		expect(normalizeToolName("  assignLabel  ")).toBe("assignlabel");
 		expect(normalizeToolName("create-label")).toBe("createlabel");
 		expect(normalizeToolName("get_rating_stats")).toBe("getratingstats");
@@ -298,7 +335,7 @@ if (import.meta.vitest) {
 	test("パラメータの深い検証", () => {
 		const deepValidateRating = (rating: any): string[] => {
 			const errors: string[] = [];
-			
+
 			if (typeof rating !== "object" || rating === null) {
 				errors.push("Rating must be an object");
 				return errors;
@@ -306,11 +343,20 @@ if (import.meta.vitest) {
 
 			if (!("articleId" in rating)) {
 				errors.push("articleId is required");
-			} else if (typeof rating.articleId !== "number" || rating.articleId <= 0) {
+			} else if (
+				typeof rating.articleId !== "number" ||
+				rating.articleId <= 0
+			) {
 				errors.push("articleId must be a positive number");
 			}
 
-			const ratingFields = ["practicalValue", "technicalDepth", "understanding", "novelty", "importance"];
+			const ratingFields = [
+				"practicalValue",
+				"technicalDepth",
+				"understanding",
+				"novelty",
+				"importance",
+			];
 			for (const field of ratingFields) {
 				if (!(field in rating)) {
 					errors.push(`${field} is required`);
@@ -343,8 +389,14 @@ if (import.meta.vitest) {
 		// 異常ケース
 		expect(deepValidateRating(null)).toContain("Rating must be an object");
 		expect(deepValidateRating({})).toContain("articleId is required");
-		expect(deepValidateRating({ articleId: -1 })).toContain("articleId must be a positive number");
-		expect(deepValidateRating({ articleId: 1, practicalValue: 11 })).toContain("practicalValue must be between 1 and 10");
-		expect(deepValidateRating({ articleId: 1, practicalValue: 1.5 })).toContain("practicalValue must be an integer");
+		expect(deepValidateRating({ articleId: -1 })).toContain(
+			"articleId must be a positive number",
+		);
+		expect(deepValidateRating({ articleId: 1, practicalValue: 11 })).toContain(
+			"practicalValue must be between 1 and 10",
+		);
+		expect(deepValidateRating({ articleId: 1, practicalValue: 1.5 })).toContain(
+			"practicalValue must be an integer",
+		);
 	});
 }
