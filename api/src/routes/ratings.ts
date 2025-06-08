@@ -90,14 +90,46 @@ export const createRatingsRouter = (ratingService: IRatingService) => {
 			);
 		} catch (error) {
 			console.error("Failed to create rating:", error);
+
+			// エラーの詳細情報をログに記録
+			if (error instanceof Error) {
+				console.error("Error details:", {
+					name: error.name,
+					message: error.message,
+					stack: error.stack,
+				});
+			}
+
 			const message =
 				error instanceof Error ? error.message : "評価の作成に失敗しました";
+
+			// より詳細なエラー分類
+			let status = 500;
+			if (error instanceof Error) {
+				if (error.message.includes("見つかりません")) {
+					status = 404;
+				} else if (error.message.includes("既に評価が存在")) {
+					status = 409; // Conflict
+				} else if (
+					error.message.includes("評価スコアは") ||
+					error.message.includes("コメントは")
+				) {
+					status = 400; // Bad Request
+				} else if (
+					error.message.includes("FOREIGN KEY constraint") ||
+					error.message.includes("SQLITE_CONSTRAINT")
+				) {
+					// 外部キー制約エラーの場合は404として扱う
+					status = 404;
+				}
+			}
+
 			return c.json(
 				{
 					success: false,
 					message,
 				},
-				500,
+				status,
 			);
 		}
 	});
@@ -184,12 +216,42 @@ export const createRatingsRouter = (ratingService: IRatingService) => {
 			});
 		} catch (error) {
 			console.error("Failed to update rating:", error);
+
+			// エラーの詳細情報をログに記録
+			if (error instanceof Error) {
+				console.error("Error details:", {
+					name: error.name,
+					message: error.message,
+					stack: error.stack,
+				});
+			}
+
 			const message =
 				error instanceof Error ? error.message : "評価の更新に失敗しました";
-			const status =
-				error instanceof Error && error.message.includes("見つかりません")
-					? 404
-					: 500;
+
+			// より詳細なエラー分類
+			let status = 500;
+			if (error instanceof Error) {
+				if (error.message.includes("見つかりません")) {
+					status = 404;
+				} else if (
+					error.message.includes("更新するデータが指定されていません")
+				) {
+					status = 400; // Bad Request
+				} else if (
+					error.message.includes("評価スコアは") ||
+					error.message.includes("コメントは")
+				) {
+					status = 400; // Bad Request
+				} else if (
+					error.message.includes("FOREIGN KEY constraint") ||
+					error.message.includes("SQLITE_CONSTRAINT")
+				) {
+					// 外部キー制約エラーの場合は404として扱う
+					status = 404;
+				}
+			}
+
 			return c.json(
 				{
 					success: false,
@@ -222,12 +284,33 @@ export const createRatingsRouter = (ratingService: IRatingService) => {
 			});
 		} catch (error) {
 			console.error("Failed to delete rating:", error);
+
+			// エラーの詳細情報をログに記録
+			if (error instanceof Error) {
+				console.error("Error details:", {
+					name: error.name,
+					message: error.message,
+					stack: error.stack,
+				});
+			}
+
 			const message =
 				error instanceof Error ? error.message : "評価の削除に失敗しました";
-			const status =
-				error instanceof Error && error.message.includes("見つかりません")
-					? 404
-					: 500;
+
+			// より詳細なエラー分類
+			let status = 500;
+			if (error instanceof Error) {
+				if (error.message.includes("見つかりません")) {
+					status = 404;
+				} else if (
+					error.message.includes("FOREIGN KEY constraint") ||
+					error.message.includes("SQLITE_CONSTRAINT")
+				) {
+					// 外部キー制約エラーの場合は404として扱う
+					status = 404;
+				}
+			}
+
 			return c.json(
 				{
 					success: false,

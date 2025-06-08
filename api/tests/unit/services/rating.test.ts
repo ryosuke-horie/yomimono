@@ -2,8 +2,9 @@
  * 記事評価ポイントサービスのテストコード
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ArticleRating } from "../../../src/db/schema";
+import type { ArticleRating, Bookmark } from "../../../src/db/schema";
 import type { IArticleRatingRepository } from "../../../src/interfaces/repository/articleRating";
+import type { IBookmarkRepository } from "../../../src/interfaces/repository/bookmark";
 import type {
 	CreateRatingData,
 	UpdateRatingData,
@@ -13,6 +14,7 @@ import { DefaultRatingService } from "../../../src/services/rating";
 describe("DefaultRatingService", () => {
 	let service: DefaultRatingService;
 	let mockRepository: IArticleRatingRepository;
+	let mockBookmarkRepository: IBookmarkRepository;
 
 	beforeEach(() => {
 		mockRepository = {
@@ -23,7 +25,25 @@ describe("DefaultRatingService", () => {
 			findMany: vi.fn(),
 			getStats: vi.fn(),
 		};
-		service = new DefaultRatingService(mockRepository);
+
+		mockBookmarkRepository = {
+			create: vi.fn(),
+			findById: vi.fn(),
+			findByUrl: vi.fn(),
+			findMany: vi.fn(),
+			findManyWithLabel: vi.fn(),
+			markAsRead: vi.fn(),
+			markAsUnread: vi.fn(),
+			addToFavorites: vi.fn(),
+			removeFromFavorites: vi.fn(),
+			getUnreadCount: vi.fn(),
+			getTodayReadCount: vi.fn(),
+			getUnratedArticles: vi.fn(),
+			getUnreadBookmarks: vi.fn(),
+			getReadBookmarks: vi.fn(),
+		};
+
+		service = new DefaultRatingService(mockRepository, mockBookmarkRepository);
 	});
 
 	describe("createRating", () => {
@@ -36,6 +56,15 @@ describe("DefaultRatingService", () => {
 				novelty: 6,
 				importance: 8,
 				comment: "とても良い記事でした",
+			};
+
+			const mockBookmark: Bookmark = {
+				id: 1,
+				url: "https://example.com/article",
+				title: "テスト記事",
+				isRead: false,
+				createdAt: new Date(),
+				updatedAt: new Date(),
 			};
 
 			const expectedRating: ArticleRating = {
@@ -52,12 +81,16 @@ describe("DefaultRatingService", () => {
 				updatedAt: new Date(),
 			};
 
+			vi.mocked(mockBookmarkRepository.findById).mockResolvedValueOnce(
+				mockBookmark,
+			);
 			vi.mocked(mockRepository.findByArticleId).mockResolvedValueOnce(null);
 			vi.mocked(mockRepository.create).mockResolvedValueOnce(expectedRating);
 
 			const result = await service.createRating(articleId, ratingData);
 
 			expect(result).toEqual(expectedRating);
+			expect(mockBookmarkRepository.findById).toHaveBeenCalledWith(articleId);
 			expect(mockRepository.findByArticleId).toHaveBeenCalledWith(articleId);
 			expect(mockRepository.create).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -65,6 +98,23 @@ describe("DefaultRatingService", () => {
 					...ratingData,
 					totalScore: 0,
 				}),
+			);
+		});
+
+		it("記事が存在しない場合はエラーを投げること", async () => {
+			const articleId = 999;
+			const ratingData: CreateRatingData = {
+				practicalValue: 8,
+				technicalDepth: 7,
+				understanding: 9,
+				novelty: 6,
+				importance: 8,
+			};
+
+			vi.mocked(mockBookmarkRepository.findById).mockResolvedValueOnce(null);
+
+			await expect(service.createRating(articleId, ratingData)).rejects.toThrow(
+				"指定された記事が見つかりません",
 			);
 		});
 
@@ -76,6 +126,15 @@ describe("DefaultRatingService", () => {
 				understanding: 9,
 				novelty: 6,
 				importance: 8,
+			};
+
+			const mockBookmark: Bookmark = {
+				id: 1,
+				url: "https://example.com/article",
+				title: "テスト記事",
+				isRead: false,
+				createdAt: new Date(),
+				updatedAt: new Date(),
 			};
 
 			const existingRating: ArticleRating = {
@@ -92,6 +151,9 @@ describe("DefaultRatingService", () => {
 				updatedAt: new Date(),
 			};
 
+			vi.mocked(mockBookmarkRepository.findById).mockResolvedValueOnce(
+				mockBookmark,
+			);
 			vi.mocked(mockRepository.findByArticleId).mockResolvedValueOnce(
 				existingRating,
 			);
@@ -111,6 +173,18 @@ describe("DefaultRatingService", () => {
 				importance: 8,
 			};
 
+			const mockBookmark: Bookmark = {
+				id: 1,
+				url: "https://example.com/article",
+				title: "テスト記事",
+				isRead: false,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+
+			vi.mocked(mockBookmarkRepository.findById).mockResolvedValueOnce(
+				mockBookmark,
+			);
 			vi.mocked(mockRepository.findByArticleId).mockResolvedValueOnce(null);
 
 			await expect(service.createRating(articleId, ratingData)).rejects.toThrow(
@@ -129,6 +203,18 @@ describe("DefaultRatingService", () => {
 				comment: "a".repeat(1001), // 1001文字
 			};
 
+			const mockBookmark: Bookmark = {
+				id: 1,
+				url: "https://example.com/article",
+				title: "テスト記事",
+				isRead: false,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+
+			vi.mocked(mockBookmarkRepository.findById).mockResolvedValueOnce(
+				mockBookmark,
+			);
 			vi.mocked(mockRepository.findByArticleId).mockResolvedValueOnce(null);
 
 			await expect(service.createRating(articleId, ratingData)).rejects.toThrow(
@@ -183,6 +269,15 @@ describe("DefaultRatingService", () => {
 				comment: "更新されたコメント",
 			};
 
+			const mockBookmark: Bookmark = {
+				id: 1,
+				url: "https://example.com/article",
+				title: "テスト記事",
+				isRead: false,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+
 			const existingRating: ArticleRating = {
 				id: 1,
 				articleId: 1,
@@ -205,6 +300,9 @@ describe("DefaultRatingService", () => {
 				updatedAt: new Date(),
 			};
 
+			vi.mocked(mockBookmarkRepository.findById).mockResolvedValueOnce(
+				mockBookmark,
+			);
 			vi.mocked(mockRepository.findByArticleId).mockResolvedValueOnce(
 				existingRating,
 			);
@@ -213,6 +311,7 @@ describe("DefaultRatingService", () => {
 			const result = await service.updateRating(articleId, updateData);
 
 			expect(result).toEqual(updatedRating);
+			expect(mockBookmarkRepository.findById).toHaveBeenCalledWith(articleId);
 			expect(mockRepository.findByArticleId).toHaveBeenCalledWith(articleId);
 			expect(mockRepository.update).toHaveBeenCalledWith(articleId, updateData);
 		});
@@ -223,16 +322,25 @@ describe("DefaultRatingService", () => {
 				practicalValue: 9,
 			};
 
-			vi.mocked(mockRepository.findByArticleId).mockResolvedValueOnce(null);
+			vi.mocked(mockBookmarkRepository.findById).mockResolvedValueOnce(null);
 
 			await expect(service.updateRating(articleId, updateData)).rejects.toThrow(
-				"指定された記事の評価が見つかりません",
+				"指定された記事が見つかりません",
 			);
 		});
 
 		it("更新データが空の場合はエラーを投げること", async () => {
 			const articleId = 1;
 			const updateData: UpdateRatingData = {};
+
+			const mockBookmark: Bookmark = {
+				id: 1,
+				url: "https://example.com/article",
+				title: "テスト記事",
+				isRead: false,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
 
 			const existingRating: ArticleRating = {
 				id: 1,
@@ -248,6 +356,9 @@ describe("DefaultRatingService", () => {
 				updatedAt: new Date(),
 			};
 
+			vi.mocked(mockBookmarkRepository.findById).mockResolvedValueOnce(
+				mockBookmark,
+			);
 			vi.mocked(mockRepository.findByArticleId).mockResolvedValueOnce(
 				existingRating,
 			);
@@ -261,6 +372,16 @@ describe("DefaultRatingService", () => {
 	describe("deleteRating", () => {
 		it("記事の評価を正常に削除できること", async () => {
 			const articleId = 1;
+
+			const mockBookmark: Bookmark = {
+				id: 1,
+				url: "https://example.com/article",
+				title: "テスト記事",
+				isRead: false,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+
 			const existingRating: ArticleRating = {
 				id: 1,
 				articleId: 1,
@@ -275,6 +396,9 @@ describe("DefaultRatingService", () => {
 				updatedAt: new Date(),
 			};
 
+			vi.mocked(mockBookmarkRepository.findById).mockResolvedValueOnce(
+				mockBookmark,
+			);
 			vi.mocked(mockRepository.findByArticleId).mockResolvedValueOnce(
 				existingRating,
 			);
@@ -282,6 +406,7 @@ describe("DefaultRatingService", () => {
 
 			await service.deleteRating(articleId);
 
+			expect(mockBookmarkRepository.findById).toHaveBeenCalledWith(articleId);
 			expect(mockRepository.findByArticleId).toHaveBeenCalledWith(articleId);
 			expect(mockRepository.delete).toHaveBeenCalledWith(articleId);
 		});
@@ -289,10 +414,10 @@ describe("DefaultRatingService", () => {
 		it("存在しない記事の場合はエラーを投げること", async () => {
 			const articleId = 999;
 
-			vi.mocked(mockRepository.findByArticleId).mockResolvedValueOnce(null);
+			vi.mocked(mockBookmarkRepository.findById).mockResolvedValueOnce(null);
 
 			await expect(service.deleteRating(articleId)).rejects.toThrow(
-				"指定された記事の評価が見つかりません",
+				"指定された記事が見つかりません",
 			);
 		});
 	});

@@ -74,7 +74,10 @@ export const createApp = (env: Env) => {
 		articleLabelRepository,
 		bookmarkRepository,
 	);
-	const ratingService = new DefaultRatingService(articleRatingRepository);
+	const ratingService = new DefaultRatingService(
+		articleRatingRepository,
+		bookmarkRepository,
+	);
 	const rssFeedService = new RssFeedService(rssFeedRepository);
 
 	// ルーターのマウント

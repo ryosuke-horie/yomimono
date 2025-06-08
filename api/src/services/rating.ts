@@ -7,6 +7,7 @@ import type {
 	FindManyOptions,
 	RatingStats,
 } from "../interfaces/repository/articleRating";
+import type { IBookmarkRepository } from "../interfaces/repository/bookmark";
 import type {
 	CreateRatingData,
 	IRatingService,
@@ -14,13 +15,22 @@ import type {
 } from "../interfaces/service/rating";
 
 export class DefaultRatingService implements IRatingService {
-	constructor(private readonly repository: IArticleRatingRepository) {}
+	constructor(
+		private readonly repository: IArticleRatingRepository,
+		private readonly bookmarkRepository: IBookmarkRepository,
+	) {}
 
 	async createRating(
 		articleId: number,
 		ratingData: CreateRatingData,
 	): Promise<ArticleRating> {
 		try {
+			// 記事が存在するかチェック
+			const article = await this.bookmarkRepository.findById(articleId);
+			if (!article) {
+				throw new Error("指定された記事が見つかりません");
+			}
+
 			// 既存の評価が存在するかチェック
 			const existingRating = await this.repository.findByArticleId(articleId);
 			if (existingRating) {
@@ -62,6 +72,12 @@ export class DefaultRatingService implements IRatingService {
 		ratingData: UpdateRatingData,
 	): Promise<ArticleRating> {
 		try {
+			// 記事が存在するかチェック
+			const article = await this.bookmarkRepository.findById(articleId);
+			if (!article) {
+				throw new Error("指定された記事が見つかりません");
+			}
+
 			// 既存の評価が存在するかチェック
 			const existingRating = await this.repository.findByArticleId(articleId);
 			if (!existingRating) {
@@ -85,6 +101,12 @@ export class DefaultRatingService implements IRatingService {
 
 	async deleteRating(articleId: number): Promise<void> {
 		try {
+			// 記事が存在するかチェック
+			const article = await this.bookmarkRepository.findById(articleId);
+			if (!article) {
+				throw new Error("指定された記事が見つかりません");
+			}
+
 			// 既存の評価が存在するかチェック
 			const existingRating = await this.repository.findByArticleId(articleId);
 			if (!existingRating) {
