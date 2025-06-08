@@ -15,17 +15,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: actions/setup-node@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
           cache-dependency-path: mcp/package-lock.json
 
-      - name: Verify npm installation
+      - name: Setup npm path
         run: |
-          which node || echo "Node not found"
-          which npm || echo "npm not found"
-          npm --version || echo "npm version failed"
+          echo "Current PATH: $PATH"
+          # Add common Node.js paths to PATH  
+          export PATH="/home/runner-user/yomimono-runnner/_work/_tool/node/20.19.2/x64/bin:$PATH"
+          echo "Updated PATH: $PATH"
+          echo "PATH=/home/runner-user/yomimono-runnner/_work/_tool/node/20.19.2/x64/bin:$PATH" >> $GITHUB_ENV
+          # Verify installations
+          which node && node --version
+          which npm && npm --version
 
       - name: Install dependencies
         run: npm ci
