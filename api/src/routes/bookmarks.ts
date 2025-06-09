@@ -98,13 +98,16 @@ export const createBookmarksRouter = (
 		} catch (error) {
 			if (error instanceof Error && !(error instanceof BadRequestError)) {
 				if (error.message.includes("not found")) {
-					throw new NotFoundError(error.message);
+					const notFoundError = new NotFoundError(error.message);
+					return c.json(createErrorResponseBody(notFoundError), 404);
 				}
 				if (error.message.includes("already assigned")) {
-					throw new ConflictError(error.message);
+					const conflictError = new ConflictError(error.message);
+					return c.json(createErrorResponseBody(conflictError), 409);
 				}
 				if (error.message.includes("cannot be empty")) {
-					throw new BadRequestError(error.message);
+					const badRequestError = new BadRequestError(error.message);
+					return c.json(createErrorResponseBody(badRequestError), 400);
 				}
 			}
 			console.error("Failed to assign label:", error);
@@ -167,10 +170,12 @@ export const createBookmarksRouter = (
 		} catch (error) {
 			if (error instanceof Error && !(error instanceof BadRequestError)) {
 				if (error.message === "Bookmark not found") {
-					throw new NotFoundError("Bookmark not found");
+					const notFoundError = new NotFoundError("Bookmark not found");
+					return c.json(createErrorResponseBody(notFoundError), 404);
 				}
 				if (error.message === "Already favorited") {
-					throw new ConflictError("Already added to favorites");
+					const conflictError = new ConflictError("Already added to favorites");
+					return c.json(createErrorResponseBody(conflictError), 409);
 				}
 			}
 			console.error("Failed to add to favorites:", error);
@@ -191,7 +196,8 @@ export const createBookmarksRouter = (
 		} catch (error) {
 			if (error instanceof Error && !(error instanceof BadRequestError)) {
 				if (error.message === "Favorite not found") {
-					throw new NotFoundError("Favorite not found");
+					const notFoundError = new NotFoundError("Favorite not found");
+					return c.json(createErrorResponseBody(notFoundError), 404);
 				}
 			}
 			console.error("Failed to remove from favorites:", error);

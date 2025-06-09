@@ -146,9 +146,8 @@ if (import.meta.vitest) {
 		const response3 = createErrorResponse(normalError);
 		expect(response3).toEqual({
 			success: false,
-			message: "Internal Server Error",
+			message: "Normal error",
 			statusCode: 500,
-			error: "Normal error",
 		});
 
 		const response4 = createErrorResponse("string error");

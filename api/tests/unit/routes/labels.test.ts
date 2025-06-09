@@ -1,6 +1,10 @@
 import { Hono } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Label } from "../../../src/db/schema";
+import {
+	createErrorResponse,
+	createErrorResponseBody,
+} from "../../../src/exceptions";
 import type { Env } from "../../../src/index";
 import type { ILabelService } from "../../../src/interfaces/service/label";
 
@@ -68,7 +72,8 @@ function createMockLabelsRouter() {
 			return c.json({ success: true, labels: result });
 		} catch (error) {
 			console.error("Failed to get labels:", error);
-			return c.json({ success: false, message: "Failed to fetch labels" }, 500);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -117,7 +122,8 @@ function createMockLabelsRouter() {
 				}
 			}
 			console.error("Failed to create label:", error);
-			return c.json({ success: false, message: "Failed to create label" }, 500);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -136,7 +142,8 @@ function createMockLabelsRouter() {
 				return c.json({ success: false, message: "Label not found" }, 404);
 			}
 			console.error("Failed to get label:", error);
-			return c.json({ success: false, message: "Failed to fetch label" }, 500);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -209,7 +216,8 @@ function createMockLabelsRouter() {
 				return c.json({ success: false, message: "Label not found" }, 404);
 			}
 			console.error("Failed to delete label:", error);
-			return c.json({ success: false, message: "Failed to delete label" }, 500);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -274,7 +282,7 @@ describe("Labels Route", () => {
 
 			expect(res.status).toBe(500);
 			expect(body.success).toBe(false);
-			expect(body.message).toBe("Failed to fetch labels");
+			expect(body.message).toBe("Service error");
 			expect(mockGetLabels).toHaveBeenCalledOnce();
 		});
 	});
@@ -384,7 +392,7 @@ describe("Labels Route", () => {
 
 			expect(res.status).toBe(500);
 			expect(body.success).toBe(false);
-			expect(body.message).toBe("Failed to create label");
+			expect(body.message).toBe("Database connection failed");
 			expect(mockCreateLabel).toHaveBeenCalledWith(newLabelName, undefined);
 		});
 	});
@@ -468,7 +476,7 @@ describe("Labels Route", () => {
 
 			expect(res.status).toBe(500);
 			expect(body.success).toBe(false);
-			expect(body.message).toBe("Failed to fetch label");
+			expect(body.message).toBe("Database connection failed");
 			expect(mockGetLabelById).toHaveBeenCalledWith(labelId);
 		});
 	});
@@ -689,7 +697,7 @@ describe("Labels Route", () => {
 
 			expect(res.status).toBe(500);
 			expect(body.success).toBe(false);
-			expect(body.message).toBe("Failed to delete label");
+			expect(body.message).toBe("Database connection failed");
 			expect(mockDeleteLabel).toHaveBeenCalledWith(labelId);
 		});
 	});

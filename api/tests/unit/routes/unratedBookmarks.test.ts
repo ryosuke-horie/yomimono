@@ -156,7 +156,7 @@ describe("BookmarksRouter - GET /unrated", () => {
 		const json = await res.json();
 		expect(json).toEqual({
 			success: false,
-			message: "Failed to fetch unrated bookmarks",
+			message: "Database error",
 		});
 	});
 

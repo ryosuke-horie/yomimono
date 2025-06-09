@@ -103,22 +103,26 @@ export const createRatingsRouter = (ratingService: IRatingService) => {
 				!(error instanceof ValidationError)
 			) {
 				if (error.message.includes("見つかりません")) {
-					throw new NotFoundError(error.message);
+					const notFoundError = new NotFoundError(error.message);
+					return c.json(createErrorResponseBody(notFoundError), 404);
 				}
 				if (error.message.includes("既に評価が存在")) {
-					throw new ConflictError(error.message);
+					const conflictError = new ConflictError(error.message);
+					return c.json(createErrorResponseBody(conflictError), 409);
 				}
 				if (
 					error.message.includes("評価スコアは") ||
 					error.message.includes("コメントは")
 				) {
-					throw new BadRequestError(error.message);
+					const badRequestError = new BadRequestError(error.message);
+					return c.json(createErrorResponseBody(badRequestError), 400);
 				}
 				if (
 					error.message.includes("FOREIGN KEY constraint") ||
 					error.message.includes("SQLITE_CONSTRAINT")
 				) {
-					throw new NotFoundError("記事が見つかりません");
+					const notFoundError = new NotFoundError("記事が見つかりません");
+					return c.json(createErrorResponseBody(notFoundError), 404);
 				}
 			}
 
@@ -196,22 +200,26 @@ export const createRatingsRouter = (ratingService: IRatingService) => {
 				!(error instanceof ValidationError)
 			) {
 				if (error.message.includes("見つかりません")) {
-					throw new NotFoundError(error.message);
+					const notFoundError = new NotFoundError(error.message);
+					return c.json(createErrorResponseBody(notFoundError), 404);
 				}
 				if (error.message.includes("更新するデータが指定されていません")) {
-					throw new BadRequestError(error.message);
+					const badRequestError = new BadRequestError(error.message);
+					return c.json(createErrorResponseBody(badRequestError), 400);
 				}
 				if (
 					error.message.includes("評価スコアは") ||
 					error.message.includes("コメントは")
 				) {
-					throw new BadRequestError(error.message);
+					const badRequestError = new BadRequestError(error.message);
+					return c.json(createErrorResponseBody(badRequestError), 400);
 				}
 				if (
 					error.message.includes("FOREIGN KEY constraint") ||
 					error.message.includes("SQLITE_CONSTRAINT")
 				) {
-					throw new NotFoundError("記事が見つかりません");
+					const notFoundError = new NotFoundError("記事が見つかりません");
+					return c.json(createErrorResponseBody(notFoundError), 404);
 				}
 			}
 
@@ -249,13 +257,15 @@ export const createRatingsRouter = (ratingService: IRatingService) => {
 			// エラーを適切な例外クラスに変換
 			if (error instanceof Error && !(error instanceof BadRequestError)) {
 				if (error.message.includes("見つかりません")) {
-					throw new NotFoundError(error.message);
+					const notFoundError = new NotFoundError(error.message);
+					return c.json(createErrorResponseBody(notFoundError), 404);
 				}
 				if (
 					error.message.includes("FOREIGN KEY constraint") ||
 					error.message.includes("SQLITE_CONSTRAINT")
 				) {
-					throw new NotFoundError("記事が見つかりません");
+					const notFoundError = new NotFoundError("記事が見つかりません");
+					return c.json(createErrorResponseBody(notFoundError), 404);
 				}
 			}
 

@@ -195,7 +195,7 @@ describe("PUT /bookmarks/batch-label", () => {
 			const data = await response.json();
 			expect(data).toEqual({
 				success: false,
-				message: "Failed to batch assign labels",
+				message: "Database error",
 			});
 		});
 	});
