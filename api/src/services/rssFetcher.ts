@@ -1,6 +1,8 @@
 /**
  * RSSフィードを取得するサービス
  */
+import { ExternalServiceError, TimeoutError } from "../exceptions";
+
 export class RSSFetcher {
 	/**
 	 * 指定されたURLからRSSフィードを取得する
@@ -26,7 +28,10 @@ export class RSSFetcher {
 				}),
 				// 30秒でタイムアウト
 				new Promise<never>((_, reject) =>
-					setTimeout(() => reject(new Error("RSS fetch timeout")), 30000),
+					setTimeout(
+						() => reject(new TimeoutError("RSS fetch timeout")),
+						30000,
+					),
 				),
 			]);
 
@@ -34,7 +39,7 @@ export class RSSFetcher {
 			console.log(`RSSフィード取得完了: ${url} (${elapsedTime}ms)`);
 
 			if (!response.ok) {
-				throw new Error(
+				throw new ExternalServiceError(
 					`Failed to fetch RSS: ${response.status} ${response.statusText}`,
 				);
 			}
