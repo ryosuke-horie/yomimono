@@ -164,7 +164,10 @@ if (import.meta.vitest) {
 		expect(screen.getByText("評価済み記事がありません")).toBeInTheDocument();
 		expect(
 			screen.getByText((content, element) => {
-				return element?.textContent === "条件に一致する評価済み記事がありません。Claude (MCP) で記事を評価してください。";
+				return (
+					element?.textContent ===
+					"条件に一致する評価済み記事がありません。Claude (MCP) で記事を評価してください。"
+				);
 			}),
 		).toBeInTheDocument();
 
