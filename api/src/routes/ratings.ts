@@ -3,6 +3,15 @@
  */
 import { Hono } from "hono";
 import { z } from "zod";
+import {
+	BadRequestError,
+	ConflictError,
+	DatabaseError,
+	NotFoundError,
+	ValidationError,
+	createErrorResponse,
+	createErrorResponseBody,
+} from "../exceptions";
 import type { IRatingService } from "../interfaces/service/rating";
 
 // バリデーションスキーマ
@@ -52,27 +61,14 @@ export const createRatingsRouter = (ratingService: IRatingService) => {
 		try {
 			const articleId = Number.parseInt(c.req.param("id"));
 			if (Number.isNaN(articleId)) {
-				return c.json(
-					{
-						success: false,
-						message: "無効な記事IDです",
-					},
-					400,
-				);
+				throw new BadRequestError("無効な記事IDです");
 			}
 
 			const body = await c.req.json();
 			const validationResult = CreateRatingSchema.safeParse(body);
 
 			if (!validationResult.success) {
-				return c.json(
-					{
-						success: false,
-						message: "リクエストデータが不正です",
-						errors: validationResult.error.issues,
-					},
-					400,
-				);
+				throw new ValidationError("リクエストデータが不正です");
 			}
 
 			const rating = await ratingService.createRating(
@@ -100,37 +96,34 @@ export const createRatingsRouter = (ratingService: IRatingService) => {
 				});
 			}
 
-			const message =
-				error instanceof Error ? error.message : "評価の作成に失敗しました";
-
-			// より詳細なエラー分類
-			let status = 500;
-			if (error instanceof Error) {
+			// エラーを適切な例外クラスに変換
+			if (
+				error instanceof Error &&
+				!(error instanceof BadRequestError) &&
+				!(error instanceof ValidationError)
+			) {
 				if (error.message.includes("見つかりません")) {
-					status = 404;
-				} else if (error.message.includes("既に評価が存在")) {
-					status = 409; // Conflict
-				} else if (
+					throw new NotFoundError(error.message);
+				}
+				if (error.message.includes("既に評価が存在")) {
+					throw new ConflictError(error.message);
+				}
+				if (
 					error.message.includes("評価スコアは") ||
 					error.message.includes("コメントは")
 				) {
-					status = 400; // Bad Request
-				} else if (
+					throw new BadRequestError(error.message);
+				}
+				if (
 					error.message.includes("FOREIGN KEY constraint") ||
 					error.message.includes("SQLITE_CONSTRAINT")
 				) {
-					// 外部キー制約エラーの場合は404として扱う
-					status = 404;
+					throw new NotFoundError("記事が見つかりません");
 				}
 			}
 
-			return c.json(
-				{
-					success: false,
-					message,
-				},
-				status,
-			);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -139,25 +132,13 @@ export const createRatingsRouter = (ratingService: IRatingService) => {
 		try {
 			const articleId = Number.parseInt(c.req.param("id"));
 			if (Number.isNaN(articleId)) {
-				return c.json(
-					{
-						success: false,
-						message: "無効な記事IDです",
-					},
-					400,
-				);
+				throw new BadRequestError("無効な記事IDです");
 			}
 
 			const rating = await ratingService.getRating(articleId);
 
 			if (!rating) {
-				return c.json(
-					{
-						success: false,
-						message: "指定された記事の評価が見つかりません",
-					},
-					404,
-				);
+				throw new NotFoundError("指定された記事の評価が見つかりません");
 			}
 
 			return c.json({
@@ -166,13 +147,8 @@ export const createRatingsRouter = (ratingService: IRatingService) => {
 			});
 		} catch (error) {
 			console.error("Failed to get rating:", error);
-			return c.json(
-				{
-					success: false,
-					message: "評価の取得に失敗しました",
-				},
-				500,
-			);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -181,27 +157,14 @@ export const createRatingsRouter = (ratingService: IRatingService) => {
 		try {
 			const articleId = Number.parseInt(c.req.param("id"));
 			if (Number.isNaN(articleId)) {
-				return c.json(
-					{
-						success: false,
-						message: "無効な記事IDです",
-					},
-					400,
-				);
+				throw new BadRequestError("無効な記事IDです");
 			}
 
 			const body = await c.req.json();
 			const validationResult = UpdateRatingSchema.safeParse(body);
 
 			if (!validationResult.success) {
-				return c.json(
-					{
-						success: false,
-						message: "リクエストデータが不正です",
-						errors: validationResult.error.issues,
-					},
-					400,
-				);
+				throw new ValidationError("リクエストデータが不正です");
 			}
 
 			const rating = await ratingService.updateRating(
@@ -226,39 +189,34 @@ export const createRatingsRouter = (ratingService: IRatingService) => {
 				});
 			}
 
-			const message =
-				error instanceof Error ? error.message : "評価の更新に失敗しました";
-
-			// より詳細なエラー分類
-			let status = 500;
-			if (error instanceof Error) {
+			// エラーを適切な例外クラスに変換
+			if (
+				error instanceof Error &&
+				!(error instanceof BadRequestError) &&
+				!(error instanceof ValidationError)
+			) {
 				if (error.message.includes("見つかりません")) {
-					status = 404;
-				} else if (
-					error.message.includes("更新するデータが指定されていません")
-				) {
-					status = 400; // Bad Request
-				} else if (
+					throw new NotFoundError(error.message);
+				}
+				if (error.message.includes("更新するデータが指定されていません")) {
+					throw new BadRequestError(error.message);
+				}
+				if (
 					error.message.includes("評価スコアは") ||
 					error.message.includes("コメントは")
 				) {
-					status = 400; // Bad Request
-				} else if (
+					throw new BadRequestError(error.message);
+				}
+				if (
 					error.message.includes("FOREIGN KEY constraint") ||
 					error.message.includes("SQLITE_CONSTRAINT")
 				) {
-					// 外部キー制約エラーの場合は404として扱う
-					status = 404;
+					throw new NotFoundError("記事が見つかりません");
 				}
 			}
 
-			return c.json(
-				{
-					success: false,
-					message,
-				},
-				status,
-			);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -267,13 +225,7 @@ export const createRatingsRouter = (ratingService: IRatingService) => {
 		try {
 			const articleId = Number.parseInt(c.req.param("id"));
 			if (Number.isNaN(articleId)) {
-				return c.json(
-					{
-						success: false,
-						message: "無効な記事IDです",
-					},
-					400,
-				);
+				throw new BadRequestError("無効な記事IDです");
 			}
 
 			await ratingService.deleteRating(articleId);
@@ -294,30 +246,21 @@ export const createRatingsRouter = (ratingService: IRatingService) => {
 				});
 			}
 
-			const message =
-				error instanceof Error ? error.message : "評価の削除に失敗しました";
-
-			// より詳細なエラー分類
-			let status = 500;
-			if (error instanceof Error) {
+			// エラーを適切な例外クラスに変換
+			if (error instanceof Error && !(error instanceof BadRequestError)) {
 				if (error.message.includes("見つかりません")) {
-					status = 404;
-				} else if (
+					throw new NotFoundError(error.message);
+				}
+				if (
 					error.message.includes("FOREIGN KEY constraint") ||
 					error.message.includes("SQLITE_CONSTRAINT")
 				) {
-					// 外部キー制約エラーの場合は404として扱う
-					status = 404;
+					throw new NotFoundError("記事が見つかりません");
 				}
 			}
 
-			return c.json(
-				{
-					success: false,
-					message,
-				},
-				status,
-			);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -328,14 +271,7 @@ export const createRatingsRouter = (ratingService: IRatingService) => {
 			const validationResult = RatingsQuerySchema.safeParse(queryParams);
 
 			if (!validationResult.success) {
-				return c.json(
-					{
-						success: false,
-						message: "クエリパラメータが不正です",
-						errors: validationResult.error.issues,
-					},
-					400,
-				);
+				throw new ValidationError("クエリパラメータが不正です");
 			}
 
 			const ratings = await ratingService.getRatings(validationResult.data);
@@ -347,15 +283,8 @@ export const createRatingsRouter = (ratingService: IRatingService) => {
 			});
 		} catch (error) {
 			console.error("Failed to get ratings:", error);
-			const message =
-				error instanceof Error ? error.message : "評価一覧の取得に失敗しました";
-			return c.json(
-				{
-					success: false,
-					message,
-				},
-				500,
-			);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -370,13 +299,8 @@ export const createRatingsRouter = (ratingService: IRatingService) => {
 			});
 		} catch (error) {
 			console.error("Failed to get rating stats:", error);
-			return c.json(
-				{
-					success: false,
-					message: "評価統計情報の取得に失敗しました",
-				},
-				500,
-			);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 

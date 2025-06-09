@@ -1,5 +1,11 @@
 import { Hono } from "hono";
-import { HTTPException } from "hono/http-exception";
+import {
+	BadRequestError,
+	InternalServerError,
+	NotFoundError,
+	createErrorResponse,
+	createErrorResponseBody,
+} from "../exceptions";
 import type { RssFeedService } from "../services/rssFeed";
 
 export const createRssFeedsRouter = (rssFeedService: RssFeedService) => {
@@ -14,7 +20,8 @@ export const createRssFeedsRouter = (rssFeedService: RssFeedService) => {
 			});
 		} catch (error) {
 			console.error("Failed to get feeds:", error);
-			throw new HTTPException(500, { message: "Failed to get feeds" });
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -23,7 +30,7 @@ export const createRssFeedsRouter = (rssFeedService: RssFeedService) => {
 		try {
 			const id = Number.parseInt(c.req.param("id"));
 			if (Number.isNaN(id)) {
-				throw new HTTPException(404, { message: "Feed not found" });
+				throw new NotFoundError("Feed not found");
 			}
 			const feed = await rssFeedService.getFeedById(id);
 
@@ -39,11 +46,9 @@ export const createRssFeedsRouter = (rssFeedService: RssFeedService) => {
 				stats,
 			});
 		} catch (error) {
-			if (error instanceof HTTPException) {
-				throw error;
-			}
 			console.error("Failed to get feed:", error);
-			throw new HTTPException(500, { message: "Failed to get feed" });
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -55,7 +60,8 @@ export const createRssFeedsRouter = (rssFeedService: RssFeedService) => {
 			return c.json(newFeed, 201);
 		} catch (error) {
 			console.error("Failed to create feed:", error);
-			throw new HTTPException(500, { message: "Failed to create feed" });
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -64,17 +70,15 @@ export const createRssFeedsRouter = (rssFeedService: RssFeedService) => {
 		try {
 			const id = Number.parseInt(c.req.param("id"));
 			if (Number.isNaN(id)) {
-				throw new HTTPException(404, { message: "Feed not found" });
+				throw new NotFoundError("Feed not found");
 			}
 			const data = await c.req.json();
 			const updatedFeed = await rssFeedService.updateFeed(id, data);
 			return c.json(updatedFeed);
 		} catch (error) {
-			if (error instanceof HTTPException) {
-				throw error;
-			}
 			console.error("Failed to update feed:", error);
-			throw new HTTPException(500, { message: "Failed to update feed" });
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -83,17 +87,15 @@ export const createRssFeedsRouter = (rssFeedService: RssFeedService) => {
 		try {
 			const id = Number.parseInt(c.req.param("id"));
 			if (Number.isNaN(id)) {
-				throw new HTTPException(404, { message: "Feed not found" });
+				throw new NotFoundError("Feed not found");
 			}
 			// TODO: クエリパラメータでdeleteBookmarksを確認し、関連ブックマークも削除する処理を追加
 			await rssFeedService.deleteFeed(id);
 			return c.body(null, 204);
 		} catch (error) {
-			if (error instanceof HTTPException) {
-				throw error;
-			}
 			console.error("Failed to delete feed:", error);
-			throw new HTTPException(500, { message: "Failed to delete feed" });
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
