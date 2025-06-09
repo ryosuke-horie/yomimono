@@ -132,7 +132,7 @@ function RatingItem({ item }: { item: RatingWithArticle }) {
 				{/* 評価表示 */}
 				<div className="bg-gray-50 rounded-lg p-4 mb-4">
 					{/* 総合スコア */}
-					<div className="flex items-center justify-between mb-4">
+					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
 						<div className="flex items-center gap-3">
 							<span className="text-sm font-medium text-gray-700">
 								総合評価
@@ -147,16 +147,18 @@ function RatingItem({ item }: { item: RatingWithArticle }) {
 					</div>
 
 					{/* 評価軸詳細 */}
-					<div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4">
-						{dimensions.map((dimension) => (
-							<div
-								key={dimension.key}
-								className={`${getDimensionColor(dimension.key)} px-3 py-2 rounded-lg text-center`}
-							>
-								<div className="text-xs font-medium">{dimension.name}</div>
-								<div className="text-lg font-bold">{dimension.value}</div>
-							</div>
-						))}
+					<div className="flex flex-col sm:flex-row sm:justify-end gap-2 mb-4">
+						<div className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:w-auto">
+							{dimensions.map((dimension) => (
+								<div
+									key={dimension.key}
+									className={`${getDimensionColor(dimension.key)} px-3 py-2 rounded-lg text-center`}
+								>
+									<div className="text-xs font-medium">{dimension.name}</div>
+									<div className="text-lg font-bold">{dimension.value}</div>
+								</div>
+							))}
+						</div>
 					</div>
 
 					{/* コメント */}
