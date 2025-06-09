@@ -217,7 +217,7 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 
 			{/* 評価表示 */}
 			{rating ? (
-				<div className="absolute bottom-2 right-24 flex items-center gap-1 bg-white border border-gray-200 rounded-full px-2 py-1 shadow-sm">
+				<div className="absolute bottom-10 right-24 flex items-center gap-1 bg-white border border-gray-200 rounded-full px-2 py-1 shadow-sm">
 					<StarRating score={rating.totalScore} size="sm" />
 					<Link
 						href={`/ratings?articleId=${id}`}
@@ -228,7 +228,7 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 					</Link>
 				</div>
 			) : (
-				<div className="absolute bottom-2 right-24 flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-full px-2 py-1">
+				<div className="absolute bottom-10 right-24 flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-full px-2 py-1">
 					<span className="text-xs text-gray-500">未評価</span>
 					<span
 						className="text-xs text-blue-600"
