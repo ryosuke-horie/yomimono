@@ -1,4 +1,5 @@
 import type { Bookmark, InsertBookmark } from "../db/schema";
+import { InternalServerError, NotFoundError } from "../exceptions";
 import type {
 	BookmarkWithLabel,
 	IBookmarkRepository,
@@ -28,7 +29,7 @@ export class DefaultBookmarkService implements IBookmarkService {
 			if (error instanceof Error) {
 				throw error;
 			}
-			throw new Error("Failed to add to favorites");
+			throw new InternalServerError("Failed to add to favorites");
 		}
 	}
 
@@ -39,7 +40,7 @@ export class DefaultBookmarkService implements IBookmarkService {
 			if (error instanceof Error) {
 				throw error;
 			}
-			throw new Error("Failed to remove from favorites");
+			throw new InternalServerError("Failed to remove from favorites");
 		}
 	}
 
@@ -58,7 +59,7 @@ export class DefaultBookmarkService implements IBookmarkService {
 			};
 		} catch (error) {
 			console.error("Failed to get favorite bookmarks:", error);
-			throw new Error("Failed to get favorite bookmarks");
+			throw new InternalServerError("Failed to get favorite bookmarks");
 		}
 	}
 	// createBookmarksFromDataは変更なし (findByUrlsの戻り値型が変わったが、ロジックは影響なし)
@@ -95,14 +96,14 @@ export class DefaultBookmarkService implements IBookmarkService {
 	async markBookmarkAsRead(id: number): Promise<void> {
 		const updated = await this.repository.markAsRead(id);
 		if (!updated) {
-			throw new Error("Bookmark not found");
+			throw new NotFoundError("Bookmark not found");
 		}
 	}
 
 	async markBookmarkAsUnread(id: number): Promise<void> {
 		const updated = await this.repository.markAsUnread(id);
 		if (!updated) {
-			throw new Error("Bookmark not found");
+			throw new NotFoundError("Bookmark not found");
 		}
 	}
 
@@ -150,7 +151,7 @@ export class DefaultBookmarkService implements IBookmarkService {
 			return groupedByDate;
 		} catch (error) {
 			console.error("Failed to get recently read bookmarks:", error);
-			throw new Error("Failed to get recently read bookmarks");
+			throw new InternalServerError("Failed to get recently read bookmarks");
 		}
 	}
 
@@ -159,7 +160,7 @@ export class DefaultBookmarkService implements IBookmarkService {
 			return await this.repository.findUnlabeled();
 		} catch (error) {
 			console.error("Failed to get unlabeled bookmarks:", error);
-			throw new Error("Failed to get unlabeled bookmarks");
+			throw new InternalServerError("Failed to get unlabeled bookmarks");
 		}
 	}
 
@@ -170,7 +171,7 @@ export class DefaultBookmarkService implements IBookmarkService {
 			return await this.repository.findByLabelName(labelName);
 		} catch (error) {
 			console.error("Failed to get bookmarks by label:", error);
-			throw new Error("Failed to get bookmarks by label");
+			throw new InternalServerError("Failed to get bookmarks by label");
 		}
 	}
 
@@ -179,7 +180,7 @@ export class DefaultBookmarkService implements IBookmarkService {
 			return await this.repository.findRead();
 		} catch (error) {
 			console.error("Failed to get read bookmarks:", error);
-			throw new Error("Failed to get read bookmarks");
+			throw new InternalServerError("Failed to get read bookmarks");
 		}
 	}
 
@@ -188,7 +189,7 @@ export class DefaultBookmarkService implements IBookmarkService {
 			return await this.repository.findUnrated();
 		} catch (error) {
 			console.error("Failed to get unrated bookmarks:", error);
-			throw new Error("Failed to get unrated bookmarks");
+			throw new InternalServerError("Failed to get unrated bookmarks");
 		}
 	}
 }

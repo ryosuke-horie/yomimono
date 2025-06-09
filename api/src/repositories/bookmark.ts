@@ -10,6 +10,7 @@ import {
 	favorites,
 	labels,
 } from "../db/schema";
+import { ConflictError, NotFoundError } from "../exceptions";
 import type {
 	BookmarkWithLabel,
 	IBookmarkRepository,
@@ -205,7 +206,7 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 				.get();
 
 			if (!bookmark) {
-				throw new Error("Bookmark not found");
+				throw new NotFoundError("Bookmark not found");
 			}
 
 			// 既にお気に入りに追加されているか確認
@@ -216,7 +217,7 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 				.get();
 
 			if (existing) {
-				throw new Error("Already favorited");
+				throw new ConflictError("Already favorited");
 			}
 
 			// お気に入りに追加
@@ -238,7 +239,7 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 				.run();
 
 			if (!result.meta?.changes) {
-				throw new Error("Favorite not found");
+				throw new NotFoundError("Favorite not found");
 			}
 		} catch (error) {
 			console.error("Failed to remove from favorites:", error);
