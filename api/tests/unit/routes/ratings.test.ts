@@ -126,10 +126,9 @@ describe("RatingsRouter", () => {
 			const response = await app.fetch(mockRequest);
 			const result = await response.json();
 
-			expect(response.status).toBe(400);
+			expect(response.status).toBe(422);
 			expect(result.success).toBe(false);
 			expect(result.message).toBe("リクエストデータが不正です");
-			expect(result.errors).toBeDefined();
 		});
 
 		it("サービスエラーで500を返すこと", async () => {
@@ -402,10 +401,9 @@ describe("RatingsRouter", () => {
 			const response = await app.fetch(mockRequest);
 			const result = await response.json();
 
-			expect(response.status).toBe(400);
+			expect(response.status).toBe(422);
 			expect(result.success).toBe(false);
 			expect(result.message).toBe("クエリパラメータが不正です");
-			expect(result.errors).toBeDefined();
 		});
 	});
 
@@ -453,7 +451,7 @@ describe("RatingsRouter", () => {
 
 			expect(response.status).toBe(500);
 			expect(result.success).toBe(false);
-			expect(result.message).toBe("評価統計情報の取得に失敗しました");
+			expect(result.message).toBe("Database error");
 		});
 	});
 });

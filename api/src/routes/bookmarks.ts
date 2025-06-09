@@ -1,4 +1,12 @@
 import { Hono } from "hono";
+import {
+	BadRequestError,
+	ConflictError,
+	InternalServerError,
+	NotFoundError,
+	createErrorResponse,
+	createErrorResponseBody,
+} from "../exceptions";
 import type { BookmarkWithLabel } from "../interfaces/repository/bookmark";
 import type { IBookmarkService } from "../interfaces/service/bookmark";
 import type { ILabelService } from "../interfaces/service/label";
@@ -42,10 +50,8 @@ export const createBookmarksRouter = (
 			});
 		} catch (error) {
 			console.error("Failed to fetch bookmarks:", error);
-			return c.json(
-				{ success: false, message: "Failed to fetch bookmarks" },
-				500,
-			);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -55,10 +61,8 @@ export const createBookmarksRouter = (
 			return c.json({ success: true, bookmarks });
 		} catch (error) {
 			console.error("Failed to fetch unlabeled bookmarks:", error);
-			return c.json(
-				{ success: false, message: "Failed to fetch unlabeled bookmarks" },
-				500,
-			);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -66,14 +70,14 @@ export const createBookmarksRouter = (
 		try {
 			const id = Number.parseInt(c.req.param("id"));
 			if (Number.isNaN(id)) {
-				return c.json({ success: false, message: "Invalid bookmark ID" }, 400);
+				throw new BadRequestError("Invalid bookmark ID");
 			}
 
 			let body: { labelName?: string };
 			try {
 				body = await c.req.json<{ labelName?: string }>();
 			} catch (e) {
-				return c.json({ success: false, message: "Invalid request body" }, 400);
+				throw new BadRequestError("Invalid request body");
 			}
 
 			const labelName = body?.labelName;
@@ -83,12 +87,8 @@ export const createBookmarksRouter = (
 				typeof labelName !== "string" ||
 				labelName.trim() === ""
 			) {
-				return c.json(
-					{
-						success: false,
-						message: "labelName is required and must be a non-empty string",
-					},
-					400,
+				throw new BadRequestError(
+					"labelName is required and must be a non-empty string",
 				);
 			}
 
@@ -96,19 +96,23 @@ export const createBookmarksRouter = (
 			const assignedLabel = await labelService.assignLabel(id, labelName);
 			return c.json({ success: true, label: assignedLabel });
 		} catch (error) {
-			if (error instanceof Error) {
+			if (error instanceof Error && !(error instanceof BadRequestError)) {
 				if (error.message.includes("not found")) {
-					return c.json({ success: false, message: error.message }, 404);
+					const notFoundError = new NotFoundError(error.message);
+					return c.json(createErrorResponseBody(notFoundError), 404);
 				}
 				if (error.message.includes("already assigned")) {
-					return c.json({ success: false, message: error.message }, 409);
+					const conflictError = new ConflictError(error.message);
+					return c.json(createErrorResponseBody(conflictError), 409);
 				}
 				if (error.message.includes("cannot be empty")) {
-					return c.json({ success: false, message: error.message }, 400);
+					const badRequestError = new BadRequestError(error.message);
+					return c.json(createErrorResponseBody(badRequestError), 400);
 				}
 			}
 			console.error("Failed to assign label:", error);
-			return c.json({ success: false, message: "Failed to assign label" }, 500);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -119,17 +123,11 @@ export const createBookmarksRouter = (
 			}>();
 
 			if (!Array.isArray(bookmarks)) {
-				return c.json(
-					{ success: false, message: "bookmarks must be an array" },
-					400,
-				);
+				throw new BadRequestError("bookmarks must be an array");
 			}
 
 			if (bookmarks.length === 0) {
-				return c.json(
-					{ success: false, message: "bookmarks array cannot be empty" },
-					400,
-				);
+				throw new BadRequestError("bookmarks array cannot be empty");
 			}
 
 			// URLの形式チェック
@@ -143,7 +141,7 @@ export const createBookmarksRouter = (
 			};
 
 			if (!bookmarks.every((b) => isValidUrl(b.url))) {
-				return c.json({ success: false, message: "invalid URL format" }, 400);
+				throw new BadRequestError("invalid URL format");
 			}
 
 			const totalCount = bookmarks.length;
@@ -154,10 +152,8 @@ export const createBookmarksRouter = (
 			});
 		} catch (error) {
 			console.error("Failed to create bookmarks:", error);
-			return c.json(
-				{ success: false, message: "Failed to create bookmarks" },
-				500,
-			);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -166,28 +162,25 @@ export const createBookmarksRouter = (
 		try {
 			const id = Number.parseInt(c.req.param("id"));
 			if (Number.isNaN(id)) {
-				return c.json({ success: false, message: "Invalid bookmark ID" }, 400);
+				throw new BadRequestError("Invalid bookmark ID");
 			}
 
 			await bookmarkService.addToFavorites(id);
 			return c.json({ success: true });
 		} catch (error) {
-			if (error instanceof Error) {
+			if (error instanceof Error && !(error instanceof BadRequestError)) {
 				if (error.message === "Bookmark not found") {
-					return c.json({ success: false, message: "Bookmark not found" }, 404);
+					const notFoundError = new NotFoundError("Bookmark not found");
+					return c.json(createErrorResponseBody(notFoundError), 404);
 				}
 				if (error.message === "Already favorited") {
-					return c.json(
-						{ success: false, message: "Already added to favorites" },
-						409,
-					);
+					const conflictError = new ConflictError("Already added to favorites");
+					return c.json(createErrorResponseBody(conflictError), 409);
 				}
 			}
 			console.error("Failed to add to favorites:", error);
-			return c.json(
-				{ success: false, message: "Failed to add to favorites" },
-				500,
-			);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -195,22 +188,21 @@ export const createBookmarksRouter = (
 		try {
 			const id = Number.parseInt(c.req.param("id"));
 			if (Number.isNaN(id)) {
-				return c.json({ success: false, message: "Invalid bookmark ID" }, 400);
+				throw new BadRequestError("Invalid bookmark ID");
 			}
 
 			await bookmarkService.removeFromFavorites(id);
 			return c.json({ success: true });
 		} catch (error) {
-			if (error instanceof Error) {
+			if (error instanceof Error && !(error instanceof BadRequestError)) {
 				if (error.message === "Favorite not found") {
-					return c.json({ success: false, message: "Favorite not found" }, 404);
+					const notFoundError = new NotFoundError("Favorite not found");
+					return c.json(createErrorResponseBody(notFoundError), 404);
 				}
 			}
 			console.error("Failed to remove from favorites:", error);
-			return c.json(
-				{ success: false, message: "Failed to remove from favorites" },
-				500,
-			);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -220,10 +212,8 @@ export const createBookmarksRouter = (
 			return c.json({ success: true, ...result });
 		} catch (error) {
 			console.error("Failed to fetch favorites:", error);
-			return c.json(
-				{ success: false, message: "Failed to fetch favorites" },
-				500,
-			);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -232,14 +222,15 @@ export const createBookmarksRouter = (
 		try {
 			const id = Number.parseInt(c.req.param("id"));
 			if (Number.isNaN(id)) {
-				return c.json({ success: false, message: "Invalid bookmark ID" }, 400);
+				throw new BadRequestError("Invalid bookmark ID");
 			}
 
 			await bookmarkService.markBookmarkAsRead(id);
 			return c.json({ success: true });
 		} catch (error) {
 			if (error instanceof Error && error.message === "Bookmark not found") {
-				return c.json({ success: false, message: "Bookmark not found" }, 404);
+				const notFoundError = new NotFoundError("Bookmark not found");
+				return c.json(createErrorResponseBody(notFoundError), 404);
 			}
 			console.error("Failed to mark bookmark as read:", error);
 			return c.json(
@@ -254,16 +245,18 @@ export const createBookmarksRouter = (
 		try {
 			const id = Number.parseInt(c.req.param("id"));
 			if (Number.isNaN(id)) {
-				return c.json({ success: false, message: "Invalid bookmark ID" }, 400);
+				throw new BadRequestError("Invalid bookmark ID");
 			}
 
 			await bookmarkService.markBookmarkAsUnread(id);
 			return c.json({ success: true });
 		} catch (error) {
 			if (error instanceof Error && error.message === "Bookmark not found") {
-				return c.json({ success: false, message: "Bookmark not found" }, 404);
+				const notFoundError = new NotFoundError("Bookmark not found");
+				return c.json(createErrorResponseBody(notFoundError), 404);
 			}
 			console.error("Failed to mark bookmark as unread:", error);
+			// For general errors, preserve the original error message format
 			return c.json(
 				{ success: false, message: "Failed to mark bookmark as unread" },
 				500,
@@ -278,10 +271,8 @@ export const createBookmarksRouter = (
 			return c.json({ success: true, bookmarks: recentlyReadBookmarks });
 		} catch (error) {
 			console.error("Failed to fetch recently read bookmarks:", error);
-			return c.json(
-				{ success: false, message: "Failed to fetch recently read bookmarks" },
-				500,
-			);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -301,9 +292,14 @@ export const createBookmarksRouter = (
 			return c.json({ success: true, bookmarks: bookmarksWithLabels });
 		} catch (error) {
 			console.error("Failed to fetch read bookmarks:", error);
+			const errorResponse = createErrorResponse(
+				new InternalServerError("既読ブックマークの取得に失敗しました"),
+			);
 			return c.json(
-				{ success: false, message: "既読ブックマークの取得に失敗しました" },
-				500,
+				createErrorResponseBody(
+					new InternalServerError("既読ブックマークの取得に失敗しました"),
+				),
+				errorResponse.statusCode,
 			);
 		}
 	});
@@ -314,10 +310,8 @@ export const createBookmarksRouter = (
 			return c.json({ success: true, bookmarks: unratedBookmarks });
 		} catch (error) {
 			console.error("Failed to fetch unrated bookmarks:", error);
-			return c.json(
-				{ success: false, message: "Failed to fetch unrated bookmarks" },
-				500,
-			);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 
@@ -336,12 +330,8 @@ export const createBookmarksRouter = (
 				!Array.isArray(body.articleIds) ||
 				body.articleIds.length === 0
 			) {
-				return c.json(
-					{
-						success: false,
-						message: "articleIds is required and must be a non-empty array",
-					},
-					400,
+				throw new BadRequestError(
+					"articleIds is required and must be a non-empty array",
 				);
 			}
 
@@ -350,12 +340,8 @@ export const createBookmarksRouter = (
 				typeof body.labelName !== "string" ||
 				body.labelName.trim() === ""
 			) {
-				return c.json(
-					{
-						success: false,
-						message: "labelName is required and must be a non-empty string",
-					},
-					400,
+				throw new BadRequestError(
+					"labelName is required and must be a non-empty string",
 				);
 			}
 
@@ -363,7 +349,7 @@ export const createBookmarksRouter = (
 			const articleIds = body.articleIds.map((id) => {
 				const numId = Number(id);
 				if (Number.isNaN(numId)) {
-					throw new Error(`Invalid article ID: ${id}`);
+					throw new BadRequestError(`Invalid article ID: ${id}`);
 				}
 				return numId;
 			});
@@ -377,19 +363,17 @@ export const createBookmarksRouter = (
 
 			return c.json({ success: true, ...result });
 		} catch (error) {
-			if (error instanceof Error) {
+			if (error instanceof Error && !(error instanceof BadRequestError)) {
 				if (error.message.includes("Invalid article ID")) {
-					return c.json({ success: false, message: error.message }, 400);
+					throw new BadRequestError(error.message);
 				}
 				if (error.message.includes("cannot be empty")) {
-					return c.json({ success: false, message: error.message }, 400);
+					throw new BadRequestError(error.message);
 				}
 			}
 			console.error("Failed to batch assign labels:", error);
-			return c.json(
-				{ success: false, message: "Failed to batch assign labels" },
-				500,
-			);
+			const errorResponse = createErrorResponse(error);
+			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
 		}
 	});
 

@@ -143,7 +143,7 @@ describe("BookmarkRouter", () => {
 
 			expect(res.status).toBe(500);
 			expect(data.success).toBe(false);
-			expect(data.message).toBe("Failed to fetch bookmarks");
+			expect(data.message).toBe("Service error");
 		});
 
 		it("ラベルフィルタリング時にサービスでエラーが発生した場合、500エラーレスポンスを返すこと", async () => {
@@ -156,7 +156,7 @@ describe("BookmarkRouter", () => {
 
 			expect(res.status).toBe(500);
 			expect(data.success).toBe(false);
-			expect(data.message).toBe("Failed to fetch bookmarks");
+			expect(data.message).toBe("Service error on filter");
 		});
 	});
 
@@ -188,7 +188,7 @@ describe("BookmarkRouter", () => {
 
 			expect(res.status).toBe(500);
 			expect(data.success).toBe(false);
-			expect(data.message).toBe("Failed to fetch unlabeled bookmarks");
+			expect(data.message).toBe("Service error");
 		});
 	});
 
@@ -306,7 +306,7 @@ describe("BookmarkRouter", () => {
 			expect(res.status).toBe(500);
 			expect(data).toEqual({
 				success: false,
-				message: "Failed to assign label",
+				message: "Some service error",
 			});
 		});
 	});
@@ -397,7 +397,7 @@ describe("BookmarkRouter", () => {
 				expect(res.status).toBe(500);
 				expect(data).toEqual({
 					success: false,
-					message: "Failed to fetch favorites",
+					message: "Database error",
 				});
 			});
 		});
@@ -443,7 +443,7 @@ describe("BookmarkRouter", () => {
 			expect(res.status).toBe(500);
 			expect(data).toEqual({
 				success: false,
-				message: "Failed to create bookmarks",
+				message: "Database error",
 			});
 		});
 	});
@@ -513,7 +513,7 @@ describe("BookmarkRouter", () => {
 			expect(res.status).toBe(500);
 			expect(data).toEqual({
 				success: false,
-				message: "Failed to fetch recently read bookmarks",
+				message: "Database error",
 			});
 		});
 	});
