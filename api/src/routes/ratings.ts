@@ -142,7 +142,13 @@ export const createRatingsRouter = (ratingService: IRatingService) => {
 			const rating = await ratingService.getRating(articleId);
 
 			if (!rating) {
-				throw new NotFoundError("指定された記事の評価が見つかりません");
+				return c.json(
+					{
+						success: false,
+						message: "指定された記事の評価が見つかりません",
+					},
+					404,
+				);
 			}
 
 			return c.json({
