@@ -23,6 +23,7 @@ import {
 	articleRatings,
 	bookmarks,
 } from "../db/schema";
+import { DatabaseError, NotFoundError } from "../exceptions";
 import type {
 	FindManyOptions,
 	IArticleRatingRepository,
@@ -62,7 +63,7 @@ export class DrizzleArticleRatingRepository
 				.returning();
 
 			if (!result[0]) {
-				throw new Error("Failed to create article rating");
+				throw new DatabaseError("Failed to create article rating");
 			}
 
 			return result[0];
@@ -75,7 +76,7 @@ export class DrizzleArticleRatingRepository
 					error.message.includes("FOREIGN KEY constraint") ||
 					error.message.includes("SQLITE_CONSTRAINT")
 				) {
-					throw new Error("指定された記事が見つかりません");
+					throw new NotFoundError("指定された記事が見つかりません");
 				}
 			}
 
@@ -150,7 +151,7 @@ export class DrizzleArticleRatingRepository
 					error.message.includes("FOREIGN KEY constraint") ||
 					error.message.includes("SQLITE_CONSTRAINT")
 				) {
-					throw new Error("指定された記事が見つかりません");
+					throw new NotFoundError("指定された記事が見つかりません");
 				}
 			}
 
@@ -175,7 +176,7 @@ export class DrizzleArticleRatingRepository
 					error.message.includes("FOREIGN KEY constraint") ||
 					error.message.includes("SQLITE_CONSTRAINT")
 				) {
-					throw new Error("指定された記事が見つかりません");
+					throw new NotFoundError("指定された記事が見つかりません");
 				}
 			}
 

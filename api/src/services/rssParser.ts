@@ -1,4 +1,5 @@
 import { XMLParser } from "fast-xml-parser";
+import { ValidationError } from "../exceptions";
 import type { Article } from "../types/rss";
 
 /**
@@ -31,7 +32,7 @@ export class RSSParser {
 			return this.parseAtom(result.feed);
 		}
 
-		throw new Error("Unsupported feed format");
+		throw new ValidationError("Unsupported feed format");
 	}
 
 	/**

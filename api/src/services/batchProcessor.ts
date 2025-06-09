@@ -2,6 +2,7 @@ import type { D1Database } from "@cloudflare/workers-types";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { rssBatchLogs, rssFeeds } from "../db/schema";
+import { DatabaseError } from "../exceptions";
 
 export class RSSBatchProcessor {
 	private db;
@@ -37,7 +38,7 @@ export class RSSBatchProcessor {
 			return feeds;
 		} catch (error) {
 			console.error("Error fetching active feeds:", error);
-			throw new Error("Failed to fetch active feeds");
+			throw new DatabaseError("Failed to fetch active feeds");
 		}
 	}
 
@@ -62,7 +63,7 @@ export class RSSBatchProcessor {
 			return result[0].id;
 		} catch (error) {
 			console.error("Error logging batch start:", error);
-			throw new Error("Failed to log batch start");
+			throw new DatabaseError("Failed to log batch start");
 		}
 	}
 
@@ -92,7 +93,7 @@ export class RSSBatchProcessor {
 			);
 		} catch (error) {
 			console.error("Error logging batch complete:", error);
-			throw new Error("Failed to log batch complete");
+			throw new DatabaseError("Failed to log batch complete");
 		}
 	}
 

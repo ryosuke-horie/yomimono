@@ -1,4 +1,10 @@
 import type { Label } from "../db/schema";
+import {
+	ConflictError,
+	InternalServerError,
+	NotFoundError,
+	ValidationError,
+} from "../exceptions";
 import type { IArticleLabelRepository } from "../interfaces/repository/articleLabel";
 import type { IBookmarkRepository } from "../interfaces/repository/bookmark";
 import type { ILabelRepository } from "../interfaces/repository/label";
@@ -33,7 +39,7 @@ export class LabelService implements ILabelService {
 	async getLabelById(id: number): Promise<Label> {
 		const label = await this.labelRepository.findById(id);
 		if (!label) {
-			throw new Error(`Label with id ${id} not found`);
+			throw new NotFoundError(`Label with id ${id} not found`);
 		}
 		return label;
 	}
@@ -46,13 +52,15 @@ export class LabelService implements ILabelService {
 		// 1. ブックマークが存在するか確認
 		const bookmark = await this.bookmarkRepository.findById(articleId);
 		if (!bookmark) {
-			throw new Error(`Bookmark with id ${articleId} not found`);
+			throw new NotFoundError(`Bookmark with id ${articleId} not found`);
 		}
 
 		// 2. ラベル名を正規化
 		const normalizedName = normalizeLabelName(labelName);
 		if (!normalizedName) {
-			throw new Error("Label name cannot be empty after normalization");
+			throw new ValidationError(
+				"Label name cannot be empty after normalization",
+			);
 		}
 
 		// 3. 正規化された名前でラベルを検索
@@ -70,7 +78,7 @@ export class LabelService implements ILabelService {
 		const existingArticleLabel =
 			await this.articleLabelRepository.findByArticleId(articleId);
 		if (existingArticleLabel && existingArticleLabel.labelId === label.id) {
-			throw new Error(
+			throw new ConflictError(
 				`Label "${normalizedName}" is already assigned to article ${articleId}`,
 			);
 		}
@@ -88,13 +96,15 @@ export class LabelService implements ILabelService {
 		// 1. ラベル名を正規化
 		const normalizedName = normalizeLabelName(name);
 		if (!normalizedName) {
-			throw new Error("Label name cannot be empty after normalization");
+			throw new ValidationError(
+				"Label name cannot be empty after normalization",
+			);
 		}
 
 		// 2. 正規化された名前でラベルを検索（重複チェック）
 		const existingLabel = await this.labelRepository.findByName(normalizedName);
 		if (existingLabel) {
-			throw new Error(`Label "${normalizedName}" already exists`);
+			throw new ConflictError(`Label "${normalizedName}" already exists`);
 		}
 
 		// 3. 新しいラベルを作成
@@ -109,7 +119,7 @@ export class LabelService implements ILabelService {
 		// 1. ラベルを削除し、削除されたかどうかを確認
 		const wasDeleted = await this.labelRepository.deleteById(id);
 		if (!wasDeleted) {
-			throw new Error(`Label with id ${id} not found`);
+			throw new NotFoundError(`Label with id ${id} not found`);
 		}
 		// 2. article_labelsテーブルの関連レコードは外部キー制約(onDelete: cascade)により自動的に削除される
 	}
@@ -121,7 +131,7 @@ export class LabelService implements ILabelService {
 		// 1. ラベルが存在するか確認
 		const label = await this.labelRepository.findById(id);
 		if (!label) {
-			throw new Error(`Label with id ${id} not found`);
+			throw new NotFoundError(`Label with id ${id} not found`);
 		}
 
 		// 2. 説明文を更新
@@ -130,7 +140,9 @@ export class LabelService implements ILabelService {
 			description,
 		);
 		if (!updatedLabel) {
-			throw new Error(`Failed to update description for label with id ${id}`);
+			throw new InternalServerError(
+				`Failed to update description for label with id ${id}`,
+			);
 		}
 
 		return updatedLabel;
@@ -149,7 +161,9 @@ export class LabelService implements ILabelService {
 		// 1. ラベル名を正規化
 		const normalizedName = normalizeLabelName(labelName);
 		if (!normalizedName) {
-			throw new Error("Label name cannot be empty after normalization");
+			throw new ValidationError(
+				"Label name cannot be empty after normalization",
+			);
 		}
 
 		// 2. 正規化された名前でラベルを検索

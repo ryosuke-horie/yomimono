@@ -8,6 +8,7 @@ import {
 	rssFeedItems,
 	rssFeeds,
 } from "../db/schema";
+import { DatabaseError } from "../exceptions";
 import type { Article } from "../types/rss";
 import { RSSBatchProcessor } from "./batchProcessor";
 import { RSSFetcher } from "./rssFetcher";
@@ -209,7 +210,7 @@ export class FeedProcessor {
 		} catch (error) {
 			console.error("Error saving articles:", error);
 			console.error("Detailed error:", JSON.stringify(error, null, 2));
-			throw new Error(
+			throw new DatabaseError(
 				`Failed to save articles: ${error instanceof Error ? error.message : String(error)}`,
 			);
 		}
