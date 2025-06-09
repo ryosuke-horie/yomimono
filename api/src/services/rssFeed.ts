@@ -1,5 +1,5 @@
-import { HTTPException } from "hono/http-exception";
 import type { InsertRssFeed, RssFeed } from "../db/schema";
+import { NotFoundError } from "../exceptions";
 import type { RssFeedRepository } from "../interfaces/repository/rssFeed";
 import type { RssFeedService as IRssFeedService } from "../interfaces/service/rssFeed";
 
@@ -13,9 +13,7 @@ export class RssFeedService implements IRssFeedService {
 	async getFeedById(id: number): Promise<RssFeed> {
 		const feed = await this.repository.findById(id);
 		if (!feed) {
-			throw new HTTPException(404, {
-				message: `RSSフィードが見つかりません: ID ${id}`,
-			});
+			throw new NotFoundError(`RSSフィードが見つかりません: ID ${id}`);
 		}
 		return feed;
 	}
@@ -28,9 +26,7 @@ export class RssFeedService implements IRssFeedService {
 	async updateFeed(id: number, data: Partial<InsertRssFeed>): Promise<RssFeed> {
 		const updatedFeed = await this.repository.update(id, data);
 		if (!updatedFeed) {
-			throw new HTTPException(404, {
-				message: `RSSフィードが見つかりません: ID ${id}`,
-			});
+			throw new NotFoundError(`RSSフィードが見つかりません: ID ${id}`);
 		}
 		return updatedFeed;
 	}
@@ -38,9 +34,7 @@ export class RssFeedService implements IRssFeedService {
 	async deleteFeed(id: number): Promise<void> {
 		const success = await this.repository.delete(id);
 		if (!success) {
-			throw new HTTPException(404, {
-				message: `RSSフィードが見つかりません: ID ${id}`,
-			});
+			throw new NotFoundError(`RSSフィードが見つかりません: ID ${id}`);
 		}
 	}
 }
