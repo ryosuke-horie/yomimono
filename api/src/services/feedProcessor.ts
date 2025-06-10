@@ -174,7 +174,8 @@ export class FeedProcessor {
 						url: article.url,
 						title: article.title,
 						isRead: false,
-						// D1はDateオブジェクトを直接扱えないので、必要に応じて変換
+						createdAt: article.publishedAt || new Date(),
+						updatedAt: new Date(),
 					};
 					console.log("Inserting bookmark:", JSON.stringify(bookmarkData));
 
