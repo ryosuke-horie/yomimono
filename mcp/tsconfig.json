@@ -12,5 +12,5 @@
 		"outDir": "./build" // Specify output directory
 	},
 	"include": ["src/**/*"], // Initially include only src
-	"exclude": ["node_modules"]
+	"exclude": ["node_modules", "src/test/**/*"]
 }

@@ -1,1 +1,6 @@
-console.log("Hello via Bun!");
+/**
+ * MCPパッケージのエントリーポイント
+ * ビルド後のファイルを再エクスポート
+ */
+
+export * from "./build/index.js";

@@ -4,9 +4,9 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+	getReadBookmarks,
 	getUnlabeledArticles,
 	getUnreadBookmarks,
-	getReadBookmarks,
 } from "../lib/apiClient";
 
 // グローバルfetchのモック
@@ -85,7 +85,7 @@ describe("APIクライアント - スキーマバリデーション", () => {
 			});
 
 			await expect(getUnlabeledArticles()).rejects.toThrow(
-				"Invalid API response for unlabeled articles"
+				"Invalid API response for unlabeled articles",
 			);
 		});
 	});
