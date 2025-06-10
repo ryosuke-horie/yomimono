@@ -21,12 +21,12 @@
 		"@biomejs/biome": "1.9.4",
 		"@cloudflare/workers-types": "^4.20250607.0",
 		"@types/node": "^22.15.30",
-		"@vitest/coverage-v8": "3.2.1",
+		"@vitest/coverage-v8": "3.2.3",
 		"better-sqlite3": "^11.10.0",
 		"drizzle-kit": "^0.31.1",
 		"happy-dom": "^17.6.3",
 		"typescript": "^5.8.3",
-		"vitest": "3.2.1",
+		"vitest": "3.2.3",
 		"wrangler": "^4.19.1"
 	},
 	"overrides": {
