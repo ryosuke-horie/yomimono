@@ -24,16 +24,54 @@ export {
 	getUnratedArticles,
 } from "../features/bookmark/services/bookmarkService.js";
 
-export {
-	createArticleRating,
-	getArticleRating,
-	updateArticleRating,
-	deleteArticleRating,
-	getArticleRatings,
-	getRatingStats,
-	getTopRatedArticles,
-	bulkRateArticles,
-} from "../features/rating/services/ratingService.js";
+// Rating functions with compatibility wrappers
+import * as ratingService from "../features/rating/services/ratingService.js";
+import type { CreateRatingInput, UpdateRatingInput, RatingFilterParams } from "../features/rating/types.js";
+
+// Compatibility wrapper for createArticleRating
+export async function createArticleRating(
+	articleId: number,
+	ratingData: Omit<CreateRatingInput, 'articleId'>
+) {
+	const input: CreateRatingInput = {
+		articleId,
+		...ratingData,
+	};
+	return ratingService.createArticleRating(input);
+}
+
+// Compatibility wrapper for updateArticleRating  
+export async function updateArticleRating(
+	articleId: number,
+	updateData: UpdateRatingInput
+) {
+	return ratingService.updateArticleRating(articleId, updateData);
+}
+
+// Direct exports for functions that don't need compatibility changes
+export const getArticleRating = ratingService.getArticleRating;
+export const deleteArticleRating = ratingService.deleteArticleRating;
+export const getRatingStats = ratingService.getRatingStats;
+export const getTopRatedArticles = ratingService.getTopRatedArticles;
+
+// Compatibility wrapper for getArticleRatings
+export async function getArticleRatings(options?: RatingFilterParams) {
+	return ratingService.getArticleRatings(options);
+}
+
+// Compatibility wrapper for bulkRateArticles
+export async function bulkRateArticles(ratings: Array<{ articleId: number } & Omit<CreateRatingInput, 'articleId'>>) {
+	const convertedRatings: CreateRatingInput[] = ratings.map(rating => ({
+		articleId: rating.articleId,
+		practicalValue: rating.practicalValue,
+		technicalDepth: rating.technicalDepth,
+		understanding: rating.understanding,
+		novelty: rating.novelty,
+		importance: rating.importance,
+		comment: rating.comment,
+	}));
+	return ratingService.bulkRateArticles(convertedRatings);
+}
 
 // 型定義の再エクスポート
 export type {
