@@ -8,6 +8,10 @@ updates:
       prefix: "chore(frontend)"
       prefix-development: "chore(frontend-dev)"
       include: "scope"
+    reviewers:
+      - "ryosuke-horie"
+    assignees:
+      - "ryosuke-horie"
     groups:
       core-dependencies:
         patterns:
@@ -55,6 +59,10 @@ updates:
       prefix: "chore(api)"
       prefix-development: "chore(api-dev)"
       include: "scope"
+    reviewers:
+      - "ryosuke-horie"
+    assignees:
+      - "ryosuke-horie"
     # ここで特定パッケージをグルーピング
     groups:
       core-dependencies:
@@ -95,6 +103,10 @@ updates:
       prefix: "chore(extension)"
       prefix-development: "chore(extension-dev)"
       include: "scope"
+    reviewers:
+      - "ryosuke-horie"
+    assignees:
+      - "ryosuke-horie"
     # ここで特定パッケージをグルーピング
     groups:
       devdependencies:
@@ -112,6 +124,10 @@ updates:
       prefix: "chore(mcp)"
       prefix-development: "chore(mcp-dev)"
       include: "scope"
+    reviewers:
+      - "ryosuke-horie"
+    assignees:
+      - "ryosuke-horie"
     # ここで特定パッケージをグルーピング
     groups:
       core-dependencies:
@@ -144,3 +160,7 @@ updates:
       prefix: "chore(actions)"
       prefix-development: "chore(actions)"
       include: "scope"
+    reviewers:
+      - "ryosuke-horie"
+    assignees:
+      - "ryosuke-horie"
