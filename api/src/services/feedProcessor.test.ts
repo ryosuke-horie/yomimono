@@ -274,5 +274,68 @@ describe("FeedProcessor", () => {
 				}),
 			);
 		});
+
+		describe("createdAt設定のテスト", () => {
+			it("ブックマークのcreatedAtにpublishedAtが設定される", async () => {
+				const publishedDate = new Date("2024-01-01T10:00:00Z");
+				const mockArticles: Article[] = [
+					{
+						guid: "guid1",
+						url: "https://example.com/article1",
+						title: "Article 1",
+						description: "Description 1",
+						publishedAt: publishedDate,
+					},
+				];
+
+				mockFetcher.fetchFeed.mockResolvedValue("<xml>feed data</xml>");
+				mockParser.parseFeed.mockResolvedValue(mockArticles);
+				mockDb.where.mockResolvedValue([]); // 既存URLなし
+				mockDb.returning.mockResolvedValue([{ id: 1 }]);
+
+				await processor.process();
+
+				// ブックマークのinsertでcreatedAtにpublishedAtが設定されることを確認
+				expect(mockDb.values).toHaveBeenCalledWith(
+					expect.objectContaining({
+						url: "https://example.com/article1",
+						title: "Article 1",
+						isRead: false,
+						createdAt: publishedDate,
+						updatedAt: expect.any(Date),
+					}),
+				);
+			});
+
+			it("publishedAtがない場合はcreatedAtに現在日時が設定される", async () => {
+				const mockArticles: Article[] = [
+					{
+						guid: "guid1",
+						url: "https://example.com/article1",
+						title: "Article 1",
+						description: "Description 1",
+						publishedAt: undefined,
+					},
+				];
+
+				mockFetcher.fetchFeed.mockResolvedValue("<xml>feed data</xml>");
+				mockParser.parseFeed.mockResolvedValue(mockArticles);
+				mockDb.where.mockResolvedValue([]); // 既存URLなし
+				mockDb.returning.mockResolvedValue([{ id: 1 }]);
+
+				await processor.process();
+
+				// ブックマークのinsertでcreatedAtに現在日時が設定されることを確認
+				expect(mockDb.values).toHaveBeenCalledWith(
+					expect.objectContaining({
+						url: "https://example.com/article1",
+						title: "Article 1",
+						isRead: false,
+						createdAt: expect.any(Date),
+						updatedAt: expect.any(Date),
+					}),
+				);
+			});
+		});
 	});
 });
