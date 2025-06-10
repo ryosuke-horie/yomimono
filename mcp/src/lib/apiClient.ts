@@ -87,21 +87,23 @@ export async function getUnlabeledArticles() {
 		);
 	}
 	const data = await response.json();
-	
+
 	// /api/bookmarks/unlabeledは基本的なBookmarkオブジェクトを返すため、
 	// labelプロパティを持たない。labelをnullとして追加する。
 	const UnlabeledArticlesResponseSchema = z.object({
 		success: z.literal(true),
-		bookmarks: z.array(z.object({
-			id: z.number(),
-			title: z.string(),
-			url: z.string(),
-			isRead: z.boolean(),
-			createdAt: z.string().or(z.instanceof(Date)),
-			updatedAt: z.string().or(z.instanceof(Date)),
-		})),
+		bookmarks: z.array(
+			z.object({
+				id: z.number(),
+				title: z.string(),
+				url: z.string(),
+				isRead: z.boolean(),
+				createdAt: z.string().or(z.instanceof(Date)),
+				updatedAt: z.string().or(z.instanceof(Date)),
+			}),
+		),
 	});
-	
+
 	const parsed = UnlabeledArticlesResponseSchema.safeParse(data);
 	if (!parsed.success) {
 		// Provide more context in the error message
@@ -110,7 +112,7 @@ export async function getUnlabeledArticles() {
 		);
 	}
 	// Extract data from 'bookmarks' key and add label: null for compatibility
-	return parsed.data.bookmarks.map(bookmark => ({
+	return parsed.data.bookmarks.map((bookmark) => ({
 		...bookmark,
 		label: null,
 		isFavorite: false, // デフォルト値を設定
@@ -497,21 +499,23 @@ export async function getBookmarkById(bookmarkId: number) {
 }
 
 // Schema for bookmark with read status
-const BookmarkWithReadStatusSchema = z.object({
-	id: z.number(),
-	url: z.string(),
-	title: z.string(),
-	labels: z.array(z.string()).optional(), // labelsを任意項目にする
-	isRead: z.boolean(),
-	isFavorite: z.boolean().optional(), // isFavoriteを任意項目にする（APIレスポンスに応じて）
-	createdAt: z.string(),
-	readAt: z.string().nullable().optional(), // readAtを任意項目にする
-	updatedAt: z.string().optional(), // updatedAtを追加（通常の未読ブックマークで必要）
-}).transform((data) => ({
-	...data,
-	labels: data.labels ?? [], // labelsがundefinedの場合は空配列を設定
-	isFavorite: data.isFavorite ?? false, // isFavoriteがundefinedの場合はfalseを設定
-}));
+const BookmarkWithReadStatusSchema = z
+	.object({
+		id: z.number(),
+		url: z.string(),
+		title: z.string(),
+		labels: z.array(z.string()).optional(), // labelsを任意項目にする
+		isRead: z.boolean(),
+		isFavorite: z.boolean().optional(), // isFavoriteを任意項目にする（APIレスポンスに応じて）
+		createdAt: z.string(),
+		readAt: z.string().nullable().optional(), // readAtを任意項目にする
+		updatedAt: z.string().optional(), // updatedAtを追加（通常の未読ブックマークで必要）
+	})
+	.transform((data) => ({
+		...data,
+		labels: data.labels ?? [], // labelsがundefinedの場合は空配列を設定
+		isFavorite: data.isFavorite ?? false, // isFavoriteがundefinedの場合はfalseを設定
+	}));
 
 // Schema for bookmarks list response
 const BookmarksListResponseSchema = z.object({
@@ -577,9 +581,15 @@ export async function getUnreadBookmarks() {
 		labels: bookmark.label ? [bookmark.label.name] : [],
 		isRead: bookmark.isRead,
 		isFavorite: bookmark.isFavorite ?? false,
-		createdAt: typeof bookmark.createdAt === 'string' ? bookmark.createdAt : bookmark.createdAt.toISOString(),
+		createdAt:
+			typeof bookmark.createdAt === "string"
+				? bookmark.createdAt
+				: bookmark.createdAt.toISOString(),
 		readAt: null,
-		updatedAt: typeof bookmark.updatedAt === 'string' ? bookmark.updatedAt : bookmark.updatedAt.toISOString(),
+		updatedAt:
+			typeof bookmark.updatedAt === "string"
+				? bookmark.updatedAt
+				: bookmark.updatedAt.toISOString(),
 	}));
 	return bookmarksWithReadStatus;
 }
