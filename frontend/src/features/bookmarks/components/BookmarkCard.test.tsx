@@ -29,6 +29,21 @@ vi.mock("../queries/useMarkBookmarkAsUnread", () => ({
 	}),
 }));
 
+// 評価データのモック設定
+let mockRatingData: {
+	practicalValue: number;
+	technicalDepth: number;
+	understanding: number;
+	novelty: number;
+	importance: number;
+	totalScore: number;
+} | null = null;
+vi.mock("@/features/ratings/queries/useArticleRating", () => ({
+	useArticleRating: () => ({
+		data: mockRatingData,
+	}),
+}));
+
 // navigator.clipboardをモック
 Object.assign(navigator, {
 	clipboard: {
@@ -65,6 +80,7 @@ const renderWithQueryClient = (component: React.ReactElement) => {
 describe("BookmarkCard", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		mockRatingData = null; // 各テスト前にリセット
 	});
 
 	it("基本的なブックマーク情報を表示する", () => {
@@ -140,7 +156,17 @@ describe("BookmarkCard", () => {
 		);
 	});
 
-	it("ラベルがある場合、ラベルを表示する", () => {
+	it("ラベルがある場合、ラベルを表示する（評価がある場合）", () => {
+		// 評価データを設定
+		mockRatingData = {
+			practicalValue: 8,
+			technicalDepth: 7,
+			understanding: 9,
+			novelty: 6,
+			importance: 8,
+			totalScore: 7.6,
+		};
+
 		const bookmarkWithLabel = {
 			...mockBookmark,
 			label: { id: 1, name: "テストラベル" },
@@ -151,6 +177,16 @@ describe("BookmarkCard", () => {
 	});
 
 	it("onLabelClickが提供された場合、ラベルクリックが処理される", () => {
+		// 評価データを設定
+		mockRatingData = {
+			practicalValue: 8,
+			technicalDepth: 7,
+			understanding: 9,
+			novelty: 6,
+			importance: 8,
+			totalScore: 7.6,
+		};
+
 		const onLabelClick = vi.fn();
 		const bookmarkWithLabel = {
 			...mockBookmark,
@@ -164,5 +200,58 @@ describe("BookmarkCard", () => {
 		fireEvent.click(labelElement);
 
 		expect(onLabelClick).toHaveBeenCalledWith("テストラベル");
+	});
+
+	describe("評価データによるラベル表示制御", () => {
+		it("評価がある場合、ラベルが表示される", () => {
+			// 評価データを設定
+			mockRatingData = {
+				practicalValue: 8,
+				technicalDepth: 7,
+				understanding: 9,
+				novelty: 6,
+				importance: 8,
+				totalScore: 7.6,
+			};
+
+			const bookmarkWithLabel = {
+				...mockBookmark,
+				label: { id: 1, name: "評価済みラベル" },
+			};
+
+			renderWithQueryClient(<BookmarkCard bookmark={bookmarkWithLabel} />);
+
+			expect(screen.getByText("評価済みラベル")).toBeInTheDocument();
+		});
+
+		it("評価がない場合、ラベルが非表示になる", () => {
+			// 評価データをnullに設定（デフォルト）
+			mockRatingData = null;
+
+			const bookmarkWithLabel = {
+				...mockBookmark,
+				label: { id: 1, name: "未評価ラベル" },
+			};
+
+			renderWithQueryClient(<BookmarkCard bookmark={bookmarkWithLabel} />);
+
+			expect(screen.queryByText("未評価ラベル")).not.toBeInTheDocument();
+		});
+
+		it("評価がない場合でも、ラベルがnullなら何も表示されない", () => {
+			// 評価データをnullに設定
+			mockRatingData = null;
+
+			const bookmarkWithoutLabel = {
+				...mockBookmark,
+				label: null,
+			};
+
+			renderWithQueryClient(<BookmarkCard bookmark={bookmarkWithoutLabel} />);
+
+			// ラベル表示エリアが存在しないことを確認
+			const labelContainer = screen.queryByTestId("label-container");
+			expect(labelContainer).not.toBeInTheDocument();
+		});
 	});
 });
