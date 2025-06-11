@@ -5,10 +5,8 @@ import { useMarkBookmarkAsUnread } from "@/features/bookmarks/queries/useMarkBoo
 import { useToggleFavoriteBookmark } from "@/features/bookmarks/queries/useToggleFavoriteBookmark";
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 import { LabelDisplay } from "@/features/labels/components/LabelDisplay";
-import { StarRating } from "@/features/ratings/components/StarRating";
-import { useArticleRating } from "@/features/ratings/queries/useArticleRating";
-import Link from "next/link";
 import { useState } from "react";
+import { RatingDisplay } from "./RatingDisplay";
 
 interface Props {
 	bookmark: BookmarkWithLabel;
@@ -25,7 +23,6 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 		useMarkBookmarkAsRead();
 	const { mutate: markAsUnreadMutate, isPending: isMarkingAsUnread } =
 		useMarkBookmarkAsUnread();
-	const { data: rating } = useArticleRating(id);
 	const [isCopied, setIsCopied] = useState(false);
 	const [isUrlCopied, setIsUrlCopied] = useState(false);
 
@@ -84,8 +81,8 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 				isRead ? "bg-gray-50" : ""
 			}`}
 		>
-			{/* ラベル表示 - 評価がある場合のみ表示 */}
-			{label && rating && (
+			{/* ラベル表示 */}
+			{label && (
 				<div
 					className="absolute bottom-2 left-2 z-10"
 					data-testid="label-container"
@@ -219,28 +216,7 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 			</button>
 
 			{/* 評価表示 */}
-			{rating ? (
-				<div className="absolute bottom-10 right-24 flex items-center gap-1 bg-white border border-gray-200 rounded-full px-2 py-1 shadow-sm">
-					<StarRating score={rating.totalScore} size="sm" />
-					<Link
-						href={`/ratings?articleId=${id}`}
-						className="text-xs text-blue-600 hover:text-blue-700 ml-1"
-						title="評価詳細を見る"
-					>
-						詳細
-					</Link>
-				</div>
-			) : (
-				<div className="absolute bottom-10 right-24 flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-full px-2 py-1">
-					<span className="text-xs text-gray-500">未評価</span>
-					<span
-						className="text-xs text-blue-600"
-						title="Claude (MCP) で評価可能"
-					>
-						📝
-					</span>
-				</div>
-			)}
+			<RatingDisplay bookmarkId={id} />
 
 			{/* シェアボタン */}
 			<button
