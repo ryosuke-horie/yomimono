@@ -84,9 +84,12 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 				isRead ? "bg-gray-50" : ""
 			}`}
 		>
-			{/* ラベル表示 */}
-			{label && (
-				<div className="absolute bottom-2 left-2 z-10">
+			{/* ラベル表示 - 評価がある場合のみ表示 */}
+			{label && rating && (
+				<div
+					className="absolute bottom-2 left-2 z-10"
+					data-testid="label-container"
+				>
 					<LabelDisplay label={label} onClick={onLabelClick} />
 				</div>
 			)}

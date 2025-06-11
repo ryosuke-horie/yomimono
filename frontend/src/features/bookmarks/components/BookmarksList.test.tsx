@@ -3,6 +3,22 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 import { BookmarksList } from "./BookmarksList";
 
+// 評価データのモック設定
+let mockRatingData: {
+	practicalValue: number;
+	technicalDepth: number;
+	understanding: number;
+	novelty: number;
+	importance: number;
+	totalScore: number;
+} | null = null;
+
+vi.mock("@/features/ratings/queries/useArticleRating", () => ({
+	useArticleRating: () => ({
+		data: mockRatingData,
+	}),
+}));
+
 const createTestQueryClient = () =>
 	new QueryClient({
 		defaultOptions: {
@@ -81,6 +97,16 @@ describe("BookmarksList", () => {
 	});
 
 	test("onLabelClickが提供された場合にBookmarkCardに渡される", () => {
+		// 評価データを設定（ラベルが表示されるようにする）
+		mockRatingData = {
+			practicalValue: 8,
+			technicalDepth: 7,
+			understanding: 9,
+			novelty: 6,
+			importance: 8,
+			totalScore: 7.6,
+		};
+
 		const queryClient = createTestQueryClient();
 		const onLabelClick = vi.fn();
 		const bookmarks = [mockBookmark];
