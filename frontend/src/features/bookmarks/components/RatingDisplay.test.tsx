@@ -57,15 +57,18 @@ describe("RatingDisplay", () => {
 		expect(screen.getByTitle("評価詳細を見る")).toBeInTheDocument();
 	});
 
-	it("評価がない場合、未評価表示をする", () => {
+	it("評価がない場合、何も表示しない", () => {
 		// 評価データをnullに設定（デフォルト）
 		mockRatingData = null;
 
-		renderWithQueryClient(<RatingDisplay bookmarkId={1} />);
+		const { container } = renderWithQueryClient(
+			<RatingDisplay bookmarkId={1} />,
+		);
 
-		expect(screen.getByText("未評価")).toBeInTheDocument();
-		expect(screen.getByText("📝")).toBeInTheDocument();
-		expect(screen.getByTitle("Claude (MCP) で評価可能")).toBeInTheDocument();
+		// コンポーネントが何もレンダリングしないことを確認
+		expect(container.firstChild).toBeNull();
+		expect(screen.queryByText("未評価")).not.toBeInTheDocument();
+		expect(screen.queryByText("📝")).not.toBeInTheDocument();
 	});
 
 	it("評価詳細リンクが正しいURLを指している", () => {
