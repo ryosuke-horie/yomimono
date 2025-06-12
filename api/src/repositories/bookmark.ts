@@ -5,7 +5,6 @@ import {
 	type Bookmark,
 	type InsertBookmark,
 	articleLabels,
-	articleRatings,
 	bookmarks,
 	favorites,
 	labels,
@@ -463,6 +462,7 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 
 	/**
 	 * 評価が存在しないブックマークを取得します。
+	 * 記事評価機能が削除されたため、全てのブックマークを返します。
 	 * @returns 未評価のブックマーク配列
 	 */
 	async findUnrated(): Promise<BookmarkWithLabel[]> {
@@ -477,8 +477,6 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 				.leftJoin(favorites, eq(bookmarks.id, favorites.bookmarkId))
 				.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
 				.leftJoin(labels, eq(articleLabels.labelId, labels.id))
-				.leftJoin(articleRatings, eq(bookmarks.id, articleRatings.articleId))
-				.where(isNull(articleRatings.id)) // 評価が存在しない記事
 				.all();
 
 			return results.map(
