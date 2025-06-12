@@ -1,4 +1,4 @@
-import { eq, inArray, isNull } from "drizzle-orm";
+import { desc, eq, inArray, isNull } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	type Bookmark,
@@ -224,7 +224,9 @@ describe("ブックマークリポジトリ", () => {
 			expect(mockDbClient.select).toHaveBeenCalled();
 			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
 			expect(mockDbClient.where).toHaveBeenCalledWith(expect.anything());
-			expect(mockDbClient.orderBy).toHaveBeenCalledWith(bookmarks.updatedAt);
+			expect(mockDbClient.orderBy).toHaveBeenCalledWith(
+				desc(bookmarks.updatedAt),
+			);
 			expect(mockDbClient.leftJoin).toHaveBeenCalledTimes(3);
 			expect(mockDbClient.all).toHaveBeenCalledOnce();
 		});

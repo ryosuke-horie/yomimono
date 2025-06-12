@@ -1,4 +1,13 @@
-import { type SQL, and, count, eq, gte, inArray, isNull } from "drizzle-orm";
+import {
+	type SQL,
+	and,
+	count,
+	desc,
+	eq,
+	gte,
+	inArray,
+	isNull,
+} from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { drizzle } from "drizzle-orm/d1";
 import {
@@ -315,7 +324,7 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 						gte(bookmarks.updatedAt, threeDaysAgo),
 					),
 				)
-				.orderBy(bookmarks.updatedAt);
+				.orderBy(desc(bookmarks.updatedAt));
 
 			const results = await query.all();
 
@@ -368,7 +377,7 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 				.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
 				.leftJoin(labels, eq(articleLabels.labelId, labels.id))
 				.where(eq(bookmarks.isRead, true))
-				.orderBy(bookmarks.updatedAt);
+				.orderBy(desc(bookmarks.updatedAt));
 
 			const results = await query.all();
 
