@@ -6,7 +6,6 @@ import { useToggleFavoriteBookmark } from "@/features/bookmarks/queries/useToggl
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 import { LabelDisplay } from "@/features/labels/components/LabelDisplay";
 import { useState } from "react";
-import { RatingDisplay } from "./RatingDisplay";
 
 interface Props {
 	bookmark: BookmarkWithLabel;
@@ -214,9 +213,6 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 					</svg>
 				)}
 			</button>
-
-			{/* 評価表示 */}
-			<RatingDisplay bookmarkId={id} />
 
 			{/* シェアボタン */}
 			<button

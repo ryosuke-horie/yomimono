@@ -5,15 +5,12 @@ import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { bookmarks } from "./db/schema";
 import { ArticleLabelRepository } from "./repositories/articleLabel";
-import { DrizzleArticleRatingRepository } from "./repositories/articleRating";
 import { DrizzleBookmarkRepository } from "./repositories/bookmark";
 import { LabelRepository } from "./repositories/label";
 import { createBookmarksRouter } from "./routes/bookmarks";
 import labelsRouter from "./routes/labels";
-import { createRatingsRouter } from "./routes/ratings";
 import { DefaultBookmarkService } from "./services/bookmark";
 import { LabelService } from "./services/label";
-import { DefaultRatingService } from "./services/rating";
 
 export interface Env {
 	DB: D1Database;
@@ -58,23 +55,16 @@ export const createApp = (env: Env) => {
 	const bookmarkRepository = new DrizzleBookmarkRepository(db);
 	const labelRepository = new LabelRepository(db);
 	const articleLabelRepository = new ArticleLabelRepository(db);
-	const articleRatingRepository = new DrizzleArticleRatingRepository(db);
 	const bookmarkService = new DefaultBookmarkService(bookmarkRepository);
 	const labelService = new LabelService(
 		labelRepository,
 		articleLabelRepository,
 		bookmarkRepository,
 	);
-	const ratingService = new DefaultRatingService(
-		articleRatingRepository,
-		bookmarkRepository,
-	);
 
 	// ルーターのマウント
 	const bookmarksRouter = createBookmarksRouter(bookmarkService, labelService);
-	const ratingsRouter = createRatingsRouter(ratingService);
 	app.route("/api/bookmarks", bookmarksRouter);
-	app.route("/api", ratingsRouter);
 	app.route("/api/labels", labelsRouter);
 
 	// テストエンドポイント

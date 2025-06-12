@@ -3,13 +3,6 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 import { BookmarksList } from "./BookmarksList";
 
-// RatingDisplayコンポーネントをモック
-vi.mock("./RatingDisplay", () => ({
-	RatingDisplay: ({ bookmarkId }: { bookmarkId: number }) => (
-		<div data-testid={`rating-display-${bookmarkId}`}>Rating Display Mock</div>
-	),
-}));
-
 const createTestQueryClient = () =>
 	new QueryClient({
 		defaultOptions: {

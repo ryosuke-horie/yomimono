@@ -29,13 +29,6 @@ vi.mock("../queries/useMarkBookmarkAsUnread", () => ({
 	}),
 }));
 
-// RatingDisplayコンポーネントをモック
-vi.mock("./RatingDisplay", () => ({
-	RatingDisplay: ({ bookmarkId }: { bookmarkId: number }) => (
-		<div data-testid={`rating-display-${bookmarkId}`}>Rating Display Mock</div>
-	),
-}));
-
 // navigator.clipboardをモック
 Object.assign(navigator, {
 	clipboard: {
@@ -171,12 +164,5 @@ describe("BookmarkCard", () => {
 		fireEvent.click(labelElement);
 
 		expect(onLabelClick).toHaveBeenCalledWith("テストラベル");
-	});
-
-	it("RatingDisplayコンポーネントが正しく表示される", () => {
-		renderWithQueryClient(<BookmarkCard bookmark={mockBookmark} />);
-
-		expect(screen.getByTestId("rating-display-1")).toBeInTheDocument();
-		expect(screen.getByText("Rating Display Mock")).toBeInTheDocument();
 	});
 });
