@@ -58,22 +58,6 @@ export class TimeoutError extends BaseError {
 }
 
 /**
- * RSS関連のエラー
- */
-export class RSSError extends BaseError {
-	constructor(
-		message = "RSS operation failed",
-		public readonly feedUrl?: string,
-		originalError?: Error,
-	) {
-		super(message, 500, true);
-		if (originalError) {
-			this.stack = originalError.stack;
-		}
-	}
-}
-
-/**
  * レート制限エラー
  */
 export class RateLimitError extends BaseError {
@@ -118,14 +102,5 @@ if (import.meta.vitest) {
 		expect(error.statusCode).toBe(409);
 		expect(error.resourceType).toBe("bookmark");
 		expect(error.identifier).toBe("https://example.com");
-	});
-
-	test("RSSError はRSS関連エラーを生成する", () => {
-		const error = new RSSError(
-			"Failed to parse RSS",
-			"https://example.com/feed.xml",
-		);
-		expect(error.statusCode).toBe(500);
-		expect(error.feedUrl).toBe("https://example.com/feed.xml");
 	});
 }

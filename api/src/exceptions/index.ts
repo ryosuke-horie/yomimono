@@ -24,7 +24,6 @@ export {
 	ExternalServiceError,
 	DuplicateResourceError,
 	TimeoutError,
-	RSSError,
 	RateLimitError,
 } from "./business";
 
@@ -53,6 +52,5 @@ if (import.meta.vitest) {
 
 		// ビジネスエラー
 		expect(exports.DatabaseError).toBeDefined();
-		expect(exports.RSSError).toBeDefined();
 	});
 }

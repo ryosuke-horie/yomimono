@@ -27,7 +27,6 @@ export function Header({ title }: Props = {}) {
 		{ href: "/favorites", label: "お気に入り" },
 		{ href: "/recent", label: "最近読んだ記事" },
 		{ href: "/labels", label: "ラベル設定" },
-		{ href: "/feeds", label: "RSS管理" },
 	];
 
 	return (

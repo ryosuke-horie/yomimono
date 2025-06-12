@@ -22,7 +22,6 @@ describe("Header", () => {
 		expect(screen.getByText("未読一覧")).toBeInTheDocument();
 		expect(screen.getByText("お気に入り")).toBeInTheDocument();
 		expect(screen.getByText("最近読んだ記事")).toBeInTheDocument();
-		expect(screen.getByText("RSS管理")).toBeInTheDocument();
 		expect(screen.getByText("ラベル設定")).toBeInTheDocument();
 	});
 
@@ -97,10 +96,6 @@ describe("Header", () => {
 		expect(screen.getByText("最近読んだ記事").closest("a")).toHaveAttribute(
 			"href",
 			"/recent",
-		);
-		expect(screen.getByText("RSS管理").closest("a")).toHaveAttribute(
-			"href",
-			"/feeds",
 		);
 		expect(screen.getByText("ラベル設定").closest("a")).toHaveAttribute(
 			"href",
