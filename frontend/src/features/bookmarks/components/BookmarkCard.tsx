@@ -214,7 +214,6 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 				)}
 			</button>
 
-
 			{/* シェアボタン */}
 			<button
 				type="button"

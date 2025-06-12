@@ -29,7 +29,6 @@ vi.mock("../queries/useMarkBookmarkAsUnread", () => ({
 	}),
 }));
 
-
 // navigator.clipboardをモック
 Object.assign(navigator, {
 	clipboard: {
@@ -166,5 +165,4 @@ describe("BookmarkCard", () => {
 
 		expect(onLabelClick).toHaveBeenCalledWith("テストラベル");
 	});
-
 });
