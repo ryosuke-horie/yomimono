@@ -1,24 +1,16 @@
-import type {
-	ExecutionContext,
-	ScheduledController,
-} from "@cloudflare/workers-types";
 import { desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
-import { bookmarks, rssBatchLogs } from "./db/schema";
+import { bookmarks } from "./db/schema";
 import { ArticleLabelRepository } from "./repositories/articleLabel";
 import { DrizzleBookmarkRepository } from "./repositories/bookmark";
 import { LabelRepository } from "./repositories/label";
-import { RssFeedRepository } from "./repositories/rssFeed";
 import { createBookmarksRouter } from "./routes/bookmarks";
 import labelsRouter from "./routes/labels";
-import { createRssFeedsRouter } from "./routes/rssFeeds";
 import { DefaultBookmarkService } from "./services/bookmark";
 import { LabelService } from "./services/label";
-import { RssFeedService } from "./services/rssFeed";
-import rssBatch from "./workers/rssBatch";
 
 export interface Env {
 	DB: D1Database;
@@ -63,23 +55,17 @@ export const createApp = (env: Env) => {
 	const bookmarkRepository = new DrizzleBookmarkRepository(db);
 	const labelRepository = new LabelRepository(db);
 	const articleLabelRepository = new ArticleLabelRepository(db);
-	const rssFeedRepository = new RssFeedRepository(db);
 	const bookmarkService = new DefaultBookmarkService(bookmarkRepository);
 	const labelService = new LabelService(
 		labelRepository,
 		articleLabelRepository,
 		bookmarkRepository,
 	);
-	const rssFeedService = new RssFeedService(rssFeedRepository);
 
 	// ルーターのマウント
 	const bookmarksRouter = createBookmarksRouter(bookmarkService, labelService);
 	app.route("/api/bookmarks", bookmarksRouter);
 	app.route("/api/labels", labelsRouter);
-
-	// RSSフィードルートの追加
-	const rssFeedsRouter = createRssFeedsRouter(rssFeedService);
-	app.route("/api/rss", rssFeedsRouter);
 
 	// テストエンドポイント
 	app.get("/api/dev/test", (c) => {
@@ -89,41 +75,16 @@ export const createApp = (env: Env) => {
 	// データベース接続テスト
 	app.get("/api/dev/db-test", async (c) => {
 		try {
-			const result = await rssFeedRepository.findAllActive();
+			const drizzleDb = drizzle(c.env.DB);
+			const result = await drizzleDb.select().from(bookmarks).limit(1);
 			return c.json({
 				message: "DB connection successful",
-				activeFeeds: result.length,
-				feeds: result.map((f) => ({ id: f.id, name: f.name, url: f.url })),
+				bookmarkCount: result.length,
 			});
 		} catch (error) {
 			return c.json(
 				{
 					message: "DB connection failed",
-					error: error instanceof Error ? error.message : String(error),
-				},
-				500,
-			);
-		}
-	});
-
-	// バッチログ確認エンドポイント
-	app.get("/api/dev/batch-logs", async (c) => {
-		try {
-			const drizzleDb = drizzle(c.env.DB);
-			const logs = await drizzleDb
-				.select()
-				.from(rssBatchLogs)
-				.orderBy(desc(rssBatchLogs.startedAt))
-				.limit(10);
-
-			return c.json({
-				success: true,
-				logs,
-			});
-		} catch (error) {
-			return c.json(
-				{
-					success: false,
 					error: error instanceof Error ? error.message : String(error),
 				},
 				500,
@@ -163,32 +124,6 @@ export const createApp = (env: Env) => {
 		}
 	});
 
-	// 開発環境用：手動バッチ実行エンドポイント
-	// Cloudflare Workersではprocess.envが使えないため、wrangler.tomlで定義される環境変数を使用
-	app.post("/api/dev/rss-batch/run", async (c) => {
-		const mockController = {
-			noRetry: () => {},
-			waitUntil: () => {},
-		} as unknown as ScheduledController;
-		const mockContext = {
-			waitUntil: () => {},
-		} as unknown as ExecutionContext;
-
-		try {
-			await rssBatch.scheduled(mockController, c.env, mockContext);
-			return c.json({ success: true, message: "バッチ処理が完了しました" });
-		} catch (error) {
-			console.error("バッチ処理エラー:", error);
-			return c.json(
-				{
-					success: false,
-					error: error instanceof Error ? error.message : String(error),
-				},
-				500,
-			);
-		}
-	});
-
 	return app;
 };
 
@@ -198,5 +133,4 @@ export default {
 		const app = createApp(env);
 		return app.fetch(request, env);
 	},
-	scheduled: rssBatch.scheduled,
 };
