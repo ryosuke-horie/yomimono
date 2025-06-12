@@ -76,7 +76,7 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 
 	return (
 		<article
-			className={`relative p-4 pb-16 border rounded-lg hover:shadow-md transition-shadow flex flex-col min-h-[150px] ${
+			className={`relative p-4 pb-16 border rounded-lg hover:shadow-md transition-shadow flex flex-col h-[200px] ${
 				isRead ? "bg-gray-50" : ""
 			}`}
 		>
@@ -344,7 +344,7 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 
 			{/* コンテンツ */}
 			<h2
-				className="font-bold mb-2 line-clamp-2"
+				className="font-bold mb-2 line-clamp-3"
 				title={title || "タイトルなし"}
 			>
 				<a
