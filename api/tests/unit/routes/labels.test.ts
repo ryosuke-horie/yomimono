@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import type { StatusCode } from "hono/utils/http-status";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Label } from "../../../src/db/schema";
 import {
@@ -35,7 +36,10 @@ function compareObjectsIgnoringDateFormat(
 				}
 			} else if (typeof expected[key] === "object" && expected[key] !== null) {
 				// ネストされたオブジェクトの場合は再帰的に検証
-				compareObjectsIgnoringDateFormat(actual[key], expected[key]);
+				compareObjectsIgnoringDateFormat(
+					actual[key] as Record<string, unknown>,
+					expected[key] as Record<string, unknown>,
+				);
 			} else {
 				// その他のプロパティは通常通り比較
 				expect(actual[key]).toEqual(expected[key]);
@@ -51,6 +55,7 @@ const mockCreateLabel = vi.fn();
 const mockDeleteLabel = vi.fn();
 const mockGetLabelById = vi.fn();
 const mockUpdateLabelDescription = vi.fn();
+const mockAssignLabelsToMultipleArticles = vi.fn();
 
 // モックサービスの作成
 const mockLabelService: ILabelService = {
@@ -60,6 +65,7 @@ const mockLabelService: ILabelService = {
 	createLabel: mockCreateLabel,
 	deleteLabel: mockDeleteLabel,
 	updateLabelDescription: mockUpdateLabelDescription,
+	assignLabelsToMultipleArticles: mockAssignLabelsToMultipleArticles,
 };
 
 // 実際のルーターの代わりにモックサービスを使用するカスタムルーターを作成
@@ -73,7 +79,10 @@ function createMockLabelsRouter() {
 		} catch (error) {
 			console.error("Failed to get labels:", error);
 			const errorResponse = createErrorResponse(error);
-			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+			return c.json(
+				createErrorResponseBody(error),
+				errorResponse.statusCode as StatusCode,
+			);
 		}
 	});
 
@@ -123,7 +132,10 @@ function createMockLabelsRouter() {
 			}
 			console.error("Failed to create label:", error);
 			const errorResponse = createErrorResponse(error);
-			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+			return c.json(
+				createErrorResponseBody(error),
+				errorResponse.statusCode as StatusCode,
+			);
 		}
 	});
 
@@ -143,7 +155,10 @@ function createMockLabelsRouter() {
 			}
 			console.error("Failed to get label:", error);
 			const errorResponse = createErrorResponse(error);
-			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+			return c.json(
+				createErrorResponseBody(error),
+				errorResponse.statusCode as StatusCode,
+			);
 		}
 	});
 
@@ -217,7 +232,10 @@ function createMockLabelsRouter() {
 			}
 			console.error("Failed to delete label:", error);
 			const errorResponse = createErrorResponse(error);
-			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+			return c.json(
+				createErrorResponseBody(error),
+				errorResponse.statusCode as StatusCode,
+			);
 		}
 	});
 
@@ -292,6 +310,7 @@ describe("Labels Route", () => {
 		const createdLabel: Label = {
 			id: 3,
 			name: newLabelName,
+			description: null,
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		};

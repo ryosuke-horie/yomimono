@@ -24,8 +24,7 @@ describe("markBookmarkAsUnread", () => {
 		findByLabelName: vi.fn(),
 		findById: vi.fn(),
 		findByIds: vi.fn(),
-		findWithoutSummary: vi.fn(),
-		updateSummary: vi.fn(),
+		findUnrated: vi.fn(),
 	};
 
 	beforeEach(() => {

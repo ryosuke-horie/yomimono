@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import type { StatusCode } from "hono/utils/http-status";
 import {
 	BadRequestError,
 	ConflictError,

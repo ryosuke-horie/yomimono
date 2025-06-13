@@ -4,82 +4,134 @@
  */
 
 /**
- * ページネーション関連の設定
+ * 環境変数インターフェース
  */
-export const PAGINATION_CONFIG = {
-	defaultOffset: Number(process.env.DEFAULT_OFFSET) || 0,
-	defaultPageSize: Number(process.env.DEFAULT_PAGE_SIZE) || 20,
-	maxPageSize: Number(process.env.MAX_PAGE_SIZE) || 100,
-} as const;
+export interface ConfigEnv {
+	DEFAULT_OFFSET?: string;
+	DEFAULT_PAGE_SIZE?: string;
+	MAX_PAGE_SIZE?: string;
+	MAX_FAVORITES_LIMIT?: string;
+	MAX_BULK_INSERT?: string;
+	MAX_SEARCH_RESULTS?: string;
+	RECENT_ARTICLES_DAYS?: string;
+	JST_OFFSET_HOURS?: string;
+	DB_QUERY_TIMEOUT?: string;
+	REQUEST_TIMEOUT?: string;
+}
 
 /**
- * 処理制限に関する設定
+ * 設定値の型定義
  */
-export const LIMITS_CONFIG = {
-	maxFavorites: Number(process.env.MAX_FAVORITES_LIMIT) || 1000,
-	maxBulkInsert: Number(process.env.MAX_BULK_INSERT) || 100,
-	maxSearchResults: Number(process.env.MAX_SEARCH_RESULTS) || 500,
-} as const;
+export interface Config {
+	pagination: {
+		defaultOffset: number;
+		defaultPageSize: number;
+		maxPageSize: number;
+	};
+	limits: {
+		maxFavorites: number;
+		maxBulkInsert: number;
+		maxSearchResults: number;
+	};
+	time: {
+		recentArticlesDays: number;
+		jstOffsetHours: number;
+	};
+	timeout: {
+		dbQueryTimeout: number;
+		requestTimeout: number;
+	};
+}
 
 /**
- * 時間関連の設定
+ * 環境変数から設定オブジェクトを作成する関数
  */
-export const TIME_CONFIG = {
-	recentArticlesDays: Number(process.env.RECENT_ARTICLES_DAYS) || 3,
-	jstOffsetHours: Number(process.env.JST_OFFSET_HOURS) || 9,
-} as const;
+export function createConfig(env: ConfigEnv = {}): Config {
+	return {
+		pagination: {
+			defaultOffset: Number(env.DEFAULT_OFFSET) || 0,
+			defaultPageSize: Number(env.DEFAULT_PAGE_SIZE) || 20,
+			maxPageSize: Number(env.MAX_PAGE_SIZE) || 100,
+		},
+		limits: {
+			maxFavorites: Number(env.MAX_FAVORITES_LIMIT) || 1000,
+			maxBulkInsert: Number(env.MAX_BULK_INSERT) || 100,
+			maxSearchResults: Number(env.MAX_SEARCH_RESULTS) || 500,
+		},
+		time: {
+			recentArticlesDays: Number(env.RECENT_ARTICLES_DAYS) || 3,
+			jstOffsetHours: Number(env.JST_OFFSET_HOURS) || 9,
+		},
+		timeout: {
+			dbQueryTimeout: Number(env.DB_QUERY_TIMEOUT) || 30000,
+			requestTimeout: Number(env.REQUEST_TIMEOUT) || 60000,
+		},
+	};
+}
 
 /**
- * タイムアウト設定
+ * デフォルト設定（環境変数なしの場合）
  */
-export const TIMEOUT_CONFIG = {
-	dbQueryTimeout: Number(process.env.DB_QUERY_TIMEOUT) || 30000,
-	requestTimeout: Number(process.env.REQUEST_TIMEOUT) || 60000,
-} as const;
+export const DEFAULT_CONFIG = createConfig();
 
 /**
- * すべての設定を統合したオブジェクト
+ * ページネーション関連の設定（後方互換性のため）
  */
-export const CONFIG = {
-	pagination: PAGINATION_CONFIG,
-	limits: LIMITS_CONFIG,
-	time: TIME_CONFIG,
-	timeout: TIMEOUT_CONFIG,
-} as const;
+export const PAGINATION_CONFIG = DEFAULT_CONFIG.pagination;
+
+/**
+ * 処理制限に関する設定（後方互換性のため）
+ */
+export const LIMITS_CONFIG = DEFAULT_CONFIG.limits;
+
+/**
+ * 時間関連の設定（後方互換性のため）
+ */
+export const TIME_CONFIG = DEFAULT_CONFIG.time;
+
+/**
+ * タイムアウト設定（後方互換性のため）
+ */
+export const TIMEOUT_CONFIG = DEFAULT_CONFIG.timeout;
+
+/**
+ * すべての設定を統合したオブジェクト（後方互換性のため）
+ */
+export const CONFIG = DEFAULT_CONFIG;
 
 /**
  * 設定値の検証
  */
-export function validateConfig(): void {
+export function validateConfig(config: Config = DEFAULT_CONFIG): void {
 	// ページネーション設定の検証
-	if (CONFIG.pagination.defaultPageSize > CONFIG.pagination.maxPageSize) {
+	if (config.pagination.defaultPageSize > config.pagination.maxPageSize) {
 		throw new Error("DEFAULT_PAGE_SIZE cannot be greater than MAX_PAGE_SIZE");
 	}
 
 	// 制限値の検証
-	if (CONFIG.limits.maxFavorites <= 0) {
+	if (config.limits.maxFavorites <= 0) {
 		throw new Error("MAX_FAVORITES_LIMIT must be greater than 0");
 	}
 
-	if (CONFIG.limits.maxBulkInsert <= 0) {
+	if (config.limits.maxBulkInsert <= 0) {
 		throw new Error("MAX_BULK_INSERT must be greater than 0");
 	}
 
 	// 時間設定の検証
-	if (CONFIG.time.recentArticlesDays <= 0) {
+	if (config.time.recentArticlesDays <= 0) {
 		throw new Error("RECENT_ARTICLES_DAYS must be greater than 0");
 	}
 
-	if (CONFIG.time.jstOffsetHours < -12 || CONFIG.time.jstOffsetHours > 14) {
+	if (config.time.jstOffsetHours < -12 || config.time.jstOffsetHours > 14) {
 		throw new Error("JST_OFFSET_HOURS must be between -12 and 14");
 	}
 
 	// タイムアウト設定の検証
-	if (CONFIG.timeout.dbQueryTimeout <= 0) {
+	if (config.timeout.dbQueryTimeout <= 0) {
 		throw new Error("DB_QUERY_TIMEOUT must be greater than 0");
 	}
 
-	if (CONFIG.timeout.requestTimeout <= 0) {
+	if (config.timeout.requestTimeout <= 0) {
 		throw new Error("REQUEST_TIMEOUT must be greater than 0");
 	}
 }
@@ -88,213 +140,195 @@ if (import.meta.vitest) {
 	const { test, expect, describe, beforeEach, afterEach } = import.meta.vitest;
 
 	describe("Configuration Module", () => {
-		// 元の環境変数を保存
-		const originalEnv = { ...process.env };
+		// @ts-ignore: process is available in test environment
+		const originalEnv =
+			typeof process !== "undefined" ? { ...process.env } : {};
 
 		beforeEach(() => {
-			// 各テスト前に環境変数をリセット
-			for (const key of Object.keys(process.env)) {
-				if (
-					key.includes("DEFAULT_") ||
-					key.includes("MAX_") ||
-					key.includes("RECENT_") ||
-					key.includes("JST_") ||
-					key.includes("TIMEOUT")
-				) {
-					delete process.env[key];
+			// テスト環境でのみ環境変数をリセット
+			// @ts-ignore: process is available in test environment
+			if (typeof process !== "undefined") {
+				for (const key of Object.keys(process.env)) {
+					if (
+						key.includes("DEFAULT_") ||
+						key.includes("MAX_") ||
+						key.includes("RECENT_") ||
+						key.includes("JST_") ||
+						key.includes("TIMEOUT")
+					) {
+						delete process.env[key];
+					}
 				}
 			}
 		});
 
 		afterEach(() => {
-			// 各テスト後に環境変数を復元
-			process.env = { ...originalEnv };
+			// テスト環境でのみ環境変数を復元
+			// @ts-ignore: process is available in test environment
+			if (typeof process !== "undefined") {
+				process.env = { ...originalEnv };
+			}
 		});
 
 		test("デフォルト設定値が正しく設定されている", () => {
-			expect(CONFIG.pagination.defaultOffset).toBe(0);
-			expect(CONFIG.pagination.defaultPageSize).toBe(20);
-			expect(CONFIG.pagination.maxPageSize).toBe(100);
-			expect(CONFIG.limits.maxFavorites).toBe(1000);
-			expect(CONFIG.limits.maxBulkInsert).toBe(100);
-			expect(CONFIG.time.recentArticlesDays).toBe(3);
-			expect(CONFIG.time.jstOffsetHours).toBe(9);
+			const config = createConfig();
+			expect(config.pagination.defaultOffset).toBe(0);
+			expect(config.pagination.defaultPageSize).toBe(20);
+			expect(config.pagination.maxPageSize).toBe(100);
+			expect(config.limits.maxFavorites).toBe(1000);
+			expect(config.limits.maxBulkInsert).toBe(100);
+			expect(config.time.recentArticlesDays).toBe(3);
+			expect(config.time.jstOffsetHours).toBe(9);
 		});
 
 		test("設定値検証が正常に動作する", () => {
-			expect(() => validateConfig()).not.toThrow();
+			const config = createConfig();
+			expect(() => validateConfig(config)).not.toThrow();
+		});
+
+		describe("createConfig 関数テスト", () => {
+			test("環境変数が設定されている場合は環境変数の値を使用する", () => {
+				const testEnv: ConfigEnv = {
+					DEFAULT_OFFSET: "10",
+					DEFAULT_PAGE_SIZE: "50",
+					MAX_FAVORITES_LIMIT: "2000",
+				};
+
+				const config = createConfig(testEnv);
+
+				expect(config.pagination.defaultOffset).toBe(10);
+				expect(config.pagination.defaultPageSize).toBe(50);
+				expect(config.limits.maxFavorites).toBe(2000);
+			});
+
+			test("無効な環境変数（非数値）の場合はデフォルト値を使用する", () => {
+				const testEnv: ConfigEnv = {
+					DEFAULT_OFFSET: "invalid",
+					MAX_FAVORITES_LIMIT: "not_a_number",
+				};
+
+				const config = createConfig(testEnv);
+
+				expect(config.pagination.defaultOffset).toBe(0);
+				expect(config.limits.maxFavorites).toBe(1000);
+			});
 		});
 
 		describe("validateConfig エラーケース", () => {
 			test("DEFAULT_PAGE_SIZE > MAX_PAGE_SIZE でエラーが発生する", () => {
-				// CONFIG を書き換えてテスト
-				const originalDefaultPageSize = CONFIG.pagination.defaultPageSize;
-				const originalMaxPageSize = CONFIG.pagination.maxPageSize;
+				const testConfig = createConfig({
+					DEFAULT_PAGE_SIZE: "150",
+					MAX_PAGE_SIZE: "100",
+				});
 
-				// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-				(CONFIG.pagination as any).defaultPageSize = 150;
-				// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-				(CONFIG.pagination as any).maxPageSize = 100;
-
-				try {
-					expect(() => validateConfig()).toThrow(
-						"DEFAULT_PAGE_SIZE cannot be greater than MAX_PAGE_SIZE",
-					);
-				} finally {
-					// 値を復元
-					// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-					(CONFIG.pagination as any).defaultPageSize = originalDefaultPageSize;
-					// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-					(CONFIG.pagination as any).maxPageSize = originalMaxPageSize;
-				}
+				expect(() => validateConfig(testConfig)).toThrow(
+					"DEFAULT_PAGE_SIZE cannot be greater than MAX_PAGE_SIZE",
+				);
 			});
 
 			test("MAX_FAVORITES_LIMIT <= 0 でエラーが発生する", () => {
-				const originalMaxFavorites = CONFIG.limits.maxFavorites;
-				// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-				(CONFIG.limits as any).maxFavorites = 0;
+				const testConfig: Config = {
+					pagination: DEFAULT_CONFIG.pagination,
+					limits: {
+						...DEFAULT_CONFIG.limits,
+						maxFavorites: 0,
+					},
+					time: DEFAULT_CONFIG.time,
+					timeout: DEFAULT_CONFIG.timeout,
+				};
 
-				try {
-					expect(() => validateConfig()).toThrow(
-						"MAX_FAVORITES_LIMIT must be greater than 0",
-					);
-				} finally {
-					// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-					(CONFIG.limits as any).maxFavorites = originalMaxFavorites;
-				}
+				expect(() => validateConfig(testConfig)).toThrow(
+					"MAX_FAVORITES_LIMIT must be greater than 0",
+				);
 			});
 
 			test("MAX_BULK_INSERT <= 0 でエラーが発生する", () => {
-				const originalMaxBulkInsert = CONFIG.limits.maxBulkInsert;
-				// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-				(CONFIG.limits as any).maxBulkInsert = -1;
+				const testConfig = createConfig({
+					MAX_BULK_INSERT: "-1",
+				});
 
-				try {
-					expect(() => validateConfig()).toThrow(
-						"MAX_BULK_INSERT must be greater than 0",
-					);
-				} finally {
-					// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-					(CONFIG.limits as any).maxBulkInsert = originalMaxBulkInsert;
-				}
+				expect(() => validateConfig(testConfig)).toThrow(
+					"MAX_BULK_INSERT must be greater than 0",
+				);
 			});
 
 			test("RECENT_ARTICLES_DAYS <= 0 でエラーが発生する", () => {
-				const originalRecentArticlesDays = CONFIG.time.recentArticlesDays;
-				// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-				(CONFIG.time as any).recentArticlesDays = 0;
+				const testConfig: Config = {
+					pagination: DEFAULT_CONFIG.pagination,
+					limits: DEFAULT_CONFIG.limits,
+					time: {
+						...DEFAULT_CONFIG.time,
+						recentArticlesDays: 0,
+					},
+					timeout: DEFAULT_CONFIG.timeout,
+				};
 
-				try {
-					expect(() => validateConfig()).toThrow(
-						"RECENT_ARTICLES_DAYS must be greater than 0",
-					);
-				} finally {
-					// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-					(CONFIG.time as any).recentArticlesDays = originalRecentArticlesDays;
-				}
+				expect(() => validateConfig(testConfig)).toThrow(
+					"RECENT_ARTICLES_DAYS must be greater than 0",
+				);
 			});
 
 			test("JST_OFFSET_HOURS < -12 でエラーが発生する", () => {
-				const originalJstOffsetHours = CONFIG.time.jstOffsetHours;
-				// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-				(CONFIG.time as any).jstOffsetHours = -13;
+				const testConfig = createConfig({
+					JST_OFFSET_HOURS: "-13",
+				});
 
-				try {
-					expect(() => validateConfig()).toThrow(
-						"JST_OFFSET_HOURS must be between -12 and 14",
-					);
-				} finally {
-					// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-					(CONFIG.time as any).jstOffsetHours = originalJstOffsetHours;
-				}
+				expect(() => validateConfig(testConfig)).toThrow(
+					"JST_OFFSET_HOURS must be between -12 and 14",
+				);
 			});
 
 			test("JST_OFFSET_HOURS > 14 でエラーが発生する", () => {
-				const originalJstOffsetHours = CONFIG.time.jstOffsetHours;
-				// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-				(CONFIG.time as any).jstOffsetHours = 15;
+				const testConfig = createConfig({
+					JST_OFFSET_HOURS: "15",
+				});
 
-				try {
-					expect(() => validateConfig()).toThrow(
-						"JST_OFFSET_HOURS must be between -12 and 14",
-					);
-				} finally {
-					// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-					(CONFIG.time as any).jstOffsetHours = originalJstOffsetHours;
-				}
+				expect(() => validateConfig(testConfig)).toThrow(
+					"JST_OFFSET_HOURS must be between -12 and 14",
+				);
 			});
 
 			test("DB_QUERY_TIMEOUT <= 0 でエラーが発生する", () => {
-				const originalDbQueryTimeout = CONFIG.timeout.dbQueryTimeout;
-				// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-				(CONFIG.timeout as any).dbQueryTimeout = 0;
+				const testConfig: Config = {
+					pagination: DEFAULT_CONFIG.pagination,
+					limits: DEFAULT_CONFIG.limits,
+					time: DEFAULT_CONFIG.time,
+					timeout: {
+						...DEFAULT_CONFIG.timeout,
+						dbQueryTimeout: 0,
+					},
+				};
 
-				try {
-					expect(() => validateConfig()).toThrow(
-						"DB_QUERY_TIMEOUT must be greater than 0",
-					);
-				} finally {
-					// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-					(CONFIG.timeout as any).dbQueryTimeout = originalDbQueryTimeout;
-				}
+				expect(() => validateConfig(testConfig)).toThrow(
+					"DB_QUERY_TIMEOUT must be greater than 0",
+				);
 			});
 
 			test("REQUEST_TIMEOUT <= 0 でエラーが発生する", () => {
-				const originalRequestTimeout = CONFIG.timeout.requestTimeout;
-				// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-				(CONFIG.timeout as any).requestTimeout = -1000;
+				const testConfig = createConfig({
+					REQUEST_TIMEOUT: "-1000",
+				});
 
-				try {
-					expect(() => validateConfig()).toThrow(
-						"REQUEST_TIMEOUT must be greater than 0",
-					);
-				} finally {
-					// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-					(CONFIG.timeout as any).requestTimeout = originalRequestTimeout;
-				}
+				expect(() => validateConfig(testConfig)).toThrow(
+					"REQUEST_TIMEOUT must be greater than 0",
+				);
 			});
 		});
 
-		describe("環境変数読み込みテスト", () => {
-			test("環境変数が設定されている場合は環境変数の値を使用する", () => {
-				process.env.DEFAULT_OFFSET = "10";
-				process.env.DEFAULT_PAGE_SIZE = "50";
-				process.env.MAX_FAVORITES_LIMIT = "2000";
+		describe("process.env 使用時のテスト（Node.js環境のみ）", () => {
+			test("process.envが利用可能な場合の環境変数読み込み", () => {
+				// @ts-ignore: process is available in test environment
+				if (typeof process !== "undefined") {
+					process.env.DEFAULT_OFFSET = "10";
+					process.env.DEFAULT_PAGE_SIZE = "50";
+					process.env.MAX_FAVORITES_LIMIT = "2000";
 
-				// 新しいCONFIGオブジェクトを作成してテスト
-				const testConfig = {
-					pagination: {
-						defaultOffset: Number(process.env.DEFAULT_OFFSET) || 0,
-						defaultPageSize: Number(process.env.DEFAULT_PAGE_SIZE) || 20,
-						maxPageSize: Number(process.env.MAX_PAGE_SIZE) || 100,
-					},
-					limits: {
-						maxFavorites: Number(process.env.MAX_FAVORITES_LIMIT) || 1000,
-						maxBulkInsert: Number(process.env.MAX_BULK_INSERT) || 100,
-						maxSearchResults: Number(process.env.MAX_SEARCH_RESULTS) || 500,
-					},
-				};
+					const config = createConfig(process.env as ConfigEnv);
 
-				expect(testConfig.pagination.defaultOffset).toBe(10);
-				expect(testConfig.pagination.defaultPageSize).toBe(50);
-				expect(testConfig.limits.maxFavorites).toBe(2000);
-			});
-
-			test("無効な環境変数（非数値）の場合はデフォルト値を使用する", () => {
-				process.env.DEFAULT_OFFSET = "invalid";
-				process.env.MAX_FAVORITES_LIMIT = "not_a_number";
-
-				const testConfig = {
-					pagination: {
-						defaultOffset: Number(process.env.DEFAULT_OFFSET) || 0,
-					},
-					limits: {
-						maxFavorites: Number(process.env.MAX_FAVORITES_LIMIT) || 1000,
-					},
-				};
-
-				expect(testConfig.pagination.defaultOffset).toBe(0);
-				expect(testConfig.limits.maxFavorites).toBe(1000);
+					expect(config.pagination.defaultOffset).toBe(10);
+					expect(config.pagination.defaultPageSize).toBe(50);
+					expect(config.limits.maxFavorites).toBe(2000);
+				}
 			});
 		});
 	});

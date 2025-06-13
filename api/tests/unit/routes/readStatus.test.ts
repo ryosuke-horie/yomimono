@@ -4,6 +4,26 @@ import type { IBookmarkService } from "../../../src/interfaces/service/bookmark"
 import type { ILabelService } from "../../../src/interfaces/service/label";
 import { createBookmarksRouter } from "../../../src/routes/bookmarks";
 
+// テスト用の型定義
+interface ReadBookmarksResponse {
+	success: true;
+	bookmarks: Array<{
+		id: number;
+		url: string;
+		title: string;
+		labels: string[];
+		isRead: boolean;
+		isFavorite: boolean;
+		createdAt: string;
+		readAt: string;
+	}>;
+}
+
+interface ErrorResponse {
+	success: false;
+	message: string;
+}
+
 describe("/api/bookmarks/read", () => {
 	let app: Hono;
 	let mockBookmarkService: IBookmarkService;
@@ -17,6 +37,7 @@ describe("/api/bookmarks/read", () => {
 			getUnreadBookmarks: vi.fn(),
 			createBookmarksFromData: vi.fn(),
 			markBookmarkAsRead: vi.fn(),
+			markBookmarkAsUnread: vi.fn(),
 			getUnreadBookmarksCount: vi.fn(),
 			getTodayReadCount: vi.fn(),
 			addToFavorites: vi.fn(),
@@ -25,6 +46,7 @@ describe("/api/bookmarks/read", () => {
 			getRecentlyReadBookmarks: vi.fn(),
 			getUnlabeledBookmarks: vi.fn(),
 			getBookmarksByLabel: vi.fn(),
+			getUnratedBookmarks: vi.fn(),
 		};
 
 		mockLabelService = {
@@ -51,7 +73,13 @@ describe("/api/bookmarks/read", () => {
 					id: 1,
 					url: "https://example.com/article1",
 					title: "既読記事1",
-					label: { id: 1, name: "tech", description: null },
+					label: {
+						id: 1,
+						name: "tech",
+						description: null,
+						createdAt: new Date("2024-01-01"),
+						updatedAt: new Date("2024-01-01"),
+					},
 					isRead: true,
 					isFavorite: false,
 					createdAt: new Date("2024-01-01"),
@@ -74,7 +102,7 @@ describe("/api/bookmarks/read", () => {
 			);
 
 			const response = await app.request("/api/bookmarks/read");
-			const json = (await response.json()) as any;
+			const json = (await response.json()) as ReadBookmarksResponse;
 
 			expect(response.status).toBe(200);
 			expect(json.bookmarks).toHaveLength(2);
@@ -89,7 +117,7 @@ describe("/api/bookmarks/read", () => {
 			vi.mocked(mockBookmarkService.getReadBookmarks).mockResolvedValue([]);
 
 			const response = await app.request("/api/bookmarks/read");
-			const json = (await response.json()) as any;
+			const json = (await response.json()) as ReadBookmarksResponse;
 
 			expect(response.status).toBe(200);
 			expect(json.bookmarks).toEqual([]);
@@ -101,7 +129,7 @@ describe("/api/bookmarks/read", () => {
 			);
 
 			const response = await app.request("/api/bookmarks/read");
-			const json = (await response.json()) as any;
+			const json = (await response.json()) as ErrorResponse;
 
 			expect(response.status).toBe(500);
 			expect(json.message).toBe("既読ブックマークの取得に失敗しました");
