@@ -5,6 +5,7 @@ import type {
 	IBookmarkRepository,
 } from "../interfaces/repository/bookmark";
 import type { IBookmarkService } from "../interfaces/service/bookmark";
+import { groupByDate } from "../utils/timezone";
 
 export class DefaultBookmarkService implements IBookmarkService {
 	constructor(private readonly repository: IBookmarkRepository) {}
@@ -113,42 +114,8 @@ export class DefaultBookmarkService implements IBookmarkService {
 		try {
 			const bookmarks = await this.repository.findRecentlyRead();
 
-			const groupedByDate: { [date: string]: BookmarkWithLabel[] } = {};
-
-			for (const bookmark of bookmarks) {
-				if (
-					!(bookmark.updatedAt instanceof Date) ||
-					Number.isNaN(bookmark.updatedAt.getTime())
-				) {
-					console.warn(
-						`Invalid updatedAt value found for bookmark ID ${bookmark.id}:`,
-						bookmark.updatedAt,
-					);
-					continue;
-				}
-
-				const date = new Date(bookmark.updatedAt);
-				date.setHours(date.getHours() + 9); // JSTに変換
-
-				// 日付が無効な場合はスキップ
-				if (Number.isNaN(date.getTime())) {
-					console.warn(
-						`Invalid date after timezone adjustment for bookmark ID ${bookmark.id}:`,
-						bookmark.updatedAt,
-					);
-					continue;
-				}
-
-				const dateStr = date.toISOString().split("T")[0];
-
-				if (!groupedByDate[dateStr]) {
-					groupedByDate[dateStr] = [];
-				}
-
-				groupedByDate[dateStr].push(bookmark);
-			}
-
-			return groupedByDate;
+			// タイムゾーンユーティリティを使用して日付でグループ化
+			return groupByDate(bookmarks);
 		} catch (error) {
 			console.error("Failed to get recently read bookmarks:", error);
 			throw new InternalServerError("Failed to get recently read bookmarks");
