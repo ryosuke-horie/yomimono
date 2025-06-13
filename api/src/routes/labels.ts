@@ -12,6 +12,12 @@ import { ArticleLabelRepository } from "../repositories/articleLabel";
 import { DrizzleBookmarkRepository } from "../repositories/bookmark";
 import { LabelRepository } from "../repositories/label";
 import { LabelService } from "../services/label";
+import {
+	validateId,
+	validateOptionalString,
+	validateRequestBody,
+	validateRequiredString,
+} from "../utils/validation";
 
 const labels = new Hono<{ Bindings: Env }>();
 
@@ -48,23 +54,11 @@ labels.post("/", async (c) => {
 	);
 
 	try {
-		const body = await c.req.json<{ name?: string; description?: string }>();
-		const labelName = body?.name;
-		const description = body?.description;
-
-		if (
-			!labelName ||
-			typeof labelName !== "string" ||
-			labelName.trim() === ""
-		) {
-			throw new BadRequestError(
-				"name is required and must be a non-empty string",
-			);
-		}
-
-		if (description !== undefined && typeof description !== "string") {
-			throw new BadRequestError("description must be a string");
-		}
+		const body = validateRequestBody<{ name?: string; description?: string }>(
+			await c.req.json(),
+		);
+		const labelName = validateRequiredString(body.name, "name");
+		const description = validateOptionalString(body.description, "description");
 
 		const newLabel = await labelService.createLabel(labelName, description);
 		return c.json({ success: true, label: newLabel }, 201);
@@ -96,10 +90,7 @@ labels.get("/:id", async (c) => {
 	);
 
 	try {
-		const id = Number.parseInt(c.req.param("id"));
-		if (Number.isNaN(id)) {
-			throw new BadRequestError("Invalid label ID");
-		}
+		const id = validateId(c.req.param("id"), "label ID");
 
 		const label = await labelService.getLabelById(id);
 		return c.json({ success: true, label });
@@ -130,19 +121,17 @@ labels.patch("/:id", async (c) => {
 	);
 
 	try {
-		const id = Number.parseInt(c.req.param("id"));
-		if (Number.isNaN(id)) {
-			throw new BadRequestError("Invalid label ID");
-		}
-
-		const body = await c.req.json<{ description?: string | null }>();
+		const id = validateId(c.req.param("id"), "label ID");
+		const body = validateRequestBody<{ description?: string | null }>(
+			await c.req.json(),
+		);
 
 		// descriptionがundefinedの場合は更新しない
 		if (body.description === undefined) {
 			throw new BadRequestError("description is required");
 		}
 
-		// descriptionの型チェック
+		// descriptionの型チェック（null許可の特殊ケース）
 		if (body.description !== null && typeof body.description !== "string") {
 			throw new BadRequestError("description must be a string or null");
 		}
@@ -180,10 +169,7 @@ labels.delete("/:id", async (c) => {
 	);
 
 	try {
-		const id = Number.parseInt(c.req.param("id"));
-		if (Number.isNaN(id)) {
-			throw new BadRequestError("Invalid label ID");
-		}
+		const id = validateId(c.req.param("id"), "label ID");
 
 		await labelService.deleteLabel(id);
 		return c.json({ success: true, message: "Label deleted successfully" });

@@ -10,6 +10,13 @@ import {
 import type { BookmarkWithLabel } from "../interfaces/repository/bookmark";
 import type { IBookmarkService } from "../interfaces/service/bookmark";
 import type { ILabelService } from "../interfaces/service/label";
+import {
+	validateId,
+	validateIdArray,
+	validateOptionalString,
+	validateRequestBody,
+	validateRequiredString,
+} from "../utils/validation";
 
 export const createBookmarksRouter = (
 	bookmarkService: IBookmarkService,
@@ -68,29 +75,17 @@ export const createBookmarksRouter = (
 
 	app.put("/:id/label", async (c) => {
 		try {
-			const id = Number.parseInt(c.req.param("id"));
-			if (Number.isNaN(id)) {
-				throw new BadRequestError("Invalid bookmark ID");
-			}
+			const id = validateId(c.req.param("id"), "bookmark ID");
 
 			let body: { labelName?: string };
 			try {
-				body = await c.req.json<{ labelName?: string }>();
+				body = await c.req.json();
 			} catch (e) {
 				throw new BadRequestError("Invalid request body");
 			}
 
-			const labelName = body?.labelName;
-
-			if (
-				!labelName ||
-				typeof labelName !== "string" ||
-				labelName.trim() === ""
-			) {
-				throw new BadRequestError(
-					"labelName is required and must be a non-empty string",
-				);
-			}
+			validateRequestBody(body);
+			const labelName = validateRequiredString(body.labelName, "labelName");
 
 			// labelServiceを使ってラベルを付与 (正規化はサービス内で行う)
 			const assignedLabel = await labelService.assignLabel(id, labelName);
@@ -160,10 +155,7 @@ export const createBookmarksRouter = (
 	// お気に入り機能のルーティングを追加
 	app.post("/:id/favorite", async (c) => {
 		try {
-			const id = Number.parseInt(c.req.param("id"));
-			if (Number.isNaN(id)) {
-				throw new BadRequestError("Invalid bookmark ID");
-			}
+			const id = validateId(c.req.param("id"), "bookmark ID");
 
 			await bookmarkService.addToFavorites(id);
 			return c.json({ success: true });
@@ -186,10 +178,7 @@ export const createBookmarksRouter = (
 
 	app.delete("/:id/favorite", async (c) => {
 		try {
-			const id = Number.parseInt(c.req.param("id"));
-			if (Number.isNaN(id)) {
-				throw new BadRequestError("Invalid bookmark ID");
-			}
+			const id = validateId(c.req.param("id"), "bookmark ID");
 
 			await bookmarkService.removeFromFavorites(id);
 			return c.json({ success: true });
@@ -220,10 +209,7 @@ export const createBookmarksRouter = (
 	// 既読機能
 	app.patch("/:id/read", async (c) => {
 		try {
-			const id = Number.parseInt(c.req.param("id"));
-			if (Number.isNaN(id)) {
-				throw new BadRequestError("Invalid bookmark ID");
-			}
+			const id = validateId(c.req.param("id"), "bookmark ID");
 
 			await bookmarkService.markBookmarkAsRead(id);
 			return c.json({ success: true });
@@ -243,10 +229,7 @@ export const createBookmarksRouter = (
 	// 未読に戻す機能
 	app.patch("/:id/unread", async (c) => {
 		try {
-			const id = Number.parseInt(c.req.param("id"));
-			if (Number.isNaN(id)) {
-				throw new BadRequestError("Invalid bookmark ID");
-			}
+			const id = validateId(c.req.param("id"), "bookmark ID");
 
 			await bookmarkService.markBookmarkAsUnread(id);
 			return c.json({ success: true });
@@ -318,47 +301,24 @@ export const createBookmarksRouter = (
 	// 一括ラベル付け
 	app.put("/batch-label", async (c) => {
 		try {
-			const body = await c.req.json<{
+			const body = validateRequestBody<{
 				articleIds?: number[];
 				labelName?: string;
 				description?: string;
-			}>();
+			}>(await c.req.json());
 
-			// バリデーション
-			if (
-				!body.articleIds ||
-				!Array.isArray(body.articleIds) ||
-				body.articleIds.length === 0
-			) {
-				throw new BadRequestError(
-					"articleIds is required and must be a non-empty array",
-				);
-			}
-
-			if (
-				!body.labelName ||
-				typeof body.labelName !== "string" ||
-				body.labelName.trim() === ""
-			) {
-				throw new BadRequestError(
-					"labelName is required and must be a non-empty string",
-				);
-			}
-
-			// 数値の配列であることを確認
-			const articleIds = body.articleIds.map((id) => {
-				const numId = Number(id);
-				if (Number.isNaN(numId)) {
-					throw new BadRequestError(`Invalid article ID: ${id}`);
-				}
-				return numId;
-			});
+			const articleIds = validateIdArray(body.articleIds, "articleIds");
+			const labelName = validateRequiredString(body.labelName, "labelName");
+			const description = validateOptionalString(
+				body.description,
+				"description",
+			);
 
 			// labelServiceを使って一括ラベル付け
 			const result = await labelService.assignLabelsToMultipleArticles(
 				articleIds,
-				body.labelName,
-				body.description,
+				labelName,
+				description,
 			);
 
 			return c.json({ success: true, ...result });
