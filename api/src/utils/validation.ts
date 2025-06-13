@@ -172,6 +172,15 @@ if (import.meta.vitest) {
 					"Invalid bookmark ID: invalid",
 				);
 			});
+
+			test("未サポートフィールド名の単数形変換テスト", () => {
+				expect(() => validateIdArray([1, "invalid", 3], "testIds")).toThrow(
+					"Invalid test ID: invalid",
+				);
+				expect(() => validateIdArray([1, null, 3], "items")).toThrow(
+					"Invalid item ID: null",
+				);
+			});
 		});
 
 		describe("validateRequestBody", () => {

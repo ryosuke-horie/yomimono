@@ -103,4 +103,30 @@ if (import.meta.vitest) {
 		expect(error.resourceType).toBe("bookmark");
 		expect(error.identifier).toBe("https://example.com");
 	});
+
+	test("ExternalServiceError で元エラーのスタックトレースを保持する", () => {
+		const originalError = new Error("Network timeout");
+		const wrappedError = new ExternalServiceError(
+			"Service unavailable",
+			"API Gateway",
+			originalError,
+		);
+		expect(wrappedError.message).toBe("Service unavailable");
+		expect(wrappedError.serviceName).toBe("API Gateway");
+		expect(wrappedError.stack).toBe(originalError.stack);
+	});
+
+	test("TimeoutError はタイムアウト情報を保持する", () => {
+		const error = new TimeoutError("Request timeout", 5000);
+		expect(error.statusCode).toBe(504);
+		expect(error.message).toBe("Request timeout");
+		expect(error.timeout).toBe(5000);
+	});
+
+	test("RateLimitError は再試行時間を保持する", () => {
+		const error = new RateLimitError("Too many requests", 60);
+		expect(error.statusCode).toBe(429);
+		expect(error.message).toBe("Too many requests");
+		expect(error.retryAfter).toBe(60);
+	});
 }

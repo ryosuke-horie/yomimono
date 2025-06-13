@@ -122,4 +122,34 @@ if (import.meta.vitest) {
 		const customError = new InternalServerError("Database connection failed");
 		expect(customError.message).toBe("Database connection failed");
 	});
+
+	test("UnauthorizedError は401エラーを生成する", () => {
+		const error = new UnauthorizedError();
+		expect(error.statusCode).toBe(401);
+		expect(error.message).toBe("Unauthorized");
+
+		const customError = new UnauthorizedError("Invalid token");
+		expect(customError.message).toBe("Invalid token");
+	});
+
+	test("ForbiddenError は403エラーを生成する", () => {
+		const error = new ForbiddenError();
+		expect(error.statusCode).toBe(403);
+		expect(error.message).toBe("Forbidden");
+
+		const customError = new ForbiddenError("Access denied");
+		expect(customError.message).toBe("Access denied");
+	});
+
+	test("ConflictError は409エラーを生成する", () => {
+		const error = new ConflictError();
+		expect(error.statusCode).toBe(409);
+		expect(error.message).toBe("Conflict");
+	});
+
+	test("ServiceUnavailableError は503エラーを生成する", () => {
+		const error = new ServiceUnavailableError();
+		expect(error.statusCode).toBe(503);
+		expect(error.message).toBe("Service Unavailable");
+	});
 }

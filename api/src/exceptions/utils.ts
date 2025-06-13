@@ -165,4 +165,40 @@ if (import.meta.vitest) {
 		expect(getErrorMessage(undefined)).toBe("Unknown error");
 		expect(getErrorMessage(123)).toBe("Unknown error");
 	});
+
+	test("fromHttpException はHTTPExceptionをBaseErrorに変換する", () => {
+		const httpException = new HTTPException(404, {
+			message: "Resource not found",
+		});
+		const baseError = fromHttpException(httpException);
+
+		expect(baseError).toBeInstanceOf(BaseError);
+		expect(baseError.message).toBe("Resource not found");
+		expect(baseError.statusCode).toBe(404);
+		expect(baseError.isOperational).toBe(true);
+	});
+
+	test("fromHttpException はメッセージがない場合デフォルトメッセージを使用する", () => {
+		const httpException = new HTTPException(500);
+		const baseError = fromHttpException(httpException);
+
+		expect(baseError.message).toBe("HTTP Error");
+		expect(baseError.statusCode).toBe(500);
+	});
+
+	test("createErrorResponseBody はstatusCodeを含まないレスポンスを生成する", () => {
+		class TestError extends BaseError {
+			constructor() {
+				super("Test error", 400, true);
+			}
+		}
+		const error = new TestError();
+		const response = createErrorResponseBody(error);
+
+		expect(response).toEqual({
+			success: false,
+			message: "Test error",
+		});
+		expect(response).not.toHaveProperty("statusCode");
+	});
 }

@@ -227,7 +227,7 @@ if (import.meta.vitest) {
 			test("DB_QUERY_TIMEOUT <= 0 でエラーが発生する", () => {
 				const originalDbQueryTimeout = CONFIG.timeout.dbQueryTimeout;
 				// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-				CONFIG.timeout.dbQueryTimeout = 0;
+				(CONFIG.timeout as any).dbQueryTimeout = 0;
 
 				try {
 					expect(() => validateConfig()).toThrow(
@@ -242,7 +242,7 @@ if (import.meta.vitest) {
 			test("REQUEST_TIMEOUT <= 0 でエラーが発生する", () => {
 				const originalRequestTimeout = CONFIG.timeout.requestTimeout;
 				// biome-ignore lint/suspicious/noExplicitAny: テスト用の一時的な型変更
-				CONFIG.timeout.requestTimeout = -1000;
+				(CONFIG.timeout as any).requestTimeout = -1000;
 
 				try {
 					expect(() => validateConfig()).toThrow(
