@@ -1,3 +1,4 @@
+import { CONFIG } from "../config";
 import type { Bookmark, InsertBookmark } from "../db/schema";
 import { InternalServerError, NotFoundError } from "../exceptions";
 import type {
@@ -51,8 +52,8 @@ export class DefaultBookmarkService implements IBookmarkService {
 		try {
 			// 個人ツールではページネーション不要のため、全件取得
 			const { bookmarks, total } = await this.repository.getFavoriteBookmarks(
-				0,
-				1000,
+				CONFIG.pagination.defaultOffset,
+				CONFIG.limits.maxFavorites,
 			);
 
 			return {

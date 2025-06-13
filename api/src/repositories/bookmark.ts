@@ -10,6 +10,7 @@ import {
 } from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { drizzle } from "drizzle-orm/d1";
+import { CONFIG } from "../config";
 import {
 	type Bookmark,
 	type InsertBookmark,
@@ -88,7 +89,7 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 	async countTodayRead(): Promise<number> {
 		try {
 			const nowMillis = Date.now(); // 現在のUTC時刻 (ミリ秒)
-			const jstOffsetMillis = 9 * 60 * 60 * 1000; // 9時間 (ミリ秒)
+			const jstOffsetMillis = CONFIG.time.jstOffsetHours * 60 * 60 * 1000; // JST時差 (ミリ秒)
 			const millisPerDay = 24 * 60 * 60 * 1000; // 1日 (ミリ秒)
 
 			// 現在時刻にJSTオフセットを加算し、その日付のJSTでの始まりの時刻を計算
@@ -303,10 +304,10 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 
 	async findRecentlyRead(): Promise<BookmarkWithLabel[]> {
 		try {
-			const threeDaysAgo = new Date();
-			threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-			// UTC+9の考慮
-			threeDaysAgo.setHours(threeDaysAgo.getHours() - 9);
+			const daysAgo = new Date();
+			daysAgo.setDate(daysAgo.getDate() - CONFIG.time.recentArticlesDays);
+			// UTC+JST時差の考慮
+			daysAgo.setHours(daysAgo.getHours() - CONFIG.time.jstOffsetHours);
 
 			const query = this.db
 				.select({
@@ -319,10 +320,7 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 				.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
 				.leftJoin(labels, eq(articleLabels.labelId, labels.id))
 				.where(
-					and(
-						eq(bookmarks.isRead, true),
-						gte(bookmarks.updatedAt, threeDaysAgo),
-					),
+					and(eq(bookmarks.isRead, true), gte(bookmarks.updatedAt, daysAgo)),
 				)
 				.orderBy(desc(bookmarks.updatedAt));
 
