@@ -58,7 +58,10 @@ export const createBookmarksRouter = (
 		} catch (error) {
 			console.error("Failed to fetch bookmarks:", error);
 			const errorResponse = createErrorResponse(error);
-			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+			return c.json(
+				createErrorResponseBody(error),
+				errorResponse.statusCode as any,
+			);
 		}
 	});
 
@@ -69,7 +72,10 @@ export const createBookmarksRouter = (
 		} catch (error) {
 			console.error("Failed to fetch unlabeled bookmarks:", error);
 			const errorResponse = createErrorResponse(error);
-			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+			return c.json(
+				createErrorResponseBody(error),
+				errorResponse.statusCode as any,
+			);
 		}
 	});
 
@@ -107,7 +113,10 @@ export const createBookmarksRouter = (
 			}
 			console.error("Failed to assign label:", error);
 			const errorResponse = createErrorResponse(error);
-			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+			return c.json(
+				createErrorResponseBody(error),
+				errorResponse.statusCode as any,
+			);
 		}
 	});
 
@@ -148,7 +157,10 @@ export const createBookmarksRouter = (
 		} catch (error) {
 			console.error("Failed to create bookmarks:", error);
 			const errorResponse = createErrorResponse(error);
-			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+			return c.json(
+				createErrorResponseBody(error),
+				errorResponse.statusCode as any,
+			);
 		}
 	});
 
@@ -172,7 +184,10 @@ export const createBookmarksRouter = (
 			}
 			console.error("Failed to add to favorites:", error);
 			const errorResponse = createErrorResponse(error);
-			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+			return c.json(
+				createErrorResponseBody(error),
+				errorResponse.statusCode as any,
+			);
 		}
 	});
 
@@ -191,7 +206,10 @@ export const createBookmarksRouter = (
 			}
 			console.error("Failed to remove from favorites:", error);
 			const errorResponse = createErrorResponse(error);
-			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+			return c.json(
+				createErrorResponseBody(error),
+				errorResponse.statusCode as any,
+			);
 		}
 	});
 
@@ -202,7 +220,10 @@ export const createBookmarksRouter = (
 		} catch (error) {
 			console.error("Failed to fetch favorites:", error);
 			const errorResponse = createErrorResponse(error);
-			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+			return c.json(
+				createErrorResponseBody(error),
+				errorResponse.statusCode as any,
+			);
 		}
 	});
 
@@ -255,7 +276,10 @@ export const createBookmarksRouter = (
 		} catch (error) {
 			console.error("Failed to fetch recently read bookmarks:", error);
 			const errorResponse = createErrorResponse(error);
-			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+			return c.json(
+				createErrorResponseBody(error),
+				errorResponse.statusCode as any,
+			);
 		}
 	});
 
@@ -282,7 +306,7 @@ export const createBookmarksRouter = (
 				createErrorResponseBody(
 					new InternalServerError("既読ブックマークの取得に失敗しました"),
 				),
-				errorResponse.statusCode,
+				errorResponse.statusCode as any,
 			);
 		}
 	});
@@ -294,7 +318,10 @@ export const createBookmarksRouter = (
 		} catch (error) {
 			console.error("Failed to fetch unrated bookmarks:", error);
 			const errorResponse = createErrorResponse(error);
-			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+			return c.json(
+				createErrorResponseBody(error),
+				errorResponse.statusCode as any,
+			);
 		}
 	});
 
@@ -333,7 +360,10 @@ export const createBookmarksRouter = (
 			}
 			console.error("Failed to batch assign labels:", error);
 			const errorResponse = createErrorResponse(error);
-			return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+			return c.json(
+				createErrorResponseBody(error),
+				errorResponse.statusCode as any,
+			);
 		}
 	});
 

@@ -48,7 +48,7 @@ export function validateOptionalString(
  * 配列内のIDを検証
  */
 export function validateIdArray(
-	values: unknown[],
+	values: unknown,
 	fieldName = "articleIds",
 ): number[] {
 	if (!Array.isArray(values) || values.length === 0) {

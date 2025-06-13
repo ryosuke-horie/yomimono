@@ -35,6 +35,7 @@ describe("LabelService - 一括ラベル付け機能", () => {
 			findUnread: vi.fn(),
 			findByUrls: vi.fn(),
 			markAsRead: vi.fn(),
+			markAsUnread: vi.fn(),
 			countUnread: vi.fn(),
 			countTodayRead: vi.fn(),
 			addToFavorites: vi.fn(),
@@ -44,6 +45,8 @@ describe("LabelService - 一括ラベル付け機能", () => {
 			findRecentlyRead: vi.fn(),
 			findUnlabeled: vi.fn(),
 			findByLabelName: vi.fn(),
+			findRead: vi.fn(),
+			findUnrated: vi.fn(),
 		} as unknown as IBookmarkRepository;
 
 		labelService = new LabelService(
@@ -66,7 +69,6 @@ describe("LabelService - 一括ラベル付け機能", () => {
 			id: 1,
 			url: "https://example.com/1",
 			title: "Test Article 1",
-			description: null,
 			createdAt: new Date(),
 			updatedAt: new Date(),
 			isFavorite: false,
@@ -78,7 +80,6 @@ describe("LabelService - 一括ラベル付け機能", () => {
 			id: 2,
 			url: "https://example.com/2",
 			title: "Test Article 2",
-			description: null,
 			createdAt: new Date(),
 			updatedAt: new Date(),
 			isFavorite: false,
@@ -88,7 +89,7 @@ describe("LabelService - 一括ラベル付け機能", () => {
 
 		describe("正常系", () => {
 			it("新規ラベルで複数の記事にラベルを付与できる", async () => {
-				vi.mocked(labelRepository.findByName).mockResolvedValue(null);
+				vi.mocked(labelRepository.findByName).mockResolvedValue(undefined);
 				vi.mocked(labelRepository.create).mockResolvedValue(mockLabel);
 				vi.mocked(bookmarkRepository.findByIds).mockResolvedValue(
 					new Map([

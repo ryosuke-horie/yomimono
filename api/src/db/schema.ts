@@ -61,3 +61,9 @@ export type Label = typeof labels.$inferSelect;
 export type InsertLabel = typeof labels.$inferInsert;
 export type ArticleLabel = typeof articleLabels.$inferSelect;
 export type InsertArticleLabel = typeof articleLabels.$inferInsert;
+
+// BookmarkWithLabel type for external use
+export type BookmarkWithLabel = Bookmark & {
+	isFavorite: boolean;
+	label: Label | null;
+};

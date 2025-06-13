@@ -121,9 +121,9 @@ if (import.meta.vitest) {
 
 		test("groupByDateが正しく日付でグループ化する", () => {
 			const items = [
-				{ id: 1, updatedAt: new Date("2024-01-15T10:00:00Z") },
-				{ id: 2, updatedAt: new Date("2024-01-15T20:00:00Z") },
-				{ id: 3, updatedAt: new Date("2024-01-16T10:00:00Z") },
+				{ id: 1, updatedAt: new Date("2024-01-15T02:00:00Z") }, // 11:00 JST (same day)
+				{ id: 2, updatedAt: new Date("2024-01-15T10:00:00Z") }, // 19:00 JST (same day)
+				{ id: 3, updatedAt: new Date("2024-01-16T10:00:00Z") }, // 19:00 JST next day
 			];
 
 			const grouped = groupByDate(items, "Asia/Tokyo");

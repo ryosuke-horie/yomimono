@@ -38,7 +38,10 @@ labels.get("/", async (c) => {
 	} catch (error) {
 		console.error("Failed to get labels:", error);
 		const errorResponse = createErrorResponse(error);
-		return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+		return c.json(
+			createErrorResponseBody(error),
+			errorResponse.statusCode as 200 | 201 | 400 | 401 | 403 | 404 | 409 | 500,
+		);
 	}
 });
 
@@ -73,7 +76,10 @@ labels.post("/", async (c) => {
 		}
 		console.error("Failed to create label:", error);
 		const errorResponse = createErrorResponse(error);
-		return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+		return c.json(
+			createErrorResponseBody(error),
+			errorResponse.statusCode as 200 | 201 | 400 | 401 | 403 | 404 | 409 | 500,
+		);
 	}
 });
 
@@ -104,7 +110,10 @@ labels.get("/:id", async (c) => {
 		}
 		console.error("Failed to get label:", error);
 		const errorResponse = createErrorResponse(error);
-		return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+		return c.json(
+			createErrorResponseBody(error),
+			errorResponse.statusCode as 200 | 201 | 400 | 401 | 403 | 404 | 409 | 500,
+		);
 	}
 });
 
@@ -152,7 +161,10 @@ labels.patch("/:id", async (c) => {
 		}
 		console.error("Failed to update label description:", error);
 		const errorResponse = createErrorResponse(error);
-		return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+		return c.json(
+			createErrorResponseBody(error),
+			errorResponse.statusCode as 200 | 201 | 400 | 401 | 403 | 404 | 409 | 500,
+		);
 	}
 });
 
@@ -183,7 +195,10 @@ labels.delete("/:id", async (c) => {
 		}
 		console.error("Failed to delete label:", error);
 		const errorResponse = createErrorResponse(error);
-		return c.json(createErrorResponseBody(error), errorResponse.statusCode);
+		return c.json(
+			createErrorResponseBody(error),
+			errorResponse.statusCode as 200 | 201 | 400 | 401 | 403 | 404 | 409 | 500,
+		);
 	}
 });
 

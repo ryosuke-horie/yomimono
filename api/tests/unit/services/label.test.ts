@@ -28,6 +28,8 @@ const mockLabelRepository: ILabelRepository = {
 const mockArticleLabelRepository: IArticleLabelRepository = {
 	findByArticleId: mockFindByArticleId,
 	create: mockCreateArticleLabel,
+	createMany: vi.fn(),
+	findExistingArticleIds: vi.fn(),
 };
 
 const mockBookmarkRepository: IBookmarkRepository = {
@@ -36,6 +38,7 @@ const mockBookmarkRepository: IBookmarkRepository = {
 	findUnread: vi.fn(),
 	findByUrls: vi.fn(),
 	markAsRead: vi.fn(),
+	markAsUnread: vi.fn(),
 	countUnread: vi.fn(),
 	countTodayRead: vi.fn(),
 	addToFavorites: vi.fn(),
@@ -45,6 +48,9 @@ const mockBookmarkRepository: IBookmarkRepository = {
 	findRecentlyRead: vi.fn(),
 	findUnlabeled: vi.fn(),
 	findByLabelName: vi.fn(),
+	findRead: vi.fn(),
+	findByIds: vi.fn(),
+	findUnrated: vi.fn(),
 };
 
 describe("LabelService", () => {

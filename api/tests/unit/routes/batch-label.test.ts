@@ -80,7 +80,7 @@ describe("PUT /bookmarks/batch-label", () => {
 			});
 
 			expect(response.status).toBe(200);
-			const data = await response.json();
+			const data = (await response.json()) as any;
 
 			expect(data.success).toBe(true);
 			expect(data.successful).toBe(2);
@@ -111,7 +111,7 @@ describe("PUT /bookmarks/batch-label", () => {
 			});
 
 			expect(response.status).toBe(400);
-			const data = await response.json();
+			const data = (await response.json()) as any;
 			expect(data).toEqual({
 				success: false,
 				message: "articleIds is required and must be a non-empty array",
@@ -131,7 +131,7 @@ describe("PUT /bookmarks/batch-label", () => {
 			});
 
 			expect(response.status).toBe(400);
-			const data = await response.json();
+			const data = (await response.json()) as any;
 			expect(data).toEqual({
 				success: false,
 				message: "articleIds is required and must be a non-empty array",
@@ -150,7 +150,7 @@ describe("PUT /bookmarks/batch-label", () => {
 			});
 
 			expect(response.status).toBe(400);
-			const data = await response.json();
+			const data = (await response.json()) as any;
 			expect(data).toEqual({
 				success: false,
 				message: "labelName is required and must be a non-empty string",
@@ -170,7 +170,7 @@ describe("PUT /bookmarks/batch-label", () => {
 			});
 
 			expect(response.status).toBe(400);
-			const data = await response.json();
+			const data = (await response.json()) as any;
 			expect(data.success).toBe(false);
 			expect(data.message).toContain("Invalid article ID");
 		});
@@ -192,7 +192,7 @@ describe("PUT /bookmarks/batch-label", () => {
 			});
 
 			expect(response.status).toBe(500);
-			const data = await response.json();
+			const data = (await response.json()) as any;
 			expect(data).toEqual({
 				success: false,
 				message: "Database error",

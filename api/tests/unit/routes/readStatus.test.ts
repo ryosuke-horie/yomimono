@@ -74,7 +74,7 @@ describe("/api/bookmarks/read", () => {
 			);
 
 			const response = await app.request("/api/bookmarks/read");
-			const json = await response.json();
+			const json = (await response.json()) as any;
 
 			expect(response.status).toBe(200);
 			expect(json.bookmarks).toHaveLength(2);
@@ -89,7 +89,7 @@ describe("/api/bookmarks/read", () => {
 			vi.mocked(mockBookmarkService.getReadBookmarks).mockResolvedValue([]);
 
 			const response = await app.request("/api/bookmarks/read");
-			const json = await response.json();
+			const json = (await response.json()) as any;
 
 			expect(response.status).toBe(200);
 			expect(json.bookmarks).toEqual([]);
@@ -101,7 +101,7 @@ describe("/api/bookmarks/read", () => {
 			);
 
 			const response = await app.request("/api/bookmarks/read");
-			const json = await response.json();
+			const json = (await response.json()) as any;
 
 			expect(response.status).toBe(500);
 			expect(json.message).toBe("既読ブックマークの取得に失敗しました");

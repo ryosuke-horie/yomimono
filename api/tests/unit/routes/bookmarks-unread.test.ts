@@ -23,7 +23,7 @@ describe("Bookmark Unread Endpoint", () => {
 		getRecentlyReadBookmarks: vi.fn(),
 		getUnlabeledBookmarks: vi.fn(),
 		getBookmarksByLabel: vi.fn(),
-		getBookmarksWithoutSummary: vi.fn(),
+		getUnratedBookmarks: vi.fn(),
 		getReadBookmarks: vi.fn(),
 	};
 	const mockLabelService: ILabelService = {
@@ -32,6 +32,8 @@ describe("Bookmark Unread Endpoint", () => {
 		createLabel: vi.fn(),
 		deleteLabel: vi.fn(),
 		assignLabelsToMultipleArticles: vi.fn(),
+		getLabelById: vi.fn(),
+		updateLabelDescription: vi.fn(),
 	};
 
 	beforeEach(() => {

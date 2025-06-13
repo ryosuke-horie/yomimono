@@ -44,12 +44,17 @@ const mockBookmarkService: IBookmarkService = {
 	getRecentlyReadBookmarks: mockGetRecentlyReadBookmarks,
 	getUnlabeledBookmarks: mockGetUnlabeledBookmarks,
 	getBookmarksByLabel: mockGetBookmarksByLabel,
+	getReadBookmarks: vi.fn(),
+	getUnratedBookmarks: vi.fn(),
 };
 const mockLabelService: ILabelService = {
 	getLabels: vi.fn(),
 	assignLabel: mockAssignLabel,
 	createLabel: vi.fn(),
 	deleteLabel: vi.fn(),
+	getLabelById: vi.fn(),
+	updateLabelDescription: vi.fn(),
+	assignLabelsToMultipleArticles: vi.fn(),
 };
 
 describe("BookmarkRouter", () => {
@@ -66,6 +71,7 @@ describe("BookmarkRouter", () => {
 	const mockLabel1: Label = {
 		id: 10,
 		name: "typescript",
+		description: null,
 		createdAt: new Date(),
 		updatedAt: new Date(),
 	};
@@ -201,6 +207,7 @@ describe("BookmarkRouter", () => {
 			const assignedLabel: Label = {
 				id: 1,
 				name: labelName,
+				description: null,
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			};

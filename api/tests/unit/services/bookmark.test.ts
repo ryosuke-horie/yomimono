@@ -29,12 +29,14 @@ describe("DefaultBookmarkService", () => {
 	const mockLabel1: Label = {
 		id: 10,
 		name: "typescript",
+		description: null,
 		createdAt: new Date(),
 		updatedAt: new Date(),
 	};
 	const mockLabel2: Label = {
 		id: 11,
 		name: "react",
+		description: null,
 		createdAt: new Date(),
 		updatedAt: new Date(),
 	};
@@ -69,6 +71,7 @@ describe("DefaultBookmarkService", () => {
 		findUnread: mockFindUnread,
 		createMany: mockCreateMany,
 		markAsRead: mockMarkAsRead,
+		markAsUnread: vi.fn(),
 		countUnread: mockCountUnread,
 		countTodayRead: mockCountTodayRead,
 		addToFavorites: mockAddToFavorites,
@@ -79,6 +82,9 @@ describe("DefaultBookmarkService", () => {
 		findUnlabeled: mockFindUnlabeled,
 		findByLabelName: mockFindByLabelName,
 		findById: mockFindById,
+		findRead: vi.fn(),
+		findByIds: vi.fn(),
+		findUnrated: vi.fn(),
 	};
 
 	beforeEach(() => {
