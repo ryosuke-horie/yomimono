@@ -1,17 +1,32 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
+import type { IBookmarkRepository } from "../../../src/interfaces/repository/bookmark";
 import { DefaultBookmarkService } from "../../../src/services/bookmark";
-
-vi.mock("../../../src/repositories/bookmark");
 
 describe("Bookmark Service - Read Status", () => {
 	let bookmarkService: DefaultBookmarkService;
-	let mockRepository: { findRead: ReturnType<typeof vi.fn> };
+	let mockRepository: IBookmarkRepository;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
 		mockRepository = {
 			findRead: vi.fn(),
+			createMany: vi.fn(),
+			findUnread: vi.fn(),
+			findByUrls: vi.fn(),
+			markAsRead: vi.fn(),
+			markAsUnread: vi.fn(),
+			countUnread: vi.fn(),
+			countTodayRead: vi.fn(),
+			addToFavorites: vi.fn(),
+			removeFromFavorites: vi.fn(),
+			getFavoriteBookmarks: vi.fn(),
+			isFavorite: vi.fn(),
+			findRecentlyRead: vi.fn(),
+			findUnlabeled: vi.fn(),
+			findByLabelName: vi.fn(),
+			findById: vi.fn(),
+			findByIds: vi.fn(),
+			findUnrated: vi.fn(),
 		};
 		bookmarkService = new DefaultBookmarkService(mockRepository);
 	});
@@ -31,16 +46,16 @@ describe("Bookmark Service - Read Status", () => {
 				},
 			];
 
-			mockRepository.findRead.mockResolvedValue(mockReadBookmarks);
+			vi.mocked(mockRepository.findRead).mockResolvedValue(mockReadBookmarks);
 
 			const result = await bookmarkService.getReadBookmarks();
 
 			expect(result).toEqual(mockReadBookmarks);
-			expect(mockRepository.findRead).toHaveBeenCalledOnce();
+			expect(vi.mocked(mockRepository.findRead)).toHaveBeenCalledOnce();
 		});
 
 		it("リポジトリからエラーが発生した場合エラーをスロー", async () => {
-			mockRepository.findRead.mockRejectedValue(
+			vi.mocked(mockRepository.findRead).mockRejectedValue(
 				new Error("Database connection error"),
 			);
 

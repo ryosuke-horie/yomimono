@@ -24,7 +24,6 @@ const mockBookmarkService: IBookmarkService = {
 	getUnlabeledBookmarks: vi.fn(),
 	getBookmarksByLabel: vi.fn(),
 	getReadBookmarks: vi.fn(),
-	getBookmarkById: vi.fn(), // 追加されている可能性のあるメソッド
 } as IBookmarkService;
 
 // モックLabelService
@@ -33,8 +32,6 @@ const mockLabelService: Partial<ILabelService> = {
 	createLabel: vi.fn(),
 	deleteLabel: vi.fn(),
 	assignLabel: vi.fn(),
-	getArticleCountByLabel: vi.fn(),
-	getArticleIdsByLabelName: vi.fn(),
 	updateLabelDescription: vi.fn(),
 	assignLabelsToMultipleArticles: vi.fn(),
 	getLabelById: vi.fn(),

@@ -148,5 +148,11 @@ if (import.meta.vitest) {
 			expect(isValidTimezone("UTC")).toBe(true);
 			expect(isValidTimezone("Invalid/Timezone")).toBe(false);
 		});
+
+		test("formatToTimezoneで無効なタイムゾーンの場合デフォルトを使用", () => {
+			const result = formatToTimezone(testDate, "Invalid/Timezone");
+			// デフォルトタイムゾーンでの結果が返される
+			expect(result).toMatch(/2024\/01\/15/);
+		});
 	});
 }

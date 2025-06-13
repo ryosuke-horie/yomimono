@@ -4,6 +4,20 @@ import type { IBookmarkService } from "../../../src/interfaces/service/bookmark"
 import type { ILabelService } from "../../../src/interfaces/service/label";
 import { createBookmarksRouter } from "../../../src/routes/bookmarks";
 
+// テスト用の型定義
+interface BatchLabelSuccessResponse {
+	success: true;
+	successful: number;
+	skipped: number;
+	errors: unknown[];
+	label: Label;
+}
+
+interface ErrorResponse {
+	success: false;
+	message: string;
+}
+
 vi.mock("../../../src/services/bookmark", () => ({
 	BookmarkService: vi.fn(),
 }));
@@ -80,7 +94,7 @@ describe("PUT /bookmarks/batch-label", () => {
 			});
 
 			expect(response.status).toBe(200);
-			const data = (await response.json()) as any;
+			const data = (await response.json()) as BatchLabelSuccessResponse;
 
 			expect(data.success).toBe(true);
 			expect(data.successful).toBe(2);
@@ -111,7 +125,7 @@ describe("PUT /bookmarks/batch-label", () => {
 			});
 
 			expect(response.status).toBe(400);
-			const data = (await response.json()) as any;
+			const data = (await response.json()) as ErrorResponse;
 			expect(data).toEqual({
 				success: false,
 				message: "articleIds is required and must be a non-empty array",
@@ -131,7 +145,7 @@ describe("PUT /bookmarks/batch-label", () => {
 			});
 
 			expect(response.status).toBe(400);
-			const data = (await response.json()) as any;
+			const data = (await response.json()) as ErrorResponse;
 			expect(data).toEqual({
 				success: false,
 				message: "articleIds is required and must be a non-empty array",
@@ -150,7 +164,7 @@ describe("PUT /bookmarks/batch-label", () => {
 			});
 
 			expect(response.status).toBe(400);
-			const data = (await response.json()) as any;
+			const data = (await response.json()) as ErrorResponse;
 			expect(data).toEqual({
 				success: false,
 				message: "labelName is required and must be a non-empty string",
@@ -170,7 +184,7 @@ describe("PUT /bookmarks/batch-label", () => {
 			});
 
 			expect(response.status).toBe(400);
-			const data = (await response.json()) as any;
+			const data = (await response.json()) as ErrorResponse;
 			expect(data.success).toBe(false);
 			expect(data.message).toContain("Invalid article ID");
 		});
@@ -192,7 +206,7 @@ describe("PUT /bookmarks/batch-label", () => {
 			});
 
 			expect(response.status).toBe(500);
-			const data = (await response.json()) as any;
+			const data = (await response.json()) as ErrorResponse;
 			expect(data).toEqual({
 				success: false,
 				message: "Database error",
