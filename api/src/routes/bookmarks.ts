@@ -241,9 +241,13 @@ export const createBookmarksRouter = (
 				return c.json(createErrorResponseBody(notFoundError), 404);
 			}
 			console.error("Failed to mark bookmark as read:", error);
+			const internalError = new InternalServerError(
+				"Failed to mark bookmark as read",
+			);
+			const errorResponse = createErrorResponse(internalError);
 			return c.json(
-				{ success: false, message: "Failed to mark bookmark as read" },
-				500,
+				createErrorResponseBody(internalError),
+				errorResponse.statusCode,
 			);
 		}
 	});
@@ -261,11 +265,10 @@ export const createBookmarksRouter = (
 				return c.json(createErrorResponseBody(notFoundError), 404);
 			}
 			console.error("Failed to mark bookmark as unread:", error);
-			// For general errors, preserve the original error message format
-			return c.json(
-				{ success: false, message: "Failed to mark bookmark as unread" },
-				500,
+			const internalError = new InternalServerError(
+				"Failed to mark bookmark as unread",
 			);
+			return c.json(createErrorResponseBody(internalError), 500);
 		}
 	});
 
