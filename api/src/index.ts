@@ -8,7 +8,7 @@ import { ArticleLabelRepository } from "./repositories/articleLabel";
 import { DrizzleBookmarkRepository } from "./repositories/bookmark";
 import { LabelRepository } from "./repositories/label";
 import { createBookmarksRouter } from "./routes/bookmarks";
-import labelsRouter from "./routes/labels";
+import { createLabelsRouter } from "./routes/labels";
 import { DefaultBookmarkService } from "./services/bookmark";
 import { LabelService } from "./services/label";
 
@@ -64,6 +64,7 @@ export const createApp = (env: Env) => {
 
 	// ルーターのマウント
 	const bookmarksRouter = createBookmarksRouter(bookmarkService, labelService);
+	const labelsRouter = createLabelsRouter(labelService);
 	app.route("/api/bookmarks", bookmarksRouter);
 	app.route("/api/labels", labelsRouter);
 
