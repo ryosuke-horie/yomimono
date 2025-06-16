@@ -144,6 +144,22 @@ describe("ブックマークリポジトリ", () => {
 			expect(mockDbClient.all).toHaveBeenCalledOnce();
 		});
 
+		it("未読ブックマークを作成日時の降順でソートして取得できること", async () => {
+			mockDbClient.all.mockResolvedValue([mockQueryResult2, mockQueryResult1]);
+			const result = await repository.findUnread();
+			expect(result).toEqual([expectedResult2, expectedResult1]);
+			expect(mockDbClient.select).toHaveBeenCalled();
+			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
+			expect(mockDbClient.where).toHaveBeenCalledWith(
+				eq(bookmarks.isRead, false),
+			);
+			expect(mockDbClient.orderBy).toHaveBeenCalledWith(
+				desc(bookmarks.createdAt),
+			);
+			expect(mockDbClient.leftJoin).toHaveBeenCalledTimes(3);
+			expect(mockDbClient.all).toHaveBeenCalledOnce();
+		});
+
 		it("DBクエリ失敗時にエラーをスローすること", async () => {
 			const mockError = new Error("Database error");
 			mockDbClient.all.mockRejectedValue(mockError);

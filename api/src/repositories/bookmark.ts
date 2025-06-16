@@ -123,7 +123,29 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 
 	async findUnread(): Promise<BookmarkWithLabel[]> {
 		try {
-			return this.attachLabelAndFavoriteStatus(eq(bookmarks.isRead, false));
+			const query = this.db
+				.select({
+					bookmark: bookmarks,
+					favorite: favorites,
+					label: labels,
+				})
+				.from(bookmarks)
+				.leftJoin(favorites, eq(bookmarks.id, favorites.bookmarkId))
+				.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
+				.leftJoin(labels, eq(articleLabels.labelId, labels.id))
+				.where(eq(bookmarks.isRead, false))
+				.orderBy(desc(bookmarks.createdAt));
+
+			const results = await query.all();
+
+			return results.map((row): BookmarkWithLabel => {
+				const bookmark = row.bookmark;
+				return {
+					...bookmark,
+					isFavorite: !!row.favorite,
+					label: row.label || null,
+				};
+			});
 		} catch (error) {
 			console.error("Failed to fetch unread bookmarks:", error);
 			throw error;
