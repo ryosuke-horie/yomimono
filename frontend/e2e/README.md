@@ -6,8 +6,21 @@
 
 ### 前提条件
 
-- フロントエンドサーバー（localhost:3000）が起動していること
-- APIサーバー（localhost:8787）が起動していること
+**重要: ローカルでE2Eテストを実行する前に、以下のサーバーを手動で起動してください**
+
+1. **APIサーバーを起動** (Terminal 1)
+   ```bash
+   cd api
+   npm run dev
+   # http://localhost:8787 で起動確認
+   ```
+
+2. **フロントエンドサーバーを起動** (Terminal 2)
+   ```bash
+   cd frontend
+   npm run dev
+   # http://localhost:3000 で起動確認
+   ```
 
 ### テストの実行
 
