@@ -1,10 +1,10 @@
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 /**
  * Playwright E2Eテスト設定
  * フロントエンドとAPIのローカル開発環境でのE2Eテストを設定
  */
 import { defineConfig, devices } from "@playwright/test";
-import { fileURLToPath } from "node:url";
-import { dirname, resolve } from "node:path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

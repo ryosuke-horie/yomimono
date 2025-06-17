@@ -10,7 +10,9 @@ import { BaseError } from "./base";
  * ステータスコードがContentfulStatusCodeとして有効かどうかを判定し、
  * 無効な場合は500に変換する
  */
-export function toContentfulStatusCode(statusCode: number): ContentfulStatusCode {
+export function toContentfulStatusCode(
+	statusCode: number,
+): ContentfulStatusCode {
 	// ContentfulStatusCode は 200-599 の範囲で、1xx は含まない
 	if (statusCode >= 200 && statusCode <= 599) {
 		return statusCode as ContentfulStatusCode;
