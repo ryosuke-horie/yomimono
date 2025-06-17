@@ -2,14 +2,14 @@
  * Playwright E2Eテスト設定
  * フロントエンドとAPIのローカル開発環境でのE2Eテストを設定
  */
-const { defineConfig, devices } = require("@playwright/test");
-const path = require("node:path");
+import { defineConfig, devices } from "@playwright/test";
+import path from "node:path";
 
 /**
  * デフォルトのテスト設定を定義
  * 開発サーバー (フロントエンド: localhost:3000, API: localhost:8787)
  */
-module.exports = defineConfig({
+export default defineConfig({
 	testDir: "./e2e",
 	// テストファイルの拡張子
 	testMatch: "**/*.spec.ts",
@@ -80,7 +80,7 @@ module.exports = defineConfig({
 	// 	},
 	// ],
 
-	// グローバル設定
-	globalSetup: path.resolve(__dirname, "./e2e/global-setup.ts"),
-	globalTeardown: path.resolve(__dirname, "./e2e/global-teardown.ts"),
+	// グローバル設定（手動起動のため無効化）
+	// globalSetup: path.resolve("./e2e/global-setup.ts"),
+	// globalTeardown: path.resolve("./e2e/global-teardown.ts"),
 });
