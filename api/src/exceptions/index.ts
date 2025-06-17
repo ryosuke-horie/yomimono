@@ -32,6 +32,7 @@ export {
 	isOperationalError,
 	createErrorResponse,
 	createErrorResponseBody,
+	toContentfulStatusCode,
 } from "./utils";
 
 if (import.meta.vitest) {

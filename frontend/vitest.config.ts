@@ -17,6 +17,12 @@ export default defineConfig({
 		globals: true,
 		setupFiles: ["./vitest.setup.ts"],
 		includeSource: ["src/**/*.{js,jsx,ts,tsx}"],
+		exclude: [
+			"**/node_modules/**",
+			"**/dist/**",
+			"**/.next/**",
+			"**/e2e/**", // E2Eテストを除外
+		],
 		env: {
 			NEXT_PUBLIC_API_URL: "http://localhost:3001",
 		},
