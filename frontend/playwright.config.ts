@@ -1,19 +1,15 @@
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 /**
  * Playwright E2Eテスト設定
  * フロントエンドとAPIのローカル開発環境でのE2Eテストを設定
  */
-import { defineConfig, devices } from "@playwright/test";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const { defineConfig, devices } = require("@playwright/test");
+const path = require("node:path");
 
 /**
  * デフォルトのテスト設定を定義
  * 開発サーバー (フロントエンド: localhost:3000, API: localhost:8787)
  */
-export default defineConfig({
+module.exports = defineConfig({
 	testDir: "./e2e",
 	// テストファイルの拡張子
 	testMatch: "**/*.spec.ts",
@@ -29,7 +25,7 @@ export default defineConfig({
 	reporter: [
 		["html", { outputFolder: "playwright-report" }],
 		["list"],
-		...(process.env.CI ? [["github", {}] as const] : []),
+		...(process.env.CI ? [["github", {}]] : []),
 	],
 	use: {
 		// ベースURL（フロントエンド）
@@ -66,25 +62,25 @@ export default defineConfig({
 		},
 	],
 
-	// 開発サーバーの起動設定
-	webServer: [
-		{
-			command: "npm run dev",
-			url: "http://localhost:3000",
-			reuseExistingServer: !process.env.CI,
-			// フロントエンドの起動を待つ
-			timeout: 120 * 1000,
-		},
-		{
-			command: "cd ../api && npm run dev",
-			url: "http://localhost:8787",
-			reuseExistingServer: !process.env.CI,
-			// APIの起動を待つ
-			timeout: 120 * 1000,
-		},
-	],
+	// 開発サーバーの起動設定（手動起動前提）
+	// webServer: [
+	// 	{
+	// 		command: "npm run dev",
+	// 		url: "http://localhost:3000",
+	// 		reuseExistingServer: !process.env.CI,
+	// 		// フロントエンドの起動を待つ
+	// 		timeout: 120 * 1000,
+	// 	},
+	// 	{
+	// 		command: "cd ../api && npx wrangler dev --port 8787",
+	// 		url: "http://localhost:8787",
+	// 		reuseExistingServer: !process.env.CI,
+	// 		// APIの起動を待つ
+	// 		timeout: 120 * 1000,
+	// 	},
+	// ],
 
 	// グローバル設定
-	globalSetup: resolve(__dirname, "./e2e/global-setup.ts"),
-	globalTeardown: resolve(__dirname, "./e2e/global-teardown.ts"),
+	globalSetup: path.resolve(__dirname, "./e2e/global-setup.ts"),
+	globalTeardown: path.resolve(__dirname, "./e2e/global-teardown.ts"),
 });
