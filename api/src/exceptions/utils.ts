@@ -3,7 +3,23 @@
  * エラー処理に関する共通ロジックを提供
  */
 import { HTTPException } from "hono/http-exception";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { BaseError } from "./base";
+
+/**
+ * ステータスコードがContentfulStatusCodeとして有効かどうかを判定し、
+ * 無効な場合は500に変換する
+ */
+export function toContentfulStatusCode(
+	statusCode: number,
+): ContentfulStatusCode {
+	// ContentfulStatusCode は 200-599 の範囲で、1xx は含まない
+	if (statusCode >= 200 && statusCode <= 599) {
+		return statusCode as ContentfulStatusCode;
+	}
+	// 1xx やその他の無効なコードは500に変換
+	return 500;
+}
 
 /**
  * エラーが運用上のエラー（想定内のエラー）かどうかを判定
@@ -102,6 +118,16 @@ export function fromHttpException(exception: HTTPException): BaseError {
 
 if (import.meta.vitest) {
 	const { test, expect } = import.meta.vitest;
+
+	test("toContentfulStatusCode は有効なステータスコードを返す", () => {
+		expect(toContentfulStatusCode(200)).toBe(200);
+		expect(toContentfulStatusCode(404)).toBe(404);
+		expect(toContentfulStatusCode(500)).toBe(500);
+		expect(toContentfulStatusCode(100)).toBe(500); // 1xx は無効なので500に変換
+		expect(toContentfulStatusCode(101)).toBe(500); // 1xx は無効なので500に変換
+		expect(toContentfulStatusCode(600)).toBe(500); // 範囲外は500に変換
+		expect(toContentfulStatusCode(-1)).toBe(500); // 負の値は500に変換
+	});
 
 	test("isOperationalError は運用エラーを正しく判定する", () => {
 		class TestError extends BaseError {

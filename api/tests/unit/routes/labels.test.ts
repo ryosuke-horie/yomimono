@@ -1,10 +1,10 @@
 import { Hono } from "hono";
-import type { StatusCode } from "hono/utils/http-status";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Label } from "../../../src/db/schema";
 import {
 	createErrorResponse,
 	createErrorResponseBody,
+	toContentfulStatusCode,
 } from "../../../src/exceptions";
 import type { Env } from "../../../src/index";
 import type { ILabelService } from "../../../src/interfaces/service/label";
@@ -81,7 +81,7 @@ function createMockLabelsRouter() {
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});
@@ -134,7 +134,7 @@ function createMockLabelsRouter() {
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});
@@ -157,7 +157,7 @@ function createMockLabelsRouter() {
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});
@@ -234,7 +234,7 @@ function createMockLabelsRouter() {
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});

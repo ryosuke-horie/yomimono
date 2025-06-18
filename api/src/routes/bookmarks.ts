@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import type { StatusCode } from "hono/utils/http-status";
 import {
 	BadRequestError,
 	ConflictError,
@@ -7,6 +6,7 @@ import {
 	NotFoundError,
 	createErrorResponse,
 	createErrorResponseBody,
+	toContentfulStatusCode,
 } from "../exceptions";
 import type { BookmarkWithLabel } from "../interfaces/repository/bookmark";
 import type { IBookmarkService } from "../interfaces/service/bookmark";
@@ -61,7 +61,7 @@ export const createBookmarksRouter = (
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});
@@ -75,7 +75,7 @@ export const createBookmarksRouter = (
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});
@@ -116,7 +116,7 @@ export const createBookmarksRouter = (
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});
@@ -160,7 +160,7 @@ export const createBookmarksRouter = (
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});
@@ -187,7 +187,7 @@ export const createBookmarksRouter = (
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});
@@ -209,7 +209,7 @@ export const createBookmarksRouter = (
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});
@@ -223,7 +223,7 @@ export const createBookmarksRouter = (
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});
@@ -247,7 +247,7 @@ export const createBookmarksRouter = (
 			const errorResponse = createErrorResponse(internalError);
 			return c.json(
 				createErrorResponseBody(internalError),
-				errorResponse.statusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});
@@ -282,7 +282,7 @@ export const createBookmarksRouter = (
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});
@@ -310,7 +310,7 @@ export const createBookmarksRouter = (
 				createErrorResponseBody(
 					new InternalServerError("既読ブックマークの取得に失敗しました"),
 				),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});
@@ -324,7 +324,7 @@ export const createBookmarksRouter = (
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});
@@ -366,7 +366,7 @@ export const createBookmarksRouter = (
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});

@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import type { StatusCode } from "hono/utils/http-status";
 import {
 	BadRequestError,
 	ConflictError,
@@ -7,6 +6,7 @@ import {
 	NotFoundError,
 	createErrorResponse,
 	createErrorResponseBody,
+	toContentfulStatusCode,
 } from "../exceptions";
 import type { ILabelService } from "../interfaces/service/label";
 import {
@@ -28,7 +28,7 @@ export const createLabelsRouter = (labelService: ILabelService) => {
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});
@@ -59,7 +59,7 @@ export const createLabelsRouter = (labelService: ILabelService) => {
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});
@@ -83,7 +83,7 @@ export const createLabelsRouter = (labelService: ILabelService) => {
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});
@@ -124,7 +124,7 @@ export const createLabelsRouter = (labelService: ILabelService) => {
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});
@@ -148,7 +148,7 @@ export const createLabelsRouter = (labelService: ILabelService) => {
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
-				errorResponse.statusCode as StatusCode,
+				toContentfulStatusCode(errorResponse.statusCode),
 			);
 		}
 	});

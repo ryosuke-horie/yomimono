@@ -11,6 +11,15 @@
     "format:api": "cd api && npm run format",
     "format:frontend": "cd frontend && npm run format",
     "format:extension": "cd extension && npm run format",
-    "format:mcp": "cd mcp && npm run format"
+    "format:mcp": "cd mcp && npm run format",
+    "test:e2e": "cd frontend && npm run test:e2e",
+    "test:e2e:ui": "cd frontend && npm run test:e2e:ui",
+    "test:e2e:debug": "cd frontend && npm run test:e2e:debug",
+    "test:e2e:report": "cd frontend && npm run test:e2e:report",
+    "dev:full": "concurrently \"cd api && npm run dev\" \"cd frontend && npm run dev\" --names \"API,Frontend\" --prefix-colors \"cyan,magenta\"",
+    "test:e2e:dev": "npm run dev:full & sleep 10 && cd frontend && npm run test:e2e; pkill -f \"npm run dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }
