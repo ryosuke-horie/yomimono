@@ -18,6 +18,7 @@
 		"test:e2e:report": "playwright show-report",
 		"test:e2e:headless": "playwright test --headed",
 		"test:e2e:specific": "playwright test --grep",
+		"servers:start": "node start-servers.js",
 		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
 		"deploy:setup": "bash ./setup-deploy.sh",
 		"deploy": "npm run deploy:setup && opennextjs-cloudflare build && opennextjs-cloudflare deploy",

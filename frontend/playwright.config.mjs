@@ -63,23 +63,10 @@ export default defineConfig({
 	],
 
 	// 開発サーバーの起動設定
-	// E2Eテスト実行時にバックエンドとフロントエンドを自動起動
-	webServer: [
-		{
-			command: "npm run dev",
-			url: "http://localhost:3000",
-			reuseExistingServer: true,
-			timeout: 120 * 1000,
-		},
-		{
-			command: "cd ../api && npm run dev",
-			url: "http://localhost:8787",
-			reuseExistingServer: true,
-			timeout: 120 * 1000,
-		},
-	],
+	// 注意: E2Eテスト実行前に `npm run servers:start` でサーバーを起動してください
+	// webServer: [], // 手動起動前提のためコメントアウト
 
-	// グローバル設定
-	globalSetup: path.resolve("./e2e/global-setup.ts"),
-	globalTeardown: path.resolve("./e2e/global-teardown.ts"),
+	// グローバル設定（手動サーバー起動前提のため無効化）
+	// globalSetup: path.resolve("./e2e/global-setup.ts"),
+	// globalTeardown: path.resolve("./e2e/global-teardown.ts"),
 });
