@@ -16,6 +16,7 @@
     "test:e2e:ui": "cd frontend && npm run test:e2e:ui",
     "test:e2e:debug": "cd frontend && npm run test:e2e:debug",
     "test:e2e:report": "cd frontend && npm run test:e2e:report",
+    "servers:start": "cd frontend && npm run servers:start",
     "dev:full": "concurrently \"cd api && npm run dev\" \"cd frontend && npm run dev\" --names \"API,Frontend\" --prefix-colors \"cyan,magenta\"",
     "test:e2e:dev": "npm run dev:full & sleep 10 && cd frontend && npm run test:e2e; pkill -f \"npm run dev\""
   },
