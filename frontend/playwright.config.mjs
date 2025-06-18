@@ -63,25 +63,23 @@ export default defineConfig({
 	],
 
 	// 開発サーバーの起動設定
-	// 注意: ローカル実行時は事前にサーバーを手動起動してください
-	// Frontend: npm run dev (localhost:3000)
-	// API: cd ../api && npm run dev (localhost:8787)
-	webServer: process.env.CI ? [
+	// E2Eテスト実行時にバックエンドとフロントエンドを自動起動
+	webServer: [
 		{
 			command: "npm run dev",
 			url: "http://localhost:3000",
-			reuseExistingServer: false,
+			reuseExistingServer: true,
 			timeout: 120 * 1000,
 		},
 		{
-			command: "cd ../api && npx wrangler dev --port 8787",
+			command: "cd ../api && npm run dev",
 			url: "http://localhost:8787",
-			reuseExistingServer: false,
-			timeout: 180 * 1000,
+			reuseExistingServer: true,
+			timeout: 120 * 1000,
 		},
-	] : undefined,
+	],
 
-	// グローバル設定（CIでのみ有効）
-	globalSetup: process.env.CI ? path.resolve("./e2e/global-setup.ts") : undefined,
-	globalTeardown: process.env.CI ? path.resolve("./e2e/global-teardown.ts") : undefined,
+	// グローバル設定
+	globalSetup: path.resolve("./e2e/global-setup.ts"),
+	globalTeardown: path.resolve("./e2e/global-teardown.ts"),
 });
