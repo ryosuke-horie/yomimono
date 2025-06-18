@@ -12,7 +12,7 @@ test.describe("ホームページ - カード表示確認", () => {
 		await page.goto("/");
 
 		// ページタイトルを確認
-		await expect(page).toHaveTitle(/effective-yomimono/i);
+		await expect(page).toHaveTitle(/Effective Yomimono/i);
 
 		// ページが読み込まれるまで待機
 		await page.waitForLoadState("networkidle");
