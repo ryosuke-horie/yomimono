@@ -1,15 +1,20 @@
 {
 	"name": "effective-yomimono-api",
 	"scripts": {
-		"dev": "wrangler dev --port 8787 --env development",
+		"dev": "NODE_ENV=development wrangler dev --port 8787 --env development",
 		"deploy": "NODE_ENV=production wrangler deploy --minify",
 		"lint": "npx @biomejs/biome check",
 		"format": "npx @biomejs/biome check --write",
 		"test": "vitest run",
 		"test:watch": "vitest watch",
 		"migrate:production": "NODE_ENV=production drizzle-kit migrate",
-		"migrate:development": "wrangler d1 migrations apply yomimono-db --local",
-		"studio": "drizzle-kit studio"
+		"migrate:development": "NODE_ENV=development drizzle-kit migrate",
+		"migrate:dev:local": "wrangler d1 migrations apply yomimono-db-dev --local",
+		"migrate:prod:remote": "wrangler d1 migrations apply yomimono-db --remote",
+		"db:generate": "drizzle-kit generate",
+		"db:studio": "drizzle-kit studio",
+		"db:studio:dev": "NODE_ENV=development drizzle-kit studio",
+		"db:studio:prod": "NODE_ENV=production drizzle-kit studio"
 	},
 	"dependencies": {
 		"dotenv": "^16.5.0",

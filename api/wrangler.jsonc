@@ -42,6 +42,14 @@
 	"dev": {
 		"vars": {
 			"ENVIRONMENT": "development"
-		}
+		},
+		// 開発環境用のローカルD1データベース設定
+		"d1_databases": [
+			{
+				"binding": "DB",
+				"database_name": "yomimono-db-dev",
+				"database_id": "local-dev-db"
+			}
+		]
 	}
 }
