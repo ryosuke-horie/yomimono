@@ -9,7 +9,9 @@
 ### 開発環境 (`NODE_ENV=development` または未設定)
 - **データベース**: ローカルSQLiteファイル (`sqlite.db`)
 - **データベース名**: `yomimono-db-dev`
-- **用途**: ローカル開発、テスト
+- **場所**: プロジェクトルート
+- **用途**: ローカル開発、テスト、マイグレーション
+- **注意**: `wrangler dev` 実行時は `.wrangler` 内のminiflareD1を使用
 
 ### 本番環境 (`NODE_ENV=production`)
 - **データベース**: Cloudflare D1 (`wrangler://yomimono-db`)
