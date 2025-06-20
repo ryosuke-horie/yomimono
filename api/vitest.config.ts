@@ -30,7 +30,7 @@ export default defineConfig({
 				"src/routes/**", // ルートハンドラーはモックテストのため正確なカバレッジが取れない
 			],
 			// in-source testingのテストもカバレッジに含める
-			includeSource: ["src/**/*.ts"],
+			include: ["src/**/*.ts"],
 			thresholds: {
 				lines: 76,
 				functions: 80,
