@@ -89,7 +89,7 @@ test.describe("必須シナリオ - ラベルフィルタ", () => {
 				.count();
 
 			// ラベルフィルタの操作（selectまたはinputに応じて）
-			const tagName = await labelFilter.tagName();
+			const tagName = await labelFilter.evaluate((el) => el.tagName);
 			if (tagName === "SELECT") {
 				// セレクトボックスの場合
 				const options = await labelFilter.locator("option").count();
