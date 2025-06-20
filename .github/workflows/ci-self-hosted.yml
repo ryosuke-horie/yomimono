@@ -123,84 +123,6 @@ jobs:
         path: ./frontend/coverage/
         retention-days: 7
 
-  # E2E テスト（フロントエンド）
-  frontend-e2e:
-    name: Frontend E2E Tests
-    runs-on: self-hosted
-    timeout-minutes: 20
-    needs: [api-tests, frontend-tests]
-
-    defaults:
-      run:
-        working-directory: ./frontend
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Cache dependencies
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.npm
-          ~/.pnpm-store
-          ./frontend/node_modules
-          ./api/node_modules
-        key: e2e-deps-${{ hashFiles('frontend/package-lock.json', 'api/package-lock.json') }}
-        restore-keys: |
-          e2e-deps-
-
-    - name: Install frontend dependencies
-      run: |
-        npm ci
-        # ネイティブ依存関係の問題を修正
-        npm install @rollup/rollup-linux-x64-gnu lightningcss-linux-x64-gnu --no-save
-
-    - name: Install API dependencies
-      working-directory: ./api
-      run: npm ci
-
-    - name: Start test servers
-      run: |
-        # バックグラウンドでサーバー起動
-        npm run servers:start &
-        SERVER_PID=$!
-        echo "Server process started with PID: $SERVER_PID"
-        
-        # サーバー起動の待機（最大60秒）
-        echo "Waiting for servers to start..."
-        for i in {1..60}; do
-          sleep 1
-          if curl -s http://localhost:3000 >/dev/null 2>&1 && curl -s http://localhost:8787/health >/dev/null 2>&1; then
-            echo "✅ Both servers are ready after ${i} seconds"
-            break
-          fi
-          if [ $i -eq 60 ]; then
-            echo "❌ Servers failed to start within 60 seconds"
-            echo "Frontend status:"
-            curl -I http://localhost:3000 || echo "Frontend not accessible"
-            echo "API status:"
-            curl -I http://localhost:8787/health || echo "API not accessible"
-            exit 1
-          fi
-        done
-      env:
-        NODE_ENV: test
-
-    - name: Run E2E tests
-      run: npm run test:e2e
-      env:
-        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
-
-    - name: Upload E2E test results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: e2e-results
-        path: |
-          ./frontend/test-results/
-          ./frontend/playwright-report/
-        retention-days: 7
 
   # Chrome拡張機能のテスト
   extension-tests:
@@ -296,66 +218,6 @@ jobs:
         path: ./mcp/coverage/
         retention-days: 7
 
-  # ビルドテスト
-  build-tests:
-    name: Build Tests
-    runs-on: self-hosted
-    timeout-minutes: 15
-    needs: [api-tests, frontend-tests, extension-tests, mcp-tests]
-
-    strategy:
-      matrix:
-        project: [api, frontend]
-
-    defaults:
-      run:
-        working-directory: ./${{ matrix.project }}
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Cache dependencies
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.npm
-          ~/.pnpm-store
-          ./${{ matrix.project }}/node_modules
-        key: ${{ matrix.project }}-deps-${{ hashFiles(format('{0}/package-lock.json', matrix.project)) }}
-        restore-keys: |
-          ${{ matrix.project }}-deps-
-
-    - name: Install dependencies
-      run: |
-        npm ci
-        # フロントエンドプロジェクトの場合、ネイティブ依存関係問題を修正
-        if [ "${{ matrix.project }}" = "frontend" ]; then
-          npm install @rollup/rollup-linux-x64-gnu lightningcss-linux-x64-gnu --no-save
-        fi
-
-    - name: Build project (API)
-      if: matrix.project == 'api'
-      run: |
-        # Wranglerビルドのテスト（実際のデプロイはしない）
-        echo "Testing Wrangler build configuration..."
-        npx wrangler dev --port 8788 --env development &
-        WRANGLER_PID=$!
-        sleep 5
-        kill $WRANGLER_PID 2>/dev/null || true
-        echo "✅ Wrangler build test completed"
-
-    - name: Build project (Frontend)
-      if: matrix.project == 'frontend'
-      run: npm run build
-
-    - name: Upload build artifacts
-      if: matrix.project == 'frontend'
-      uses: actions/upload-artifact@v4
-      with:
-        name: frontend-build
-        path: ./frontend/.next/
-        retention-days: 3
 
   # セキュリティ・品質チェック
   security-audit:
@@ -412,7 +274,7 @@ jobs:
     name: Integration Summary
     runs-on: self-hosted
     timeout-minutes: 5
-    needs: [api-tests, frontend-tests, frontend-e2e, extension-tests, mcp-tests, build-tests, security-audit]
+    needs: [api-tests, frontend-tests, extension-tests, mcp-tests, security-audit]
     if: always()
 
     steps:
@@ -421,18 +283,18 @@ jobs:
 
     - name: Generate test summary
       run: |
-        echo "## CI Results Summary" > test-summary.md
+        echo "## Self-hosted CI Results Summary" > test-summary.md
         echo "" >> test-summary.md
         
         # 各ジョブの結果を集計
         echo "### Test Results" >> test-summary.md
         echo "- API Tests: ${{ needs.api-tests.result }}" >> test-summary.md
         echo "- Frontend Tests: ${{ needs.frontend-tests.result }}" >> test-summary.md
-        echo "- E2E Tests: ${{ needs.frontend-e2e.result }}" >> test-summary.md
         echo "- Extension Tests: ${{ needs.extension-tests.result }}" >> test-summary.md
         echo "- MCP Tests: ${{ needs.mcp-tests.result }}" >> test-summary.md
-        echo "- Build Tests: ${{ needs.build-tests.result }}" >> test-summary.md
         echo "- Security Audit: ${{ needs.security-audit.result }}" >> test-summary.md
+        echo "" >> test-summary.md
+        echo "**Note**: E2E tests and build tests run on GitHub-hosted runners separately" >> test-summary.md
         echo "" >> test-summary.md
         
         # ブランチ情報
@@ -447,7 +309,7 @@ jobs:
     - name: Upload summary
       uses: actions/upload-artifact@v4
       with:
-        name: ci-summary
+        name: self-hosted-ci-summary
         path: test-summary.md
         retention-days: 30
 
@@ -455,12 +317,11 @@ jobs:
       run: |
         if [[ "${{ needs.api-tests.result }}" == "failure" ]] || \
            [[ "${{ needs.frontend-tests.result }}" == "failure" ]] || \
-           [[ "${{ needs.frontend-e2e.result }}" == "failure" ]] || \
            [[ "${{ needs.extension-tests.result }}" == "failure" ]] || \
            [[ "${{ needs.mcp-tests.result }}" == "failure" ]] || \
-           [[ "${{ needs.build-tests.result }}" == "failure" ]]; then
-          echo "❌ CI failed - one or more jobs failed"
+           [[ "${{ needs.security-audit.result }}" == "failure" ]]; then
+          echo "❌ Self-hosted CI failed - one or more jobs failed"
           exit 1
         else
-          echo "✅ All CI jobs completed successfully"
+          echo "✅ All self-hosted CI jobs completed successfully"
         fi

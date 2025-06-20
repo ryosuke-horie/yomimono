@@ -2,6 +2,20 @@
 
 このドキュメントでは、effective-yomimonoプロジェクト用のGitHub Actions セルフホストランナーの環境構築手順を説明します。
 
+## CI設計方針
+
+本プロジェクトでは、CI処理を以下のように分離しています：
+
+### セルフホストランナー（軽量・高速処理）
+- **対象**: Lint、フォーマット、単体テスト、セキュリティ監査
+- **利点**: キャッシュが効いて高速、Node.js等の環境を事前セットアップ可能
+- **ワークフロー**: `.github/workflows/ci-self-hosted.yml`
+
+### GitHubホストランナー（重い処理）
+- **対象**: E2Eテスト、ビルドテスト
+- **理由**: Playwrightによるブラウザテストは重く、スペックが必要
+- **ワークフロー**: `.github/workflows/ci-github-hosted.yml`
+
 ## 概要
 
 セルフホストランナーを使用することで以下の利点が得られます：
@@ -13,12 +27,14 @@
 
 ## システム要件
 
-### 推奨スペック
+### 推奨スペック（セルフホストランナー用）
 - **OS**: Ubuntu 22.04 LTS または macOS 12+
-- **CPU**: 4コア以上
-- **メモリ**: 8GB以上
-- **ストレージ**: 50GB以上の空き容量
+- **CPU**: 2コア以上（軽量処理のため要件緩和）
+- **メモリ**: 4GB以上（E2Eテスト除外により要件緩和）
+- **ストレージ**: 30GB以上の空き容量
 - **ネットワーク**: 安定したインターネット接続
+
+**Note**: E2EテストはGitHubホストランナーで実行するため、ブラウザテスト用の重いスペックは不要です。
 
 ### 必要な権限
 - sudo権限（Linux）または管理者権限（macOS）
@@ -104,52 +120,16 @@ cd extension && npm install && cd ..
 cd mcp && npm install && cd ..
 ```
 
-## ブラウザ・テスト環境
+## ブラウザ・テスト環境（オプション）
 
-### 1. Playwright環境
+**Note**: E2EテストはGitHubホストランナーで実行するため、以下の設定は必須ではありません。開発・デバッグ用途でローカルE2Eテストを実行したい場合のみセットアップしてください。
+
+### 1. Playwright環境（オプション）
 
 ```bash
-# Playwright CLI グローバルインストール
+# 開発用途でのみ必要
 npm install -g @playwright/test
-
-# ブラウザインストール
 npx playwright install
-npx playwright install-deps
-
-# システム依存関係（Linux）
-sudo apt-get update
-sudo apt-get install -y \
-  libnss3 \
-  libatk-bridge2.0-0 \
-  libdrm2 \
-  libxkbcommon0 \
-  libgbm1 \
-  libasound2
-```
-
-### 2. Chrome/Chromium
-
-```bash
-# Google Chrome（Linux）
-wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
-sudo apt-get update
-sudo apt-get install -y google-chrome-stable
-
-# Chromium（代替案）
-sudo apt-get install -y chromium-browser
-```
-
-### 3. 仮想ディスプレイ（ヘッドレス環境）
-
-```bash
-# Xvfb インストール
-sudo apt-get install -y xvfb
-
-# 環境変数設定
-echo 'export DISPLAY=:99' >> ~/.bashrc
-echo 'export CHROME_BIN=/usr/bin/google-chrome-stable' >> ~/.bashrc
-source ~/.bashrc
 ```
 
 ## 開発ツール
@@ -191,9 +171,6 @@ sudo mkdir -p /etc/actions-runner
 sudo tee /etc/actions-runner/env > /dev/null <<EOF
 NODE_ENV=test
 CI=true
-PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-CHROME_BIN=/usr/bin/google-chrome-stable
-DISPLAY=:99
 EOF
 ```
 
@@ -291,9 +268,6 @@ for dir in api frontend extension mcp; do
   fi
 done
 
-# Playwright ブラウザ更新
-npx playwright install
-
 echo "Update complete!"
 EOF
 
@@ -341,9 +315,8 @@ crontab -e
 node --version
 npm --version
 
-# ブラウザ確認
-google-chrome-stable --version
-npx playwright --version
+# Git確認
+git --version
 
 # ランナー状態確認
 cd ~/actions-runner
