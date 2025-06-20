@@ -29,8 +29,6 @@ export default defineConfig({
 				"src/interfaces/**", // インターフェースはカバレッジに含めない
 				"src/routes/**", // ルートハンドラーはモックテストのため正確なカバレッジが取れない
 			],
-			// in-source testingのテストもカバレッジに含める
-			include: ["src/**/*.ts"],
 			thresholds: {
 				lines: 76,
 				functions: 80,
