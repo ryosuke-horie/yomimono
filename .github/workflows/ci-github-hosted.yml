@@ -130,10 +130,10 @@ jobs:
         
         # Create CI-specific next.config.mjs (without Cloudflare dev setup)
         cat > next.config.ci.mjs << 'EOF'
-        /** @type {import('next').NextConfig} */
-        const nextConfig = {};
-        export default nextConfig;
-        EOF
+/** @type {import('next').NextConfig} */
+const nextConfig = {};
+export default nextConfig;
+EOF
 
     - name: Build project (API)
       if: matrix.project == 'api'
