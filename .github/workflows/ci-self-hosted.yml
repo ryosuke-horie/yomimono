@@ -161,17 +161,31 @@ jobs:
       run: npm ci
 
     - name: Start test servers
-      run: npm run servers:start &
+      run: |
+        # バックグラウンドでサーバー起動
+        npm run servers:start &
+        SERVER_PID=$!
+        echo "Server process started with PID: $SERVER_PID"
+        
+        # サーバー起動の待機（最大60秒）
+        echo "Waiting for servers to start..."
+        for i in {1..60}; do
+          sleep 1
+          if curl -s http://localhost:3000 >/dev/null 2>&1 && curl -s http://localhost:8787/health >/dev/null 2>&1; then
+            echo "✅ Both servers are ready after ${i} seconds"
+            break
+          fi
+          if [ $i -eq 60 ]; then
+            echo "❌ Servers failed to start within 60 seconds"
+            echo "Frontend status:"
+            curl -I http://localhost:3000 || echo "Frontend not accessible"
+            echo "API status:"
+            curl -I http://localhost:8787/health || echo "API not accessible"
+            exit 1
+          fi
+        done
       env:
         NODE_ENV: test
-
-    - name: Wait for servers
-      run: |
-        echo "Waiting for servers to start..."
-        sleep 10
-        # ヘルスチェック
-        curl -f http://localhost:3000 || (echo "Frontend server not ready" && exit 1)
-        curl -f http://localhost:8787/health || (echo "API server not ready" && exit 1)
 
     - name: Run E2E tests
       run: npm run test:e2e
