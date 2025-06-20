@@ -127,6 +127,13 @@ jobs:
       run: |
         # Create .env file for build
         echo "NEXT_PUBLIC_API_BASE_URL=http://localhost:8787" > .env
+        
+        # Create CI-specific next.config.mjs (without Cloudflare dev setup)
+        cat > next.config.ci.mjs << 'EOF'
+        /** @type {import('next').NextConfig} */
+        const nextConfig = {};
+        export default nextConfig;
+        EOF
 
     - name: Build project (API)
       if: matrix.project == 'api'
@@ -141,7 +148,14 @@ jobs:
 
     - name: Build project (Frontend)
       if: matrix.project == 'frontend'
-      run: npm run build
+      run: |
+        # Use CI-specific next config for build
+        mv next.config.mjs next.config.original.mjs
+        mv next.config.ci.mjs next.config.mjs
+        npm run build
+        # Restore original config
+        mv next.config.mjs next.config.ci.mjs
+        mv next.config.original.mjs next.config.mjs
 
     - name: Upload build artifacts
       if: matrix.project == 'frontend'
