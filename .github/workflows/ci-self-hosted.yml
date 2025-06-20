@@ -90,20 +90,23 @@ jobs:
       if: steps.cache-deps.outputs.cache-hit != 'true'
       run: |
         npm ci
-        # ネイティブ依存関係の問題を修正
-        npm install @rollup/rollup-linux-x64-gnu --save-dev --no-save || true
-        npm install lightningcss-linux-x64-gnu --save-dev --no-save || true
-
-    - name: Fix native dependencies (workaround)
-      run: |
+        
         # npm依存関係バグの回避策
-        if [ ! -d "node_modules/@rollup/rollup-linux-x64-gnu" ]; then
-          echo "Installing missing Rollup native dependencies..."
-          npm install @rollup/rollup-linux-x64-gnu --no-save || true
-        fi
-        if [ ! -d "node_modules/lightningcss-linux-x64-gnu" ]; then
-          echo "Installing missing LightningCSS native dependencies..."
-          npm install lightningcss-linux-x64-gnu --no-save || true
+        echo "Applying workaround for native dependencies..."
+        rm -rf node_modules/.rollup_cache node_modules/.vite
+        npm install @rollup/rollup-linux-x64-gnu lightningcss-linux-x64-gnu --no-save
+
+    - name: Fix native dependencies (cached case)
+      if: steps.cache-deps.outputs.cache-hit == 'true'
+      run: |
+        # キャッシュが使用された場合の修正
+        echo "Cache was used, checking native dependencies..."
+        
+        if [ ! -d "node_modules/@rollup/rollup-linux-x64-gnu" ] || [ ! -d "node_modules/lightningcss-linux-x64-gnu" ]; then
+          echo "Installing missing native dependencies..."
+          npm install @rollup/rollup-linux-x64-gnu lightningcss-linux-x64-gnu --no-save
+        else
+          echo "Native dependencies already present"
         fi
 
     - name: Run linting
@@ -151,8 +154,7 @@ jobs:
       run: |
         npm ci
         # ネイティブ依存関係の問題を修正
-        npm install @rollup/rollup-linux-x64-gnu --no-save || true
-        npm install lightningcss-linux-x64-gnu --no-save || true
+        npm install @rollup/rollup-linux-x64-gnu lightningcss-linux-x64-gnu --no-save
 
     - name: Install API dependencies
       working-directory: ./api
@@ -315,8 +317,7 @@ jobs:
         npm ci
         # フロントエンドプロジェクトの場合、ネイティブ依存関係問題を修正
         if [ "${{ matrix.project }}" = "frontend" ]; then
-          npm install @rollup/rollup-linux-x64-gnu --no-save || true
-          npm install lightningcss-linux-x64-gnu --no-save || true
+          npm install @rollup/rollup-linux-x64-gnu lightningcss-linux-x64-gnu --no-save
         fi
 
     - name: Build project (API)
