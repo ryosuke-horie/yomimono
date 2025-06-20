@@ -1,0 +1,267 @@
+name: Self-hosted Runner Maintenance
+
+on:
+  schedule:
+    # 毎週日曜日の深夜2時（JST 11時）に実行
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+    inputs:
+      maintenance_type:
+        description: 'Maintenance type'
+        required: true
+        type: choice
+        options:
+          - 'dependencies'
+          - 'cleanup'
+          - 'health-check'
+          - 'full'
+        default: 'dependencies'
+
+env:
+  NODE_ENV: test
+  CI: true
+
+jobs:
+  # ランナーヘルスチェック
+  runner-health-check:
+    name: Runner Health Check
+    runs-on: self-hosted
+    timeout-minutes: 10
+    if: github.event.inputs.maintenance_type == 'health-check' || github.event.inputs.maintenance_type == 'full' || github.event.schedule
+
+    steps:
+    - name: System information
+      run: |
+        echo "## Runner System Information" > health-report.md
+        echo "" >> health-report.md
+        
+        echo "### System Resources" >> health-report.md
+        echo "\`\`\`" >> health-report.md
+        echo "CPU Usage:" >> health-report.md
+        top -l 1 | grep "CPU usage" || uptime >> health-report.md
+        echo "" >> health-report.md
+        echo "Memory Usage:" >> health-report.md
+        free -h 2>/dev/null || vm_stat | head -10 >> health-report.md
+        echo "" >> health-report.md
+        echo "Disk Usage:" >> health-report.md
+        df -h >> health-report.md
+        echo "\`\`\`" >> health-report.md
+        echo "" >> health-report.md
+
+    - name: Docker health check
+      continue-on-error: true
+      run: |
+        echo "### Docker Status" >> health-report.md
+        echo "\`\`\`" >> health-report.md
+        if command -v docker &> /dev/null; then
+          echo "Docker version:" >> health-report.md
+          docker --version >> health-report.md
+          echo "" >> health-report.md
+          echo "Docker system info:" >> health-report.md
+          docker system df 2>/dev/null || echo "Docker system info unavailable" >> health-report.md
+        else
+          echo "Docker not installed" >> health-report.md
+        fi
+        echo "\`\`\`" >> health-report.md
+        echo "" >> health-report.md
+
+    - name: Node.js environment check
+      run: |
+        echo "### Node.js Environment" >> health-report.md
+        echo "\`\`\`" >> health-report.md
+        echo "Node.js version: $(node --version)" >> health-report.md
+        echo "npm version: $(npm --version)" >> health-report.md
+        if command -v pnpm &> /dev/null; then
+          echo "pnpm version: $(pnpm --version)" >> health-report.md
+        fi
+        echo "Global packages:" >> health-report.md
+        npm list -g --depth=0 >> health-report.md
+        echo "\`\`\`" >> health-report.md
+        echo "" >> health-report.md
+
+    - name: Browser environment check
+      run: |
+        echo "### Browser Environment" >> health-report.md
+        echo "\`\`\`" >> health-report.md
+        if command -v google-chrome-stable &> /dev/null; then
+          echo "Chrome version: $(google-chrome-stable --version)" >> health-report.md
+        elif command -v chromium-browser &> /dev/null; then
+          echo "Chromium version: $(chromium-browser --version)" >> health-report.md
+        else
+          echo "Chrome/Chromium not found" >> health-report.md
+        fi
+        
+        if command -v npx playwright &> /dev/null; then
+          echo "Playwright version: $(npx playwright --version)" >> health-report.md
+        else
+          echo "Playwright not installed globally" >> health-report.md
+        fi
+        echo "\`\`\`" >> health-report.md
+
+    - name: Upload health report
+      uses: actions/upload-artifact@v4
+      with:
+        name: runner-health-report-${{ github.run_number }}
+        path: health-report.md
+        retention-days: 30
+
+  # 依存関係更新
+  update-dependencies:
+    name: Update Dependencies
+    runs-on: self-hosted
+    timeout-minutes: 20
+    if: github.event.inputs.maintenance_type == 'dependencies' || github.event.inputs.maintenance_type == 'full' || github.event.schedule
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Update global npm packages
+      run: |
+        echo "Updating global npm packages..."
+        npm update -g
+        
+        # 特定のパッケージの最新版チェック
+        GLOBAL_PACKAGES=("@playwright/test" "typescript" "tsx")
+        
+        for package in "${GLOBAL_PACKAGES[@]}"; do
+          echo "Checking $package..."
+          if npm list -g $package &> /dev/null; then
+            npm update -g $package
+          else
+            echo "$package not installed globally"
+          fi
+        done
+
+    - name: Update Playwright browsers
+      run: |
+        echo "Updating Playwright browsers..."
+        npx playwright install --with-deps
+
+    - name: Cache cleanup
+      run: |
+        echo "Cleaning npm cache..."
+        npm cache clean --force
+        
+        if command -v pnpm &> /dev/null; then
+          echo "Cleaning pnpm cache..."
+          pnpm store prune
+        fi
+
+    - name: Verify updates
+      run: |
+        echo "Post-update verification..."
+        node --version
+        npm --version
+        npx playwright --version
+        google-chrome-stable --version || chromium-browser --version || echo "Browser check failed"
+
+  # クリーンアップ作業
+  cleanup-runner:
+    name: Cleanup Runner
+    runs-on: self-hosted
+    timeout-minutes: 15
+    if: github.event.inputs.maintenance_type == 'cleanup' || github.event.inputs.maintenance_type == 'full' || github.event.schedule
+
+    steps:
+    - name: Clean temporary files
+      run: |
+        echo "Cleaning temporary files..."
+        
+        # システム一時ディレクトリ
+        sudo find /tmp -type f -atime +7 -delete 2>/dev/null || echo "Temp cleanup completed"
+        
+        # ランナー固有の一時ディレクトリ
+        if [ -d "/tmp/runner-tmp" ]; then
+          rm -rf /tmp/runner-tmp/*
+        fi
+
+    - name: Clean old log files
+      run: |
+        echo "Cleaning old log files..."
+        
+        # ランナーログの古いファイルを削除（30日以上古い）
+        find ~/actions-runner/_diag -name "*.log" -type f -mtime +30 -delete 2>/dev/null || echo "Log cleanup completed"
+
+    - name: Clean Docker artifacts
+      continue-on-error: true
+      run: |
+        if command -v docker &> /dev/null; then
+          echo "Cleaning Docker artifacts..."
+          docker system prune -f --volumes
+          docker image prune -f
+        fi
+
+    - name: Clean package caches
+      run: |
+        echo "Cleaning package manager caches..."
+        
+        # npm cache
+        npm cache clean --force
+        
+        # pnpm cache
+        if command -v pnpm &> /dev/null; then
+          pnpm store prune
+        fi
+        
+        # Playwright cache
+        if [ -d "~/.cache/ms-playwright" ]; then
+          # 30日以上古いブラウザキャッシュを削除
+          find ~/.cache/ms-playwright -type d -mtime +30 -exec rm -rf {} + 2>/dev/null || echo "Playwright cache cleanup completed"
+        fi
+
+    - name: Disk usage report
+      run: |
+        echo "Post-cleanup disk usage:"
+        df -h
+        
+        echo "Largest directories in home:"
+        du -sh ~/* 2>/dev/null | sort -rh | head -10 || echo "Directory size check completed"
+
+  # フルメンテナンス（すべての作業を含む）
+  full-maintenance:
+    name: Full Maintenance Summary
+    runs-on: self-hosted
+    timeout-minutes: 5
+    needs: [runner-health-check, update-dependencies, cleanup-runner]
+    if: always() && (github.event.inputs.maintenance_type == 'full' || github.event.schedule)
+
+    steps:
+    - name: Generate maintenance report
+      run: |
+        echo "## Self-hosted Runner Maintenance Report" > maintenance-report.md
+        echo "Date: $(date)" >> maintenance-report.md
+        echo "" >> maintenance-report.md
+        
+        echo "### Maintenance Tasks Completed" >> maintenance-report.md
+        echo "- Health Check: ${{ needs.runner-health-check.result }}" >> maintenance-report.md
+        echo "- Dependencies Update: ${{ needs.update-dependencies.result }}" >> maintenance-report.md
+        echo "- Cleanup: ${{ needs.cleanup-runner.result }}" >> maintenance-report.md
+        echo "" >> maintenance-report.md
+        
+        echo "### System Status" >> maintenance-report.md
+        echo "\`\`\`" >> maintenance-report.md
+        echo "Uptime: $(uptime)" >> maintenance-report.md
+        echo "Disk Usage:" >> maintenance-report.md
+        df -h >> maintenance-report.md
+        echo "\`\`\`" >> maintenance-report.md
+        
+        cat maintenance-report.md
+
+    - name: Upload maintenance report
+      uses: actions/upload-artifact@v4
+      with:
+        name: maintenance-report-${{ github.run_number }}
+        path: maintenance-report.md
+        retention-days: 90
+
+    - name: Notify maintenance completion
+      run: |
+        if [[ "${{ needs.runner-health-check.result }}" == "success" ]] && \
+           [[ "${{ needs.update-dependencies.result }}" == "success" ]] && \
+           [[ "${{ needs.cleanup-runner.result }}" == "success" ]]; then
+          echo "✅ Full maintenance completed successfully"
+        else
+          echo "⚠️ Some maintenance tasks failed - check individual job results"
+          exit 1
+        fi
