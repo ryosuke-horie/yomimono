@@ -7,6 +7,8 @@
 		"format": "npx @biomejs/biome check --write",
 		"test": "vitest run",
 		"test:watch": "vitest watch",
+		"test:seed": "vitest run src/scripts/seed.ts",
+		"test:seed:watch": "vitest watch src/scripts/seed.ts",
 		"migrate:production": "NODE_ENV=production drizzle-kit migrate",
 		"migrate:development": "NODE_ENV=development drizzle-kit migrate",
 		"migrate:dev:local": "wrangler d1 migrations apply yomimono-db-dev --local",
@@ -14,7 +16,12 @@
 		"db:generate": "drizzle-kit generate",
 		"db:studio": "drizzle-kit studio",
 		"db:studio:dev": "NODE_ENV=development drizzle-kit studio",
-		"db:studio:prod": "NODE_ENV=production drizzle-kit studio"
+		"db:studio:prod": "NODE_ENV=production drizzle-kit studio",
+		"seed": "NODE_ENV=development npx tsx src/scripts/seed.ts",
+		"seed:development": "NODE_ENV=development npx tsx src/scripts/seed.ts",
+		"seed:test": "NODE_ENV=development npx tsx -e \"(async () => { const m = await import('./src/scripts/seed.ts'); await m.runSeedData({bookmarkCount: 5, labelCount: 3, favoriteRatio: 0.2}); })()\"",
+		"seed:custom": "NODE_ENV=development npx tsx -e \"(async () => { const m = await import('./src/scripts/seed.ts'); await m.runSeedData({bookmarkCount: 50, labelCount: 8, favoriteRatio: 0.4}); })()\"",
+		"seed:clear": "NODE_ENV=development npx tsx -e \"(async () => { const m = await import('./src/scripts/seed.ts'); await m.clearDatabase(); })()\""
 	},
 	"dependencies": {
 		"dotenv": "^16.5.0",
@@ -30,6 +37,7 @@
 		"better-sqlite3": "^11.10.0",
 		"drizzle-kit": "^0.31.1",
 		"happy-dom": "^18.0.1",
+		"tsx": "^4.19.2",
 		"typescript": "^5.8.3",
 		"vitest": "3.2.3",
 		"wrangler": "^4.20.3"
