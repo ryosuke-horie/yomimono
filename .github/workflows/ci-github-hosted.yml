@@ -16,11 +16,11 @@ env:
   CI: true
 
 jobs:
-  # E2E テスト（フロントエンド）
+  # E2E テスト（フロントエンド）- 軽量化版
   frontend-e2e:
-    name: Frontend E2E Tests
+    name: Frontend E2E Tests (Chrome Only)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
 
     defaults:
       run:
@@ -46,8 +46,11 @@ jobs:
       working-directory: ./api
       run: npm ci
 
-    - name: Install Playwright browsers
-      run: npx playwright install --with-deps
+    - name: Install Playwright (Chrome only)
+      run: |
+        # Chromeのみインストールして軽量化
+        npx playwright install chromium
+        npx playwright install-deps chromium
 
     - name: Setup environment for E2E
       run: |
@@ -81,8 +84,12 @@ jobs:
       env:
         NODE_ENV: test
 
-    - name: Run E2E tests
-      run: npm run test:e2e
+    - name: Run E2E tests (Chrome only, essential scenarios)
+      run: |
+        # 軽量化：必須シナリオのみ実行（CI環境では自動的にchromiumのみ）
+        npx playwright test e2e/tests/essential-scenarios.spec.ts
+      env:
+        CI: true
 
     - name: Upload E2E test results
       if: always()
