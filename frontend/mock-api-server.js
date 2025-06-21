@@ -67,16 +67,23 @@ function handleRequest(req, res) {
 		return;
 	}
 
-	// Get unread bookmarks
-	if (path === "/bookmarks/unread" && req.method === "GET") {
+	// Get unread bookmarks (main bookmarks endpoint)
+	if (path === "/api/bookmarks" && req.method === "GET") {
 		const unreadBookmarks = mockBookmarks.filter((b) => !b.isRead);
 		res.writeHead(200, { "Content-Type": "application/json" });
-		res.end(JSON.stringify({ success: true, bookmarks: unreadBookmarks }));
+		res.end(
+			JSON.stringify({
+				success: true,
+				bookmarks: unreadBookmarks,
+				totalUnread: unreadBookmarks.length,
+				todayReadCount: mockBookmarks.filter((b) => b.isRead).length,
+			}),
+		);
 		return;
 	}
 
 	// Get read bookmarks
-	if (path === "/bookmarks/read" && req.method === "GET") {
+	if (path === "/api/bookmarks/read" && req.method === "GET") {
 		const readBookmarks = mockBookmarks.filter((b) => b.isRead);
 		res.writeHead(200, { "Content-Type": "application/json" });
 		res.end(JSON.stringify({ success: true, bookmarks: readBookmarks }));
@@ -84,7 +91,7 @@ function handleRequest(req, res) {
 	}
 
 	// Get favorite bookmarks
-	if (path === "/bookmarks/favorites" && req.method === "GET") {
+	if (path === "/api/bookmarks/favorites" && req.method === "GET") {
 		const favoriteBookmarks = mockBookmarks.filter((b) => b.isFavorite);
 		res.writeHead(200, { "Content-Type": "application/json" });
 		res.end(JSON.stringify({ success: true, bookmarks: favoriteBookmarks }));
@@ -92,15 +99,15 @@ function handleRequest(req, res) {
 	}
 
 	// Get labels
-	if (path === "/labels" && req.method === "GET") {
+	if (path === "/api/labels" && req.method === "GET") {
 		res.writeHead(200, { "Content-Type": "application/json" });
 		res.end(JSON.stringify({ success: true, labels: mockLabels }));
 		return;
 	}
 
-	// Mark bookmark as read
-	if (path.match(/^\/bookmarks\/\d+\/read$/) && req.method === "POST") {
-		const bookmarkId = Number.parseInt(path.split("/")[2]);
+	// Mark bookmark as read (using PATCH like real API)
+	if (path.match(/^\/api\/bookmarks\/\d+\/read$/) && req.method === "PATCH") {
+		const bookmarkId = Number.parseInt(path.split("/")[3]);
 		const bookmark = mockBookmarks.find((b) => b.id === bookmarkId);
 		if (bookmark) {
 			bookmark.isRead = true;
@@ -114,9 +121,12 @@ function handleRequest(req, res) {
 		return;
 	}
 
-	// Add bookmark to favorites
-	if (path.match(/^\/bookmarks\/\d+\/favorite$/) && req.method === "POST") {
-		const bookmarkId = Number.parseInt(path.split("/")[2]);
+	// Add bookmark to favorites (using PATCH like real API)
+	if (
+		path.match(/^\/api\/bookmarks\/\d+\/favorite$/) &&
+		req.method === "PATCH"
+	) {
+		const bookmarkId = Number.parseInt(path.split("/")[3]);
 		const bookmark = mockBookmarks.find((b) => b.id === bookmarkId);
 		if (bookmark) {
 			bookmark.isFavorite = true;
@@ -145,13 +155,13 @@ const server = http.createServer(handleRequest);
 server.listen(PORT, () => {
 	console.log(`🔧 モックAPIサーバーが起動しました: http://localhost:${PORT}`);
 	console.log("📋 利用可能エンドポイント:");
-	console.log("   GET  /health - ヘルスチェック");
-	console.log("   GET  /bookmarks/unread - 未読ブックマーク一覧");
-	console.log("   GET  /bookmarks/read - 既読ブックマーク一覧");
-	console.log("   GET  /bookmarks/favorites - お気に入り一覧");
-	console.log("   GET  /labels - ラベル一覧");
-	console.log("   POST /bookmarks/:id/read - ブックマーク既読化");
-	console.log("   POST /bookmarks/:id/favorite - お気に入り追加");
+	console.log("   GET   /health - ヘルスチェック");
+	console.log("   GET   /api/bookmarks - 未読ブックマーク一覧");
+	console.log("   GET   /api/bookmarks/read - 既読ブックマーク一覧");
+	console.log("   GET   /api/bookmarks/favorites - お気に入り一覧");
+	console.log("   GET   /api/labels - ラベル一覧");
+	console.log("   PATCH /api/bookmarks/:id/read - ブックマーク既読化");
+	console.log("   PATCH /api/bookmarks/:id/favorite - お気に入り追加");
 });
 
 // Graceful shutdown
