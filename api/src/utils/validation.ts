@@ -85,6 +85,59 @@ export function validateRequestBody<T>(body: unknown): T {
 	return body as T;
 }
 
+/**
+ * 数値フィールドを検証（範囲チェック付き）
+ */
+export function validateNumber(
+	value: unknown,
+	fieldName: string,
+	min?: number,
+	max?: number,
+): number {
+	if (typeof value !== "number" || Number.isNaN(value)) {
+		throw new BadRequestError(`${fieldName} must be a valid number`);
+	}
+
+	if (min !== undefined && value < min) {
+		throw new BadRequestError(`${fieldName} must be at least ${min}`);
+	}
+
+	if (max !== undefined && value > max) {
+		throw new BadRequestError(`${fieldName} must be at most ${max}`);
+	}
+
+	return value;
+}
+
+/**
+ * オプション数値フィールドを検証（範囲チェック付き）
+ */
+export function validateOptionalNumber(
+	value: unknown,
+	fieldName: string,
+	min?: number,
+	max?: number,
+): number | undefined {
+	if (value === undefined || value === null) return undefined;
+	return validateNumber(value, fieldName, min, max);
+}
+
+/**
+ * オプションブール値フィールドを検証
+ */
+export function validateOptionalBoolean(
+	value: unknown,
+	fieldName: string,
+): boolean | undefined {
+	if (value === undefined || value === null) return undefined;
+
+	if (typeof value !== "boolean") {
+		throw new BadRequestError(`${fieldName} must be a boolean`);
+	}
+
+	return value;
+}
+
 if (import.meta.vitest) {
 	const { test, expect, describe } = import.meta.vitest;
 
@@ -193,6 +246,66 @@ if (import.meta.vitest) {
 				expect(() => validateRequestBody(null)).toThrow("Invalid request body");
 				expect(() => validateRequestBody("string")).toThrow(
 					"Invalid request body",
+				);
+			});
+		});
+
+		describe("validateNumber", () => {
+			test("有効な数値を正しく処理する", () => {
+				expect(validateNumber(123, "count")).toBe(123);
+				expect(validateNumber(0, "count")).toBe(0);
+				expect(validateNumber(-5, "count")).toBe(-5);
+			});
+
+			test("範囲チェックが正しく動作する", () => {
+				expect(validateNumber(5, "count", 1, 10)).toBe(5);
+				expect(() => validateNumber(0, "count", 1, 10)).toThrow(
+					"count must be at least 1",
+				);
+				expect(() => validateNumber(15, "count", 1, 10)).toThrow(
+					"count must be at most 10",
+				);
+			});
+
+			test("無効な値でエラーを投げる", () => {
+				expect(() => validateNumber("123", "count")).toThrow(
+					"count must be a valid number",
+				);
+				expect(() => validateNumber(Number.NaN, "count")).toThrow(
+					"count must be a valid number",
+				);
+			});
+		});
+
+		describe("validateOptionalNumber", () => {
+			test("有効な数値を正しく処理する", () => {
+				expect(validateOptionalNumber(123, "count")).toBe(123);
+				expect(validateOptionalNumber(undefined, "count")).toBe(undefined);
+				expect(validateOptionalNumber(null, "count")).toBe(undefined);
+			});
+
+			test("範囲チェックが正しく動作する", () => {
+				expect(validateOptionalNumber(5, "count", 1, 10)).toBe(5);
+				expect(() => validateOptionalNumber(0, "count", 1, 10)).toThrow(
+					"count must be at least 1",
+				);
+			});
+		});
+
+		describe("validateOptionalBoolean", () => {
+			test("有効なブール値を正しく処理する", () => {
+				expect(validateOptionalBoolean(true, "flag")).toBe(true);
+				expect(validateOptionalBoolean(false, "flag")).toBe(false);
+				expect(validateOptionalBoolean(undefined, "flag")).toBe(undefined);
+				expect(validateOptionalBoolean(null, "flag")).toBe(undefined);
+			});
+
+			test("無効な値でエラーを投げる", () => {
+				expect(() => validateOptionalBoolean("true", "flag")).toThrow(
+					"flag must be a boolean",
+				);
+				expect(() => validateOptionalBoolean(1, "flag")).toThrow(
+					"flag must be a boolean",
 				);
 			});
 		});

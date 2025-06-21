@@ -1,0 +1,327 @@
+name: CI (Self-hosted Runner)
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+# 同一ブランチでの並列実行を制限
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_ENV: test
+  CI: true
+
+jobs:
+  # API プロジェクトのテスト
+  api-tests:
+    name: API Tests
+    runs-on: self-hosted
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: ./api
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Cache dependencies
+      id: cache-deps
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.npm
+          ~/.pnpm-store
+          ./api/node_modules
+        key: api-deps-${{ hashFiles('api/package-lock.json') }}
+        restore-keys: |
+          api-deps-
+
+    - name: Install dependencies
+      if: steps.cache-deps.outputs.cache-hit != 'true'
+      run: npm ci
+
+    - name: Run linting
+      run: npm run lint
+
+    - name: Run tests
+      run: npm run test
+
+    - name: Upload coverage reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: api-coverage
+        path: ./api/coverage/
+        retention-days: 7
+
+  # フロントエンド プロジェクトのテスト
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: self-hosted
+    timeout-minutes: 15
+
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Cache dependencies
+      id: cache-deps
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.npm
+          ~/.pnpm-store
+          ./frontend/node_modules
+        key: frontend-deps-${{ hashFiles('frontend/package-lock.json') }}
+        restore-keys: |
+          frontend-deps-
+
+    - name: Install dependencies
+      if: steps.cache-deps.outputs.cache-hit != 'true'
+      run: |
+        npm ci
+        
+        # npm依存関係バグの回避策
+        echo "Applying workaround for native dependencies..."
+        rm -rf node_modules/.rollup_cache node_modules/.vite
+        npm install @rollup/rollup-linux-x64-gnu lightningcss-linux-x64-gnu --no-save
+
+    - name: Fix native dependencies (cached case)
+      if: steps.cache-deps.outputs.cache-hit == 'true'
+      run: |
+        # キャッシュが使用された場合の修正
+        echo "Cache was used, checking native dependencies..."
+        
+        if [ ! -d "node_modules/@rollup/rollup-linux-x64-gnu" ] || [ ! -d "node_modules/lightningcss-linux-x64-gnu" ]; then
+          echo "Installing missing native dependencies..."
+          npm install @rollup/rollup-linux-x64-gnu lightningcss-linux-x64-gnu --no-save
+        else
+          echo "Native dependencies already present"
+        fi
+
+    - name: Run linting
+      run: npm run lint
+
+    - name: Run unit tests
+      run: npm run test:run
+
+    - name: Upload test coverage
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-coverage
+        path: ./frontend/coverage/
+        retention-days: 7
+
+
+  # Chrome拡張機能のテスト
+  extension-tests:
+    name: Extension Tests
+    runs-on: self-hosted
+    timeout-minutes: 5
+
+    defaults:
+      run:
+        working-directory: ./extension
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Cache dependencies
+      id: cache-deps
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.npm
+          ~/.pnpm-store
+          ./extension/node_modules
+        key: extension-deps-${{ hashFiles('extension/package-lock.json') }}
+        restore-keys: |
+          extension-deps-
+
+    - name: Install dependencies
+      if: steps.cache-deps.outputs.cache-hit != 'true'
+      run: npm ci
+
+    - name: Run linting
+      run: npm run lint
+
+    - name: Validate manifest
+      run: |
+        if [ -f manifest.json ]; then
+          echo "✅ manifest.json exists"
+          # JSON形式チェック
+          cat manifest.json | jq . > /dev/null || (echo "❌ Invalid JSON in manifest.json" && exit 1)
+          echo "✅ manifest.json is valid JSON"
+        else
+          echo "❌ manifest.json not found" && exit 1
+        fi
+
+  # MCP プロジェクトのテスト
+  mcp-tests:
+    name: MCP Tests
+    runs-on: self-hosted
+    timeout-minutes: 8
+
+    defaults:
+      run:
+        working-directory: ./mcp
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Cache dependencies
+      id: cache-deps
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.npm
+          ~/.pnpm-store
+          ./mcp/node_modules
+        key: mcp-deps-${{ hashFiles('mcp/package-lock.json') }}
+        restore-keys: |
+          mcp-deps-
+
+    - name: Install dependencies
+      if: steps.cache-deps.outputs.cache-hit != 'true'
+      run: npm ci
+
+    - name: Run linting
+      run: npm run lint
+
+    - name: Run type checking
+      run: npm run typecheck
+
+    - name: Run tests
+      run: npm run test
+
+    - name: Build project
+      run: npm run build
+
+    - name: Upload coverage reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: mcp-coverage
+        path: ./mcp/coverage/
+        retention-days: 7
+
+
+  # セキュリティ・品質チェック
+  security-audit:
+    name: Security & Quality Audit
+    runs-on: self-hosted
+    timeout-minutes: 10
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Run security audit
+      run: |
+        echo "Running security audit across all projects..."
+        
+        # プロジェクトごとの脆弱性チェック
+        for project in api frontend extension mcp; do
+          if [ -f "$project/package.json" ]; then
+            echo "Auditing $project..."
+            cd "$project"
+            npm audit --audit-level=moderate || echo "⚠️ Vulnerabilities found in $project"
+            cd ..
+          fi
+        done
+
+    - name: Check for sensitive files
+      run: |
+        echo "Checking for sensitive files..."
+        
+        # 機密情報のパターンチェック
+        SENSITIVE_PATTERNS=(".env" "*.key" "*.pem" "*secret*" "*password*" "config.json")
+        
+        for pattern in "${SENSITIVE_PATTERNS[@]}"; do
+          if find . -name "$pattern" -type f ! -path "./node_modules/*" ! -path "./.git/*" | grep -q .; then
+            echo "⚠️ Found potentially sensitive files matching: $pattern"
+            find . -name "$pattern" -type f ! -path "./node_modules/*" ! -path "./.git/*"
+          fi
+        done
+
+    - name: License compliance check
+      run: |
+        echo "Checking license compliance..."
+        for project in api frontend extension mcp; do
+          if [ -f "$project/package.json" ]; then
+            echo "Checking licenses in $project..."
+            cd "$project"
+            npx license-checker --summary || echo "License check completed for $project"
+            cd ..
+          fi
+        done
+
+  # 統合結果レポート
+  integration-summary:
+    name: Integration Summary
+    runs-on: self-hosted
+    timeout-minutes: 5
+    needs: [api-tests, frontend-tests, extension-tests, mcp-tests, security-audit]
+    if: always()
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Generate test summary
+      run: |
+        echo "## Self-hosted CI Results Summary" > test-summary.md
+        echo "" >> test-summary.md
+        
+        # 各ジョブの結果を集計
+        echo "### Test Results" >> test-summary.md
+        echo "- API Tests: ${{ needs.api-tests.result }}" >> test-summary.md
+        echo "- Frontend Tests: ${{ needs.frontend-tests.result }}" >> test-summary.md
+        echo "- Extension Tests: ${{ needs.extension-tests.result }}" >> test-summary.md
+        echo "- MCP Tests: ${{ needs.mcp-tests.result }}" >> test-summary.md
+        echo "- Security Audit: ${{ needs.security-audit.result }}" >> test-summary.md
+        echo "" >> test-summary.md
+        echo "**Note**: E2E tests and build tests run on GitHub-hosted runners separately" >> test-summary.md
+        echo "" >> test-summary.md
+        
+        # ブランチ情報
+        echo "### Build Information" >> test-summary.md
+        echo "- Branch: \`${{ github.ref_name }}\`" >> test-summary.md
+        echo "- Commit: \`${{ github.sha }}\`" >> test-summary.md
+        echo "- Triggered by: ${{ github.event_name }}" >> test-summary.md
+        echo "- Runner: Self-hosted" >> test-summary.md
+        
+        cat test-summary.md
+
+    - name: Upload summary
+      uses: actions/upload-artifact@v4
+      with:
+        name: self-hosted-ci-summary
+        path: test-summary.md
+        retention-days: 30
+
+    - name: Job status check
+      run: |
+        if [[ "${{ needs.api-tests.result }}" == "failure" ]] || \
+           [[ "${{ needs.frontend-tests.result }}" == "failure" ]] || \
+           [[ "${{ needs.extension-tests.result }}" == "failure" ]] || \
+           [[ "${{ needs.mcp-tests.result }}" == "failure" ]] || \
+           [[ "${{ needs.security-audit.result }}" == "failure" ]]; then
+          echo "❌ Self-hosted CI failed - one or more jobs failed"
+          exit 1
+        else
+          echo "✅ All self-hosted CI jobs completed successfully"
+        fi

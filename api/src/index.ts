@@ -9,8 +9,10 @@ import { DrizzleBookmarkRepository } from "./repositories/bookmark";
 import { LabelRepository } from "./repositories/label";
 import { createBookmarksRouter } from "./routes/bookmarks";
 import { createLabelsRouter } from "./routes/labels";
+import { createSeedRouter } from "./routes/seed";
 import { DefaultBookmarkService } from "./services/bookmark";
 import { LabelService } from "./services/label";
+import { SeedService } from "./services/seed";
 
 export interface Env {
 	DB: D1Database;
@@ -61,6 +63,7 @@ export const createApp = (env: Env) => {
 		articleLabelRepository,
 		bookmarkRepository,
 	);
+	const seedService = new SeedService(db);
 
 	// ヘルスチェックエンドポイント - APIの稼働状況を確認するためのシンプルなエンドポイント
 	app.get("/health", (c) => {
@@ -73,8 +76,10 @@ export const createApp = (env: Env) => {
 	// ルーターのマウント
 	const bookmarksRouter = createBookmarksRouter(bookmarkService, labelService);
 	const labelsRouter = createLabelsRouter(labelService);
+	const seedRouter = createSeedRouter(seedService);
 	app.route("/api/bookmarks", bookmarksRouter);
 	app.route("/api/labels", labelsRouter);
+	app.route("/api/dev/seed", seedRouter);
 
 	// テストエンドポイント
 	app.get("/api/dev/test", (c) => {

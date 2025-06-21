@@ -13,14 +13,16 @@ export default defineConfig({
 	testDir: "./e2e",
 	// テストファイルの拡張子
 	testMatch: "**/*.spec.ts",
-	// テストの並列実行数
-	fullyParallel: true,
+	// テストの並列実行数（CI環境では軽量化）
+	fullyParallel: !process.env.CI,
 	// CI環境では失敗時に再実行しない
 	forbidOnly: !!process.env.CI,
-	// ローカル開発では失敗時のリトライ回数
-	retries: process.env.CI ? 2 : 0,
-	// 並列実行数の設定
+	// ローカル開発では失敗時のリトライ回数（CI環境では軽量化）
+	retries: process.env.CI ? 1 : 0,
+	// 並列実行数の設定（CI環境では1つずつ実行して軽量化）
 	workers: process.env.CI ? 1 : undefined,
+	// CI環境でのタイムアウト設定（10分制限）
+	timeout: process.env.CI ? 60000 : 30000, // CI: 1分, Local: 30秒
 	// HTMLレポートの設定
 	reporter: [
 		["html", { outputFolder: "playwright-report" }],
@@ -30,15 +32,22 @@ export default defineConfig({
 	use: {
 		// ベースURL（フロントエンド）
 		baseURL: "http://localhost:3000",
-		// トレース記録
-		trace: "on-first-retry",
-		// スクリーンショット
-		screenshot: "only-on-failure",
-		// ビデオ録画
-		video: "retain-on-failure",
+		// トレース記録（CI環境では軽量化）
+		trace: process.env.CI ? "off" : "on-first-retry",
+		// スクリーンショット（CI環境では軽量化）
+		screenshot: process.env.CI ? "only-on-failure" : "only-on-failure",
+		// ビデオ録画（CI環境では無効化して軽量化）
+		video: process.env.CI ? "off" : "retain-on-failure",
 	},
 
-	projects: [
+	projects: process.env.CI ? [
+		// CI環境：Chromeのみで軽量化
+		{
+			name: "chromium",
+			use: { ...devices["Desktop Chrome"] },
+		},
+	] : [
+		// ローカル環境：全ブラウザでテスト
 		{
 			name: "chromium",
 			use: { ...devices["Desktop Chrome"] },
