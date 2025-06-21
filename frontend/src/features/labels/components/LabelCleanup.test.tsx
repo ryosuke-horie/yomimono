@@ -31,9 +31,15 @@ describe("LabelCleanup", () => {
 
 		render(<LabelCleanup labels={labels} onCleanup={mockOnCleanup} />);
 
-		expect(screen.getByText("未使用ラベルのクリーンアップ")).toBeInTheDocument();
-		expect(screen.getByText(/2個の未使用ラベルが見つかりました/)).toBeInTheDocument();
-		expect(screen.getByText("未使用ラベル一覧を表示 (2個)")).toBeInTheDocument();
+		expect(
+			screen.getByText("未使用ラベルのクリーンアップ"),
+		).toBeInTheDocument();
+		expect(
+			screen.getByText(/2個の未使用ラベルが見つかりました/),
+		).toBeInTheDocument();
+		expect(
+			screen.getByText("未使用ラベル一覧を表示 (2個)"),
+		).toBeInTheDocument();
 	});
 
 	it("articleCountがundefinedの場合も未使用として扱う", () => {
@@ -45,8 +51,12 @@ describe("LabelCleanup", () => {
 
 		render(<LabelCleanup labels={labels} onCleanup={mockOnCleanup} />);
 
-		expect(screen.getByText("未使用ラベルのクリーンアップ")).toBeInTheDocument();
-		expect(screen.getByText(/1個の未使用ラベルが見つかりました/)).toBeInTheDocument();
+		expect(
+			screen.getByText("未使用ラベルのクリーンアップ"),
+		).toBeInTheDocument();
+		expect(
+			screen.getByText(/1個の未使用ラベルが見つかりました/),
+		).toBeInTheDocument();
 	});
 
 	it("ローディング状態を正しく表示", () => {
@@ -71,11 +81,7 @@ describe("LabelCleanup", () => {
 		const error = new Error("削除に失敗しました");
 
 		render(
-			<LabelCleanup
-				labels={labels}
-				onCleanup={mockOnCleanup}
-				error={error}
-			/>,
+			<LabelCleanup labels={labels} onCleanup={mockOnCleanup} error={error} />,
 		);
 
 		expect(screen.getByText("削除に失敗しました")).toBeInTheDocument();
@@ -88,7 +94,9 @@ describe("LabelCleanup", () => {
 
 		render(<LabelCleanup labels={labels} onCleanup={mockOnCleanup} />);
 
-		const deleteButton = screen.getByRole("button", { name: "未使用ラベルを削除" });
+		const deleteButton = screen.getByRole("button", {
+			name: "未使用ラベルを削除",
+		});
 		await user.click(deleteButton);
 
 		expect(screen.getByText("未使用ラベルの一括削除")).toBeInTheDocument();
@@ -105,7 +113,9 @@ describe("LabelCleanup", () => {
 		render(<LabelCleanup labels={labels} onCleanup={mockOnCleanup} />);
 
 		// 削除ボタンをクリック
-		const deleteButton = screen.getByRole("button", { name: "未使用ラベルを削除" });
+		const deleteButton = screen.getByRole("button", {
+			name: "未使用ラベルを削除",
+		});
 		await user.click(deleteButton);
 
 		// 確認ダイアログで削除を実行
@@ -123,7 +133,9 @@ describe("LabelCleanup", () => {
 		render(<LabelCleanup labels={labels} onCleanup={mockOnCleanup} />);
 
 		// 削除ボタンをクリック
-		const deleteButton = screen.getByRole("button", { name: "未使用ラベルを削除" });
+		const deleteButton = screen.getByRole("button", {
+			name: "未使用ラベルを削除",
+		});
 		await user.click(deleteButton);
 
 		// 確認ダイアログでキャンセル
@@ -153,9 +165,15 @@ describe("LabelCleanup", () => {
 	});
 
 	it("長い説明文は50文字で切り詰めて表示される", async () => {
-		const longDescription = "これは非常に長い説明文で、50文字を超えるため切り詰められて表示されるはずです。追加のテキストを含めて確実に50文字を超えるようにします。";
+		const longDescription =
+			"これは非常に長い説明文で、50文字を超えるため切り詰められて表示されるはずです。追加のテキストを含めて確実に50文字を超えるようにします。";
 		const labels = [
-			{ id: 1, name: "未使用ラベル", articleCount: 0, description: longDescription },
+			{
+				id: 1,
+				name: "未使用ラベル",
+				articleCount: 0,
+				description: longDescription,
+			},
 		];
 		const mockOnCleanup = vi.fn();
 		const user = userEvent.setup();
@@ -167,7 +185,7 @@ describe("LabelCleanup", () => {
 		await user.click(summary);
 
 		// 最初の50文字 + "..." が表示される
-		const truncatedText = longDescription.substring(0, 50) + "...";
+		const truncatedText = `${longDescription.substring(0, 50)}...`;
 		expect(screen.getByText(`(${truncatedText})`)).toBeInTheDocument();
 	});
 
@@ -182,7 +200,9 @@ describe("LabelCleanup", () => {
 
 		render(<LabelCleanup labels={labels} onCleanup={mockOnCleanup} />);
 
-		const deleteButton = screen.getByRole("button", { name: "未使用ラベルを削除" });
+		const deleteButton = screen.getByRole("button", {
+			name: "未使用ラベルを削除",
+		});
 		await user.click(deleteButton);
 
 		expect(

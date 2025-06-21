@@ -129,9 +129,7 @@ export const cleanupUnusedLabels = async (): Promise<{
 
 	if (!response.ok) {
 		const errorData = (await response.json()) as ErrorResponse;
-		throw new Error(
-			errorData.message || "Failed to cleanup unused labels",
-		);
+		throw new Error(errorData.message || "Failed to cleanup unused labels");
 	}
 
 	const data: LabelCleanupResponse = await response.json();
@@ -341,9 +339,12 @@ if (import.meta.vitest) {
 
 		const result = await cleanupUnusedLabels();
 
-		expect(mockFetch).toHaveBeenCalledWith(`${API_BASE_URL}/api/labels/cleanup`, {
-			method: "DELETE",
-		});
+		expect(mockFetch).toHaveBeenCalledWith(
+			`${API_BASE_URL}/api/labels/cleanup`,
+			{
+				method: "DELETE",
+			},
+		);
 		expect(result).toEqual({
 			message: "Successfully cleaned up 2 unused labels",
 			deletedCount: 2,
@@ -371,13 +372,18 @@ if (import.meta.vitest) {
 	});
 
 	test("cleanupUnusedLabels: HTTPエラー時に例外を投げる", async () => {
-		const errorResponse = { success: false, message: "クリーンアップに失敗しました" };
+		const errorResponse = {
+			success: false,
+			message: "クリーンアップに失敗しました",
+		};
 
 		mockFetch.mockResolvedValueOnce({
 			ok: false,
 			json: () => Promise.resolve(errorResponse),
 		});
 
-		await expect(cleanupUnusedLabels()).rejects.toThrow("クリーンアップに失敗しました");
+		await expect(cleanupUnusedLabels()).rejects.toThrow(
+			"クリーンアップに失敗しました",
+		);
 	});
 }

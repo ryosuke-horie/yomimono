@@ -25,7 +25,9 @@ export function LabelCleanup({
 	const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
 	// 未使用ラベル（記事数が0のラベル）をフィルタリング
-	const unusedLabels = labels.filter((label) => (label.articleCount ?? 0) === 0);
+	const unusedLabels = labels.filter(
+		(label) => (label.articleCount ?? 0) === 0,
+	);
 
 	const openConfirm = () => setIsConfirmOpen(true);
 	const closeConfirm = () => setIsConfirmOpen(false);
@@ -48,9 +50,10 @@ export function LabelCleanup({
 						未使用ラベルのクリーンアップ
 					</h3>
 					<p className="text-sm text-yellow-700 mb-3">
-						{unusedLabels.length}個の未使用ラベルが見つかりました。これらのラベルは記事に関連付けられていないため、削除することができます。
+						{unusedLabels.length}
+						個の未使用ラベルが見つかりました。これらのラベルは記事に関連付けられていないため、削除することができます。
 					</p>
-					
+
 					{/* 未使用ラベルの一覧表示 */}
 					<div className="mb-4">
 						<details className="text-sm">
@@ -111,4 +114,3 @@ export function LabelCleanup({
 		</div>
 	);
 }
-
