@@ -6,14 +6,62 @@ import { expect, test } from "@playwright/test";
 
 test.describe("必須シナリオ - 未読一覧", () => {
 	test("未読一覧画面の表示", async ({ page }) => {
+		// ページのエラーをキャッチ
+		const pageErrors: string[] = [];
+		const consoleMessages: string[] = [];
+
+		page.on("pageerror", (error) => {
+			pageErrors.push(`Page error: ${error.message}`);
+		});
+
+		page.on("console", (msg) => {
+			consoleMessages.push(`Console ${msg.type()}: ${msg.text()}`);
+		});
+
 		// UIのトップページにアクセス
+		console.log("Navigating to homepage...");
 		await page.goto("/");
 
-		// ページタイトルを確認
-		await expect(page).toHaveTitle(/Effective Yomimono/i);
-
-		// ページが読み込まれるまで待機
+		// ページが完全に読み込まれるまで待機
+		console.log("Waiting for network idle...");
 		await page.waitForLoadState("networkidle");
+
+		// 少し追加で待機（React Queryの初期化等を考慮）
+		console.log("Additional wait for React initialization...");
+		await page.waitForTimeout(3000);
+
+		// ページの状態をデバッグ
+		console.log("Current URL:", page.url());
+		console.log("Page errors:", pageErrors);
+		console.log("Console messages:", consoleMessages.slice(-10)); // 最新の10件のみ
+
+		// HTMLの存在確認
+		const htmlContent = await page.content();
+		console.log("HTML length:", htmlContent.length);
+		console.log("Contains Next.js script?", htmlContent.includes("_next"));
+		console.log("Contains React?", htmlContent.includes("react"));
+
+		// ページタイトルを確認（デバッグ情報付き）
+		try {
+			// 明示的にタイトルが設定されるまで待機
+			await page.waitForFunction(
+				() => document.title && document.title.trim() !== "",
+				{ timeout: 15000 },
+			);
+			await expect(page).toHaveTitle(/Effective Yomimono/i);
+		} catch (error) {
+			console.log("Final debug info:");
+			console.log("Current title:", await page.title());
+			console.log("HTML head content:", await page.innerHTML("head"));
+			const scripts = await page.locator("script").count();
+			console.log("Number of script tags:", scripts);
+
+			// Next.js specific checks
+			const nextData = await page.evaluate(() => window.__NEXT_DATA__);
+			console.log("Next.js data available:", !!nextData);
+
+			throw error;
+		}
 
 		// メインコンテンツの存在を確認
 		const mainContent = page

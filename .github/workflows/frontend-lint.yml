@@ -1,4 +1,4 @@
-name: Frontend Checks
+name: Frontend Checks (Self-hosted Runner)
 
 on:
   push:

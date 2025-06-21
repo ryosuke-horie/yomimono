@@ -101,83 +101,13 @@ jobs:
           ./frontend/playwright-report/
         retention-days: 7
 
-  # ビルドテスト
-  build-tests:
-    name: Build Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    strategy:
-      matrix:
-        project: [api, frontend]
-
-    defaults:
-      run:
-        working-directory: ./${{ matrix.project }}
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-        cache-dependency-path: ${{ matrix.project }}/package-lock.json
-
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Setup environment (Frontend)
-      if: matrix.project == 'frontend'
-      run: |
-        # Create .env file for build
-        echo "NEXT_PUBLIC_API_BASE_URL=http://localhost:8787" > .env
-        
-        # Create CI-specific next.config.mjs (without Cloudflare dev setup)
-        cat > next.config.ci.mjs << 'EOF'
-/** @type {import('next').NextConfig} */
-const nextConfig = {};
-export default nextConfig;
-EOF
-
-    - name: Build project (API)
-      if: matrix.project == 'api'
-      run: |
-        # Wranglerビルドのテスト（実際のデプロイはしない）
-        echo "Testing Wrangler build configuration..."
-        npx wrangler dev --port 8788 --env development &
-        WRANGLER_PID=$!
-        sleep 5
-        kill $WRANGLER_PID 2>/dev/null || true
-        echo "✅ Wrangler build test completed"
-
-    - name: Build project (Frontend)
-      if: matrix.project == 'frontend'
-      run: |
-        # Use CI-specific next config for build
-        mv next.config.mjs next.config.original.mjs
-        mv next.config.ci.mjs next.config.mjs
-        npm run build
-        # Restore original config
-        mv next.config.mjs next.config.ci.mjs
-        mv next.config.original.mjs next.config.mjs
-
-    - name: Upload build artifacts
-      if: matrix.project == 'frontend'
-      uses: actions/upload-artifact@v4
-      with:
-        name: frontend-build
-        path: ./frontend/.next/
-        retention-days: 3
 
   # 統合結果レポート
   integration-summary:
     name: GitHub-hosted Integration Summary
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [frontend-e2e, build-tests]
+    needs: [frontend-e2e]
     if: always()
 
     steps:
@@ -192,9 +122,8 @@ EOF
         # 各ジョブの結果を集計
         echo "### Test Results" >> test-summary.md
         echo "- Frontend E2E Tests: ${{ needs.frontend-e2e.result }}" >> test-summary.md
-        echo "- Build Tests: ${{ needs.build-tests.result }}" >> test-summary.md
         echo "" >> test-summary.md
-        echo "**Note**: Lint, unit tests, and security audit run on self-hosted runners separately" >> test-summary.md
+        echo "**Note**: All lint, unit tests, build tests, and security audits run on self-hosted runners separately" >> test-summary.md
         echo "" >> test-summary.md
         
         # ブランチ情報
@@ -215,10 +144,9 @@ EOF
 
     - name: Job status check
       run: |
-        if [[ "${{ needs.frontend-e2e.result }}" == "failure" ]] || \
-           [[ "${{ needs.build-tests.result }}" == "failure" ]]; then
-          echo "❌ GitHub-hosted CI failed - one or more jobs failed"
+        if [[ "${{ needs.frontend-e2e.result }}" == "failure" ]]; then
+          echo "❌ GitHub-hosted CI failed - E2E tests failed"
           exit 1
         else
-          echo "✅ All GitHub-hosted CI jobs completed successfully"
+          echo "✅ GitHub-hosted CI E2E tests completed successfully"
         fi
