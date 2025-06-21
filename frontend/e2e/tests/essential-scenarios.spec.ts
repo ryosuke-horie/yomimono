@@ -124,4 +124,81 @@ test.describe("必須シナリオ - ラベルフィルタ", () => {
 			await expect(navigation).toBeVisible({ timeout: 3000 });
 		}
 	});
+
+	test("ラベルフィルタ適用時の記事の並び順確認", async ({ page }) => {
+		await page.goto("/");
+		await page.waitForLoadState("networkidle");
+
+		// ラベルフィルタボタンの存在確認（新しいButtonベースのUI）
+		const labelButtons = page.locator(
+			'button:has-text("すべて"), button[type="button"]',
+		);
+
+		// ラベルボタンが存在する場合のみテスト実行
+		if ((await labelButtons.count()) > 1) {
+			// 「すべて」以外のラベルボタンを取得
+			const specificLabelButton = labelButtons.nth(1);
+
+			// ラベルフィルタを適用
+			await specificLabelButton.click();
+			await page.waitForTimeout(1000); // フィルタリング処理の待機
+
+			// フィルタされた記事の日付を取得
+			const bookmarkItems = page.locator('[data-testid="bookmark-item"]');
+			const itemCount = await bookmarkItems.count();
+
+			if (itemCount >= 2) {
+				// 複数の記事がある場合、日付順序を確認
+				const dates: Date[] = [];
+
+				for (let i = 0; i < Math.min(itemCount, 5); i++) {
+					// 最大5件まで確認
+					const dateText = await bookmarkItems
+						.nth(i)
+						.locator("p.text-xs.text-gray-500")
+						.textContent();
+
+					if (dateText) {
+						// 日本語の日付形式（例: 2024/1/15）をDateオブジェクトに変換
+						const dateMatch = dateText.match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);
+						if (dateMatch) {
+							const [, year, month, day] = dateMatch;
+							const date = new Date(
+								Number.parseInt(year),
+								Number.parseInt(month) - 1,
+								Number.parseInt(day),
+							);
+							dates.push(date);
+						}
+					}
+				}
+
+				// 日付が新しい順（降順）に並んでいることを確認
+				if (dates.length >= 2) {
+					for (let i = 0; i < dates.length - 1; i++) {
+						expect(dates[i].getTime()).toBeGreaterThanOrEqual(
+							dates[i + 1].getTime(),
+						);
+					}
+				}
+			} else if (itemCount === 1) {
+				// 1件の場合は正常に表示されていることを確認
+				await expect(bookmarkItems.first()).toBeVisible();
+			} else {
+				// 0件の場合は空状態の確認
+				const emptyMessage = page.locator(
+					"text=/表示するブックマークはありません|該当なし|見つかりません/i",
+				);
+				await expect(emptyMessage).toBeVisible({ timeout: 3000 });
+			}
+		} else {
+			// ラベルボタンが存在しない場合は、基本的な記事表示の確認
+			const bookmarkItems = page.locator('[data-testid="bookmark-item"]');
+			const itemCount = await bookmarkItems.count();
+
+			if (itemCount > 0) {
+				await expect(bookmarkItems.first()).toBeVisible();
+			}
+		}
+	});
 });
