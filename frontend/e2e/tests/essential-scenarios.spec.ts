@@ -9,12 +9,12 @@ test.describe("必須シナリオ - 未読一覧", () => {
 		// ページのエラーをキャッチ
 		const pageErrors: string[] = [];
 		const consoleMessages: string[] = [];
-		
-		page.on('pageerror', (error) => {
+
+		page.on("pageerror", (error) => {
 			pageErrors.push(`Page error: ${error.message}`);
 		});
-		
-		page.on('console', (msg) => {
+
+		page.on("console", (msg) => {
 			consoleMessages.push(`Console ${msg.type()}: ${msg.text()}`);
 		});
 
@@ -25,7 +25,7 @@ test.describe("必須シナリオ - 未読一覧", () => {
 		// ページが完全に読み込まれるまで待機
 		console.log("Waiting for network idle...");
 		await page.waitForLoadState("networkidle");
-		
+
 		// 少し追加で待機（React Queryの初期化等を考慮）
 		console.log("Additional wait for React initialization...");
 		await page.waitForTimeout(3000);
@@ -34,7 +34,7 @@ test.describe("必須シナリオ - 未読一覧", () => {
 		console.log("Current URL:", page.url());
 		console.log("Page errors:", pageErrors);
 		console.log("Console messages:", consoleMessages.slice(-10)); // 最新の10件のみ
-		
+
 		// HTMLの存在確認
 		const htmlContent = await page.content();
 		console.log("HTML length:", htmlContent.length);
@@ -44,7 +44,10 @@ test.describe("必須シナリオ - 未読一覧", () => {
 		// ページタイトルを確認（デバッグ情報付き）
 		try {
 			// 明示的にタイトルが設定されるまで待機
-			await page.waitForFunction(() => document.title && document.title.trim() !== "", { timeout: 15000 });
+			await page.waitForFunction(
+				() => document.title && document.title.trim() !== "",
+				{ timeout: 15000 },
+			);
 			await expect(page).toHaveTitle(/Effective Yomimono/i);
 		} catch (error) {
 			console.log("Final debug info:");
@@ -52,11 +55,11 @@ test.describe("必須シナリオ - 未読一覧", () => {
 			console.log("HTML head content:", await page.innerHTML("head"));
 			const scripts = await page.locator("script").count();
 			console.log("Number of script tags:", scripts);
-			
+
 			// Next.js specific checks
 			const nextData = await page.evaluate(() => window.__NEXT_DATA__);
 			console.log("Next.js data available:", !!nextData);
-			
+
 			throw error;
 		}
 
