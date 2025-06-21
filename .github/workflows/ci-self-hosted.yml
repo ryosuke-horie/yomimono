@@ -30,20 +30,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Cache dependencies
-      id: cache-deps
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.npm
-          ~/.pnpm-store
-          ./api/node_modules
-        key: api-deps-${{ hashFiles('api/package-lock.json') }}
-        restore-keys: |
-          api-deps-
-
     - name: Install dependencies
-      if: steps.cache-deps.outputs.cache-hit != 'true'
       run: npm ci
 
     - name: Run linting
@@ -74,20 +61,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Cache dependencies
-      id: cache-deps
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.npm
-          ~/.pnpm-store
-          ./frontend/node_modules
-        key: frontend-deps-${{ hashFiles('frontend/package-lock.json') }}
-        restore-keys: |
-          frontend-deps-
-
     - name: Install dependencies
-      if: steps.cache-deps.outputs.cache-hit != 'true'
       run: |
         npm ci
         
@@ -95,19 +69,6 @@ jobs:
         echo "Applying workaround for native dependencies..."
         rm -rf node_modules/.rollup_cache node_modules/.vite
         npm install @rollup/rollup-linux-x64-gnu lightningcss-linux-x64-gnu --no-save
-
-    - name: Fix native dependencies (cached case)
-      if: steps.cache-deps.outputs.cache-hit == 'true'
-      run: |
-        # キャッシュが使用された場合の修正
-        echo "Cache was used, checking native dependencies..."
-        
-        if [ ! -d "node_modules/@rollup/rollup-linux-x64-gnu" ] || [ ! -d "node_modules/lightningcss-linux-x64-gnu" ]; then
-          echo "Installing missing native dependencies..."
-          npm install @rollup/rollup-linux-x64-gnu lightningcss-linux-x64-gnu --no-save
-        else
-          echo "Native dependencies already present"
-        fi
 
     - name: Run linting
       run: npm run lint
@@ -138,20 +99,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Cache dependencies
-      id: cache-deps
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.npm
-          ~/.pnpm-store
-          ./extension/node_modules
-        key: extension-deps-${{ hashFiles('extension/package-lock.json') }}
-        restore-keys: |
-          extension-deps-
-
     - name: Install dependencies
-      if: steps.cache-deps.outputs.cache-hit != 'true'
       run: npm ci
 
     - name: Run linting
@@ -182,20 +130,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Cache dependencies
-      id: cache-deps
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.npm
-          ~/.pnpm-store
-          ./mcp/node_modules
-        key: mcp-deps-${{ hashFiles('mcp/package-lock.json') }}
-        restore-keys: |
-          mcp-deps-
-
     - name: Install dependencies
-      if: steps.cache-deps.outputs.cache-hit != 'true'
       run: npm ci
 
     - name: Run linting
