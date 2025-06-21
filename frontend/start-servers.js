@@ -57,12 +57,21 @@ async function startServers() {
 		stdio: ["ignore", "pipe", "pipe"],
 	});
 
-	// APIサーバー起動
+	// APIサーバー起動 (CI環境ではシンプルなモックサーバーを使用)
 	console.log("🔌 APIサーバーを起動中...");
-	apiProcess = spawn("npm", ["run", "dev"], {
-		cwd: "../api",
-		stdio: ["ignore", "pipe", "pipe"],
-	});
+	if (process.env.CI) {
+		// CI環境では軽量なモックAPIサーバーを起動
+		apiProcess = spawn("node", ["mock-api-server.js"], {
+			cwd: process.cwd(),
+			stdio: ["ignore", "pipe", "pipe"],
+		});
+	} else {
+		// ローカル環境ではWranglerを使用
+		apiProcess = spawn("npm", ["run", "dev"], {
+			cwd: "../api",
+			stdio: ["ignore", "pipe", "pipe"],
+		});
+	}
 
 	// フロントエンドの起動を待機
 	console.log("⏳ フロントエンドサーバーの起動を待機中...");
