@@ -15,27 +15,45 @@ const mockBookmarks = [
 		id: 1,
 		url: "https://example.com/article1",
 		title: "Test Article 1",
-		labels: ["テスト"],
+		label: {
+			id: 1,
+			name: "テスト",
+			description: "テスト用ラベル",
+			createdAt: "2025-06-21T00:00:00.000Z",
+			updatedAt: "2025-06-21T00:00:00.000Z",
+		},
 		isRead: false,
 		isFavorite: false,
 		createdAt: "2025-06-21T00:00:00.000Z",
-		readAt: null,
+		updatedAt: "2025-06-21T00:00:00.000Z",
 	},
 	{
 		id: 2,
 		url: "https://example.com/article2",
 		title: "Test Article 2",
-		labels: [],
+		label: null,
 		isRead: true,
 		isFavorite: true,
 		createdAt: "2025-06-20T00:00:00.000Z",
-		readAt: "2025-06-21T00:00:00.000Z",
+		updatedAt: "2025-06-20T00:00:00.000Z",
 	},
 ];
 
 const mockLabels = [
-	{ id: 1, name: "テスト", description: "テスト用ラベル" },
-	{ id: 2, name: "React", description: "React関連記事" },
+	{
+		id: 1,
+		name: "テスト",
+		description: "テスト用ラベル",
+		createdAt: "2025-06-21T00:00:00.000Z",
+		updatedAt: "2025-06-21T00:00:00.000Z",
+	},
+	{
+		id: 2,
+		name: "React",
+		description: "React関連記事",
+		createdAt: "2025-06-21T00:00:00.000Z",
+		updatedAt: "2025-06-21T00:00:00.000Z",
+	},
 ];
 
 function handleRequest(req, res) {
