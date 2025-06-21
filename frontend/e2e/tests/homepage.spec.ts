@@ -20,7 +20,9 @@ test.describe("ホームページ - カード表示確認", () => {
 		// ブックマークカードの一覧が表示されることを確認
 		// カードコンテナまたはカード要素の存在を確認
 		const cardContainer = page
-			.locator("[data-testid=bookmark-cards], .bookmark-card, [class*=card]")
+			.locator(
+				'[data-testid="bookmark-cards"], .bookmark-card, [class*="card"]',
+			)
 			.first();
 
 		// カードが表示されるまで待機（データがない場合もあるため、タイムアウトを短く設定）
