@@ -34,17 +34,22 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
-        cache-dependency-path: |
-          frontend/package-lock.json
-          api/package-lock.json
+        # Disable cache to ensure clean install of native modules
+        # cache: 'npm'
 
     - name: Install frontend dependencies
-      run: npm ci
+      run: |
+        # Clean install to ensure all native binaries are properly installed
+        rm -rf node_modules package-lock.json
+        npm install --force --verbose
+        # Explicitly rebuild native modules for current platform
+        npm rebuild
 
     - name: Install API dependencies
       working-directory: ./api
-      run: npm ci
+      run: |
+        rm -rf node_modules package-lock.json
+        npm install --force
 
     - name: Install Playwright (Chrome only)
       run: |
