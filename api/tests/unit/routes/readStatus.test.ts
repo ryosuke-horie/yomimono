@@ -57,6 +57,7 @@ describe("/api/bookmarks/read", () => {
 			updateLabelDescription: vi.fn(),
 			deleteLabel: vi.fn(),
 			assignLabelsToMultipleArticles: vi.fn(),
+			cleanupUnusedLabels: vi.fn(),
 		};
 
 		app = new Hono();

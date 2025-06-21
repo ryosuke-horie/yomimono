@@ -12,6 +12,7 @@ const mockFindLabelById = vi.fn();
 const mockUpdateDescription = vi.fn();
 const mockCreateLabel = vi.fn();
 const mockDeleteById = vi.fn();
+const mockDeleteMany = vi.fn();
 const mockFindByArticleId = vi.fn();
 const mockCreateArticleLabel = vi.fn();
 const mockFindBookmarkById = vi.fn();
@@ -23,6 +24,7 @@ const mockLabelRepository: ILabelRepository = {
 	create: mockCreateLabel,
 	deleteById: mockDeleteById,
 	updateDescription: mockUpdateDescription,
+	deleteMany: mockDeleteMany,
 };
 
 const mockArticleLabelRepository: IArticleLabelRepository = {
@@ -452,6 +454,135 @@ describe("LabelService", () => {
 
 			await expect(labelService.deleteLabel(labelId)).rejects.toThrow(error);
 			expect(mockDeleteById).toHaveBeenCalledWith(labelId);
+		});
+	});
+
+	describe("cleanupUnusedLabels", () => {
+		it("未使用のラベルを一括削除できること", async () => {
+			const labelsWithCount = [
+				{
+					id: 1,
+					name: "typescript",
+					description: "TypeScriptに関する記事",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+					articleCount: 5, // 使用中
+				},
+				{
+					id: 2,
+					name: "unused-label-1",
+					description: "未使用のラベル1",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+					articleCount: 0, // 未使用
+				},
+				{
+					id: 3,
+					name: "unused-label-2",
+					description: null,
+					createdAt: new Date(),
+					updatedAt: new Date(),
+					articleCount: 0, // 未使用
+				},
+			];
+
+			const deletedLabels = [
+				{
+					id: 2,
+					name: "unused-label-1",
+					description: "未使用のラベル1",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
+				{
+					id: 3,
+					name: "unused-label-2",
+					description: null,
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
+			];
+
+			mockFindAllWithArticleCount.mockResolvedValue(labelsWithCount);
+			mockDeleteMany.mockResolvedValue(deletedLabels);
+
+			const result = await labelService.cleanupUnusedLabels();
+
+			expect(result).toEqual({
+				deletedCount: 2,
+				deletedLabels: [
+					{ id: 2, name: "unused-label-1" },
+					{ id: 3, name: "unused-label-2" },
+				],
+			});
+			expect(mockFindAllWithArticleCount).toHaveBeenCalledOnce();
+			expect(mockDeleteMany).toHaveBeenCalledWith([2, 3]);
+		});
+
+		it("全てのラベルが使用中の場合、何も削除しないこと", async () => {
+			const labelsWithCount = [
+				{
+					id: 1,
+					name: "typescript",
+					description: "TypeScriptに関する記事",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+					articleCount: 5,
+				},
+				{
+					id: 2,
+					name: "react",
+					description: "Reactに関する記事",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+					articleCount: 3,
+				},
+			];
+
+			mockFindAllWithArticleCount.mockResolvedValue(labelsWithCount);
+
+			const result = await labelService.cleanupUnusedLabels();
+
+			expect(result).toEqual({
+				deletedCount: 0,
+				deletedLabels: [],
+			});
+			expect(mockFindAllWithArticleCount).toHaveBeenCalledOnce();
+			expect(mockDeleteMany).not.toHaveBeenCalled();
+		});
+
+		it("ラベルが存在しない場合、何も削除しないこと", async () => {
+			mockFindAllWithArticleCount.mockResolvedValue([]);
+
+			const result = await labelService.cleanupUnusedLabels();
+
+			expect(result).toEqual({
+				deletedCount: 0,
+				deletedLabels: [],
+			});
+			expect(mockFindAllWithArticleCount).toHaveBeenCalledOnce();
+			expect(mockDeleteMany).not.toHaveBeenCalled();
+		});
+
+		it("削除処理でエラーが発生した場合、エラーをスローすること", async () => {
+			const labelsWithCount = [
+				{
+					id: 1,
+					name: "unused-label",
+					description: "未使用のラベル",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+					articleCount: 0,
+				},
+			];
+
+			const error = new Error("Database error");
+			mockFindAllWithArticleCount.mockResolvedValue(labelsWithCount);
+			mockDeleteMany.mockRejectedValue(error);
+
+			await expect(labelService.cleanupUnusedLabels()).rejects.toThrow(error);
+			expect(mockFindAllWithArticleCount).toHaveBeenCalledOnce();
+			expect(mockDeleteMany).toHaveBeenCalledWith([1]);
 		});
 	});
 });

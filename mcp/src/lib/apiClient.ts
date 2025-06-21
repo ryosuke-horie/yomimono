@@ -65,6 +65,19 @@ const DeleteLabelResponseSchema = z.object({
 	message: z.string(),
 });
 
+// Schema for the DELETE /api/labels/cleanup response
+const CleanupLabelsResponseSchema = z.object({
+	success: z.literal(true),
+	message: z.string(),
+	deletedCount: z.number(),
+	deletedLabels: z.array(
+		z.object({
+			id: z.number(),
+			name: z.string(),
+		}),
+	),
+});
+
 // Get API base URL from environment variable
 function getApiBaseUrl(): string {
 	const API_BASE_URL = process.env.API_BASE_URL;
@@ -641,4 +654,62 @@ export async function markBookmarkAsRead(bookmarkId: number) {
 		);
 	}
 	return parsed.data;
+}
+
+/**
+ * 未使用ラベルをクリーンアップします
+ * @returns クリーンアップの結果
+ */
+export async function cleanupUnusedLabels(): Promise<{
+	deletedCount: number;
+	deletedLabels: Array<{ id: number; name: string }>;
+	message: string;
+}> {
+	const response = await fetch(`${getApiBaseUrl()}/api/labels/cleanup`, {
+		method: "DELETE",
+	});
+
+	let data: unknown;
+	try {
+		data = await response.json();
+	} catch (parseError: unknown) {
+		const errorMessage =
+			parseError instanceof Error ? parseError.message : String(parseError);
+		if (!response.ok) {
+			throw new Error(
+				`Failed to cleanup unused labels. Status: ${response.status} ${response.statusText}`,
+			);
+		}
+		throw new Error(
+			`Unexpected response format when cleaning up labels: ${errorMessage}`,
+		);
+	}
+
+	if (!response.ok) {
+		let errorMessage = "Failed to cleanup unused labels";
+		if (
+			typeof data === "object" &&
+			data !== null &&
+			"message" in data &&
+			typeof data.message === "string"
+		) {
+			errorMessage = data.message;
+		}
+		throw new Error(
+			`${errorMessage}: ${response.statusText} (Status: ${response.status})`,
+		);
+	}
+
+	const parsed = CleanupLabelsResponseSchema.safeParse(data);
+	if (!parsed.success) {
+		throw new Error(
+			`Invalid API response after cleaning up labels. Zod errors: ${parsed.error.message}`,
+		);
+	}
+
+	return {
+		deletedCount: parsed.data.deletedCount,
+		deletedLabels: parsed.data.deletedLabels,
+		message: parsed.data.message,
+	};
 }

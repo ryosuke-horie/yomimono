@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
+	cleanupUnusedLabels,
 	createLabel,
 	deleteLabel,
 	fetchLabels,
@@ -62,6 +63,14 @@ export function useManageLabels() {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: labelKeys.lists() });
 			setDeleteConfirmLabelId(null);
+		},
+	});
+
+	// 未使用ラベルクリーンアップミューテーション
+	const cleanupLabelsMutation = useMutation({
+		mutationFn: cleanupUnusedLabels,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: labelKeys.lists() });
 		},
 	});
 
@@ -136,5 +145,9 @@ export function useManageLabels() {
 		deleteLabel: (id: number) => deleteLabelMutation.mutate(id),
 		isDeletingLabel: deleteLabelMutation.isPending,
 		deleteLabelError: deleteLabelMutation.error,
+
+		cleanupUnusedLabels: () => cleanupLabelsMutation.mutate(),
+		isCleaningUpLabels: cleanupLabelsMutation.isPending,
+		cleanupLabelsError: cleanupLabelsMutation.error,
 	};
 }

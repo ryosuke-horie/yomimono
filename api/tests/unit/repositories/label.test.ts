@@ -262,4 +262,75 @@ describe("LabelRepository", () => {
 			expect(mockDb.all).toHaveBeenCalledOnce();
 		});
 	});
+
+	describe("deleteMany", () => {
+		it("指定されたIDsのラベルを一括削除できること", async () => {
+			const labelsToDelete = [
+				{
+					id: 1,
+					name: "typescript",
+					description: "TypeScriptに関する記事",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
+				{
+					id: 2,
+					name: "react",
+					description: "Reactに関する記事",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
+			];
+			mockDb.all.mockResolvedValue(labelsToDelete);
+
+			const result = await labelRepository.deleteMany([1, 2]);
+
+			expect(result).toEqual(labelsToDelete);
+			expect(mockDb.delete).toHaveBeenCalledWith(expect.anything());
+			expect(mockDb.where).toHaveBeenCalledWith(expect.anything());
+			expect(mockDb.returning).toHaveBeenCalled();
+			expect(mockDb.all).toHaveBeenCalledOnce();
+		});
+
+		it("空の配列を渡した場合、空の配列を返すこと", async () => {
+			const result = await labelRepository.deleteMany([]);
+
+			expect(result).toEqual([]);
+			expect(mockDb.delete).not.toHaveBeenCalled();
+			expect(mockDb.where).not.toHaveBeenCalled();
+			expect(mockDb.returning).not.toHaveBeenCalled();
+			expect(mockDb.all).not.toHaveBeenCalled();
+		});
+
+		it("存在しないIDsを指定した場合、空の配列を返すこと", async () => {
+			mockDb.all.mockResolvedValue([]);
+
+			const result = await labelRepository.deleteMany([999, 998]);
+
+			expect(result).toEqual([]);
+			expect(mockDb.delete).toHaveBeenCalledWith(expect.anything());
+			expect(mockDb.where).toHaveBeenCalledWith(expect.anything());
+			expect(mockDb.returning).toHaveBeenCalled();
+			expect(mockDb.all).toHaveBeenCalledOnce();
+		});
+
+		it("一部のIDsが存在しない場合、存在するラベルのみ削除すること", async () => {
+			const deletedLabel = {
+				id: 1,
+				name: "typescript",
+				description: "TypeScriptに関する記事",
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+			mockDb.all.mockResolvedValue([deletedLabel]);
+
+			const result = await labelRepository.deleteMany([1, 999]);
+
+			expect(result).toEqual([deletedLabel]);
+			expect(mockDb.delete).toHaveBeenCalledWith(expect.anything());
+			expect(mockDb.where).toHaveBeenCalledWith(expect.anything());
+			expect(mockDb.returning).toHaveBeenCalled();
+			expect(mockDb.all).toHaveBeenCalledOnce();
+		});
+	});
 });

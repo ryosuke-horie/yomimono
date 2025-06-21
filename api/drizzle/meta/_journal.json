@@ -8,6 +8,13 @@
       "when": 1749704761541,
       "tag": "0000_furry_valeria_richards",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1750484608618,
+      "tag": "0001_luxuriant_silvermane",
+      "breakpoints": true
     }
   ]
 }

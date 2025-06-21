@@ -64,6 +64,26 @@ export const createLabelsRouter = (labelService: ILabelService) => {
 		}
 	});
 
+	// 未使用ラベル一括削除（これを/:idより前に定義する必要がある）
+	app.delete("/cleanup", async (c) => {
+		try {
+			const result = await labelService.cleanupUnusedLabels();
+			return c.json({
+				success: true,
+				message: `Successfully cleaned up ${result.deletedCount} unused labels`,
+				deletedCount: result.deletedCount,
+				deletedLabels: result.deletedLabels,
+			});
+		} catch (error) {
+			console.error("Failed to cleanup unused labels:", error);
+			const errorResponse = createErrorResponse(error);
+			return c.json(
+				createErrorResponseBody(error),
+				toContentfulStatusCode(errorResponse.statusCode),
+			);
+		}
+	});
+
 	// ラベル取得（ID指定）
 	app.get("/:id", async (c) => {
 		try {

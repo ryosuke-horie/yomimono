@@ -56,6 +56,7 @@ const mockDeleteLabel = vi.fn();
 const mockGetLabelById = vi.fn();
 const mockUpdateLabelDescription = vi.fn();
 const mockAssignLabelsToMultipleArticles = vi.fn();
+const mockCleanupUnusedLabels = vi.fn();
 
 // モックサービスの作成
 const mockLabelService: ILabelService = {
@@ -66,6 +67,7 @@ const mockLabelService: ILabelService = {
 	deleteLabel: mockDeleteLabel,
 	updateLabelDescription: mockUpdateLabelDescription,
 	assignLabelsToMultipleArticles: mockAssignLabelsToMultipleArticles,
+	cleanupUnusedLabels: mockCleanupUnusedLabels,
 };
 
 // 実際のルーターの代わりにモックサービスを使用するカスタムルーターを作成
@@ -131,6 +133,26 @@ function createMockLabelsRouter() {
 				}
 			}
 			console.error("Failed to create label:", error);
+			const errorResponse = createErrorResponse(error);
+			return c.json(
+				createErrorResponseBody(error),
+				toContentfulStatusCode(errorResponse.statusCode),
+			);
+		}
+	});
+
+	// ラベルクリーンアップ（これを/:idより前に定義する必要がある）
+	router.delete("/cleanup", async (c) => {
+		try {
+			const result = await mockLabelService.cleanupUnusedLabels();
+			return c.json({
+				success: true,
+				message: `Successfully cleaned up ${result.deletedCount} unused labels`,
+				deletedCount: result.deletedCount,
+				deletedLabels: result.deletedLabels,
+			});
+		} catch (error) {
+			console.error("Failed to cleanup unused labels:", error);
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
@@ -718,6 +740,127 @@ describe("Labels Route", () => {
 			expect(body.success).toBe(false);
 			expect(body.message).toBe("Database connection failed");
 			expect(mockDeleteLabel).toHaveBeenCalledWith(labelId);
+		});
+	});
+
+	describe("DELETE /api/labels/cleanup", () => {
+		const mockEnv: Env = { DB: {} as D1Database };
+
+		it("未使用ラベルをクリーンアップし、成功レスポンスを返すこと", async () => {
+			const mockCleanupResult = {
+				deletedCount: 2,
+				deletedLabels: [
+					{ id: 1, name: "unused-label-1" },
+					{ id: 2, name: "unused-label-2" },
+				],
+			};
+			mockCleanupUnusedLabels.mockResolvedValue(mockCleanupResult);
+
+			const res = await app.request(
+				"/api/labels/cleanup",
+				{
+					method: "DELETE",
+				},
+				mockEnv,
+			);
+			const body = (await res.json()) as {
+				success: boolean;
+				message: string;
+				deletedCount: number;
+				deletedLabels: Array<{ id: number; name: string }>;
+			};
+
+			expect(res.status).toBe(200);
+			expect(body.success).toBe(true);
+			expect(body.message).toBe("Successfully cleaned up 2 unused labels");
+			expect(body.deletedCount).toBe(2);
+			expect(body.deletedLabels).toHaveLength(2);
+			expect(body.deletedLabels[0]).toEqual({ id: 1, name: "unused-label-1" });
+			expect(body.deletedLabels[1]).toEqual({ id: 2, name: "unused-label-2" });
+			expect(mockCleanupUnusedLabels).toHaveBeenCalledOnce();
+		});
+
+		it("未使用ラベルがない場合、空の結果を返すこと", async () => {
+			const mockCleanupResult = {
+				deletedCount: 0,
+				deletedLabels: [],
+			};
+			mockCleanupUnusedLabels.mockResolvedValue(mockCleanupResult);
+
+			const res = await app.request(
+				"/api/labels/cleanup",
+				{
+					method: "DELETE",
+				},
+				mockEnv,
+			);
+			const body = (await res.json()) as {
+				success: boolean;
+				message: string;
+				deletedCount: number;
+				deletedLabels: Array<{ id: number; name: string }>;
+			};
+
+			expect(res.status).toBe(200);
+			expect(body.success).toBe(true);
+			expect(body.message).toBe("Successfully cleaned up 0 unused labels");
+			expect(body.deletedCount).toBe(0);
+			expect(body.deletedLabels).toHaveLength(0);
+			expect(mockCleanupUnusedLabels).toHaveBeenCalledOnce();
+		});
+
+		it("大量の未使用ラベルがある場合も正しく処理すること", async () => {
+			const mockCleanupResult = {
+				deletedCount: 5,
+				deletedLabels: [
+					{ id: 1, name: "label-1" },
+					{ id: 2, name: "label-2" },
+					{ id: 3, name: "label-3" },
+					{ id: 4, name: "label-4" },
+					{ id: 5, name: "label-5" },
+				],
+			};
+			mockCleanupUnusedLabels.mockResolvedValue(mockCleanupResult);
+
+			const res = await app.request(
+				"/api/labels/cleanup",
+				{
+					method: "DELETE",
+				},
+				mockEnv,
+			);
+			const body = (await res.json()) as {
+				success: boolean;
+				message: string;
+				deletedCount: number;
+				deletedLabels: Array<{ id: number; name: string }>;
+			};
+
+			expect(res.status).toBe(200);
+			expect(body.success).toBe(true);
+			expect(body.message).toBe("Successfully cleaned up 5 unused labels");
+			expect(body.deletedCount).toBe(5);
+			expect(body.deletedLabels).toHaveLength(5);
+			expect(mockCleanupUnusedLabels).toHaveBeenCalledOnce();
+		});
+
+		it("サービスでエラーが発生した場合、500エラーレスポンスを返すこと", async () => {
+			const error = new Error("Database connection failed");
+			mockCleanupUnusedLabels.mockRejectedValue(error);
+
+			const res = await app.request(
+				"/api/labels/cleanup",
+				{
+					method: "DELETE",
+				},
+				mockEnv,
+			);
+			const body = (await res.json()) as { success: boolean; message: string };
+
+			expect(res.status).toBe(500);
+			expect(body.success).toBe(false);
+			expect(body.message).toBe("Database connection failed");
+			expect(mockCleanupUnusedLabels).toHaveBeenCalledOnce();
 		});
 	});
 });
