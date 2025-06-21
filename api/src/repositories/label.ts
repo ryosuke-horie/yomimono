@@ -1,4 +1,4 @@
-import { count, eq } from "drizzle-orm";
+import { count, eq, inArray } from "drizzle-orm";
 import { type DrizzleD1Database, drizzle } from "drizzle-orm/d1";
 import {
 	type InsertLabel,
@@ -99,5 +99,19 @@ export class LabelRepository implements ILabelRepository {
 			console.error("Failed to update label description:", error);
 			return undefined;
 		}
+	}
+
+	async deleteMany(ids: number[]): Promise<Label[]> {
+		if (ids.length === 0) {
+			return [];
+		}
+
+		const result = await this.db
+			.delete(labels)
+			.where(inArray(labels.id, ids))
+			.returning()
+			.all();
+
+		return result;
 	}
 }

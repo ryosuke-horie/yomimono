@@ -14,6 +14,7 @@ vi.mock("../queries/api", () => ({
 	createLabel: vi.fn(),
 	updateLabelDescription: vi.fn(),
 	deleteLabel: vi.fn(),
+	cleanupUnusedLabels: vi.fn(),
 }));
 
 const mockLabels: Label[] = [

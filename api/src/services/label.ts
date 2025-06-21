@@ -234,4 +234,40 @@ export class LabelService implements ILabelService {
 
 		return results;
 	}
+
+	async cleanupUnusedLabels(): Promise<{
+		deletedCount: number;
+		deletedLabels: Array<{ id: number; name: string }>;
+	}> {
+		// 1. 全てのラベルと記事数を取得
+		const labelsWithCount =
+			await this.labelRepository.findAllWithArticleCount();
+
+		// 2. 記事数が0のラベルを特定
+		const unusedLabels = labelsWithCount.filter(
+			(label) => label.articleCount === 0,
+		);
+
+		if (unusedLabels.length === 0) {
+			return {
+				deletedCount: 0,
+				deletedLabels: [],
+			};
+		}
+
+		// 3. 未使用ラベルのIDを抽出
+		const unusedLabelIds = unusedLabels.map((label) => label.id);
+
+		// 4. 一括削除を実行
+		const deletedLabels = await this.labelRepository.deleteMany(unusedLabelIds);
+
+		// 5. 結果を返す
+		return {
+			deletedCount: deletedLabels.length,
+			deletedLabels: deletedLabels.map((label) => ({
+				id: label.id,
+				name: label.name,
+			})),
+		};
+	}
 }

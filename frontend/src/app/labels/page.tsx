@@ -1,5 +1,6 @@
 "use client";
 
+import { LabelCleanup } from "@/features/labels/components/LabelCleanup";
 import { LabelCreateForm } from "@/features/labels/components/LabelCreateForm";
 import { LabelDeleteConfirm } from "@/features/labels/components/LabelDeleteConfirm";
 import { LabelEditForm } from "@/features/labels/components/LabelEditForm";
@@ -34,6 +35,10 @@ export default function LabelsPage() {
 		deleteLabel,
 		isDeletingLabel,
 		deleteLabelError,
+
+		cleanupUnusedLabels,
+		isCleaningUpLabels,
+		cleanupLabelsError,
 	} = useManageLabels();
 
 	const editingLabel = getEditingLabel();
@@ -100,6 +105,14 @@ export default function LabelsPage() {
 							error={updateLabelError}
 						/>
 					)}
+
+					{/* 未使用ラベルクリーンアップ */}
+					<LabelCleanup
+						labels={labels}
+						onCleanup={cleanupUnusedLabels}
+						isLoading={isCleaningUpLabels}
+						error={cleanupLabelsError}
+					/>
 
 					{/* ラベル一覧 */}
 					<div className="bg-white rounded-lg shadow-md p-1">

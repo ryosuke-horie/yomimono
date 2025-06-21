@@ -45,4 +45,11 @@ export interface ILabelRepository {
 		id: number,
 		description: string | null,
 	): Promise<Label | undefined>;
+
+	/**
+	 * 指定されたIDsのラベルを一括削除します。
+	 * @param ids 削除するラベルのID配列
+	 * @returns 削除されたラベルの配列
+	 */
+	deleteMany(ids: number[]): Promise<Label[]>;
 }

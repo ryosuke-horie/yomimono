@@ -81,4 +81,13 @@ export interface ILabelService {
 		errors: Array<{ articleId: number; error: string }>;
 		label: Label;
 	}>;
+
+	/**
+	 * 未使用のラベル（記事数が0のラベル）を一括削除します。
+	 * @returns クリーンアップ結果（削除されたラベル数）
+	 */
+	cleanupUnusedLabels(): Promise<{
+		deletedCount: number;
+		deletedLabels: Array<{ id: number; name: string }>;
+	}>;
 }

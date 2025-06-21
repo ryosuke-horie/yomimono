@@ -109,6 +109,39 @@ export const deleteLabel = async (id: number): Promise<string> => {
 	return data.message;
 };
 
+// 未使用ラベル一括クリーンアップの型定義
+interface LabelCleanupResponse {
+	success: boolean;
+	message: string;
+	deletedCount: number;
+	deletedLabels: Label[];
+}
+
+// 未使用ラベルを一括削除する関数
+export const cleanupUnusedLabels = async (): Promise<{
+	message: string;
+	deletedCount: number;
+	deletedLabels: Label[];
+}> => {
+	const response = await fetch(`${API_BASE_URL}/api/labels/cleanup`, {
+		method: "DELETE",
+	});
+
+	if (!response.ok) {
+		const errorData = (await response.json()) as ErrorResponse;
+		throw new Error(
+			errorData.message || "Failed to cleanup unused labels",
+		);
+	}
+
+	const data: LabelCleanupResponse = await response.json();
+	return {
+		message: data.message,
+		deletedCount: data.deletedCount,
+		deletedLabels: data.deletedLabels,
+	};
+};
+
 // @ts-ignore - Vitest in-source testing
 if (import.meta.vitest) {
 	// @ts-ignore
@@ -287,5 +320,64 @@ if (import.meta.vitest) {
 		});
 
 		await expect(deleteLabel(1)).rejects.toThrow("削除に失敗しました");
+	});
+
+	test("cleanupUnusedLabels: 正常に未使用ラベルを一括削除する", async () => {
+		const deletedLabels = [
+			{ id: 2, name: "使用されていないラベル1", description: null },
+			{ id: 3, name: "使用されていないラベル2", description: "古いラベル" },
+		];
+		const mockResponse = {
+			success: true,
+			message: "Successfully cleaned up 2 unused labels",
+			deletedCount: 2,
+			deletedLabels,
+		};
+
+		mockFetch.mockResolvedValueOnce({
+			ok: true,
+			json: () => Promise.resolve(mockResponse),
+		});
+
+		const result = await cleanupUnusedLabels();
+
+		expect(mockFetch).toHaveBeenCalledWith(`${API_BASE_URL}/api/labels/cleanup`, {
+			method: "DELETE",
+		});
+		expect(result).toEqual({
+			message: "Successfully cleaned up 2 unused labels",
+			deletedCount: 2,
+			deletedLabels,
+		});
+	});
+
+	test("cleanupUnusedLabels: 削除対象がない場合", async () => {
+		const mockResponse = {
+			success: true,
+			message: "Successfully cleaned up 0 unused labels",
+			deletedCount: 0,
+			deletedLabels: [],
+		};
+
+		mockFetch.mockResolvedValueOnce({
+			ok: true,
+			json: () => Promise.resolve(mockResponse),
+		});
+
+		const result = await cleanupUnusedLabels();
+
+		expect(result.deletedCount).toBe(0);
+		expect(result.deletedLabels).toEqual([]);
+	});
+
+	test("cleanupUnusedLabels: HTTPエラー時に例外を投げる", async () => {
+		const errorResponse = { success: false, message: "クリーンアップに失敗しました" };
+
+		mockFetch.mockResolvedValueOnce({
+			ok: false,
+			json: () => Promise.resolve(errorResponse),
+		});
+
+		await expect(cleanupUnusedLabels()).rejects.toThrow("クリーンアップに失敗しました");
 	});
 }
