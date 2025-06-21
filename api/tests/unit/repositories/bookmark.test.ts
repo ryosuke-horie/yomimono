@@ -331,6 +331,35 @@ describe("ブックマークリポジトリ", () => {
 			expect(mockDbClient.all).toHaveBeenCalledOnce();
 		});
 
+		it("ラベル名によるブックマークを作成日時の降順でソートして取得できること", async () => {
+			const labelName = "typescript";
+			mockDbClient.all.mockResolvedValue([
+				{
+					bookmark: mockBookmark2,
+					favorite: null,
+					label: mockLabel1,
+				},
+				{
+					bookmark: mockBookmark1,
+					favorite: { id: 1, bookmarkId: 1, createdAt: new Date() },
+					label: mockLabel1,
+				},
+			]);
+			const result = await repository.findByLabelName(labelName);
+			// 両方ともmockLabel1を使用するよう期待値を修正
+			const expectedResultsWithLabel1 = [
+				{ ...expectedResult2, label: mockLabel1 },
+				{ ...expectedResult1, label: mockLabel1 },
+			];
+			expect(result).toEqual(expectedResultsWithLabel1);
+			expect(mockDbClient.select).toHaveBeenCalled();
+			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
+			expect(mockDbClient.orderBy).toHaveBeenCalledWith(
+				desc(bookmarks.createdAt),
+			);
+			expect(mockDbClient.all).toHaveBeenCalledOnce();
+		});
+
 		it("DBクエリ失敗時にエラーをスローすること", async () => {
 			const labelName = "typescript";
 			const mockError = new Error("Database error");

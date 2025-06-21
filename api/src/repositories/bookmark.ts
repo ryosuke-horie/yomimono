@@ -433,6 +433,7 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 						eq(bookmarks.isRead, false), // 未読記事のみを取得
 					),
 				)
+				.orderBy(desc(bookmarks.createdAt))
 				.all();
 
 			return results.map((row) => ({
