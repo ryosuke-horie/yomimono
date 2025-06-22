@@ -123,29 +123,50 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 
 	async findUnread(): Promise<BookmarkWithLabel[]> {
 		try {
-			const query = this.db
+			// 1. 重複なしでブックマークを取得（お気に入り情報も含む）
+			const bookmarksResult = await this.db
 				.select({
 					bookmark: bookmarks,
 					favorite: favorites,
-					label: labels,
 				})
 				.from(bookmarks)
 				.leftJoin(favorites, eq(bookmarks.id, favorites.bookmarkId))
-				.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
-				.leftJoin(labels, eq(articleLabels.labelId, labels.id))
 				.where(eq(bookmarks.isRead, false))
-				.orderBy(desc(bookmarks.createdAt));
+				.orderBy(desc(bookmarks.createdAt))
+				.all();
 
-			const results = await query.all();
+			if (bookmarksResult.length === 0) {
+				return [];
+			}
 
-			return results.map((row): BookmarkWithLabel => {
-				const bookmark = row.bookmark;
-				return {
-					...bookmark,
+			// 2. ブックマークIDに対応するラベルを取得（最初のラベルのみ）
+			const bookmarkIds = bookmarksResult.map((r) => r.bookmark.id);
+			const labelsResult = await this.db
+				.select({
+					articleId: articleLabels.articleId,
+					label: labels,
+				})
+				.from(articleLabels)
+				.innerJoin(labels, eq(articleLabels.labelId, labels.id))
+				.where(inArray(articleLabels.articleId, bookmarkIds))
+				.all();
+
+			// 3. ラベルをブックマークにマッピング（重複排除）
+			const labelMap = new Map<number, typeof labels.$inferSelect>();
+			for (const row of labelsResult) {
+				if (!labelMap.has(row.articleId)) {
+					labelMap.set(row.articleId, row.label);
+				}
+			}
+
+			// 4. 結果をマッピング（ソート順序を維持）
+			return bookmarksResult.map(
+				(row): BookmarkWithLabel => ({
+					...row.bookmark,
 					isFavorite: !!row.favorite,
-					label: row.label || null,
-				};
-			});
+					label: labelMap.get(row.bookmark.id) || null,
+				}),
+			);
 		} catch (error) {
 			console.error("Failed to fetch unread bookmarks:", error);
 			throw error;
