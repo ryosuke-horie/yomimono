@@ -25,6 +25,9 @@ import type {
 	IBookmarkRepository,
 } from "../interfaces/repository/bookmark";
 
+// 型エイリアス定義
+type Label = typeof labels.$inferSelect;
+
 export class DrizzleBookmarkRepository implements IBookmarkRepository {
 	private readonly db: DrizzleD1Database;
 
@@ -152,7 +155,7 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 				.all();
 
 			// 3. ラベルをブックマークにマッピング（重複排除）
-			const labelMap = new Map<number, typeof labels.$inferSelect>();
+			const labelMap = new Map<number, Label>();
 			for (const row of labelsResult) {
 				if (!labelMap.has(row.articleId)) {
 					labelMap.set(row.articleId, row.label);

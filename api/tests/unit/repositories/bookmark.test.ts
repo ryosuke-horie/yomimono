@@ -134,7 +134,10 @@ describe("ブックマークリポジトリ", () => {
 		it("未読ブックマークをラベル・お気に入り情報付きで全て取得できること", async () => {
 			// 1回目のクエリ（ブックマーク + お気に入り）
 			const bookmarksResult = [
-				{ bookmark: mockBookmark1, favorite: { id: 1, bookmarkId: 1, createdAt: new Date() } },
+				{
+					bookmark: mockBookmark1,
+					favorite: { id: 1, bookmarkId: 1, createdAt: new Date() },
+				},
 				{ bookmark: mockBookmark2, favorite: null },
 			];
 			// 2回目のクエリ（ラベル）
@@ -149,7 +152,8 @@ describe("ブックマークリポジトリ", () => {
 				callCount++;
 				if (callCount === 1) {
 					return bookmarksResult;
-				} else if (callCount === 2) {
+				}
+				if (callCount === 2) {
 					return labelsResult;
 				}
 				return [];
@@ -169,7 +173,10 @@ describe("ブックマークリポジトリ", () => {
 			// 1回目のクエリ（ブックマーク + お気に入り）- ソート済み
 			const bookmarksResult = [
 				{ bookmark: mockBookmark2, favorite: null },
-				{ bookmark: mockBookmark1, favorite: { id: 1, bookmarkId: 1, createdAt: new Date() } },
+				{
+					bookmark: mockBookmark1,
+					favorite: { id: 1, bookmarkId: 1, createdAt: new Date() },
+				},
 			];
 			// 2回目のクエリ（ラベル）
 			const labelsResult = [
@@ -183,7 +190,8 @@ describe("ブックマークリポジトリ", () => {
 				callCount++;
 				if (callCount === 1) {
 					return bookmarksResult;
-				} else if (callCount === 2) {
+				}
+				if (callCount === 2) {
 					return labelsResult;
 				}
 				return [];

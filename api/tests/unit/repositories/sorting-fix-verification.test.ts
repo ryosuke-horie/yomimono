@@ -75,7 +75,7 @@ describe("ソート順序修正の検証", () => {
 				])
 				// Step 2: ラベル情報を取得
 				.mockResolvedValueOnce([
-					{ articleId: 1, label: testLabel }, // articleId key を修正
+					{ articleId: 1, label: testLabel },
 					{ articleId: 2, label: testLabel },
 				]);
 
@@ -193,11 +193,3 @@ describe("ソート順序修正の検証", () => {
 		});
 	});
 });
-
-if (import.meta.vitest) {
-	const { test, expect } = import.meta.vitest;
-
-	test("ソート順序修正が適用されていることを確認", () => {
-		expect(true).toBe(true);
-	});
-}
