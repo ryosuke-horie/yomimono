@@ -132,7 +132,33 @@ describe("ブックマークリポジトリ", () => {
 
 	describe("未読ブックマークの取得 (findUnread)", () => {
 		it("未読ブックマークをラベル・お気に入り情報付きで全て取得できること", async () => {
-			mockDbClient.all.mockResolvedValue([mockQueryResult1, mockQueryResult2]);
+			// 1回目のクエリ（ブックマーク + お気に入り）
+			const bookmarksResult = [
+				{
+					bookmark: mockBookmark1,
+					favorite: { id: 1, bookmarkId: 1, createdAt: new Date() },
+				},
+				{ bookmark: mockBookmark2, favorite: null },
+			];
+			// 2回目のクエリ（ラベル）
+			const labelsResult = [
+				{ articleId: 1, label: mockLabel1 },
+				{ articleId: 2, label: mockLabel2 },
+			];
+
+			// より確実なモック設定: 呼び出し回数をカウントしてレスポンスを決定
+			let callCount = 0;
+			mockDbClient.all.mockImplementation(async () => {
+				callCount++;
+				if (callCount === 1) {
+					return bookmarksResult;
+				}
+				if (callCount === 2) {
+					return labelsResult;
+				}
+				return [];
+			});
+
 			const result = await repository.findUnread();
 			expect(result).toEqual([expectedResult1, expectedResult2]);
 			expect(mockDbClient.select).toHaveBeenCalled();
@@ -140,12 +166,37 @@ describe("ブックマークリポジトリ", () => {
 			expect(mockDbClient.where).toHaveBeenCalledWith(
 				eq(bookmarks.isRead, false),
 			);
-			expect(mockDbClient.leftJoin).toHaveBeenCalledTimes(3);
-			expect(mockDbClient.all).toHaveBeenCalledOnce();
+			expect(mockDbClient.all).toHaveBeenCalledTimes(2); // 2回のクエリ
 		});
 
 		it("未読ブックマークを作成日時の降順でソートして取得できること", async () => {
-			mockDbClient.all.mockResolvedValue([mockQueryResult2, mockQueryResult1]);
+			// 1回目のクエリ（ブックマーク + お気に入り）- ソート済み
+			const bookmarksResult = [
+				{ bookmark: mockBookmark2, favorite: null },
+				{
+					bookmark: mockBookmark1,
+					favorite: { id: 1, bookmarkId: 1, createdAt: new Date() },
+				},
+			];
+			// 2回目のクエリ（ラベル）
+			const labelsResult = [
+				{ articleId: 1, label: mockLabel1 },
+				{ articleId: 2, label: mockLabel2 },
+			];
+
+			// より確実なモック設定: 呼び出し回数をカウントしてレスポンスを決定
+			let callCount = 0;
+			mockDbClient.all.mockImplementation(async () => {
+				callCount++;
+				if (callCount === 1) {
+					return bookmarksResult;
+				}
+				if (callCount === 2) {
+					return labelsResult;
+				}
+				return [];
+			});
+
 			const result = await repository.findUnread();
 			expect(result).toEqual([expectedResult2, expectedResult1]);
 			expect(mockDbClient.select).toHaveBeenCalled();
@@ -156,8 +207,7 @@ describe("ブックマークリポジトリ", () => {
 			expect(mockDbClient.orderBy).toHaveBeenCalledWith(
 				desc(bookmarks.createdAt),
 			);
-			expect(mockDbClient.leftJoin).toHaveBeenCalledTimes(3);
-			expect(mockDbClient.all).toHaveBeenCalledOnce();
+			expect(mockDbClient.all).toHaveBeenCalledTimes(2); // 2回のクエリ
 		});
 
 		it("DBクエリ失敗時にエラーをスローすること", async () => {
