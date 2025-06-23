@@ -3,8 +3,8 @@
  * 新しく追加されたインデックスが正しく作成され、機能することを確認する
  */
 import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
+import { drizzle } from "drizzle-orm/better-sqlite3";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { getCurrentDatabaseConfig } from "../../../src/config/database";
 import { articleLabels, bookmarks, labels } from "../../../src/db/schema";

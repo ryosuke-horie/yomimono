@@ -7,13 +7,13 @@ import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { getCurrentDatabaseConfig } from "../config/database";
 import {
+	articleLabels,
+	bookmarks,
+	favorites,
 	type InsertArticleLabel,
 	type InsertBookmark,
 	type InsertFavorite,
 	type InsertLabel,
-	articleLabels,
-	bookmarks,
-	favorites,
 	labels,
 } from "../db/schema";
 import { ArticleLabelRepository } from "../repositories/articleLabel";

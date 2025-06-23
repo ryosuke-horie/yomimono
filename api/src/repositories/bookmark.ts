@@ -1,5 +1,4 @@
 import {
-	type SQL,
 	and,
 	count,
 	desc,
@@ -7,16 +6,17 @@ import {
 	gte,
 	inArray,
 	isNull,
+	type SQL,
 } from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { drizzle } from "drizzle-orm/d1";
 import { CONFIG } from "../config";
 import {
-	type Bookmark,
-	type InsertBookmark,
 	articleLabels,
+	type Bookmark,
 	bookmarks,
 	favorites,
+	type InsertBookmark,
 	labels,
 } from "../db/schema";
 import { ConflictError, NotFoundError } from "../exceptions";

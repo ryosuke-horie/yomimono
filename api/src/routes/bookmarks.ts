@@ -2,10 +2,10 @@ import { Hono } from "hono";
 import {
 	BadRequestError,
 	ConflictError,
-	InternalServerError,
-	NotFoundError,
 	createErrorResponse,
 	createErrorResponseBody,
+	InternalServerError,
+	NotFoundError,
 	toContentfulStatusCode,
 } from "../exceptions";
 import type { BookmarkWithLabel } from "../interfaces/repository/bookmark";

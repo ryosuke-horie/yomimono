@@ -7,7 +7,9 @@ import RecentPage from "./page";
 vi.mock("@/features/bookmarks/components/BookmarkCard", () => ({
 	BookmarkCard: ({
 		bookmark,
-	}: { bookmark: { id: number; title: string; url: string } }) => (
+	}: {
+		bookmark: { id: number; title: string; url: string };
+	}) => (
 		<div data-testid={`bookmark-card-${bookmark.id}`}>
 			<h3>{bookmark.title}</h3>
 			<p>{bookmark.url}</p>

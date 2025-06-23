@@ -2,7 +2,7 @@
  * E2Eテスト用のヘルパー関数
  * 共通的なテスト操作を提供
  */
-import { type Page, expect } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 
 /**
  * APIエンドポイントのベースURL

@@ -1,7 +1,7 @@
-import { Modal } from "@/components/Modal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Modal } from "@/components/Modal";
 import { useCreateBookmark } from "../queries/useCreateBookmark";
 
 const bookmarkSchema = z.object({

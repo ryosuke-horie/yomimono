@@ -63,7 +63,9 @@ const createWrapper = () => {
 describe("CreateBookmarkModal", () => {
 	let wrapper: ({
 		children,
-	}: { children: React.ReactNode }) => React.ReactElement;
+	}: {
+		children: React.ReactNode;
+	}) => React.ReactElement;
 	const mockOnClose = vi.fn();
 
 	beforeEach(() => {
