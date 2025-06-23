@@ -4,9 +4,9 @@
  */
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/Button";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { useState } from "react";
 import type { Label } from "../types";
 
 interface LabelCleanupProps {

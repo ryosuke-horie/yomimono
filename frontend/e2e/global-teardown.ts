@@ -4,7 +4,7 @@
  */
 import type { FullConfig } from "@playwright/test";
 
-async function globalTeardown(config: FullConfig) {
+async function globalTeardown(_config: FullConfig) {
 	try {
 		// テストデータのクリーンアップ（必要に応じて）
 		// await cleanupTestData();

@@ -29,7 +29,7 @@ test.describe("ホームページ - カード表示確認", () => {
 		try {
 			await expect(cardContainer).toBeVisible({ timeout: 10000 });
 			console.log("✅ ブックマークカードが表示されました");
-		} catch (error) {
+		} catch (_error) {
 			// データがない場合は、空の状態メッセージまたはカードコンテナの存在を確認
 			const emptyMessage = page.locator(
 				"text=/ブックマークがありません|No bookmarks|データがありません/i",

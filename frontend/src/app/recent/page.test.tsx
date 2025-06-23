@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import RecentPage from "./page";
 
@@ -7,7 +7,9 @@ import RecentPage from "./page";
 vi.mock("@/features/bookmarks/components/BookmarkCard", () => ({
 	BookmarkCard: ({
 		bookmark,
-	}: { bookmark: { id: number; title: string; url: string } }) => (
+	}: {
+		bookmark: { id: number; title: string; url: string };
+	}) => (
 		<div data-testid={`bookmark-card-${bookmark.id}`}>
 			<h3>{bookmark.title}</h3>
 			<p>{bookmark.url}</p>

@@ -24,7 +24,7 @@ async function waitForServer(url, timeout = 30000) {
 				req.setTimeout(1000);
 			});
 			return true;
-		} catch (error) {
+		} catch (_error) {
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 		}
 	}

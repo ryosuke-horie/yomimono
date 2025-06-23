@@ -4,7 +4,6 @@
  */
 import { type QueryClient, useQueryClient } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
-import type React from "react";
 import { describe, expect, it } from "vitest";
 import { QueryProvider } from "./QueryProvider";
 
@@ -25,13 +24,14 @@ function TestComponent() {
 }
 
 // エラー境界用テスト：QueryProviderなしでuseQueryClientを使用
-function ComponentWithoutProvider() {
-	try {
-		useQueryClient();
+function _ComponentWithoutProvider() {
+	const queryClient = useQueryClient();
+
+	if (queryClient) {
 		return <div data-testid="no-error">No error</div>;
-	} catch (error) {
-		return <div data-testid="error">Error caught</div>;
 	}
+
+	return <div data-testid="error">Error caught</div>;
 }
 
 describe("QueryProvider", () => {

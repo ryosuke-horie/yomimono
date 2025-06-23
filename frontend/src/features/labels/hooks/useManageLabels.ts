@@ -34,8 +34,10 @@ export function useManageLabels() {
 		mutationFn: ({
 			name,
 			description,
-		}: { name: string; description?: string }) =>
-			createLabel(name, description),
+		}: {
+			name: string;
+			description?: string;
+		}) => createLabel(name, description),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: labelKeys.lists() });
 			setIsCreateFormOpen(false);

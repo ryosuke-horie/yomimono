@@ -20,7 +20,7 @@ export default function LabelsPage() {
 		isCreatingLabel,
 		createLabelError,
 
-		editingLabelId,
+		editingLabelId: _editingLabelId,
 		startEdit,
 		cancelEdit,
 		getEditingLabel,
@@ -28,7 +28,7 @@ export default function LabelsPage() {
 		isUpdatingLabel,
 		updateLabelError,
 
-		deleteConfirmLabelId,
+		deleteConfirmLabelId: _deleteConfirmLabelId,
 		openDeleteConfirm,
 		closeDeleteConfirm,
 		getDeleteConfirmLabel,
