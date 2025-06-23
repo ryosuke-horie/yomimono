@@ -1,13 +1,13 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { BookmarksList } from "@/features/bookmarks/components/BookmarksList";
 import { CreateBookmarkModal } from "@/features/bookmarks/components/CreateBookmarkModal";
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 import { LabelFilter } from "@/features/labels/components/LabelFilter";
 import { useLabels } from "@/features/labels/hooks/useLabels";
 import { API_BASE_URL } from "@/lib/api/config";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 
 interface BookmarksApiResponse {
 	success: boolean;

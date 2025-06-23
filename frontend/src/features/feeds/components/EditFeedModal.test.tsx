@@ -170,7 +170,7 @@ describe("EditFeedModal", () => {
 		const onCloseMock = vi.fn();
 		let successCallback: (() => void) | undefined;
 
-		mockMutate.mockImplementation((data, options) => {
+		mockMutate.mockImplementation((_data, options) => {
 			successCallback = options.onSuccess;
 		});
 

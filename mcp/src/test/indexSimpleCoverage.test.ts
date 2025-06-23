@@ -3,7 +3,7 @@
  * モジュールキャッシュ問題を回避した実装
  */
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
 describe("index.ts カバレッジ向上テスト", () => {

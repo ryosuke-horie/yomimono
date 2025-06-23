@@ -6,11 +6,10 @@ import { z } from "zod";
 import {
 	BadRequestError,
 	ConflictError,
-	DatabaseError,
-	NotFoundError,
-	ValidationError,
 	createErrorResponse,
 	createErrorResponseBody,
+	NotFoundError,
+	ValidationError,
 } from "../exceptions";
 import type { IRatingService } from "../interfaces/service/rating";
 

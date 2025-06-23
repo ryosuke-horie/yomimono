@@ -2,10 +2,10 @@ import { Hono } from "hono";
 import {
 	BadRequestError,
 	ConflictError,
-	InternalServerError,
-	NotFoundError,
 	createErrorResponse,
 	createErrorResponseBody,
+	InternalServerError,
+	NotFoundError,
 } from "../exceptions";
 import type { BookmarkWithLabel } from "../interfaces/repository/bookmark";
 import type { IBookmarkService } from "../interfaces/service/bookmark";
@@ -76,7 +76,7 @@ export const createBookmarksRouter = (
 			let body: { labelName?: string };
 			try {
 				body = await c.req.json<{ labelName?: string }>();
-			} catch (e) {
+			} catch (_e) {
 				throw new BadRequestError("Invalid request body");
 			}
 

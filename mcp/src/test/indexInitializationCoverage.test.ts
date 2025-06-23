@@ -3,7 +3,7 @@
  * モジュールキャッシュ問題を回避したアプローチ
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
 describe("index.ts 初期化・設定カバレッジテスト", () => {
@@ -28,7 +28,7 @@ describe("index.ts 初期化・設定カバレッジテスト", () => {
 				return { parsed: null };
 			};
 
-			const result = mockEnvConfig();
+			const _result = mockEnvConfig();
 			expect(process.env.NODE_ENV).toBeDefined();
 		});
 	});

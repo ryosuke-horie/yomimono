@@ -3,6 +3,7 @@
  */
 "use client";
 
+import { useState } from "react";
 import { Header } from "@/components/Header";
 import { MCPEvaluationGuide } from "@/features/ratings/components/MCPEvaluationGuide";
 import { RatingFilters } from "@/features/ratings/components/RatingFilters";
@@ -11,7 +12,6 @@ import { RatingsList } from "@/features/ratings/components/RatingsList";
 import { useRatingStats } from "@/features/ratings/queries/useRatingStats";
 import { useRatings } from "@/features/ratings/queries/useRatings";
 import type { RatingFilters as RatingFiltersType } from "@/features/ratings/types";
-import { useState } from "react";
 
 export default function RatingsPage() {
 	const [filters, setFilters] = useState<RatingFiltersType>({

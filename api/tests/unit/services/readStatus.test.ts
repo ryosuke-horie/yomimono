@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
 import { DefaultBookmarkService } from "../../../src/services/bookmark";
 
 vi.mock("../../../src/repositories/bookmark");

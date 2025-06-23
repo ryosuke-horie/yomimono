@@ -1,7 +1,7 @@
 /**
  * 記事評価ポイントのサービスインターフェース
  */
-import type { ArticleRating, InsertArticleRating } from "../../db/schema";
+import type { ArticleRating } from "../../db/schema";
 import type { FindManyOptions, RatingStats } from "../repository/articleRating";
 
 export interface IRatingService {

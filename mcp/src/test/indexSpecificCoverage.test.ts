@@ -3,7 +3,7 @@
  * 特に bulkRateArticles ツールの詳細なカバレッジ向上
  */
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 describe("index.ts 特定未カバー行テスト", () => {
 	describe("bulkRateArticles のエラーハンドリング", () => {

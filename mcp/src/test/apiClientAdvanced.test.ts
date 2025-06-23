@@ -6,7 +6,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	type CreateRatingData,
-	type UpdateRatingData,
 	createArticleRating,
 	deleteArticleRating,
 	getArticleRating,
@@ -14,6 +13,7 @@ import {
 	getUnreadArticlesByLabel,
 	getUnreadBookmarks,
 	markBookmarkAsRead,
+	type UpdateRatingData,
 	updateArticleRating,
 } from "../lib/apiClient.js";
 

@@ -3,10 +3,9 @@
  */
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
-	type CreateRatingData,
-	type UpdateRatingData,
-	assignLabelToArticle,
 	assignLabelsToMultipleArticles,
+	assignLabelToArticle,
+	type CreateRatingData,
 	createArticleRating,
 	createLabel,
 	deleteLabel,
@@ -14,9 +13,9 @@ import {
 	getBookmarkById,
 	getLabelById,
 	getReadBookmarks,
-	getUnreadArticlesByLabel,
 	getUnreadBookmarks,
 	markBookmarkAsRead,
+	type UpdateRatingData,
 	updateArticleRating,
 	updateLabelDescription,
 } from "../lib/apiClient.js";

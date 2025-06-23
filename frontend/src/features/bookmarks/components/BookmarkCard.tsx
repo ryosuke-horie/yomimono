@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { useState } from "react";
 import { useMarkBookmarkAsRead } from "@/features/bookmarks/queries/useMarkBookmarkAsRead";
 import { useMarkBookmarkAsUnread } from "@/features/bookmarks/queries/useMarkBookmarkAsUnread";
 import { useToggleFavoriteBookmark } from "@/features/bookmarks/queries/useToggleFavoriteBookmark";
@@ -7,8 +9,6 @@ import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 import { LabelDisplay } from "@/features/labels/components/LabelDisplay";
 import { StarRating } from "@/features/ratings/components/StarRating";
 import { useArticleRating } from "@/features/ratings/queries/useArticleRating";
-import Link from "next/link";
-import { useState } from "react";
 
 interface Props {
 	bookmark: BookmarkWithLabel;

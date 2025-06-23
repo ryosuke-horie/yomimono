@@ -1,4 +1,3 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 /**
  * MCPサーバーツールの包括的テスト
  * 記事評価ポイント機能の全ツールをテスト
@@ -71,11 +70,11 @@ function createMockMcpServer() {
 }
 
 describe("MCP評価ツール統合テスト", () => {
-	let mockServer: ReturnType<typeof createMockMcpServer>;
+	let _mockServer: ReturnType<typeof createMockMcpServer>;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-		mockServer = createMockMcpServer();
+		_mockServer = createMockMcpServer();
 
 		// 環境変数設定
 		process.env.API_BASE_URL = "https://api.example.com";

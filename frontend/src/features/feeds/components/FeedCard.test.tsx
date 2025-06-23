@@ -64,7 +64,11 @@ vi.mock("./EditFeedModal", () => ({
 		feed,
 		isOpen,
 		onClose,
-	}: { feed: { name: string }; isOpen: boolean; onClose: () => void }) =>
+	}: {
+		feed: { name: string };
+		isOpen: boolean;
+		onClose: () => void;
+	}) =>
 		isOpen ? (
 			<div data-testid="edit-modal">
 				<p>編集モーダル: {feed.name}</p>
@@ -237,7 +241,7 @@ describe("FeedCard", () => {
 	it("削除成功時に確認ダイアログが閉じる", () => {
 		let successCallback: (() => void) | undefined;
 
-		mockMutate.mockImplementation((id, options) => {
+		mockMutate.mockImplementation((_id, options) => {
 			successCallback = options.onSuccess;
 		});
 

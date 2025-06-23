@@ -2,10 +2,11 @@
  * ブックマークのお気に入り状態をトグルするフック
  * お気に入りに追加または削除を行い、楽観的更新でキャッシュを即座に更新する
  */
-import type { Bookmark } from "@/features/bookmarks/types";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addBookmarkToFavorites, removeBookmarkFromFavorites } from "./api";
+import type { Bookmark } from "@/features/bookmarks/types";
 import type { BookmarksData } from "./api";
+import { addBookmarkToFavorites, removeBookmarkFromFavorites } from "./api";
 import { bookmarkKeys } from "./queryKeys";
 
 interface ToggleFavoriteVariables {

@@ -5,8 +5,8 @@
 
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import * as apiClient from "../lib/apiClient.js";
 import type { RatingStats } from "../lib/apiClient.js";
+import * as apiClient from "../lib/apiClient.js";
 
 // モックの設定
 vi.mock("../lib/apiClient.js");

@@ -1,11 +1,11 @@
-import { eq, inArray, isNull } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
-	type Bookmark,
-	type Label,
 	articleLabels,
+	type Bookmark,
 	bookmarks,
 	favorites,
+	type Label,
 	labels,
 } from "../../../src/db/schema";
 import type { BookmarkWithLabel } from "../../../src/interfaces/repository/bookmark";

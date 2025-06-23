@@ -1,9 +1,9 @@
 import { count, eq } from "drizzle-orm";
 import { type DrizzleD1Database, drizzle } from "drizzle-orm/d1";
 import {
+	articleLabels,
 	type InsertLabel,
 	type Label,
-	articleLabels,
 	labels,
 } from "../db/schema";
 import type { ILabelRepository } from "../interfaces/repository/label";

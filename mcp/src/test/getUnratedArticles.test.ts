@@ -3,8 +3,8 @@ import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
  * 未評価記事取得MCPツールのテスト
  */
 import { describe, expect, it, vi } from "vitest";
-import * as apiClient from "../lib/apiClient.js";
 import type { BookmarkWithLabel } from "../lib/apiClient.js";
+import * as apiClient from "../lib/apiClient.js";
 
 // apiClientのモック
 vi.mock("../lib/apiClient.js", () => ({

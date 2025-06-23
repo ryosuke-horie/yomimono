@@ -5,11 +5,9 @@ import { expect, test, vi } from "vitest";
 import type { CreateRatingData, RatingFilters } from "../types";
 import {
 	createRating,
-	deleteRating,
 	fetchArticleRating,
 	fetchRatingStats,
 	fetchRatings,
-	updateRating,
 } from "./api";
 
 if (import.meta.vitest) {

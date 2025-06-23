@@ -19,7 +19,10 @@ vi.mock("../components/CreateFeedModal", () => ({
 	CreateFeedModal: ({
 		isOpen,
 		onClose,
-	}: { isOpen: boolean; onClose: () => void }) =>
+	}: {
+		isOpen: boolean;
+		onClose: () => void;
+	}) =>
 		isOpen ? (
 			<div data-testid="create-feed-modal">
 				<button type="button" onClick={onClose}>

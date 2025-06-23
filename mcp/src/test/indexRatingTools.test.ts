@@ -4,11 +4,11 @@
 
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import * as apiClient from "../lib/apiClient.js";
+import type { ArticleContent } from "../lib/articleContentFetcher.js";
 import {
 	fetchArticleContent,
 	generateRatingPrompt,
 } from "../lib/articleContentFetcher.js";
-import type { ArticleContent } from "../lib/articleContentFetcher.js";
 
 vi.mock("../lib/apiClient.js", () => ({
 	createArticleRating: vi.fn(),
@@ -27,7 +27,11 @@ async function createRateArticleWithContentHandler() {
 		articleId,
 		url,
 		fetchContent,
-	}: { articleId: number; url: string; fetchContent: boolean }) => {
+	}: {
+		articleId: number;
+		url: string;
+		fetchContent: boolean;
+	}) => {
 		try {
 			let articleContent: ArticleContent | null = null;
 

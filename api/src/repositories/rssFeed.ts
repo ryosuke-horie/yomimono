@@ -53,12 +53,12 @@ export class RssFeedRepository implements IRssFeedRepository {
 
 	async delete(id: number): Promise<boolean> {
 		try {
-			const result = await this.db
+			const _result = await this.db
 				.delete(rssFeeds)
 				.where(eq(rssFeeds.id, id))
 				.get();
 			return true;
-		} catch (error) {
+		} catch (_error) {
 			return false;
 		}
 	}

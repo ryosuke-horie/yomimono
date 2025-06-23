@@ -2,15 +2,9 @@
  * articleContentFetcher.ts 拡張テスト - 30%カバレッジ達成用
  */
 
-import type { Browser, Page } from "playwright";
+import type { Page } from "playwright";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import {
-	type ArticleContent,
-	type ExtractionStrategy,
-	type SiteStrategy,
-	fetchArticleContent,
-	generateRatingPrompt,
-} from "../lib/articleContentFetcher.js";
+import type { SiteStrategy } from "../lib/articleContentFetcher.js";
 
 describe("ArticleContentFetcher 拡張カバレッジテスト", () => {
 	beforeEach(() => {

@@ -29,7 +29,7 @@ jobs:
         run: npm ci
       
       - name: Run tests with coverage
-        run: npm run test:coverage
+        run: npm run test:ci:coverage
       
       - name: Extract coverage percentage
         run: |

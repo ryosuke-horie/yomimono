@@ -1,18 +1,16 @@
-import { eq, isNull } from "drizzle-orm";
+import { isNull } from "drizzle-orm";
 /**
  * 未評価ブックマーク取得機能のリポジトリ層テスト
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
-	type Bookmark,
-	type Label,
-	articleLabels,
 	articleRatings,
+	type Bookmark,
 	bookmarks,
 	favorites,
+	type Label,
 	labels,
 } from "../../../src/db/schema";
-import type { BookmarkWithLabel } from "../../../src/interfaces/repository/bookmark";
 import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
 
 const mockDbClient = {

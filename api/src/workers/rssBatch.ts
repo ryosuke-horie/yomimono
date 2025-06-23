@@ -9,9 +9,9 @@ export interface Env {
 
 export default {
 	async scheduled(
-		controller: ScheduledController,
+		_controller: ScheduledController,
 		env: Env,
-		ctx: ExecutionContext,
+		_ctx: ExecutionContext,
 	): Promise<void> {
 		console.log("RSS バッチ処理開始");
 

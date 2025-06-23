@@ -1,6 +1,6 @@
+import { useState } from "react";
 import { Button } from "@/components/Button";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { useState } from "react";
 import { useDeleteRSSFeed } from "../queries/useRSSFeeds";
 import type { RSSFeed } from "../types";
 import { EditFeedModal } from "./EditFeedModal";

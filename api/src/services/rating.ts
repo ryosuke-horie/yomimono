@@ -8,9 +8,9 @@ import {
 	NotFoundError,
 	ValidationError,
 } from "../exceptions";
-import type { IArticleRatingRepository } from "../interfaces/repository/articleRating";
 import type {
 	FindManyOptions,
+	IArticleRatingRepository,
 	RatingStats,
 } from "../interfaces/repository/articleRating";
 import type { IBookmarkRepository } from "../interfaces/repository/bookmark";

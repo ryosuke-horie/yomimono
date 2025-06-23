@@ -36,7 +36,7 @@ describe("index.ts 主要機能カバレッジ向上", () => {
 		try {
 			await import("../index.js");
 			expect(true).toBe(true); // インポート成功
-		} catch (error) {
+		} catch (_error) {
 			// テスト環境では接続エラーが予想される
 			expect(true).toBe(true);
 		}
@@ -84,7 +84,7 @@ describe("index.ts 主要機能カバレッジ向上", () => {
 		try {
 			await import("../index.js");
 			expect(true).toBe(true);
-		} catch (error) {
+		} catch (_error) {
 			expect(true).toBe(true);
 		}
 	});
@@ -100,7 +100,7 @@ describe("index.ts 主要機能カバレッジ向上", () => {
 		try {
 			await import("../index.js");
 			expect(true).toBe(true);
-		} catch (error) {
+		} catch (_error) {
 			expect(true).toBe(true);
 		}
 	});

@@ -8,7 +8,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // 実際の関数パターンを模倣したテスト
 describe("ArticleContentFetcher 統合カバレッジテスト", () => {
-	let mockPage: Partial<Page>;
+	let _mockPage: Partial<Page>;
 	let mockLocator: Partial<Locator>;
 
 	beforeEach(() => {
@@ -22,7 +22,7 @@ describe("ArticleContentFetcher 統合カバレッジテスト", () => {
 			last: vi.fn(),
 		};
 
-		mockPage = {
+		_mockPage = {
 			url: vi.fn(),
 			$: vi.fn(),
 			$$: vi.fn(),

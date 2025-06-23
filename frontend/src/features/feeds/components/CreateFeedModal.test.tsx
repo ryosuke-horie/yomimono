@@ -176,7 +176,7 @@ describe("CreateFeedModal", () => {
 		const onCloseMock = vi.fn();
 		let successCallback: (() => void) | undefined;
 
-		mockMutate.mockImplementation((data, options) => {
+		mockMutate.mockImplementation((_data, options) => {
 			successCallback = options.onSuccess;
 		});
 
@@ -218,7 +218,7 @@ describe("CreateFeedModal", () => {
 	it("送信エラー時にエラーメッセージを表示する", async () => {
 		let errorCallback: ((error: Error) => void) | undefined;
 
-		mockMutate.mockImplementation((data, options) => {
+		mockMutate.mockImplementation((_data, options) => {
 			errorCallback = options.onError;
 		});
 

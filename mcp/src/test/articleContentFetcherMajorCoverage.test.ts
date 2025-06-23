@@ -5,11 +5,11 @@
 
 import type { Page } from "playwright";
 import {
-	type MockedFunction,
 	beforeEach,
 	describe,
 	expect,
 	it,
+	type MockedFunction,
 	vi,
 } from "vitest";
 
@@ -43,7 +43,7 @@ describe("ArticleContentFetcher 重要未カバー部分テスト", () => {
 			};
 
 			// セレクター戦略のテスト
-			for (const [key, selector] of Object.entries(qiitaSelectors)) {
+			for (const [_key, selector] of Object.entries(qiitaSelectors)) {
 				// 少なくとも1つのQiita特有のクラスを含む
 				expect(selector).toMatch(/it-|p-items/);
 			}
@@ -83,7 +83,7 @@ describe("ArticleContentFetcher 重要未カバー部分テスト", () => {
 
 			// note特有のパターン
 			const notePatterns = {
-				urlPattern: /note\.com\/[^\/]+\/n\/[a-zA-Z0-9]+/,
+				urlPattern: /note\.com\/[^/]+\/n\/[a-zA-Z0-9]+/,
 				titleSelector: ".note-header__title, h1.o-noteContentText",
 				contentSelector: ".note-content, .o-noteContentText__body",
 				authorSelector: ".note-author, .o-userInfo__name",
@@ -108,7 +108,7 @@ describe("ArticleContentFetcher 重要未カバー部分テスト", () => {
 			};
 
 			// URL パターン検証
-			expect(mediumUrl).toMatch(/medium\.com\/@[^\/]+\//);
+			expect(mediumUrl).toMatch(/medium\.com\/@[^/]+\//);
 			expect(Object.keys(mediumSelectors)).toContain("claps"); // Medium特有
 		});
 
@@ -577,11 +577,11 @@ if (import.meta.vitest) {
 
 	test("URLパターンマッチング", () => {
 		const sitePatterns = {
-			qiita: /^https:\/\/qiita\.com\/[^\/]+\/items\/[a-f0-9]+$/,
-			zenn: /^https:\/\/zenn\.dev\/[^\/]+\/articles\/[a-zA-Z0-9_-]+$/,
-			note: /^https:\/\/note\.com\/[^\/]+\/n\/[a-zA-Z0-9]+$/,
-			medium: /^https:\/\/medium\.com\/@[^\/]+\/[^\/]+$/,
-			devTo: /^https:\/\/dev\.to\/[^\/]+\/[^\/]+-[a-zA-Z0-9]+$/,
+			qiita: /^https:\/\/qiita\.com\/[^/]+\/items\/[a-f0-9]+$/,
+			zenn: /^https:\/\/zenn\.dev\/[^/]+\/articles\/[a-zA-Z0-9_-]+$/,
+			note: /^https:\/\/note\.com\/[^/]+\/n\/[a-zA-Z0-9]+$/,
+			medium: /^https:\/\/medium\.com\/@[^/]+\/[^/]+$/,
+			devTo: /^https:\/\/dev\.to\/[^/]+\/[^/]+-[a-zA-Z0-9]+$/,
 		};
 
 		// パターンマッチングのテスト

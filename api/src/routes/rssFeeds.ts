@@ -1,10 +1,8 @@
 import { Hono } from "hono";
 import {
-	BadRequestError,
-	InternalServerError,
-	NotFoundError,
 	createErrorResponse,
 	createErrorResponseBody,
+	NotFoundError,
 } from "../exceptions";
 import type { RssFeedService } from "../services/rssFeed";
 

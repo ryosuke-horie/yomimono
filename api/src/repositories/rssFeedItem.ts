@@ -45,7 +45,7 @@ export class RssFeedItemRepository {
 	}
 
 	async createMany(items: InsertRssFeedItem[]): Promise<number> {
-		const result = await this.db.insert(rssFeedItems).values(items).all();
+		const _result = await this.db.insert(rssFeedItems).values(items).all();
 
 		return items.length;
 	}

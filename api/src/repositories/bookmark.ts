@@ -1,13 +1,13 @@
-import { type SQL, and, count, eq, gte, inArray, isNull } from "drizzle-orm";
+import { and, count, eq, gte, inArray, isNull, type SQL } from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { drizzle } from "drizzle-orm/d1";
 import {
-	type Bookmark,
-	type InsertBookmark,
 	articleLabels,
 	articleRatings,
+	type Bookmark,
 	bookmarks,
 	favorites,
+	type InsertBookmark,
 	labels,
 } from "../db/schema";
 import { ConflictError, NotFoundError } from "../exceptions";

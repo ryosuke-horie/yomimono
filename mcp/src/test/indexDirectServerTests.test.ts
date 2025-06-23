@@ -6,11 +6,11 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { z } from "zod";
 import * as apiClient from "../lib/apiClient.js";
+import type { ArticleContent } from "../lib/articleContentFetcher.js";
 import {
 	fetchArticleContent,
 	generateRatingPrompt,
 } from "../lib/articleContentFetcher.js";
-import type { ArticleContent } from "../lib/articleContentFetcher.js";
 
 // モック設定
 vi.mock("../lib/apiClient.js");

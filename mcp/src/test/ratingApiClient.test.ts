@@ -4,12 +4,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	type CreateRatingData,
-	type GetRatingsOptions,
-	type UpdateRatingData,
 	createArticleRating,
+	type GetRatingsOptions,
 	getArticleRating,
 	getArticleRatings,
 	getRatingStats,
+	type UpdateRatingData,
 	updateArticleRating,
 } from "../lib/apiClient.js";
 

@@ -1,5 +1,5 @@
-import { Modal } from "@/components/Modal";
 import { type FormEvent, useState } from "react";
+import { Modal } from "@/components/Modal";
 import { useCreateRSSFeed } from "../queries/useCreateRSSFeed";
 import type { CreateRSSFeedDTO } from "../types";
 

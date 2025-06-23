@@ -228,7 +228,7 @@ function getExtractionStrategies(): ExtractionStrategy[] {
  */
 async function extractStructuredData(
 	page: Page,
-	url: string,
+	_url: string,
 ): Promise<ArticleContent | null> {
 	try {
 		// JSON-LDの取得
@@ -327,7 +327,7 @@ async function extractStructuredData(
  */
 async function extractSemanticElements(
 	page: Page,
-	url: string,
+	_url: string,
 ): Promise<ArticleContent | null> {
 	const selectors = [
 		"article",
@@ -448,11 +448,11 @@ async function extractWithSiteStrategy(
  */
 async function extractWithGenericSelectors(
 	page: Page,
-	url: string,
+	_url: string,
 ): Promise<ArticleContent | null> {
 	const selectors = ["body"];
 
-	for (const selector of selectors) {
+	for (const _selector of selectors) {
 		try {
 			const content = await extractMainContent(page);
 			if (!content || content.length < 100) continue;

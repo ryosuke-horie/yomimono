@@ -3,8 +3,8 @@
  */
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
-	type GetRatingsOptions,
 	deleteArticleRating,
+	type GetRatingsOptions,
 	getArticleRatings,
 	getLabels,
 	getRatingStats,

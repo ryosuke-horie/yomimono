@@ -2,7 +2,7 @@
  * カバレッジ向上テスト - 30%目標達成用追加テスト
  */
 
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 
 // articleContentFetcher.tsの内部関数をより詳しくテスト
 describe("カバレッジ向上テスト", () => {
@@ -100,7 +100,7 @@ describe("カバレッジ向上テスト", () => {
 			};
 
 			// 各プロンプトが文字列として定義されている
-			for (const [key, value] of Object.entries(evaluationPrompts)) {
+			for (const [_key, value] of Object.entries(evaluationPrompts)) {
 				expect(typeof value).toBe("string");
 				expect(value.length).toBeGreaterThan(0);
 			}

@@ -2,7 +2,6 @@
  * 記事評価ポイントのリポジトリ実装
  */
 import {
-	type SQL,
 	and,
 	asc,
 	avg,
@@ -14,14 +13,14 @@ import {
 	isNull,
 	lte,
 	or,
+	type SQL,
 } from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { drizzle } from "drizzle-orm/d1";
 import {
 	type ArticleRating,
-	type InsertArticleRating,
 	articleRatings,
-	bookmarks,
+	type InsertArticleRating,
 } from "../db/schema";
 import { DatabaseError, NotFoundError } from "../exceptions";
 import type {

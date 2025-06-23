@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { RSSParser } from "../../../src/services/rssParser";
-import type { Article } from "../../../src/types/rss";
 
 describe("RSSParser", () => {
 	let rssParser: RSSParser;

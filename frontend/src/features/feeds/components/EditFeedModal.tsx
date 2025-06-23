@@ -1,6 +1,6 @@
+import { type FormEvent, useState } from "react";
 import { Button } from "@/components/Button";
 import { Modal } from "@/components/Modal";
-import { type FormEvent, useState } from "react";
 import { useUpdateRSSFeed } from "../queries/useRSSFeeds";
 import type { RSSFeed } from "../types";
 

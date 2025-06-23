@@ -1,13 +1,7 @@
 import type { D1Database } from "@cloudflare/workers-types";
 import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
-import {
-	type Bookmark,
-	type RssFeedItem,
-	bookmarks,
-	rssFeedItems,
-	rssFeeds,
-} from "../db/schema";
+import { bookmarks, rssFeedItems, rssFeeds } from "../db/schema";
 import { DatabaseError } from "../exceptions";
 import type { Article } from "../types/rss";
 import { RSSBatchProcessor } from "./batchProcessor";
