@@ -1,4 +1,6 @@
-name: CI (GitHub-hosted Runner)
+# DISABLED: GitHub Actions無料枠制限により一時的に無効化
+# 有効化時は .disabled 拡張子を削除して workflows/ ディレクトリに戻してください
+name: CI (GitHub-hosted Runner) - DISABLED
 
 on:
   push:
