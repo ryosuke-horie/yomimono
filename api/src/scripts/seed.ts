@@ -7,18 +7,15 @@ import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { getCurrentDatabaseConfig } from "../config/database";
 import {
+	articleLabels,
+	bookmarks,
+	favorites,
 	type InsertArticleLabel,
 	type InsertBookmark,
 	type InsertFavorite,
 	type InsertLabel,
-	articleLabels,
-	bookmarks,
-	favorites,
 	labels,
 } from "../db/schema";
-import { ArticleLabelRepository } from "../repositories/articleLabel";
-import { DrizzleBookmarkRepository } from "../repositories/bookmark";
-import { LabelRepository } from "../repositories/label";
 
 // 環境チェック用の型定義
 interface SeedDataOptions {
@@ -482,7 +479,7 @@ export {
 };
 
 if (import.meta.vitest) {
-	const { test, expect, describe, beforeEach, vi } = import.meta.vitest;
+	const { test, expect, describe } = import.meta.vitest;
 
 	describe("Seed Data Generation", () => {
 		describe("validateEnvironment", () => {

@@ -51,7 +51,7 @@ export class DefaultBookmarkService implements IBookmarkService {
 	}> {
 		try {
 			// 個人ツールではページネーション不要のため、全件取得
-			const { bookmarks, total } = await this.repository.getFavoriteBookmarks(
+			const { bookmarks } = await this.repository.getFavoriteBookmarks(
 				CONFIG.pagination.defaultOffset,
 				CONFIG.limits.maxFavorites,
 			);

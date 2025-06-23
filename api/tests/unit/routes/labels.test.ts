@@ -16,7 +16,7 @@ function compareObjectsIgnoringDateFormat(
 ): void {
 	// オブジェクトのすべてのプロパティに対して検証
 	for (const key in expected) {
-		if (Object.prototype.hasOwnProperty.call(expected, key)) {
+		if (Object.hasOwn(expected, key)) {
 			// プロパティの値が存在するか確認
 			expect(actual).toHaveProperty(key);
 

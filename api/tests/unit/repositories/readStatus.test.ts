@@ -1,12 +1,4 @@
-import { desc, eq } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/d1";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-	articleLabels,
-	bookmarks,
-	favorites,
-	labels,
-} from "../../../src/db/schema";
 import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
 
 const mockAll = vi.fn();

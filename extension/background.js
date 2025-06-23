@@ -29,7 +29,7 @@ async function sendUrlsToApi(urlData) {
 }
 
 // メッセージリスナーの設定
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 	if (request.action === "collectAndSendUrls") {
 		// 選択されたタブの情報を使用
 		sendUrlsToApi(request.tabs)

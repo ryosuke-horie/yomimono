@@ -25,23 +25,21 @@
  */
 
 import Database from "better-sqlite3";
-import { and, count, desc, eq, gte, inArray } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/better-sqlite3";
+import { and, count, desc, eq, gte } from "drizzle-orm";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
+import { drizzle } from "drizzle-orm/better-sqlite3";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { getCurrentDatabaseConfig } from "../../src/config/database";
 import {
+	articleLabels,
+	bookmarks,
+	favorites,
 	type InsertArticleLabel,
 	type InsertBookmark,
 	type InsertFavorite,
 	type InsertLabel,
-	articleLabels,
-	bookmarks,
-	favorites,
 	labels,
 } from "../../src/db/schema";
-// Note: We implement our own BetterSQLiteBookmarkRepository for performance testing
-import { DefaultBookmarkService } from "../../src/services/bookmark";
 
 // Type definition for BookmarkWithLabel
 type BookmarkWithLabel = {
@@ -447,7 +445,7 @@ describe("ブックマーク機能パフォーマンステスト", () => {
 
 	beforeAll(async () => {
 		// テスト用SQLiteデータベースを作成
-		const dbConfig = getCurrentDatabaseConfig();
+		const _dbConfig = getCurrentDatabaseConfig();
 		database = new Database(":memory:");
 
 		// スキーマを初期化

@@ -2,8 +2,8 @@ import { eq, inArray } from "drizzle-orm";
 import { type DrizzleD1Database, drizzle } from "drizzle-orm/d1";
 import {
 	type ArticleLabel,
-	type InsertArticleLabel,
 	articleLabels,
+	type InsertArticleLabel,
 } from "../db/schema";
 import type { IArticleLabelRepository } from "../interfaces/repository/articleLabel";
 

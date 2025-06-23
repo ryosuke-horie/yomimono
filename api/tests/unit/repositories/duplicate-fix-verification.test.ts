@@ -213,6 +213,4 @@ describe("JOIN重複問題の修正検証", () => {
 	});
 });
 
-if (import.meta.vitest) {
-	const { test, expect, describe, beforeEach, vi, it } = import.meta.vitest;
-}
+// No tests currently implemented in this file

@@ -3,14 +3,9 @@
  * Issue #721: ラベルフィルタリング時のソート順序問題を修正
  */
 
-import { desc, eq, inArray } from "drizzle-orm";
+import { desc, inArray } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-	articleLabels,
-	bookmarks,
-	favorites,
-	labels,
-} from "../../../src/db/schema";
+import { articleLabels, bookmarks } from "../../../src/db/schema";
 import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
 
 // モックDBクライアント
