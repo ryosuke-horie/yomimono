@@ -3,9 +3,9 @@
 	"name": "effective-yomimono-api",
 	"main": "src/index.ts",
 	"compatibility_date": "2025-02-28",
-	// "compatibility_flags": [
-	//   "nodejs_compat"
-	// ],
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
 	"vars": {
 		"ENVIRONMENT": "production"
 	},
