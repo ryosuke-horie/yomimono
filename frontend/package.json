@@ -59,7 +59,7 @@
 		"undici": "^7.10.0",
 		"vite-tsconfig-paths": "^5.1.4",
 		"vitest": "^3.2.0",
-		"wrangler": "^4.20.5"
+		"wrangler": "^4.21.0"
 	},
 	"overrides": {
 		"@ast-grep/napi": {
