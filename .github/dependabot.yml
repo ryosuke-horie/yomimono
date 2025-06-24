@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     commit-message:
       prefix: "chore(frontend)"
       prefix-development: "chore(frontend-dev)"
@@ -54,7 +54,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/api"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     commit-message:
       prefix: "chore(api)"
       prefix-development: "chore(api-dev)"
@@ -98,7 +98,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/extension"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     commit-message:
       prefix: "chore(extension)"
       prefix-development: "chore(extension-dev)"
@@ -119,7 +119,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/mcp"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     commit-message:
       prefix: "chore(mcp)"
       prefix-development: "chore(mcp-dev)"
@@ -155,7 +155,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     commit-message:
       prefix: "chore(actions)"
       prefix-development: "chore(actions)"
