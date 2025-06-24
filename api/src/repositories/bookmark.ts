@@ -144,7 +144,7 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 
 			// 2. ブックマークIDに対応するラベルを取得（最初のラベルのみ）
 			const bookmarkIds = bookmarksResult.map((r) => r.bookmark.id);
-			
+
 			// D1の制限を回避するためバッチ処理（最大50件ずつ）
 			const labelsResult = [];
 			const BATCH_SIZE = 50;
