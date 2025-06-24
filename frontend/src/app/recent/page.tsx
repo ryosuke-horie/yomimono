@@ -2,11 +2,11 @@
 
 import { BookmarkCard } from "@/features/bookmarks/components/BookmarkCard";
 import { useGetRecentBookmarks } from "@/features/bookmarks/queries/useGetRecentBookmarks";
-import type { Bookmark } from "@/features/bookmarks/types";
+import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 
 export default function RecentPage() {
 	const {
-		data: groupedBookmarks = {} as { [date: string]: Bookmark[] },
+		data: groupedBookmarks = {} as { [date: string]: BookmarkWithLabel[] },
 		isLoading,
 		isError,
 		error,
