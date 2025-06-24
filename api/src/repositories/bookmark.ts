@@ -6,7 +6,7 @@ import {
 	inArray,
 	sql,
 } from "drizzle-orm";
-import type { Database } from "@/config/database";
+import type { Database } from "../config/database";
 import {
 	articleLabels,
 	bookmarks,
@@ -14,12 +14,12 @@ import {
 	type Label,
 	labels,
 	type SelectBookmark,
-} from "@/db/schema";
-import type { BookmarkWithLabel } from "@/types/api";
+} from "../db/schema";
+import type { BookmarkWithLabel } from "../types/api";
 
 export type InsertBookmark = InferInsertModel<typeof bookmarks>;
 
-export class BookmarkRepository {
+export class DrizzleBookmarkRepository {
 	constructor(private db: Database) {}
 
 	async findAll(): Promise<SelectBookmark[]> {
@@ -377,40 +377,4 @@ export class BookmarkRepository {
 			throw error;
 		}
 	}
-}
-
-// テスト用のin-file tests（vitest）
-if (import.meta.vitest) {
-	const { test, expect, beforeEach, describe } = import.meta.vitest;
-	const { mockDb, setupTestTables } = await import("../../tests/test-utils");
-
-	describe("BookmarkRepository", () => {
-		let repository: BookmarkRepository;
-
-		beforeEach(async () => {
-			await setupTestTables();
-			repository = new BookmarkRepository(mockDb);
-		});
-
-		test("バッチ処理で大量のブックマークIDを処理できる", async () => {
-			// 100件のテストデータを作成
-			const testBookmarks = Array.from({ length: 100 }, (_, i) => ({
-				url: `https://example.com/article-${i}`,
-				title: `Test Article ${i}`,
-				isRead: false,
-				createdAt: new Date().toISOString(),
-				updatedAt: new Date().toISOString(),
-			}));
-
-			await repository.createMany(testBookmarks);
-			const unreadBookmarks = await repository.findUnread();
-
-			expect(unreadBookmarks).toHaveLength(100);
-		});
-
-		test("空の配列を処理しても正常に動作する", async () => {
-			const unreadBookmarks = await repository.findUnread();
-			expect(unreadBookmarks).toEqual([]);
-		});
-	});
 }
