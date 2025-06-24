@@ -144,15 +144,23 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 
 			// 2. ブックマークIDに対応するラベルを取得（最初のラベルのみ）
 			const bookmarkIds = bookmarksResult.map((r) => r.bookmark.id);
-			const labelsResult = await this.db
-				.select({
-					articleId: articleLabels.articleId,
-					label: labels,
-				})
-				.from(articleLabels)
-				.innerJoin(labels, eq(articleLabels.labelId, labels.id))
-				.where(inArray(articleLabels.articleId, bookmarkIds))
-				.all();
+
+			// D1の制限を回避するためバッチ処理（最大50件ずつ）
+			const labelsResult = [];
+			const BATCH_SIZE = 50;
+			for (let i = 0; i < bookmarkIds.length; i += BATCH_SIZE) {
+				const batchIds = bookmarkIds.slice(i, i + BATCH_SIZE);
+				const batchResult = await this.db
+					.select({
+						articleId: articleLabels.articleId,
+						label: labels,
+					})
+					.from(articleLabels)
+					.innerJoin(labels, eq(articleLabels.labelId, labels.id))
+					.where(inArray(articleLabels.articleId, batchIds))
+					.all();
+				labelsResult.push(...batchResult);
+			}
 
 			// 3. ラベルをブックマークにマッピング（重複排除）
 			const labelMap = new Map<number, Label>();
