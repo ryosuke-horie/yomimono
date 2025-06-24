@@ -1,6 +1,6 @@
-import { API_BASE_URL } from "@/lib/api/config";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
+import { API_BASE_URL } from "@/lib/api/config";
 import type { Label } from "../types";
 
 // APIレスポンスの型定義

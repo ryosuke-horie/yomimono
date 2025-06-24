@@ -31,7 +31,7 @@ export const useCreateBookmark = () => {
 };
 
 if (import.meta.vitest) {
-	const { test, expect, vi, beforeEach } = import.meta.vitest;
+	const { test, expect, vi, beforeEach: _beforeEach } = import.meta.vitest;
 	const { renderHook, waitFor } = await import("@testing-library/react");
 	const { QueryClient, QueryClientProvider } = await import(
 		"@tanstack/react-query"

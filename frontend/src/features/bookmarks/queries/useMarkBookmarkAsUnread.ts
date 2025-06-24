@@ -2,10 +2,11 @@
  * ブックマークを未読にするフック
  * 楽観的更新により、サーバーへのリクエスト前にキャッシュを即座に更新する
  */
-import type { BookmarkWithLabel } from "@/features/bookmarks/types";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { markBookmarkAsUnread } from "./api";
+import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 import type { BookmarksData } from "./api";
+import { markBookmarkAsUnread } from "./api";
 import { bookmarkKeys } from "./queryKeys";
 
 export const useMarkBookmarkAsUnread = () => {

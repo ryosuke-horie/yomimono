@@ -57,7 +57,7 @@ export function validateIdArray(
 		);
 	}
 
-	return values.map((value, index) => {
+	return values.map((value, _index) => {
 		const id = Number.parseInt(String(value));
 		if (Number.isNaN(id)) {
 			// Keep the original error message format for consistency

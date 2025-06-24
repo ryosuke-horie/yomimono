@@ -4,13 +4,9 @@ import { BookmarkCard } from "@/features/bookmarks/components/BookmarkCard";
 import { useGetRecentBookmarks } from "@/features/bookmarks/queries/useGetRecentBookmarks";
 import type { Bookmark } from "@/features/bookmarks/types";
 
-interface GroupedBookmarks {
-	[date: string]: Bookmark[];
-}
-
 export default function RecentPage() {
 	const {
-		data: groupedBookmarks = {},
+		data: groupedBookmarks = {} as { [date: string]: Bookmark[] },
 		isLoading,
 		isError,
 		error,

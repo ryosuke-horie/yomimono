@@ -297,7 +297,7 @@ if (import.meta.vitest) {
 						expect(result.generated).toHaveProperty("articleLabels");
 						expect(result.generated).toHaveProperty("favorites");
 					}
-				} catch (error) {
+				} catch (_error) {
 					// テスト環境でDBが利用できない場合はスキップ
 					expect(true).toBe(true);
 				}
@@ -316,7 +316,7 @@ if (import.meta.vitest) {
 					// 正常に実行できた場合は、適切な形式を確認
 					expect(result).toHaveProperty("success");
 					expect(result).toHaveProperty("executionTimeMs");
-				} catch (error) {
+				} catch (_error) {
 					// テスト環境でDBが利用できない場合はスキップ
 					expect(true).toBe(true);
 				}
@@ -332,7 +332,7 @@ if (import.meta.vitest) {
 					expect(result).toHaveProperty("message");
 					expect(result).toHaveProperty("generated");
 					expect(result).toHaveProperty("executionTimeMs");
-				} catch (error) {
+				} catch (_error) {
 					// テスト環境でDBが利用できない場合はスキップ
 					expect(true).toBe(true);
 				}

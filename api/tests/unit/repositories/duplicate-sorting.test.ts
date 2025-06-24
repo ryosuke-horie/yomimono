@@ -205,6 +205,4 @@ describe("JOIN重複によるソートの問題", () => {
 	});
 });
 
-if (import.meta.vitest) {
-	const { test, expect, describe, beforeEach, vi, it } = import.meta.vitest;
-}
+// No tests currently implemented in this file

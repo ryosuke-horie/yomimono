@@ -8,7 +8,7 @@ interface Props {
 	title?: string;
 }
 
-export function Header({ title }: Props = {}) {
+export function Header({ title: _title }: Props = {}) {
 	const pathname = usePathname();
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 

@@ -5,7 +5,6 @@
 import { Hono } from "hono";
 import {
 	BadRequestError,
-	InternalServerError,
 	createErrorResponse,
 	createErrorResponseBody,
 	toContentfulStatusCode,
@@ -39,7 +38,7 @@ export const createSeedRouter = (seedService: ISeedService) => {
 				try {
 					const body = await c.req.json();
 					options = validateRequestBody(body) as SeedRequestBody;
-				} catch (e) {
+				} catch (_e) {
 					// JSONパースエラーの場合はデフォルトオプションを使用
 					options = {};
 				}
@@ -168,7 +167,7 @@ export const createSeedRouter = (seedService: ISeedService) => {
 
 			try {
 				body = await c.req.json();
-			} catch (e) {
+			} catch (_e) {
 				throw new BadRequestError("Invalid JSON in request body");
 			}
 

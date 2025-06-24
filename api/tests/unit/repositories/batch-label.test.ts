@@ -1,4 +1,3 @@
-import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ArticleLabelRepository } from "../../../src/repositories/articleLabel";
 import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
@@ -39,7 +38,7 @@ describe("バッチラベル付け関連のリポジトリメソッド", () => {
 				all: vi.fn(),
 				get: vi.fn(),
 			};
-			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			// biome-ignore lint/suspicious/noExplicitAny: Testing with mock db
 			repository = new ArticleLabelRepository(mockDb as any);
 		});
 
@@ -55,7 +54,7 @@ describe("バッチラベル付け関連のリポジトリメソッド", () => {
 			];
 
 			// Mock Drizzle calls
-			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			// biome-ignore lint/suspicious/noExplicitAny: Testing with mock db
 			const mockedDb = (repository as any).db;
 			mockedDb.insert.mockReturnThis();
 			mockedDb.values.mockReturnThis();
@@ -80,7 +79,7 @@ describe("バッチラベル付け関連のリポジトリメソッド", () => {
 				all: vi.fn(),
 				get: vi.fn(),
 			};
-			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			// biome-ignore lint/suspicious/noExplicitAny: Testing with mock db
 			repository = new ArticleLabelRepository(mockDb as any);
 		});
 
@@ -89,7 +88,7 @@ describe("バッチラベル付け関連のリポジトリメソッド", () => {
 			const existingLabels = [{ articleId: 1 }, { articleId: 3 }];
 
 			// Mock Drizzle calls
-			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			// biome-ignore lint/suspicious/noExplicitAny: Testing with mock db
 			const mockedDb = (repository as any).db;
 			mockedDb.select.mockReturnThis();
 			mockedDb.from.mockReturnThis();
@@ -113,7 +112,7 @@ describe("バッチラベル付け関連のリポジトリメソッド", () => {
 				all: vi.fn(),
 				get: vi.fn(),
 			};
-			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			// biome-ignore lint/suspicious/noExplicitAny: Testing with mock db
 			repository = new DrizzleBookmarkRepository(mockDb as any);
 		});
 
@@ -155,7 +154,7 @@ describe("バッチラベル付け関連のリポジトリメソッド", () => {
 			];
 
 			// Mock Drizzle calls
-			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			// biome-ignore lint/suspicious/noExplicitAny: Testing with mock db
 			const mockedDb = (repository as any).db;
 			mockedDb.select.mockReturnThis();
 			mockedDb.from.mockReturnThis();

@@ -2,7 +2,7 @@
  * LabelDeleteConfirm コンポーネントのテスト
  * ラベル削除確認モーダルの表示、操作、キーボードイベント、エラーハンドリングをテスト
  */
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import type { Label } from "../types";

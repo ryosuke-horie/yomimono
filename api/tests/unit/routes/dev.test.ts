@@ -1,8 +1,8 @@
 import type { D1Database } from "@cloudflare/workers-types";
 import type { Hono } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createApp } from "../../../src/index";
 import type { Env } from "../../../src/index";
+import { createApp } from "../../../src/index";
 
 // モックの設定
 

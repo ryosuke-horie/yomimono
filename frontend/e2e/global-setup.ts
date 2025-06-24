@@ -2,9 +2,9 @@
  * Playwright グローバルセットアップ
  * E2Eテスト開始前の初期化処理
  */
-import { type FullConfig, chromium } from "@playwright/test";
+import { chromium, type FullConfig } from "@playwright/test";
 
-async function globalSetup(config: FullConfig) {
+async function globalSetup(_config: FullConfig) {
 	const browser = await chromium.launch();
 	const page = await browser.newPage();
 

@@ -1,9 +1,9 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { BookmarksList } from "@/features/bookmarks/components/BookmarksList";
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 import { API_BASE_URL } from "@/lib/api/config";
-import { useQuery } from "@tanstack/react-query";
 
 // APIレスポンスの型定義
 interface FavoritesApiResponse {

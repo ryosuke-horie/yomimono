@@ -466,7 +466,7 @@ export async function assignLabelsToMultipleArticles(
 	}
 
 	// successプロパティを除いた結果を返す
-	const { success, ...result } = parsed.data;
+	const { success: _success, ...result } = parsed.data;
 	return result;
 }
 

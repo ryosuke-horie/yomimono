@@ -63,7 +63,9 @@ const createWrapper = () => {
 describe("CreateBookmarkModal", () => {
 	let wrapper: ({
 		children,
-	}: { children: React.ReactNode }) => React.ReactElement;
+	}: {
+		children: React.ReactNode;
+	}) => React.ReactElement;
 	const mockOnClose = vi.fn();
 
 	beforeEach(() => {
@@ -127,7 +129,7 @@ describe("CreateBookmarkModal", () => {
 
 	describe("バリデーション", () => {
 		it("タイトルが空の場合はエラーメッセージが表示される", async () => {
-			const user = userEvent.setup();
+			const _user = userEvent.setup();
 			render(<CreateBookmarkModal isOpen={true} onClose={mockOnClose} />, {
 				wrapper,
 			});
@@ -224,7 +226,7 @@ describe("CreateBookmarkModal", () => {
 			const user = userEvent.setup();
 
 			// 成功時のコールバックを実行するモック
-			const mockCreateBookmarkSuccess = vi.fn((data, callbacks) => {
+			const mockCreateBookmarkSuccess = vi.fn((_data, callbacks) => {
 				callbacks.onSuccess();
 			});
 
@@ -263,7 +265,7 @@ describe("CreateBookmarkModal", () => {
 
 			// エラー時のコールバックを実行するモック
 			const mockError = new Error("作成失敗");
-			const mockCreateBookmarkError = vi.fn((data, callbacks) => {
+			const mockCreateBookmarkError = vi.fn((_data, callbacks) => {
 				callbacks.onError(mockError);
 			});
 

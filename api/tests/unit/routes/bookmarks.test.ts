@@ -7,15 +7,15 @@ import type { IBookmarkService } from "../../../src/interfaces/service/bookmark"
 import type { ILabelService } from "../../../src/interfaces/service/label";
 import { createBookmarksRouter } from "../../../src/routes/bookmarks";
 
-interface PaginationResponse {
-	success: boolean;
-	bookmarks: BookmarkWithLabel[];
-	pagination: {
-		currentPage: number;
-		totalPages: number;
-		totalItems: number;
-	};
-}
+// interface PaginationResponse {
+// 	success: boolean;
+// 	bookmarks: BookmarkWithLabel[];
+// 	pagination: {
+// 		currentPage: number;
+// 		totalPages: number;
+// 		totalItems: number;
+// 	};
+// }
 
 const mockGetUnreadBookmarks = vi.fn();
 const mockGetUnreadBookmarksCount = vi.fn();

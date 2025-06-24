@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Bookmark, Label } from "../../../src/db/schema";
+import type { Label } from "../../../src/db/schema";
 import type { IArticleLabelRepository } from "../../../src/interfaces/repository/articleLabel";
-import type { IBookmarkRepository } from "../../../src/interfaces/repository/bookmark";
-import type { BookmarkWithLabel } from "../../../src/interfaces/repository/bookmark";
+import type {
+	BookmarkWithLabel,
+	IBookmarkRepository,
+} from "../../../src/interfaces/repository/bookmark";
 import type { ILabelRepository } from "../../../src/interfaces/repository/label";
 import { LabelService } from "../../../src/services/label";
 

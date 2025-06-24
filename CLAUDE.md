@@ -7,6 +7,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 重要
 
+### GitHub Actions制限について
+
+**⚠️ 重要**: GitHub Actions無料枠制限により、E2Eテストを含むGitHub-hosted runnerワークフローを一時的に無効化しています。
+
+- 無効化されたファイル: `.github/workflows/disabled/ci-github-hosted.yml.disabled`
+- E2Eテストは手動での動作確認に切り替え
+- 無料枠復活時は `.github/workflows/disabled/README.md` の手順で再有効化
+- **このセクションは無効化解除時に削除してください**
+
 ### CIについて
 
 CIがパスしない限りマージすることは許容できません。
@@ -14,24 +23,24 @@ CIがパスしない限りマージすることは許容できません。
 またコメント等を利用してDisableすることも認めません。本気で取り組みましょう
 
 #### CI設計方針
-セルフホストランナーとGitHub-hosted Runnerを用途別に分離：
+**現在**: セルフホストランナーのみ稼働（GitHub Actions制限のため）
 
 **セルフホストランナー（軽量・高速）：**
 - リント・単体テスト・型チェック・セキュリティ監査
 - 事前セットアップ環境でキャッシュ効果を活用
 
-**GitHub-hosted Runner（重い処理）：**
+**GitHub-hosted Runner（一時停止中）：**
 - E2Eテスト・ビルドテスト
-- GitHub Actions無料枠を有効活用するため軽量化
+- GitHub Actions無料枠制限により停止中
 
-#### E2Eテスト方針
+#### E2Eテスト方針（一時停止中）
+- **状況**: GitHub Actions制限により手動実行に切り替え
 - **対象ブラウザ**: Chromeのみ（シンプル化）
 - **テスト範囲**: 正常系の最低限保証のみ
   - 未読一覧画面の表示
   - 既読処理と表示内容変更の確認
   - ラベルフィルタリング機能
-- **実行時間制限**: 最大10分以内
-- **目的**: GitHub Actions無料枠の有効活用
+- **手動実行**: `cd frontend && npm run test:e2e`
 - **その他の品質保証**: エラーハンドリング・パフォーマンス・レンダリング等は単体テスト側で担保
 
 ### テスト駆動開発を行う
