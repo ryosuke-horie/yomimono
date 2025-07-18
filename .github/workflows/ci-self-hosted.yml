@@ -121,13 +121,37 @@ jobs:
             reviewContent += 'ANTHROPIC_API_KEYが設定されているか確認してください。';
           }
           
-          // PRにコメントを投稿
-          await github.rest.issues.createComment({
+          // 既存のClaude Code Reviewコメントを検索
+          const comments = await github.rest.issues.listComments({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            issue_number: context.issue.number,
-            body: reviewContent
+            issue_number: context.issue.number
           });
+          
+          const claudeComment = comments.data.find(comment => 
+            comment.body.includes('### 🤖 Claude Code Review') && 
+            comment.user.login === 'github-actions[bot]'
+          );
+          
+          if (claudeComment) {
+            // 既存のコメントを更新
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: claudeComment.id,
+              body: reviewContent + '\n\n---\n_最終更新: ' + new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }) + ' JST_'
+            });
+            console.log('既存のコメントを更新しました。');
+          } else {
+            // 新規コメントを作成
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: reviewContent + '\n\n---\n_初回投稿: ' + new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }) + ' JST_'
+            });
+            console.log('新規コメントを作成しました。');
+          }
   # API プロジェクトのテスト
   api-tests:
     name: API Tests
