@@ -291,6 +291,20 @@ server.tool(
 	async ({ articleIds, labelName, description }) => {
 		// Destructure arguments
 		try {
+			// 入力値の検証
+			if (!articleIds || !Array.isArray(articleIds) || articleIds.length === 0) {
+				throw new Error("articleIds must be a non-empty array");
+			}
+			if (!labelName || typeof labelName !== "string") {
+				throw new Error("labelName must be a non-empty string");
+			}
+
+			console.log("Calling assignLabelsToMultipleArticles with:", {
+				articleIds,
+				labelName,
+				description,
+			});
+
 			const result = await apiClient.assignLabelsToMultipleArticles(
 				articleIds,
 				labelName,
@@ -309,9 +323,10 @@ server.tool(
 			const errorMessage =
 				error instanceof Error ? error.message : String(error);
 			console.error(
-				`Error in assignLabelsToMultipleArticles tool (articleIds: ${articleIds}, labelName: ${labelName}, description: ${description}):`,
+				`Error in assignLabelsToMultipleArticles tool (articleIds: ${JSON.stringify(articleIds)}, labelName: ${labelName}, description: ${description}):`,
 				errorMessage,
 			);
+			console.error("Full error details:", error);
 			return {
 				content: [
 					{

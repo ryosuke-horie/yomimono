@@ -414,9 +414,9 @@ export async function assignLabelsToMultipleArticles(
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify({
-			articleIds,
-			labelName,
-			description,
+			articleIds: articleIds,
+			labelName: labelName,
+			description: description,
 		}),
 	});
 
@@ -430,6 +430,9 @@ export async function assignLabelsToMultipleArticles(
 			`Failed to parse response for batch label assignment: ${errorMessage}`,
 		);
 	}
+
+	// デバッグ用：レスポンスをログ出力
+	console.log("Batch label assignment response:", JSON.stringify(data, null, 2));
 
 	if (!response.ok) {
 		let errorMessage = `Failed to batch assign label "${labelName}"`;
@@ -465,9 +468,19 @@ export async function assignLabelsToMultipleArticles(
 		);
 	}
 
-	// successプロパティを除いた結果を返す
-	const { success: _success, ...result } = parsed.data;
-	return result;
+	// parsed.dataがnullでないことを確認
+	if (!parsed.data) {
+		throw new Error("API returned null or undefined data for batch label assignment");
+	}
+
+	// successプロパティを除いた結果を安全に取得
+	try {
+		const { success: _success, ...result } = parsed.data;
+		return result;
+	} catch (error) {
+		console.error("Error destructuring parsed data:", parsed.data);
+		throw new Error(`Failed to process batch label assignment response: ${error}`);
+	}
 }
 
 // Schema for bookmark
