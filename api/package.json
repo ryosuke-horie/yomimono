@@ -24,24 +24,24 @@
 		"seed:clear": "NODE_ENV=development npx tsx -e \"(async () => { const m = await import('./src/scripts/seed.ts'); await m.clearDatabase(); })()\""
 	},
 	"dependencies": {
-		"dotenv": "^17.0.1",
-		"drizzle-orm": "^0.44.1",
+		"dotenv": "^17.2.1",
+		"drizzle-orm": "^0.44.4",
 		"fast-xml-parser": "^5.2.5",
-		"hono": "^4.8.3"
+		"hono": "^4.8.10"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.0.6",
-		"@cloudflare/workers-types": "^4.20250701.0",
+		"@cloudflare/workers-types": "^4.20250801.0",
 		"@types/better-sqlite3": "^7.6.13",
-		"@types/node": "^24.0.10",
+		"@types/node": "^24.1.0",
 		"@vitest/coverage-v8": "3.2.4",
 		"better-sqlite3": "^12.2.0",
 		"drizzle-kit": "^0.31.4",
 		"happy-dom": "^18.0.1",
 		"tsx": "^4.19.2",
-		"typescript": "^5.8.3",
+		"typescript": "^5.9.2",
 		"vitest": "3.2.4",
-		"wrangler": "^4.22.0"
+		"wrangler": "^4.27.0"
 	},
 	"overrides": {
 		"esbuild": "^0.25.5"
