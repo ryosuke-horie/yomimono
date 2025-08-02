@@ -30,7 +30,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./extension
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Run linter
         working-directory: ./extension

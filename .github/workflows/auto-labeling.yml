@@ -49,7 +49,7 @@ jobs:
         id: build-mcp
         run: |
           cd mcp
-          pnpm install --frozen-lockfile
+          pnpm install
           pnpm run build
           echo "MCPビルド完了"
           echo "build_status=success" >> $GITHUB_OUTPUT

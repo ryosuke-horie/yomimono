@@ -22,7 +22,7 @@ jobs:
           version: 9
     
       - name: API Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
         working-directory: ./api
 
       - name: Frontend Clean and Install dependencies

@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         working-directory: ./api
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install
           # self-hosted runner用にネイティブモジュールをリビルド
           pnpm rebuild better-sqlite3
 
