@@ -3,6 +3,7 @@
   "private": true,
   "packageManager": "pnpm@9.14.4",
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "lint": "pnpm run lint:api && pnpm run lint:frontend && pnpm run lint:extension && pnpm run lint:mcp",
     "lint:api": "cd api && pnpm run lint",
     "lint:frontend": "cd frontend && pnpm run lint",

@@ -16,6 +16,7 @@
 		"typescript": "^5.8.3"
 	},
 	"scripts": {
+		"preinstall": "npx only-allow pnpm",
 		"build": "tsc",
 		"lint": "biome check --write .",
 		"format": "biome format --write .",

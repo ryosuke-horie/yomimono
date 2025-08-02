@@ -1,6 +1,7 @@
 {
 	"name": "effective-yomimono-api",
 	"scripts": {
+		"preinstall": "npx only-allow pnpm",
 		"dev": "NODE_ENV=development wrangler dev --port 8787 --env development",
 		"deploy": "NODE_ENV=production wrangler deploy --minify",
 		"lint": "npx @biomejs/biome check",
