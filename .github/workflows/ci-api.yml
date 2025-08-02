@@ -5,14 +5,14 @@ on:
     paths:
       - 'api/**'
       - '.github/workflows/ci-api.yml'
-      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
   push:
     branches:
       - main
     paths:
       - 'api/**'
       - '.github/workflows/ci-api.yml'
-      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
 
 jobs:
   api-checks:
@@ -23,6 +23,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -31,22 +36,22 @@ jobs:
       - name: Install dependencies
         working-directory: ./api
         run: |
-          npm ci
+          pnpm install --frozen-lockfile
           # self-hosted runner用にネイティブモジュールをリビルド
-          npm rebuild better-sqlite3
+          pnpm rebuild better-sqlite3
 
       - name: Run linter
         working-directory: ./api
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Run tests
         working-directory: ./api
-        run: npm test
+        run: pnpm test
 
       - name: Check test coverage
         working-directory: ./api
         run: |
-          npm test -- --coverage --reporter=json --reporter=default
+          pnpm test --coverage --reporter=json --reporter=default
           coverage=$(cat coverage/coverage-summary.json | grep -o '"pct":[0-9.]*' | head -1 | cut -d':' -f2)
           echo "Test coverage: $coverage%"
           if (( $(echo "$coverage < 90" | bc -l) )); then

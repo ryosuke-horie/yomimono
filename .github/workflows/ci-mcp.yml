@@ -5,14 +5,14 @@ on:
     paths:
       - 'mcp/**'
       - '.github/workflows/ci-mcp.yml'
-      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
   push:
     branches:
       - main
     paths:
       - 'mcp/**'
       - '.github/workflows/ci-mcp.yml'
-      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
 
 jobs:
   mcp-checks:
@@ -23,6 +23,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -30,23 +35,23 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./mcp
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Run linter
         working-directory: ./mcp
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Run type check
         working-directory: ./mcp
-        run: npm run typecheck
+        run: pnpm run typecheck
 
       - name: Run tests
         working-directory: ./mcp
-        run: npm test
+        run: pnpm test
 
       - name: Build MCP
         working-directory: ./mcp
-        run: npm run build
+        run: pnpm run build
 
       - name: Verify build output
         working-directory: ./mcp

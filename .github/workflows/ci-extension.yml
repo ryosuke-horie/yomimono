@@ -5,14 +5,14 @@ on:
     paths:
       - 'extension/**'
       - '.github/workflows/ci-extension.yml'
-      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
   push:
     branches:
       - main
     paths:
       - 'extension/**'
       - '.github/workflows/ci-extension.yml'
-      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
 
 jobs:
   extension-checks:
@@ -23,6 +23,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -30,19 +35,19 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./extension
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Run linter
         working-directory: ./extension
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Run type check
         working-directory: ./extension
-        run: npm run typecheck
+        run: pnpm run typecheck
 
       - name: Build extension
         working-directory: ./extension
-        run: npm run build
+        run: pnpm run build
 
       - name: Verify build artifacts
         working-directory: ./extension

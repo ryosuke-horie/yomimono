@@ -13,18 +13,22 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
     
       - name: API Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         working-directory: ./api
 
       - name: Frontend Clean and Install dependencies
         run: |
-          rm -rf node_modules package-lock.json
-          npm install --include=optional
+          rm -rf node_modules pnpm-lock.yaml
+          pnpm install
         working-directory: ./frontend
 
       - name: Deploy API
@@ -33,10 +37,10 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: ./api
-          packageManager: npm
+          packageManager: pnpm
 
       - name: Deploy Frontend
-        run: npm run deploy
+        run: pnpm run deploy
         working-directory: ./frontend
         env:
           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}

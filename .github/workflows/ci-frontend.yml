@@ -5,14 +5,14 @@ on:
     paths:
       - 'frontend/**'
       - '.github/workflows/ci-frontend.yml'
-      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
   push:
     branches:
       - main
     paths:
       - 'frontend/**'
       - '.github/workflows/ci-frontend.yml'
-      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
 
 jobs:
   frontend-checks:
@@ -23,6 +23,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -31,21 +36,21 @@ jobs:
       - name: Install dependencies
         working-directory: ./frontend
         run: |
-          npm ci
+          pnpm install --frozen-lockfile
           # self-hosted runner用にオプショナル依存関係を明示的にインストール
-          npm install @rollup/rollup-linux-x64-gnu --no-save
+          pnpm add @rollup/rollup-linux-x64-gnu --save-optional
 
       - name: Run linter
         working-directory: ./frontend
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Run unit tests
         working-directory: ./frontend
-        run: npm run test:run
+        run: pnpm run test:run
 
       - name: Build application
         working-directory: ./frontend
-        run: npm run build
+        run: pnpm run build
         env:
           NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL || 'https://api-yomimono.workers.dev' }}
 
