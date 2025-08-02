@@ -33,6 +33,12 @@ jobs:
 
           # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4)
           # model: "claude-opus-4-20250514"
+          
+          # Custom instructions for Japanese code reviews
+          custom_instructions: |
+            必ず日本語でレビューを行ってください。
+            技術用語は適切に日本語化し、分かりやすい説明を心がけてください。
+            建設的で具体的なフィードバックを提供してください。
 
           # Optional: Use sticky comments to make Claude reuse the same comment on subsequent pushes to the same PR
           # use_sticky_comment: true
