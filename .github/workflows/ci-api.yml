@@ -46,7 +46,7 @@ jobs:
       - name: Check test coverage
         working-directory: ./api
         run: |
-          npm test -- --coverage --reporter=json --reporter=text
+          npm test -- --coverage --reporter=json --reporter=default
           coverage=$(cat coverage/coverage-summary.json | grep -o '"pct":[0-9.]*' | head -1 | cut -d':' -f2)
           echo "Test coverage: $coverage%"
           if (( $(echo "$coverage < 90" | bc -l) )); then
