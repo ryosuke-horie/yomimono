@@ -1,22 +1,16 @@
 name: Claude Code Review
 
-# This workflow triggers on PR events but only runs when @claude is mentioned in the PR
+# This workflow triggers when @claude is mentioned in PR comments
 on:
-  pull_request:
-    types: [opened, synchronize]
-    # Optional: Only run on specific file changes
-    # paths:
-    #   - "src/**/*.ts"
-    #   - "src/**/*.tsx"
-    #   - "src/**/*.js"
-    #   - "src/**/*.jsx"
+  issue_comment:
+    types: [created]
 
 jobs:
   claude-review:
-    # Only run when @claude is mentioned in PR body or title
+    # Only run on PR comments (not issue comments) when @claude is mentioned
     if: |
-      contains(github.event.pull_request.body, '@claude') ||
-      contains(github.event.pull_request.title, '@claude')
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '@claude')
     
     runs-on: ubuntu-latest
     permissions:
@@ -39,17 +33,6 @@ jobs:
 
           # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4)
           # model: "claude-opus-4-20250514"
-          
-          # Direct prompt for review when @claude is mentioned
-          direct_prompt: |
-            Please review this pull request and provide feedback on:
-            - Code quality and best practices
-            - Potential bugs or issues
-            - Performance considerations
-            - Security concerns
-            - Test coverage
-            
-            Be constructive and helpful in your feedback.
 
           # Optional: Use sticky comments to make Claude reuse the same comment on subsequent pushes to the same PR
           # use_sticky_comment: true
