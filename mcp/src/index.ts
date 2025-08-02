@@ -292,7 +292,11 @@ server.tool(
 		// Destructure arguments
 		try {
 			// 入力値の検証
-			if (!articleIds || !Array.isArray(articleIds) || articleIds.length === 0) {
+			if (
+				!articleIds ||
+				!Array.isArray(articleIds) ||
+				articleIds.length === 0
+			) {
 				throw new Error("articleIds must be a non-empty array");
 			}
 			if (!labelName || typeof labelName !== "string") {
