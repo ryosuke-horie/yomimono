@@ -51,12 +51,12 @@ jobs:
             echo "❌ Build failed: manifest.json not found in dist/"
             exit 1
           fi
-          if [ ! -f "dist/popup.html" ]; then
-            echo "❌ Build failed: popup.html not found in dist/"
+          if [ ! -f "dist/popup/popup.html" ]; then
+            echo "❌ Build failed: popup.html not found in dist/popup/"
             exit 1
           fi
-          if [ ! -f "dist/popup.js" ]; then
-            echo "❌ Build failed: popup.js not found in dist/"
+          if [ ! -f "dist/popup/popup.js" ]; then
+            echo "❌ Build failed: popup.js not found in dist/popup/"
             exit 1
           fi
           echo "✅ Extension build successful"

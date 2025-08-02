@@ -51,8 +51,8 @@ jobs:
       - name: Verify build output
         working-directory: ./mcp
         run: |
-          if [ ! -d "dist" ]; then
-            echo "❌ Build failed: dist directory not found"
+          if [ ! -d "build" ]; then
+            echo "❌ Build failed: build directory not found"
             exit 1
           fi
           echo "✅ MCP build successful"

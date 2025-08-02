@@ -9,7 +9,7 @@
 		"types": ["@types/node", "vitest/importMeta"],
 		"esModuleInterop": true, // Recommended for compatibility
 		"forceConsistentCasingInFileNames": true, // Recommended for consistency
-		"outDir": "./dist" // Specify output directory
+		"outDir": "./build" // Specify output directory
 	},
 	"include": ["src/**/*", "index.ts"], // Include src and root index.ts
 	"exclude": ["node_modules"]
