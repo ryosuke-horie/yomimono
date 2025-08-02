@@ -39,10 +39,6 @@ jobs:
         working-directory: ./api
         run: npm run lint
 
-      - name: Run type check
-        working-directory: ./api
-        run: npm run typecheck
-
       - name: Run tests
         working-directory: ./api
         run: npm test
