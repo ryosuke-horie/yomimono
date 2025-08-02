@@ -23,6 +23,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Clean pnpm setup directory
+        run: |
+          if [ -d "/home/runner-user/setup-pnpm" ]; then
+            rm -rf /home/runner-user/setup-pnpm
+          fi
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
