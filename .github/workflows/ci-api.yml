@@ -5,14 +5,14 @@ on:
     paths:
       - 'api/**'
       - '.github/workflows/ci-api.yml'
-      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
   push:
     branches:
       - main
     paths:
       - 'api/**'
       - '.github/workflows/ci-api.yml'
-      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
 
 jobs:
   api-checks:
@@ -28,25 +28,38 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Clean pnpm setup directory
+        run: |
+          # pnpm/action-setupのデフォルトディレクトリをクリーンアップ
+          rm -rf ~/setup-pnpm || true
+          rm -rf /home/runner-user/setup-pnpm || true
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.14.4
+
       - name: Install dependencies
         working-directory: ./api
         run: |
-          npm ci
+          # 古いnode_modulesを削除して一貫性を保つ
+          rm -rf node_modules
+          pnpm install
           # self-hosted runner用にネイティブモジュールをリビルド
-          npm rebuild better-sqlite3
+          pnpm rebuild better-sqlite3
 
       - name: Run linter
         working-directory: ./api
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Run tests
         working-directory: ./api
-        run: npm test
+        run: pnpm test
 
       - name: Check test coverage
         working-directory: ./api
         run: |
-          npm test -- --coverage --reporter=json --reporter=default
+          pnpm test -- --coverage --reporter=json --reporter=default
           coverage=$(cat coverage/coverage-summary.json | grep -o '"pct":[0-9.]*' | head -1 | cut -d':' -f2)
           echo "Test coverage: $coverage%"
           if (( $(echo "$coverage < 90" | bc -l) )); then

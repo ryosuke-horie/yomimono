@@ -35,6 +35,9 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -44,8 +47,8 @@ jobs:
         id: build-mcp
         run: |
           cd mcp
-          npm ci
-          npm run build
+          pnpm install
+          pnpm run build
           echo "MCPビルド完了"
           echo "build_status=success" >> $GITHUB_OUTPUT
         continue-on-error: true

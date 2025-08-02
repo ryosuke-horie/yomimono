@@ -5,14 +5,14 @@ on:
     paths:
       - 'extension/**'
       - '.github/workflows/ci-extension.yml'
-      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
   push:
     branches:
       - main
     paths:
       - 'extension/**'
       - '.github/workflows/ci-extension.yml'
-      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
 
 jobs:
   extension-checks:
@@ -28,21 +28,35 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Clean pnpm setup directory
+        run: |
+          # pnpm/action-setupのデフォルトディレクトリをクリーンアップ
+          rm -rf ~/setup-pnpm || true
+          rm -rf /home/runner-user/setup-pnpm || true
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.14.4
+
       - name: Install dependencies
         working-directory: ./extension
-        run: npm ci
+        run: |
+          # 古いnode_modulesを削除して一貫性を保つ
+          rm -rf node_modules
+          pnpm install
 
       - name: Run linter
         working-directory: ./extension
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Run type check
         working-directory: ./extension
-        run: npm run typecheck
+        run: pnpm run typecheck
 
       - name: Build extension
         working-directory: ./extension
-        run: npm run build
+        run: pnpm run build
 
       - name: Verify build artifacts
         working-directory: ./extension

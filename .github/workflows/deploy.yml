@@ -16,15 +16,27 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Clean pnpm setup directory
+        run: |
+          # pnpm/action-setupのデフォルトディレクトリをクリーンアップ
+          rm -rf ~/setup-pnpm || true
+          rm -rf /home/runner-user/setup-pnpm || true
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.14.4
     
       - name: API Install dependencies
-        run: npm ci
+        run: |
+          rm -rf node_modules
+          pnpm install
         working-directory: ./api
 
       - name: Frontend Clean and Install dependencies
         run: |
-          rm -rf node_modules package-lock.json
-          npm install --include=optional
+          rm -rf node_modules pnpm-lock.yaml
+          pnpm install
         working-directory: ./frontend
 
       - name: Deploy API
@@ -33,10 +45,10 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: ./api
-          packageManager: npm
+          packageManager: pnpm
 
       - name: Deploy Frontend
-        run: npm run deploy
+        run: pnpm run deploy
         working-directory: ./frontend
         env:
           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}

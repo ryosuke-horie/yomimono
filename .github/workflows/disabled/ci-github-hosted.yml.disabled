@@ -32,26 +32,31 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         # Disable cache to ensure clean install of native modules
-        # cache: 'npm'
+        # cache: 'pnpm'
 
     - name: Install frontend dependencies
       run: |
         # Clean install to ensure all native binaries are properly installed
-        rm -rf node_modules package-lock.json
-        npm install --force --verbose
+        rm -rf node_modules pnpm-lock.yaml
+        pnpm install --force
         # Explicitly rebuild native modules for current platform
-        npm rebuild
+        pnpm rebuild
 
     - name: Install API dependencies
       working-directory: ./api
       run: |
-        rm -rf node_modules package-lock.json
-        npm install --force
+        rm -rf node_modules pnpm-lock.yaml
+        pnpm install --force
 
     - name: Install Playwright (Chrome only)
       run: |
@@ -67,7 +72,7 @@ jobs:
     - name: Start test servers
       run: |
         # バックグラウンドでサーバー起動
-        npm run servers:start &
+        pnpm run servers:start &
         SERVER_PID=$!
         echo "Server process started with PID: $SERVER_PID"
         

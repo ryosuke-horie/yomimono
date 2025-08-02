@@ -40,12 +40,12 @@ CIがパスしない限りマージすることは許容できません。
   - 未読一覧画面の表示
   - 既読処理と表示内容変更の確認
   - ラベルフィルタリング機能
-- **手動実行**: `cd frontend && npm run test:e2e`
+- **手動実行**: `cd frontend && pnpm run test:e2e`
 - **その他の品質保証**: エラーハンドリング・パフォーマンス・レンダリング等は単体テスト側で担保
 
 ### テスト駆動開発を行う
 TDDを実施する。コードを生成するときにはそれに対応するユニットテストを常に生成する。
-コードを追加で修正したときには`npm run test`がパスすることを常に確認する。
+コードを追加で修正したときには`pnpm run test`がパスすることを常に確認する。
 
 ```ts
 function add(a: number, b: number) { return a + b }
@@ -104,17 +104,17 @@ export function distance(a: Point, b: Point): number {
 ```
 
 ## よく利用するコマンド
-- API: `cd api && npm run dev` - APIの開発サーバーを起動
-- フロントエンド: `cd frontend && npm run dev` - フロントエンドの開発サーバーを起動
-- ビルド: `cd frontend && npm run build` - フロントエンドを本番用にビルド
-- リント: `npm run lint` - それぞれのディレクトリでリンターを実行
-- フォーマット: `npm run format` - それぞれのディレクトリでコードをフォーマット
-- テスト: `cd api && npm run test` - すべてのテストを実行
-- 単一テスト: `cd api && npx vitest run tests/unit/path/to/test.ts` - 特定のテストを実行
-- テストカバレッジ: `cd api && npm test -- --coverage` - カバレッジレポート生成（9割以上必要）
-- DB開発: `cd api && npm run migrate:development` - 開発環境用DBマイグレーション
-- DB本番: `cd api && npm run migrate:production` - 本番環境用DBマイグレーション
-- DB新規作成: `cd api && npx drizzle-kit generate` - マイグレーションファイル生成
+- API: `cd api && pnpm run dev` - APIの開発サーバーを起動
+- フロントエンド: `cd frontend && pnpm run dev` - フロントエンドの開発サーバーを起動
+- ビルド: `cd frontend && pnpm run build` - フロントエンドを本番用にビルド
+- リント: `pnpm run lint` - それぞれのディレクトリでリンターを実行
+- フォーマット: `pnpm run format` - それぞれのディレクトリでコードをフォーマット
+- テスト: `cd api && pnpm run test` - すべてのテストを実行
+- 単一テスト: `cd api && pnpm vitest run tests/unit/path/to/test.ts` - 特定のテストを実行
+- テストカバレッジ: `cd api && pnpm test -- --coverage` - カバレッジレポート生成（9割以上必要）
+- DB開発: `cd api && pnpm run migrate:development` - 開発環境用DBマイグレーション
+- DB本番: `cd api && pnpm run migrate:production` - 本番環境用DBマイグレーション
+- DB新規作成: `cd api && pnpm drizzle-kit generate` - マイグレーションファイル生成
 
 ## アーキテクチャ情報
 - **API**: レイヤードアーキテクチャ採用
