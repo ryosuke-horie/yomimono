@@ -30,7 +30,10 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./api
-        run: npm ci
+        run: |
+          npm ci
+          # self-hosted runner用にネイティブモジュールをリビルド
+          npm rebuild better-sqlite3
 
       - name: Run linter
         working-directory: ./api
