@@ -40,6 +40,8 @@ jobs:
       - name: Install dependencies
         working-directory: ./api
         run: |
+          # 古いnode_modulesを削除して一貫性を保つ
+          rm -rf node_modules
           pnpm install
           # self-hosted runner用にネイティブモジュールをリビルド
           pnpm rebuild better-sqlite3

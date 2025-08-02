@@ -23,12 +23,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Clean pnpm setup directory
-        run: |
-          if [ -d "/home/runner-user/setup-pnpm" ]; then
-            rm -rf /home/runner-user/setup-pnpm
-          fi
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -40,6 +34,8 @@ jobs:
       - name: Install dependencies
         working-directory: ./frontend
         run: |
+          # 古いnode_modulesを削除して一貫性を保つ
+          rm -rf node_modules
           pnpm install
           # self-hosted runner用にオプショナル依存関係を明示的にインストール
           pnpm add @rollup/rollup-linux-x64-gnu --save-optional
