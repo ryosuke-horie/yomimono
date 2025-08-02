@@ -11,6 +11,6 @@
 		"forceConsistentCasingInFileNames": true, // Recommended for consistency
 		"outDir": "./build" // Specify output directory
 	},
-	"include": ["src/**/*"], // Initially include only src
+	"include": ["src/**/*", "index.ts"], // Include src and root index.ts
 	"exclude": ["node_modules"]
 }

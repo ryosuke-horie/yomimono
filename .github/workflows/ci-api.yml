@@ -1,0 +1,55 @@
+name: CI - API
+
+on:
+  pull_request:
+    paths:
+      - 'api/**'
+      - '.github/workflows/ci-api.yml'
+      - 'package-lock.json'
+  push:
+    branches:
+      - main
+    paths:
+      - 'api/**'
+      - '.github/workflows/ci-api.yml'
+      - 'package-lock.json'
+
+jobs:
+  api-checks:
+    name: API - Lint, TypeCheck & Test
+    runs-on: self-hosted
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: ./api
+        run: |
+          npm ci
+          # self-hosted runner用にネイティブモジュールをリビルド
+          npm rebuild better-sqlite3
+
+      - name: Run linter
+        working-directory: ./api
+        run: npm run lint
+
+      - name: Run tests
+        working-directory: ./api
+        run: npm test
+
+      - name: Check test coverage
+        working-directory: ./api
+        run: |
+          npm test -- --coverage --reporter=json --reporter=default
+          coverage=$(cat coverage/coverage-summary.json | grep -o '"pct":[0-9.]*' | head -1 | cut -d':' -f2)
+          echo "Test coverage: $coverage%"
+          if (( $(echo "$coverage < 90" | bc -l) )); then
+            echo "❌ Test coverage is below 90%"
+            exit 1
+          fi
