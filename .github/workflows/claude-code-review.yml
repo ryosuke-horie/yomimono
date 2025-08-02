@@ -39,6 +39,8 @@ jobs:
           
           # Custom instructions for Japanese code reviews with GitHub review integration
           custom_instructions: |
+            **重要: このレビューは必ず日本語で実施してください。すべてのコメント、フィードバック、提案を日本語で記述してください。**
+            
             このプルリクエスト（PR）をレビューし、GitHub のレビュー機能を使ってフィードバックをしてください。作業は次の手順に沿って進めてください：
             1.  **レビューを開始する:** `mcp__github__create_pending_pull_request_review` を使って、保留中のレビューを開始します。
             2.  **変更内容を確認する:** `mcp__github__get_pull_request_diff` を使って、コードの変更点や行番号を把握します。
@@ -75,6 +77,8 @@ jobs:
             5. CLAUDE.mdのガイドラインに従っているかを必ず確認する
             
             すべてのフィードバックは日本語で、建設的かつ実用的な内容にしてください。
+            
+            **再度強調: このレビュー全体を通じて、すべてのコメントとフィードバックは日本語で記述することが必須です。英語でのコメントは禁止されています。**
 
           # Use sticky comments to update the same comment
           use_sticky_comment: true
