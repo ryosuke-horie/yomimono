@@ -1,0 +1,62 @@
+name: CI - Extension
+
+on:
+  pull_request:
+    paths:
+      - 'extension/**'
+      - '.github/workflows/ci-extension.yml'
+      - 'package-lock.json'
+  push:
+    branches:
+      - main
+    paths:
+      - 'extension/**'
+      - '.github/workflows/ci-extension.yml'
+      - 'package-lock.json'
+
+jobs:
+  extension-checks:
+    name: Extension - Lint, TypeCheck & Build
+    runs-on: self-hosted
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: ./extension
+        run: npm ci
+
+      - name: Run linter
+        working-directory: ./extension
+        run: npm run lint
+
+      - name: Run type check
+        working-directory: ./extension
+        run: npm run typecheck
+
+      - name: Build extension
+        working-directory: ./extension
+        run: npm run build
+
+      - name: Verify build artifacts
+        working-directory: ./extension
+        run: |
+          if [ ! -f "dist/manifest.json" ]; then
+            echo "❌ Build failed: manifest.json not found in dist/"
+            exit 1
+          fi
+          if [ ! -f "dist/popup.html" ]; then
+            echo "❌ Build failed: popup.html not found in dist/"
+            exit 1
+          fi
+          if [ ! -f "dist/popup.js" ]; then
+            echo "❌ Build failed: popup.js not found in dist/"
+            exit 1
+          fi
+          echo "✅ Extension build successful"
