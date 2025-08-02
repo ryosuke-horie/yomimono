@@ -1,22 +1,16 @@
 name: Claude Code Review
 
+# This workflow triggers when @claude is mentioned in PR comments
 on:
-  pull_request:
-    types: [opened, synchronize]
-    # Optional: Only run on specific file changes
-    # paths:
-    #   - "src/**/*.ts"
-    #   - "src/**/*.tsx"
-    #   - "src/**/*.js"
-    #   - "src/**/*.jsx"
+  issue_comment:
+    types: [created]
 
 jobs:
   claude-review:
-    # Optional: Filter by PR author
-    # if: |
-    #   github.event.pull_request.user.login == 'external-contributor' ||
-    #   github.event.pull_request.user.login == 'new-developer' ||
-    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+    # Only run on PR comments (not issue comments) when @claude is mentioned
+    if: |
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '@claude')
     
     runs-on: ubuntu-latest
     permissions:
@@ -40,19 +34,38 @@ jobs:
           # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4)
           # model: "claude-opus-4-20250514"
           
-          # Direct prompt for automated review (no @claude mention needed)
-          direct_prompt: |
-            Please review this pull request and provide feedback on:
-            - Code quality and best practices
-            - Potential bugs or issues
-            - Performance considerations
-            - Security concerns
-            - Test coverage
+          # Custom instructions for Japanese code reviews
+          custom_instructions: |
+            **重要: このレビューは必ず日本語で実施してください。すべてのコメント、フィードバック、提案を日本語で記述してください。**
             
-            Be constructive and helpful in your feedback.
+            このプルリクエスト（PR）をレビューし、以下の観点から詳細なフィードバックを提供してください。
+            
+            **コメントの書き方:**
+            * **結論を先に:** 各指摘事項の冒頭で、要点を一行で簡潔に述べてください。
+            * **理由と提案:** 結論の後に、そのように判断した理由や背景、具体的な修正案を詳しく説明してください。
+            * **建設的に:** 改善点を指摘する際は、具体的な解決策も提示してください。
 
-          # Optional: Use sticky comments to make Claude reuse the same comment on subsequent pushes to the same PR
-          # use_sticky_comment: true
+            **レビューの観点:**
+            - CLAUDE.mdのガイドラインに従っているか
+            - バグやセキュリティリスクがないか
+            - 保守性や可読性は十分か
+            - 設計やアーキテクチャに妥当性があるか
+            - コード品質とベストプラクティス
+            - 潜在的なバグや問題
+            - セキュリティの懸念
+            - テストカバレッジ
+            
+            **フィードバック形式:**
+            - 各指摘事項をファイル名と行番号（可能な場合）と共に明記
+            - 重要度を明示（🔴 重大、🟡 中程度、🟢 軽微）
+            - 具体的なコード例やsuggestionを含める
+            
+            すべてのフィードバックは日本語で、建設的かつ実用的な内容にしてください。
+            
+            **再度強調: このレビュー全体を通じて、すべてのコメントとフィードバックは日本語で記述することが必須です。英語でのコメントは禁止されています。**
+
+          # Use sticky comments to update the same comment
+          use_sticky_comment: true
           
           # Optional: Customize review based on file types
           # direct_prompt: |
