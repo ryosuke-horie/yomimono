@@ -555,7 +555,7 @@ describe("Bookmark API Functions", () => {
 				json: async () => {
 					throw new Error("Invalid JSON");
 				},
-			} as Response);
+			} as unknown as Response);
 
 			await expect(apiClient.cleanupUnusedLabels()).rejects.toThrow(
 				"Failed to cleanup unused labels. Status: 500 Internal Server Error",

@@ -365,7 +365,7 @@ describe("Label API Functions", () => {
 				json: async () => {
 					throw new Error("Invalid JSON");
 				},
-			} as Response);
+			} as unknown as Response);
 
 			await expect(
 				apiClient.assignLabelsToMultipleArticles([1], "test"),
@@ -495,7 +495,7 @@ describe("Label API Functions", () => {
 				json: async () => {
 					throw new Error("Invalid JSON");
 				},
-			} as Response);
+			} as unknown as Response);
 
 			await expect(apiClient.createLabel("test")).rejects.toThrow(
 				'Failed to create label "test". Status: 400 Bad Request',
@@ -546,7 +546,7 @@ describe("Label API Functions", () => {
 				json: async () => {
 					throw new Error("Invalid JSON");
 				},
-			} as Response);
+			} as unknown as Response);
 
 			await expect(apiClient.getLabelById(1)).rejects.toThrow(
 				"Failed to parse response when fetching label 1: Invalid JSON",
