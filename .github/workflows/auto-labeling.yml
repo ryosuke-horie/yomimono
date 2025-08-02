@@ -1,0 +1,77 @@
+name: Auto Labeling with Claude
+
+on:
+  schedule:
+    # 毎日午前9時（JST）に実行
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 手動実行もサポート
+
+jobs:
+  auto-label:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install and Build MCP
+        run: |
+          cd mcp
+          npm ci
+          npm run build
+          echo "MCPビルド完了"
+
+      - name: Run Claude Auto Labeling
+        id: claude-labeling
+        uses: anthropics/claude-code-action@beta
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          
+          # MCPサーバー設定
+          mcp_servers: |
+            {
+              "effective-yomimono-mcp": {
+                "command": "node",
+                "args": ["${{ github.workspace }}/mcp/build/index.js"],
+                "env": {
+                  "API_BASE_URL": "https://effective-yomimono-api.ryosuke-horie37.workers.dev"
+                }
+              }
+            }
+          
+          # Direct prompt for automated labeling
+          direct_prompt: |
+            MCPツールを使用して記事の自動ラベル付けを実行してください。
+            
+            以下の手順で処理を行ってください：
+            
+            1. まず、getLabels ツールを使用して既存のラベル一覧を取得してください。
+            2. 次に、getUnlabeledArticles ツールを使用してラベル付けされていない記事を取得してください。
+            3. 各記事に対して、タイトルと内容から最も適切なラベルを判定してください。
+               - 技術系記事の場合: プログラミング言語、フレームワーク、ツール名などから判定
+               - 概念的な記事の場合: アーキテクチャ、設計パターン、ベストプラクティスなどから判定
+            4. assignLabel ツールを使用して、判定したラベルを記事に割り当ててください。
+            5. 複数の記事に同じラベルを付ける場合は、assignLabelsToMultipleArticles ツールを使用して効率化してください。
+            
+            処理結果として以下を報告してください：
+            - 処理した記事の総数
+            - 付与したラベルの内訳（ラベル名: 記事数）
+            - 新規作成したラベル（もしあれば）
+            - ラベル付けできなかった記事（もしあれば）とその理由
+            
+            注意事項：
+            - 既存のラベルをできるだけ活用してください
+            - 新しいラベルは本当に必要な場合のみ作成してください
+            - ラベル名は簡潔で分かりやすいものにしてください
