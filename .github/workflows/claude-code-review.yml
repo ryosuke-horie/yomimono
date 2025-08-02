@@ -1,5 +1,6 @@
 name: Claude Code Review
 
+# This workflow triggers on PR events but only runs when @claude is mentioned in the PR
 on:
   pull_request:
     types: [opened, synchronize]
@@ -12,11 +13,10 @@ on:
 
 jobs:
   claude-review:
-    # Optional: Filter by PR author
-    # if: |
-    #   github.event.pull_request.user.login == 'external-contributor' ||
-    #   github.event.pull_request.user.login == 'new-developer' ||
-    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+    # Only run when @claude is mentioned in PR body or title
+    if: |
+      contains(github.event.pull_request.body, '@claude') ||
+      contains(github.event.pull_request.title, '@claude')
     
     runs-on: ubuntu-latest
     permissions:
@@ -40,7 +40,7 @@ jobs:
           # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4)
           # model: "claude-opus-4-20250514"
           
-          # Direct prompt for automated review (no @claude mention needed)
+          # Direct prompt for review when @claude is mentioned
           direct_prompt: |
             Please review this pull request and provide feedback on:
             - Code quality and best practices
