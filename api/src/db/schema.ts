@@ -94,6 +94,17 @@ export type InsertLabel = typeof labels.$inferInsert;
 export type ArticleLabel = typeof articleLabels.$inferSelect;
 export type InsertArticleLabel = typeof articleLabels.$inferInsert;
 
+// 本棚機能のスキーマをインポート
+export {
+	Book,
+	BookStatus,
+	BookStatusValue,
+	BookType,
+	BookTypeValue,
+	books,
+	InsertBook,
+} from "./schema/bookshelf";
+
 // BookmarkWithLabel type for external use
 export type BookmarkWithLabel = Bookmark & {
 	isFavorite: boolean;
