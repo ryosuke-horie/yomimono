@@ -2,7 +2,12 @@
  * 本棚機能のリポジトリインターフェース
  * 書籍、PDF、GitHub、Zennなどのコンテンツのデータアクセスを抽象化
  */
-import type { Book, BookStatusValue, BookTypeValue, InsertBook } from "../../db/schema";
+import type {
+	Book,
+	BookStatusValue,
+	BookTypeValue,
+	InsertBook,
+} from "../../db/schema";
 
 export interface IBookRepository {
 	/**

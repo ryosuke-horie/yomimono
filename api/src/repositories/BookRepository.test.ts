@@ -3,14 +3,23 @@
  * TDD/BDDアプローチで本棚機能のリポジトリ層をテスト
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { eq, like } from "drizzle-orm";
-import { BookRepository } from "./BookRepository";
+import type { Book, InsertBook } from "../db/schema";
 import { BookStatus, BookType } from "../db/schema";
-import type { Book, BookStatusValue, BookTypeValue, InsertBook } from "../db/schema";
+import { BookRepository } from "./BookRepository";
 
 describe("BookRepository", () => {
 	let repository: BookRepository;
-	let mockDb: any;
+	let mockDb: {
+		insert: ReturnType<typeof vi.fn>;
+		values: ReturnType<typeof vi.fn>;
+		returning: ReturnType<typeof vi.fn>;
+		select: ReturnType<typeof vi.fn>;
+		from: ReturnType<typeof vi.fn>;
+		where: ReturnType<typeof vi.fn>;
+		update: ReturnType<typeof vi.fn>;
+		set: ReturnType<typeof vi.fn>;
+		delete: ReturnType<typeof vi.fn>;
+	};
 
 	// テスト用のモックデータ
 	const mockBook: Book = {
@@ -223,7 +232,7 @@ describe("BookRepository", () => {
 
 			// Assert
 			expect(result).toEqual(githubRepos);
-			expect(result.every(book => book.type === BookType.GITHUB)).toBe(true);
+			expect(result.every((book) => book.type === BookType.GITHUB)).toBe(true);
 		});
 
 		it("Zenn記事を検索できる", async () => {
@@ -264,10 +273,12 @@ describe("BookRepository", () => {
 			expect(result).toEqual(updatedBook);
 			expect(result?.title).toBe("Updated Title");
 			expect(mockDb.update).toHaveBeenCalledWith(expect.anything());
-			expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({
-				title: "Updated Title",
-				updatedAt: expect.any(Date),
-			}));
+			expect(mockDb.set).toHaveBeenCalledWith(
+				expect.objectContaining({
+					title: "Updated Title",
+					updatedAt: expect.any(Date),
+				}),
+			);
 		});
 
 		it("存在しないIDの場合nullを返す", async () => {
@@ -294,9 +305,11 @@ describe("BookRepository", () => {
 			await repository.update(1, { title: "Updated" });
 
 			// Assert
-			expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({
-				updatedAt: expect.any(Date),
-			}));
+			expect(mockDb.set).toHaveBeenCalledWith(
+				expect.objectContaining({
+					updatedAt: expect.any(Date),
+				}),
+			);
 		});
 	});
 
@@ -383,10 +396,12 @@ describe("BookRepository", () => {
 			// Assert
 			expect(result).toEqual(updatedBook);
 			expect(result?.status).toBe(BookStatus.READING);
-			expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({
-				status: BookStatus.READING,
-				updatedAt: expect.any(Date),
-			}));
+			expect(mockDb.set).toHaveBeenCalledWith(
+				expect.objectContaining({
+					status: BookStatus.READING,
+					updatedAt: expect.any(Date),
+				}),
+			);
 		});
 
 		it("存在しないIDの場合nullを返す", async () => {
@@ -419,11 +434,13 @@ describe("BookRepository", () => {
 			expect(result).toEqual(completedBook);
 			expect(result?.status).toBe(BookStatus.COMPLETED);
 			expect(result?.completedAt).toBeDefined();
-			expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({
-				status: BookStatus.COMPLETED,
-				completedAt: expect.any(Date),
-				updatedAt: expect.any(Date),
-			}));
+			expect(mockDb.set).toHaveBeenCalledWith(
+				expect.objectContaining({
+					status: BookStatus.COMPLETED,
+					completedAt: expect.any(Date),
+					updatedAt: expect.any(Date),
+				}),
+			);
 		});
 
 		it("存在しないIDの場合nullを返す", async () => {
@@ -441,11 +458,12 @@ describe("BookRepository", () => {
 			// Arrange
 			const oldDate = new Date("2025-01-01");
 			const newDate = new Date();
-			const alreadyCompleted = createMockBook({
-				status: BookStatus.COMPLETED,
-				completedAt: oldDate,
-			});
-			
+			// 既に完了済みの書籍データ（未使用だが、仕様の確認用）
+			// const _alreadyCompleted = createMockBook({
+			// 	status: BookStatus.COMPLETED,
+			// 	completedAt: oldDate,
+			// });
+
 			const updatedBook = createMockBook({
 				status: BookStatus.COMPLETED,
 				completedAt: newDate,

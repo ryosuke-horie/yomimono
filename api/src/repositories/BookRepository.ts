@@ -4,22 +4,24 @@
  */
 import { eq, like } from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
+import type {
+	Book,
+	BookStatusValue,
+	BookTypeValue,
+	InsertBook,
+} from "../db/schema";
 import { books } from "../db/schema";
-import type { Book, BookStatusValue, BookTypeValue, InsertBook } from "../db/schema";
 import type { IBookRepository } from "../interfaces/repository/book";
 
 export class BookRepository implements IBookRepository {
-	constructor(private db: DrizzleD1Database | any) {}
+	constructor(private db: DrizzleD1Database) {}
 
 	/**
 	 * 書籍を作成する
 	 */
 	async create(data: InsertBook): Promise<Book> {
-		const [book] = await this.db
-			.insert(books)
-			.values(data)
-			.returning();
-		
+		const [book] = await this.db.insert(books).values(data).returning();
+
 		return book;
 	}
 
@@ -27,11 +29,8 @@ export class BookRepository implements IBookRepository {
 	 * IDで書籍を取得する
 	 */
 	async findById(id: number): Promise<Book | null> {
-		const [book] = await this.db
-			.select()
-			.from(books)
-			.where(eq(books.id, id));
-		
+		const [book] = await this.db.select().from(books).where(eq(books.id, id));
+
 		return book ?? null;
 	}
 
@@ -39,29 +38,21 @@ export class BookRepository implements IBookRepository {
 	 * すべての書籍を取得する
 	 */
 	async findAll(): Promise<Book[]> {
-		return await this.db
-			.select()
-			.from(books);
+		return await this.db.select().from(books);
 	}
 
 	/**
 	 * ステータスで書籍を検索する
 	 */
 	async findByStatus(status: BookStatusValue): Promise<Book[]> {
-		return await this.db
-			.select()
-			.from(books)
-			.where(eq(books.status, status));
+		return await this.db.select().from(books).where(eq(books.status, status));
 	}
 
 	/**
 	 * タイプで書籍を検索する
 	 */
 	async findByType(type: BookTypeValue): Promise<Book[]> {
-		return await this.db
-			.select()
-			.from(books)
-			.where(eq(books.type, type));
+		return await this.db.select().from(books).where(eq(books.type, type));
 	}
 
 	/**
@@ -76,7 +67,7 @@ export class BookRepository implements IBookRepository {
 			})
 			.where(eq(books.id, id))
 			.returning();
-		
+
 		return updated ?? null;
 	}
 
@@ -88,7 +79,7 @@ export class BookRepository implements IBookRepository {
 			.delete(books)
 			.where(eq(books.id, id))
 			.returning();
-		
+
 		return !!deleted;
 	}
 
@@ -105,7 +96,10 @@ export class BookRepository implements IBookRepository {
 	/**
 	 * 書籍のステータスを更新する
 	 */
-	async updateStatus(id: number, status: BookStatusValue): Promise<Book | null> {
+	async updateStatus(
+		id: number,
+		status: BookStatusValue,
+	): Promise<Book | null> {
 		const [updated] = await this.db
 			.update(books)
 			.set({
@@ -114,7 +108,7 @@ export class BookRepository implements IBookRepository {
 			})
 			.where(eq(books.id, id))
 			.returning();
-		
+
 		return updated ?? null;
 	}
 
@@ -132,7 +126,7 @@ export class BookRepository implements IBookRepository {
 			})
 			.where(eq(books.id, id))
 			.returning();
-		
+
 		return updated ?? null;
 	}
 }
