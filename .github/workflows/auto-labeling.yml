@@ -51,6 +51,14 @@ jobs:
           pnpm run build
           echo "MCPビルド完了"
           echo "build_status=success" >> $GITHUB_OUTPUT
+          # MCPビルドの確認
+          if [ -f "build/index.js" ]; then
+            echo "✅ MCPビルドファイルが正常に生成されました"
+            ls -la build/
+          else
+            echo "::error::MCPビルドファイルが見つかりません"
+            exit 1
+          fi
         continue-on-error: true
 
       - name: Validate MCP Build
@@ -59,10 +67,22 @@ jobs:
           echo "::error::MCPのビルドに失敗しました"
           exit 1
 
+      - name: Test MCP Server
+        id: test-mcp
+        run: |
+          echo "MCPサーバーの起動テスト..."
+          cd mcp
+          timeout 5s node build/index.js 2>&1 || true
+          echo "MCPサーバーのテスト完了"
+        continue-on-error: true
+
       - name: Run Claude Auto Labeling (Attempt 1)
         id: claude-labeling-1
         uses: anthropics/claude-code-action@beta
         continue-on-error: true
+        env:
+          ACTIONS_RUNNER_DEBUG: true
+          ACTIONS_STEP_DEBUG: true
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           
@@ -124,6 +144,9 @@ jobs:
         id: claude-labeling-2
         uses: anthropics/claude-code-action@beta
         continue-on-error: true
+        env:
+          ACTIONS_RUNNER_DEBUG: true
+          ACTIONS_STEP_DEBUG: true
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           
@@ -173,6 +196,9 @@ jobs:
         id: claude-labeling-3
         uses: anthropics/claude-code-action@beta
         continue-on-error: true
+        env:
+          ACTIONS_RUNNER_DEBUG: true
+          ACTIONS_STEP_DEBUG: true
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           
@@ -295,8 +321,22 @@ jobs:
               labels: ['bug', 'workflow', 'auto-labeling']
             });
 
-      - name: Final Validation
+      - name: Fallback Auto Labeling Script
         if: steps.final-status.outputs.final_outcome == 'failure'
+        id: fallback-labeling
+        run: |
+          echo "::warning::Claude Code Actionが失敗したため、フォールバックスクリプトを実行します"
+          cd ${{ github.workspace }}
+          chmod +x .github/scripts/auto-label.js
+          node .github/scripts/auto-label.js
+        env:
+          API_BASE_URL: "https://effective-yomimono-api.ryosuke-horie37.workers.dev"
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+          MAX_ARTICLES: ${{ github.event.inputs.max_articles || '' }}
+        continue-on-error: true
+
+      - name: Final Validation
+        if: steps.final-status.outputs.final_outcome == 'failure' && steps.fallback-labeling.outcome == 'failure'
         run: |
           echo "::error::自動ラベル付けワークフローが失敗しました。詳細はジョブサマリーを確認してください。"
           exit 1
