@@ -5,11 +5,14 @@ import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { bookmarks } from "./db/schema";
 import { ArticleLabelRepository } from "./repositories/articleLabel";
+import { BookRepository } from "./repositories/BookRepository";
 import { DrizzleBookmarkRepository } from "./repositories/bookmark";
 import { LabelRepository } from "./repositories/label";
 import { createBookmarksRouter } from "./routes/bookmarks";
+import { createBookshelfRouter } from "./routes/bookshelf";
 import { createLabelsRouter } from "./routes/labels";
 import { createSeedRouter } from "./routes/seed";
+import { BookshelfService } from "./services/BookshelfService";
 import { DefaultBookmarkService } from "./services/bookmark";
 import { LabelService } from "./services/label";
 import { SeedService } from "./services/seed";
@@ -54,15 +57,18 @@ export const createApp = (env: Env) => {
 
 	// データベース、リポジトリ、サービスの初期化
 	const db = env.DB;
+	const drizzleDb = drizzle(db);
 	const bookmarkRepository = new DrizzleBookmarkRepository(db);
 	const labelRepository = new LabelRepository(db);
 	const articleLabelRepository = new ArticleLabelRepository(db);
+	const bookRepository = new BookRepository(drizzleDb);
 	const bookmarkService = new DefaultBookmarkService(bookmarkRepository);
 	const labelService = new LabelService(
 		labelRepository,
 		articleLabelRepository,
 		bookmarkRepository,
 	);
+	const bookshelfService = new BookshelfService(bookRepository);
 	const seedService = new SeedService(db);
 
 	// ヘルスチェックエンドポイント - APIの稼働状況を確認するためのシンプルなエンドポイント
@@ -76,9 +82,11 @@ export const createApp = (env: Env) => {
 	// ルーターのマウント
 	const bookmarksRouter = createBookmarksRouter(bookmarkService, labelService);
 	const labelsRouter = createLabelsRouter(labelService);
+	const bookshelfRouter = createBookshelfRouter(bookshelfService);
 	const seedRouter = createSeedRouter(seedService);
 	app.route("/api/bookmarks", bookmarksRouter);
 	app.route("/api/labels", labelsRouter);
+	app.route("/api/bookshelf", bookshelfRouter);
 	app.route("/api/dev/seed", seedRouter);
 
 	// テストエンドポイント
