@@ -81,7 +81,15 @@ export const createBookshelfRouter = (bookshelfService: IBookshelfService) => {
 				return c.json({ success: false, error: "Invalid ID" }, 400);
 			}
 
-			const body = await parseRequestBody(c);
+			const body =
+				await parseRequestBody<
+					Partial<{
+						type: BookTypeValue;
+						title: string;
+						url?: string | null;
+						imageUrl?: string | null;
+					}>
+				>(c);
 			if (!body) {
 				return c.json({ success: false, error: "Invalid request body" }, 400);
 			}
