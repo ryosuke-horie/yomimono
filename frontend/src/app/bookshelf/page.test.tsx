@@ -2,8 +2,8 @@
  * 本棚ページのテスト
  */
 
-import { render, screen } from "@/test-utils";
 import { describe, expect, test, vi } from "vitest";
+import { render, screen } from "@/test-utils";
 import BookshelfPage from "./page";
 
 // コンポーネントのモック
