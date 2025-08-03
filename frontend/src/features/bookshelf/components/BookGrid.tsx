@@ -162,7 +162,7 @@ if (import.meta.vitest) {
 			error: null,
 			fetchBooks: vi.fn(),
 		});
-		
+
 		render(<BookGrid status="unread" />);
 
 		await waitFor(() => {
