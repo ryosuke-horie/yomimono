@@ -4,6 +4,10 @@
  */
 import { describe, expect, test, vi } from "vitest";
 import type { Book, BookStatusValue, BookTypeValue } from "../db/schema";
+import {
+	BookNotFoundError,
+	InvalidBookDataError,
+} from "../exceptions/bookshelf";
 import type { IBookRepository } from "../interfaces/repository/book";
 import { BookshelfService } from "./BookshelfService";
 
@@ -88,7 +92,7 @@ describe("BookshelfService", () => {
 
 			await expect(
 				service.getBooks("invalid" as BookStatusValue),
-			).rejects.toThrow("Invalid status: invalid");
+			).rejects.toThrow(InvalidBookDataError);
 		});
 	});
 
@@ -121,7 +125,7 @@ describe("BookshelfService", () => {
 
 			const service = new BookshelfService(mockRepository);
 
-			await expect(service.getBook(999)).rejects.toThrow("Book not found");
+			await expect(service.getBook(999)).rejects.toThrow(BookNotFoundError);
 		});
 	});
 
@@ -269,7 +273,7 @@ describe("BookshelfService", () => {
 			const service = new BookshelfService(mockRepository);
 
 			await expect(service.updateBook(999, { title: "更新" })).rejects.toThrow(
-				"Book not found",
+				BookNotFoundError,
 			);
 		});
 
@@ -357,7 +361,7 @@ describe("BookshelfService", () => {
 			const service = new BookshelfService(mockRepository);
 
 			await expect(service.updateBookStatus(999, "reading")).rejects.toThrow(
-				"Book not found",
+				BookNotFoundError,
 			);
 		});
 	});
@@ -379,7 +383,7 @@ describe("BookshelfService", () => {
 
 			const service = new BookshelfService(mockRepository);
 
-			await expect(service.deleteBook(999)).rejects.toThrow("Book not found");
+			await expect(service.deleteBook(999)).rejects.toThrow(BookNotFoundError);
 		});
 	});
 });
