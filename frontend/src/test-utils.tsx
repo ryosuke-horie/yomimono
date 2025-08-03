@@ -8,11 +8,11 @@ import {
 	renderHook as rtlRenderHook,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { vi } from "vitest";
+import { vi, test, expect } from "vitest";
 
 // Re-export everything
 export * from "@testing-library/react";
-export { userEvent, vi };
+export { userEvent, vi, test, expect };
 
 // Custom render with providers if needed
 export function render(ui: React.ReactElement, options = {}) {
