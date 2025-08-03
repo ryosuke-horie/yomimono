@@ -8,7 +8,7 @@ import {
 	renderHook as rtlRenderHook,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { vi, test, expect } from "vitest";
+import { expect, test, vi } from "vitest";
 
 // Re-export everything
 export * from "@testing-library/react";

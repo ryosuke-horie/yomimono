@@ -25,7 +25,7 @@ export function useBookshelf() {
 				throw new Error("本の取得に失敗しました");
 			}
 
-			const data = await response.json() as { books?: Book[] };
+			const data = (await response.json()) as { books?: Book[] };
 			setBooks(data.books || []);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "エラーが発生しました");
@@ -81,7 +81,7 @@ export function useBookshelf() {
 				throw new Error("本の追加に失敗しました");
 			}
 
-			const newBook = await response.json() as Book;
+			const newBook = (await response.json()) as Book;
 			setBooks((prev) => [...prev, newBook]);
 
 			return newBook;
@@ -120,7 +120,7 @@ export function useBookshelf() {
 					throw new Error("ステータスの更新に失敗しました");
 				}
 
-				const updatedBook = await response.json() as Book;
+				const updatedBook = (await response.json()) as Book;
 				setBooks((prev) =>
 					prev.map((book) => (book.id === bookId ? updatedBook : book)),
 				);
