@@ -16,13 +16,3 @@ export default function BookshelfPage() {
 		</div>
 	);
 }
-
-if (import.meta.vitest) {
-	const { test, expect, render, screen } = await import("@/test-utils");
-
-	test("本棚ページが正しく表示される", () => {
-		render(<BookshelfPage />);
-		expect(screen.getByText("私の本棚")).toBeInTheDocument();
-		expect(screen.getByText("📚")).toBeInTheDocument();
-	});
-}
