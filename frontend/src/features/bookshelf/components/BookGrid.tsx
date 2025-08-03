@@ -137,6 +137,32 @@ if (import.meta.vitest) {
 	});
 
 	test("ステータスに応じた本が表示される", async () => {
+		const { useBookshelf } = await import("../hooks/useBookshelf");
+		// @ts-expect-error - モック用の型アサーション
+		(useBookshelf as jest.Mock).mockReturnValue({
+			books: [
+				{
+					id: "1",
+					title: "テスト本1",
+					status: "unread",
+					type: "book",
+					createdAt: "2024-01-01",
+					updatedAt: "2024-01-01",
+				},
+				{
+					id: "2",
+					title: "テスト本2",
+					status: "reading",
+					type: "pdf",
+					createdAt: "2024-01-01",
+					updatedAt: "2024-01-01",
+				},
+			],
+			loading: false,
+			error: null,
+			fetchBooks: vi.fn(),
+		});
+		
 		render(<BookGrid status="unread" />);
 
 		await waitFor(() => {
