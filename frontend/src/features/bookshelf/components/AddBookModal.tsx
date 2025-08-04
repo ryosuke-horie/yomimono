@@ -216,7 +216,9 @@ if (import.meta.vitest) {
 				}),
 			);
 
-			const typeSelect = screen.getByLabelText("タイプ *") as unknown as HTMLSelectElement;
+			const typeSelect = screen.getByLabelText(
+				"タイプ *",
+			) as unknown as HTMLSelectElement;
 			expect(typeSelect.options.length).toBe(4);
 			expect(typeSelect.options[0].text).toBe("書籍");
 			expect(typeSelect.options[1].text).toBe("PDF");
@@ -360,7 +362,9 @@ if (import.meta.vitest) {
 				}),
 			);
 
-			const typeSelect = screen.getByLabelText("タイプ *") as unknown as HTMLSelectElement;
+			const typeSelect = screen.getByLabelText(
+				"タイプ *",
+			) as unknown as HTMLSelectElement;
 			fireEvent.change(typeSelect, { target: { value: "pdf" } });
 
 			expect(typeSelect.value).toBe("pdf");
