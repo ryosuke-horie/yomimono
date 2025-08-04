@@ -1,30 +1,37 @@
 /**
- * 本追加モーダルコンポーネント
- * 新しい本の情報を入力して追加するモーダル
+ * 本編集モーダルコンポーネント
+ * 既存の本の情報を編集するモーダル
  */
 
 "use client";
 
-import { useCreateBook } from "../queries/useCreateBook";
-import type { CreateBookInput } from "../types";
+import { useUpdateBook } from "../queries/useUpdateBook";
+import type { Book, CreateBookInput } from "../types";
 import { BookForm } from "./BookForm";
 
-interface AddBookModalProps {
+interface EditBookModalProps {
 	isOpen: boolean;
 	onClose: () => void;
+	book: Book;
 }
 
-export function AddBookModal({ isOpen, onClose }: AddBookModalProps) {
-	const createBook = useCreateBook();
+export function EditBookModal({ isOpen, onClose, book }: EditBookModalProps) {
+	const updateBook = useUpdateBook();
 
 	if (!isOpen) return null;
 
 	const handleSubmit = (formData: CreateBookInput) => {
-		createBook.mutate(formData, {
-			onSuccess: () => {
-				onClose();
+		updateBook.mutate(
+			{
+				id: book.id,
+				...formData,
 			},
-		});
+			{
+				onSuccess: () => {
+					onClose();
+				},
+			},
+		);
 	};
 
 	return (
@@ -35,13 +42,14 @@ export function AddBookModal({ isOpen, onClose }: AddBookModalProps) {
 				aria-labelledby="modal-title"
 			>
 				<h2 id="modal-title" className="text-xl font-bold mb-4">
-					本を追加
+					本を編集
 				</h2>
 
 				<BookForm
+					initialData={book}
 					onSubmit={handleSubmit}
-					submitLabel="追加"
-					isSubmitting={createBook.isPending}
+					submitLabel="更新"
+					isSubmitting={updateBook.isPending}
 				/>
 
 				<div className="flex justify-end mt-4">
@@ -64,10 +72,11 @@ if (import.meta.vitest) {
 		"@testing-library/react"
 	);
 	const React = await import("react");
+	const { BookType } = await import("../types");
 
-	// useCreateBookのモック
-	vi.mock("../queries/useCreateBook", () => ({
-		useCreateBook: vi.fn(() => ({
+	// useUpdateBookのモック
+	vi.mock("../queries/useUpdateBook", () => ({
+		useUpdateBook: vi.fn(() => ({
 			mutate: vi.fn(),
 			isPending: false,
 		})),
@@ -77,30 +86,43 @@ if (import.meta.vitest) {
 	vi.mock("./BookForm", async () => {
 		const actualReact = await vi.importActual("react");
 		return {
-			BookForm: vi.fn(({ onSubmit, submitLabel, isSubmitting }) => {
-				const handleSubmit = (e: any) => {
-					e.preventDefault();
-					onSubmit({
-						title: "テスト本",
-						type: "book",
-						url: null,
-						imageUrl: null,
-					});
-				};
-				return actualReact.createElement(
-					"form",
-					{ onSubmit: handleSubmit, "data-testid": "book-form" },
-					actualReact.createElement(
-						"button",
-						{ type: "submit", disabled: isSubmitting },
-						isSubmitting ? `${submitLabel}中...` : submitLabel,
-					),
-				);
-			}),
+			BookForm: vi.fn(
+				({ onSubmit, submitLabel, isSubmitting, initialData }) => {
+					const handleSubmit = (e: any) => {
+						e.preventDefault();
+						onSubmit({
+							title: initialData?.title || "更新された本",
+							type: initialData?.type || "book",
+							url: initialData?.url || null,
+							imageUrl: initialData?.imageUrl || null,
+						});
+					};
+					return actualReact.createElement(
+						"form",
+						{ onSubmit: handleSubmit, "data-testid": "book-form" },
+						actualReact.createElement(
+							"button",
+							{ type: "submit", disabled: isSubmitting },
+							isSubmitting ? `${submitLabel}中...` : submitLabel,
+						),
+					);
+				},
+			),
 		};
 	});
 
-	describe("AddBookModal", () => {
+	describe("EditBookModal", () => {
+		const mockBook = {
+			id: "1",
+			title: "既存の本",
+			type: BookType.BOOK,
+			url: "https://example.com",
+			imageUrl: "https://example.com/image.jpg",
+			status: "unread" as const,
+			createdAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString(),
+		};
+
 		beforeEach(() => {
 			vi.clearAllMocks();
 		});
@@ -108,9 +130,10 @@ if (import.meta.vitest) {
 		it("isOpenがfalseの場合は何も表示されない", () => {
 			const mockOnClose = vi.fn();
 			const { container } = render(
-				React.createElement(AddBookModal, {
+				React.createElement(EditBookModal, {
 					isOpen: false,
 					onClose: mockOnClose,
+					book: mockBook,
 				}),
 			);
 
@@ -120,14 +143,15 @@ if (import.meta.vitest) {
 		it("isOpenがtrueの場合はモーダルが表示される", () => {
 			const mockOnClose = vi.fn();
 			render(
-				React.createElement(AddBookModal, {
+				React.createElement(EditBookModal, {
 					isOpen: true,
 					onClose: mockOnClose,
+					book: mockBook,
 				}),
 			);
 
 			expect(screen.getByRole("dialog")).toBeInTheDocument();
-			expect(screen.getByText("本を追加")).toBeInTheDocument();
+			expect(screen.getByText("本を編集")).toBeInTheDocument();
 		});
 
 		it("BookFormコンポーネントが正しいpropsで表示される", async () => {
@@ -135,16 +159,18 @@ if (import.meta.vitest) {
 			const { BookForm } = await import("./BookForm");
 
 			render(
-				React.createElement(AddBookModal, {
+				React.createElement(EditBookModal, {
 					isOpen: true,
 					onClose: mockOnClose,
+					book: mockBook,
 				}),
 			);
 
 			expect(BookForm).toHaveBeenCalled();
 			const lastCall = (BookForm as ReturnType<typeof vi.fn>).mock.calls[0];
 			expect(lastCall[0]).toMatchObject({
-				submitLabel: "追加",
+				initialData: mockBook,
+				submitLabel: "更新",
 				isSubmitting: false,
 			});
 			expect(typeof lastCall[0].onSubmit).toBe("function");
@@ -153,9 +179,10 @@ if (import.meta.vitest) {
 		it("キャンセルボタンクリックでonCloseが呼ばれる", () => {
 			const mockOnClose = vi.fn();
 			render(
-				React.createElement(AddBookModal, {
+				React.createElement(EditBookModal, {
 					isOpen: true,
 					onClose: mockOnClose,
+					book: mockBook,
 				}),
 			);
 
@@ -165,54 +192,57 @@ if (import.meta.vitest) {
 			expect(mockOnClose).toHaveBeenCalled();
 		});
 
-		it("フォーム送信時にcreateBook.mutateが呼ばれる", async () => {
+		it("フォーム送信時にupdateBook.mutateが呼ばれる", async () => {
 			const mockMutate = vi.fn();
 			const mockOnClose = vi.fn();
 
-			const { useCreateBook } = await import("../queries/useCreateBook");
-			(useCreateBook as ReturnType<typeof vi.fn>).mockReturnValue({
+			const { useUpdateBook } = await import("../queries/useUpdateBook");
+			(useUpdateBook as ReturnType<typeof vi.fn>).mockReturnValue({
 				mutate: mockMutate,
 				isPending: false,
 			});
 
 			render(
-				React.createElement(AddBookModal, {
+				React.createElement(EditBookModal, {
 					isOpen: true,
 					onClose: mockOnClose,
+					book: mockBook,
 				}),
 			);
 
-			const submitButton = screen.getByText("追加");
+			const submitButton = screen.getByText("更新");
 			fireEvent.click(submitButton);
 
 			await waitFor(() => {
 				expect(mockMutate).toHaveBeenCalledWith(
 					expect.objectContaining({
-						title: "テスト本",
-						type: "book",
+						id: "1",
+						title: "既存の本",
+						type: BookType.BOOK,
 					}),
 					expect.any(Object),
 				);
 			});
 		});
 
-		it("追加中はボタンが無効化され、テキストが変わる", async () => {
+		it("更新中はボタンが無効化され、テキストが変わる", async () => {
 			const mockOnClose = vi.fn();
 
-			const { useCreateBook } = await import("../queries/useCreateBook");
-			(useCreateBook as ReturnType<typeof vi.fn>).mockReturnValue({
+			const { useUpdateBook } = await import("../queries/useUpdateBook");
+			(useUpdateBook as ReturnType<typeof vi.fn>).mockReturnValue({
 				mutate: vi.fn(),
 				isPending: true,
 			});
 
 			render(
-				React.createElement(AddBookModal, {
+				React.createElement(EditBookModal, {
 					isOpen: true,
 					onClose: mockOnClose,
+					book: mockBook,
 				}),
 			);
 
-			const submitButton = screen.getByText("追加中...") as HTMLButtonElement;
+			const submitButton = screen.getByText("更新中...") as HTMLButtonElement;
 			expect(submitButton).toBeDisabled();
 		});
 
@@ -223,20 +253,21 @@ if (import.meta.vitest) {
 				options.onSuccess();
 			});
 
-			const { useCreateBook } = await import("../queries/useCreateBook");
-			(useCreateBook as ReturnType<typeof vi.fn>).mockReturnValue({
+			const { useUpdateBook } = await import("../queries/useUpdateBook");
+			(useUpdateBook as ReturnType<typeof vi.fn>).mockReturnValue({
 				mutate: mockMutate,
 				isPending: false,
 			});
 
 			render(
-				React.createElement(AddBookModal, {
+				React.createElement(EditBookModal, {
 					isOpen: true,
 					onClose: mockOnClose,
+					book: mockBook,
 				}),
 			);
 
-			const submitButton = screen.getByText("追加");
+			const submitButton = screen.getByText("更新");
 			fireEvent.click(submitButton);
 
 			await waitFor(() => {
