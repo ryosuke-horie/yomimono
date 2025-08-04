@@ -89,7 +89,7 @@ export class BookshelfService implements IBookshelfService {
 			return await this.bookRepository.findById(id);
 		} catch (error) {
 			if (error instanceof NotFoundError) {
-				throw new BookNotFoundError(0, id);
+				throw new BookNotFoundError(id);
 			}
 			throw error;
 		}
@@ -131,7 +131,7 @@ export class BookshelfService implements IBookshelfService {
 			existingBook = await this.bookRepository.findById(id);
 		} catch (error) {
 			if (error instanceof NotFoundError) {
-				throw new BookNotFoundError(0, id);
+				throw new BookNotFoundError(id);
 			}
 			throw error;
 		}
@@ -185,7 +185,7 @@ export class BookshelfService implements IBookshelfService {
 	async deleteBook(id: number): Promise<void> {
 		const success = await this.bookRepository.delete(id);
 		if (!success) {
-			throw new BookNotFoundError(0, id);
+			throw new BookNotFoundError(id);
 		}
 	}
 
@@ -253,8 +253,8 @@ export class BookshelfService implements IBookshelfService {
 	 */
 	private assertBookExists(book: Book | null): asserts book is Book {
 		if (!book) {
-			// IDが不明なのでとりあえず0で作成（呼び出し元で適切なIDが分かる場合は改善の余地あり）
-			throw new BookNotFoundError(0, 0);
+			// assertメソッドはIDが不明なため、汎用的なエラーメッセージを使用
+			throw new BookNotFoundError(0);
 		}
 	}
 
