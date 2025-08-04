@@ -7,11 +7,11 @@
 
 import { useEffect, useState } from "react";
 import { useBookshelf } from "../hooks/useBookshelf";
-import type { Book, BookStatus } from "../types";
+import type { Book, BookStatusValue } from "../types";
 import { BookCard } from "./BookCard";
 
 interface BookGridProps {
-	status: BookStatus;
+	status: BookStatusValue;
 }
 
 export function BookGrid({ status }: BookGridProps) {

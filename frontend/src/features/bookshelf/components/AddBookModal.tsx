@@ -6,8 +6,9 @@
 "use client";
 
 import { useState } from "react";
-import { useBookshelf } from "../hooks/useBookshelf";
-import type { CreateBookRequest } from "../types";
+import { useCreateBook } from "../queries/useCreateBook";
+import type { CreateBookInput } from "../types";
+import { BookType } from "../types";
 
 interface AddBookModalProps {
 	isOpen: boolean;
@@ -15,31 +16,30 @@ interface AddBookModalProps {
 }
 
 export function AddBookModal({ isOpen, onClose }: AddBookModalProps) {
-	const { addBook } = useBookshelf();
-	const [formData, setFormData] = useState<CreateBookRequest>({
+	const createBook = useCreateBook();
+	const [formData, setFormData] = useState<CreateBookInput>({
 		title: "",
-		author: "",
-		coverUrl: "",
-		status: "unread",
-		type: "book",
-		notes: "",
+		type: BookType.BOOK,
+		url: null,
+		imageUrl: null,
 	});
-	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	if (!isOpen) return null;
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setIsSubmitting(true);
-
-		try {
-			await addBook(formData);
-			onClose();
-		} catch (error) {
-			console.error("本の追加に失敗しました:", error);
-		} finally {
-			setIsSubmitting(false);
-		}
+		createBook.mutate(formData, {
+			onSuccess: () => {
+				onClose();
+				// フォームをリセット
+				setFormData({
+					title: "",
+					type: BookType.BOOK,
+					url: null,
+					imageUrl: null,
+				});
+			},
+		});
 	};
 
 	const handleChange = (
@@ -79,20 +79,6 @@ export function AddBookModal({ isOpen, onClose }: AddBookModalProps) {
 					</div>
 
 					<div>
-						<label htmlFor="author" className="block text-sm font-medium mb-1">
-							著者
-						</label>
-						<input
-							type="text"
-							id="author"
-							name="author"
-							value={formData.author}
-							onChange={handleChange}
-							className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-						/>
-					</div>
-
-					<div>
 						<label htmlFor="type" className="block text-sm font-medium mb-1">
 							タイプ *
 						</label>
@@ -105,54 +91,40 @@ export function AddBookModal({ isOpen, onClose }: AddBookModalProps) {
 						>
 							<option value="book">書籍</option>
 							<option value="pdf">PDF</option>
-							<option value="repository">リポジトリ</option>
+							<option value="github">GitHub</option>
+							<option value="zenn">Zenn</option>
 						</select>
 					</div>
 
 					<div>
-						<label htmlFor="status" className="block text-sm font-medium mb-1">
-							ステータス *
+						<label htmlFor="url" className="block text-sm font-medium mb-1">
+							URL
 						</label>
-						<select
-							id="status"
-							name="status"
-							value={formData.status}
+						<input
+							type="url"
+							id="url"
+							name="url"
+							value={formData.url || ""}
 							onChange={handleChange}
+							placeholder="https://example.com"
 							className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-						>
-							<option value="unread">未読</option>
-							<option value="reading">読書中</option>
-							<option value="completed">読了</option>
-						</select>
+						/>
 					</div>
 
 					<div>
 						<label
-							htmlFor="coverUrl"
+							htmlFor="imageUrl"
 							className="block text-sm font-medium mb-1"
 						>
 							表紙画像URL
 						</label>
 						<input
 							type="url"
-							id="coverUrl"
-							name="coverUrl"
-							value={formData.coverUrl}
+							id="imageUrl"
+							name="imageUrl"
+							value={formData.imageUrl || ""}
 							onChange={handleChange}
-							className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-						/>
-					</div>
-
-					<div>
-						<label htmlFor="notes" className="block text-sm font-medium mb-1">
-							メモ
-						</label>
-						<textarea
-							id="notes"
-							name="notes"
-							value={formData.notes}
-							onChange={handleChange}
-							rows={3}
+							placeholder="https://example.com/image.jpg"
 							className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
 					</div>
@@ -167,10 +139,10 @@ export function AddBookModal({ isOpen, onClose }: AddBookModalProps) {
 						</button>
 						<button
 							type="submit"
-							disabled={isSubmitting}
+							disabled={createBook.isPending}
 							className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 						>
-							{isSubmitting ? "追加中..." : "追加"}
+							{createBook.isPending ? "追加中..." : "追加"}
 						</button>
 					</div>
 				</form>

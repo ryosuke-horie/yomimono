@@ -6,21 +6,37 @@
 "use client";
 
 import { useState } from "react";
-import type { BookStatus } from "../types";
+import { useGetBooks } from "../queries/useGetBooks";
+import { BookStatus, type BookStatusValue } from "../types";
 import { AddBookButton } from "./AddBookButton";
 import { BookGrid } from "./BookGrid";
 import { StatusTabs } from "./StatusTabs";
 
 export function BookshelfList() {
-	const [activeTab, setActiveTab] = useState<BookStatus>("unread");
+	const [currentStatus, setCurrentStatus] = useState<
+		BookStatusValue | undefined
+	>(undefined);
+	const { data: books = [] } = useGetBooks(currentStatus);
+
+	// 統計情報を計算
+	const stats = {
+		total: books.length,
+		unread: books.filter((b) => b.status === BookStatus.UNREAD).length,
+		reading: books.filter((b) => b.status === BookStatus.READING).length,
+		completed: books.filter((b) => b.status === BookStatus.COMPLETED).length,
+	};
 
 	return (
 		<div className="space-y-6">
 			<div className="flex justify-between items-center">
-				<StatusTabs activeTab={activeTab} onTabChange={setActiveTab} />
+				<StatusTabs
+					currentStatus={currentStatus}
+					onStatusChange={setCurrentStatus}
+					stats={stats}
+				/>
 				<AddBookButton />
 			</div>
-			<BookGrid status={activeTab} />
+			{currentStatus && <BookGrid status={currentStatus} />}
 		</div>
 	);
 }
