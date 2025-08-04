@@ -86,8 +86,8 @@ export function BookForm({
 	// URL形式のバリデーション
 	const isValidUrl = (url: string): boolean => {
 		try {
-			new URL(url);
-			return true;
+			const urlObj = new URL(url);
+			return urlObj.protocol === "http:" || urlObj.protocol === "https:";
 		} catch {
 			return false;
 		}
@@ -407,6 +407,113 @@ if (import.meta.vitest) {
 				url: undefined,
 				imageUrl: undefined,
 			});
+		});
+
+		test("HTTPとHTTPSプロトコルのURLは有効と判定される", () => {
+			const onSubmit = vi.fn();
+			const onCancel = vi.fn();
+			const { container } = render(
+				React.createElement(BookForm, { onSubmit, onCancel }),
+			);
+
+			const typeSelect = container.querySelector(
+				"#type",
+			) as unknown as HTMLSelectElement;
+			const titleInput = container.querySelector(
+				"#title",
+			) as unknown as HTMLInputElement;
+			const urlInput = container.querySelector(
+				"#url",
+			) as unknown as HTMLInputElement;
+			const form = container.querySelector(
+				"form",
+			) as unknown as HTMLFormElement;
+
+			// PDFタイプを選択（URLが必須）
+			fireEvent.change(typeSelect, { target: { value: "pdf" } });
+			fireEvent.change(titleInput, { target: { value: "テストPDF" } });
+
+			// HTTPSのURLをテスト
+			fireEvent.change(urlInput, {
+				target: { value: "https://example.com/test.pdf" },
+			});
+			fireEvent.submit(form);
+
+			expect(onSubmit).toHaveBeenCalledWith({
+				type: "pdf",
+				title: "テストPDF",
+				url: "https://example.com/test.pdf",
+				imageUrl: undefined,
+			});
+
+			// HTTPのURLをテスト
+			onSubmit.mockClear();
+			fireEvent.change(urlInput, {
+				target: { value: "http://example.com/test.pdf" },
+			});
+			fireEvent.submit(form);
+
+			expect(onSubmit).toHaveBeenCalledWith({
+				type: "pdf",
+				title: "テストPDF",
+				url: "http://example.com/test.pdf",
+				imageUrl: undefined,
+			});
+		});
+
+		test("HTTP/HTTPS以外のプロトコルは無効と判定される", () => {
+			const onSubmit = vi.fn();
+			const onCancel = vi.fn();
+			const { container } = render(
+				React.createElement(BookForm, { onSubmit, onCancel }),
+			);
+
+			const typeSelect = container.querySelector(
+				"#type",
+			) as unknown as HTMLSelectElement;
+			const titleInput = container.querySelector(
+				"#title",
+			) as unknown as HTMLInputElement;
+			const urlInput = container.querySelector(
+				"#url",
+			) as unknown as HTMLInputElement;
+			const form = container.querySelector(
+				"form",
+			) as unknown as HTMLFormElement;
+
+			// PDFタイプを選択（URLが必須）
+			fireEvent.change(typeSelect, { target: { value: "pdf" } });
+			fireEvent.change(titleInput, { target: { value: "テストPDF" } });
+
+			// file://プロトコルをテスト
+			fireEvent.change(urlInput, {
+				target: { value: "file:///etc/passwd" },
+			});
+			fireEvent.submit(form);
+
+			let errorMessage = container.querySelector("p.text-red-500");
+			expect(errorMessage?.textContent).toBe("有効なURLを入力してください");
+			expect(onSubmit).not.toHaveBeenCalled();
+
+			// javascript:プロトコルをテスト
+			fireEvent.change(urlInput, {
+				target: { value: "javascript:alert('XSS')" },
+			});
+			fireEvent.submit(form);
+
+			errorMessage = container.querySelector("p.text-red-500");
+			expect(errorMessage?.textContent).toBe("有効なURLを入力してください");
+			expect(onSubmit).not.toHaveBeenCalled();
+
+			// ftp://プロトコルをテスト
+			fireEvent.change(urlInput, {
+				target: { value: "ftp://example.com/file.pdf" },
+			});
+			fireEvent.submit(form);
+
+			errorMessage = container.querySelector("p.text-red-500");
+			expect(errorMessage?.textContent).toBe("有効なURLを入力してください");
+			expect(onSubmit).not.toHaveBeenCalled();
 		});
 	});
 }
