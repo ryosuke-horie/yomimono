@@ -222,7 +222,7 @@ if (import.meta.vitest) {
 
 	// next/imageのモック
 	vi.mock("next/image", () => ({
-		default: (props: any) => {
+		default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
 			const React = require("react");
 			return React.createElement("img", props);
 		},
@@ -293,8 +293,11 @@ if (import.meta.vitest) {
 			};
 
 			render(React.createElement(BookCard, { book: bookWithoutImage }));
-			const iconContainer = screen.getByText((content, element) => {
-				return element?.tagName === "DIV" && element.className.includes("bg-gradient-to-br");
+			const iconContainer = screen.getByText((_content, element) => {
+				return (
+					element?.tagName === "DIV" &&
+					element.className.includes("bg-gradient-to-br")
+				);
 			});
 			expect(iconContainer).toBeInTheDocument();
 		});
@@ -360,12 +363,12 @@ if (import.meta.vitest) {
 			const mockDelete = vi.fn();
 
 			const { rerender } = render(
-				React.createElement(BookCard, { book: mockBook })
+				React.createElement(BookCard, { book: mockBook }),
 			);
 			expect(screen.queryByText("削除")).not.toBeInTheDocument();
 
 			rerender(
-				React.createElement(BookCard, { book: mockBook, onDelete: mockDelete })
+				React.createElement(BookCard, { book: mockBook, onDelete: mockDelete }),
 			);
 			expect(screen.getByText("削除")).toBeInTheDocument();
 		});
@@ -374,7 +377,7 @@ if (import.meta.vitest) {
 			const mockDelete = vi.fn();
 
 			render(
-				React.createElement(BookCard, { book: mockBook, onDelete: mockDelete })
+				React.createElement(BookCard, { book: mockBook, onDelete: mockDelete }),
 			);
 
 			const deleteButton = screen.getByText("削除");

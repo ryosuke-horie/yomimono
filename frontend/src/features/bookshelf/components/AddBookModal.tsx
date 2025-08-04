@@ -216,7 +216,7 @@ if (import.meta.vitest) {
 				}),
 			);
 
-			const typeSelect = screen.getByLabelText("タイプ *") as HTMLSelectElement;
+			const typeSelect = screen.getByLabelText("タイプ *") as unknown as HTMLSelectElement;
 			expect(typeSelect.options.length).toBe(4);
 			expect(typeSelect.options[0].text).toBe("書籍");
 			expect(typeSelect.options[1].text).toBe("PDF");
@@ -233,7 +233,9 @@ if (import.meta.vitest) {
 				}),
 			);
 
-			const titleInput = screen.getByLabelText("タイトル *") as HTMLInputElement;
+			const titleInput = screen.getByLabelText(
+				"タイトル *",
+			) as HTMLInputElement;
 			const urlInput = screen.getByLabelText("URL") as HTMLInputElement;
 
 			fireEvent.change(titleInput, { target: { value: "テスト書籍" } });
@@ -277,7 +279,9 @@ if (import.meta.vitest) {
 				}),
 			);
 
-			const titleInput = screen.getByLabelText("タイトル *") as HTMLInputElement;
+			const titleInput = screen.getByLabelText(
+				"タイトル *",
+			) as HTMLInputElement;
 			const submitButton = screen.getByText("追加");
 
 			fireEvent.change(titleInput, { target: { value: "新しい本" } });
@@ -316,7 +320,7 @@ if (import.meta.vitest) {
 
 		it("成功時にonCloseが呼ばれる", async () => {
 			const mockOnClose = vi.fn();
-			const mockMutate = vi.fn((data, options) => {
+			const mockMutate = vi.fn((_data, options) => {
 				// onSuccessコールバックを呼び出す
 				options.onSuccess();
 			});
@@ -334,7 +338,9 @@ if (import.meta.vitest) {
 				}),
 			);
 
-			const titleInput = screen.getByLabelText("タイトル *") as HTMLInputElement;
+			const titleInput = screen.getByLabelText(
+				"タイトル *",
+			) as HTMLInputElement;
 			const submitButton = screen.getByText("追加");
 
 			fireEvent.change(titleInput, { target: { value: "新しい本" } });
@@ -354,7 +360,7 @@ if (import.meta.vitest) {
 				}),
 			);
 
-			const typeSelect = screen.getByLabelText("タイプ *") as HTMLSelectElement;
+			const typeSelect = screen.getByLabelText("タイプ *") as unknown as HTMLSelectElement;
 			fireEvent.change(typeSelect, { target: { value: "pdf" } });
 
 			expect(typeSelect.value).toBe("pdf");
