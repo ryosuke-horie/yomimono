@@ -6,7 +6,7 @@
 "use client";
 
 import { useCreateBook } from "../queries/useCreateBook";
-import type { CreateBookInput } from "../types";
+import type { CreateBookInput, UpdateBookInput } from "../types";
 import { BookForm } from "./BookForm";
 
 interface AddBookModalProps {
@@ -19,8 +19,9 @@ export function AddBookModal({ isOpen, onClose }: AddBookModalProps) {
 
 	if (!isOpen) return null;
 
-	const handleSubmit = (data: CreateBookInput) => {
-		createBook.mutate(data, {
+	const handleSubmit = (data: CreateBookInput | UpdateBookInput) => {
+		// AddBookModalは常に新規作成なので、CreateBookInputとして扱う
+		createBook.mutate(data as CreateBookInput, {
 			onSuccess: () => {
 				onClose();
 			},
