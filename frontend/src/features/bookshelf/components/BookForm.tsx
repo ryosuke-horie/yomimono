@@ -278,9 +278,15 @@ if (import.meta.vitest) {
 				React.createElement(BookForm, { onSubmit, onCancel }),
 			);
 
-			const typeSelect = container.querySelector("#type") as unknown as HTMLSelectElement;
-			const titleInput = container.querySelector("#title") as unknown as HTMLInputElement;
-			const urlInput = container.querySelector("#url") as unknown as HTMLInputElement;
+			const typeSelect = container.querySelector(
+				"#type",
+			) as unknown as HTMLSelectElement;
+			const titleInput = container.querySelector(
+				"#title",
+			) as unknown as HTMLInputElement;
+			const urlInput = container.querySelector(
+				"#url",
+			) as unknown as HTMLInputElement;
 			const imageUrlInput = container.querySelector(
 				"#imageUrl",
 			) as unknown as HTMLInputElement;
@@ -311,9 +317,15 @@ if (import.meta.vitest) {
 				React.createElement(BookForm, { book: mockBook, onSubmit, onCancel }),
 			);
 
-			const typeSelect = container.querySelector("#type") as unknown as HTMLSelectElement;
-			const titleInput = container.querySelector("#title") as unknown as HTMLInputElement;
-			const urlInput = container.querySelector("#url") as unknown as HTMLInputElement;
+			const typeSelect = container.querySelector(
+				"#type",
+			) as unknown as HTMLSelectElement;
+			const titleInput = container.querySelector(
+				"#title",
+			) as unknown as HTMLInputElement;
+			const urlInput = container.querySelector(
+				"#url",
+			) as unknown as HTMLInputElement;
 			const imageUrlInput = container.querySelector(
 				"#imageUrl",
 			) as unknown as HTMLInputElement;
@@ -331,7 +343,9 @@ if (import.meta.vitest) {
 				React.createElement(BookForm, { onSubmit, onCancel }),
 			);
 
-			const form = container.querySelector("form") as unknown as HTMLFormElement;
+			const form = container.querySelector(
+				"form",
+			) as unknown as HTMLFormElement;
 			fireEvent.submit(form);
 
 			// バリデーションエラーは同期的に表示される
@@ -348,9 +362,15 @@ if (import.meta.vitest) {
 				React.createElement(BookForm, { onSubmit, onCancel }),
 			);
 
-			const typeSelect = container.querySelector("#type") as unknown as HTMLSelectElement;
-			const titleInput = container.querySelector("#title") as unknown as HTMLInputElement;
-			const form = container.querySelector("form") as unknown as HTMLFormElement;
+			const typeSelect = container.querySelector(
+				"#type",
+			) as unknown as HTMLSelectElement;
+			const titleInput = container.querySelector(
+				"#title",
+			) as unknown as HTMLInputElement;
+			const form = container.querySelector(
+				"form",
+			) as unknown as HTMLFormElement;
 
 			// PDFタイプを選択
 			fireEvent.change(typeSelect, { target: { value: "pdf" } });
@@ -371,8 +391,12 @@ if (import.meta.vitest) {
 				React.createElement(BookForm, { onSubmit, onCancel }),
 			);
 
-			const titleInput = container.querySelector("#title") as unknown as HTMLInputElement;
-			const form = container.querySelector("form") as unknown as HTMLFormElement;
+			const titleInput = container.querySelector(
+				"#title",
+			) as unknown as HTMLInputElement;
+			const form = container.querySelector(
+				"form",
+			) as unknown as HTMLFormElement;
 
 			fireEvent.change(titleInput, { target: { value: "テスト書籍" } });
 			fireEvent.submit(form);
