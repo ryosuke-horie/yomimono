@@ -207,11 +207,13 @@ export default function BookshelfDetailPage() {
 											className="text-blue-600 hover:underline"
 											onClick={(e) => {
 												// URLの基本的な検証
-												try {
-													new URL(book.url);
-												} catch {
-													e.preventDefault();
-													alert("無効なURLです");
+												if (book.url) {
+													try {
+														new URL(book.url);
+													} catch {
+														e.preventDefault();
+														alert("無効なURLです");
+													}
 												}
 											}}
 										>
