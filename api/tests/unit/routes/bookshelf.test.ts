@@ -184,7 +184,7 @@ describe("本棚APIエンドポイント", () => {
 
 			expect(response.status).toBe(400);
 			expect(json.success).toBe(false);
-			expect(json.error).toContain("Invalid ID");
+			expect(json.error).toBe("Invalid ID");
 		});
 	});
 
@@ -259,7 +259,7 @@ describe("本棚APIエンドポイント", () => {
 
 			expect(response.status).toBe(400);
 			expect(json.success).toBe(false);
-			expect(json.error).toContain("title");
+			expect(json.error).toBe("title is required");
 		});
 	});
 
