@@ -7,7 +7,7 @@
 import { useEffect, useState } from "react";
 import type {
 	Book,
-	BookType,
+	BookTypeValue,
 	CreateBookInput,
 	UpdateBookInput,
 } from "../types";
@@ -29,7 +29,7 @@ export function BookForm({
 
 	// フォームの状態管理
 	const [formData, setFormData] = useState<{
-		type: BookType;
+		type: BookTypeValue;
 		title: string;
 		url: string;
 		imageUrl: string;
@@ -127,7 +127,7 @@ export function BookForm({
 	// フィールド変更ハンドラー
 	const handleChange = (
 		field: keyof typeof formData,
-		value: string | BookType,
+		value: string | BookTypeValue,
 	) => {
 		setFormData((prev) => ({
 			...prev,
@@ -156,7 +156,7 @@ export function BookForm({
 				<select
 					id="type"
 					value={formData.type}
-					onChange={(e) => handleChange("type", e.target.value as BookType)}
+					onChange={(e) => handleChange("type", e.target.value as BookTypeValue)}
 					className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 					disabled={isSubmitting}
 				>
