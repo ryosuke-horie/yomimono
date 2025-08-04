@@ -254,7 +254,7 @@ export class BookshelfService implements IBookshelfService {
 	private assertBookExists(book: Book | null): asserts book is Book {
 		if (!book) {
 			// assertメソッドはIDが不明なため、汎用的なエラーメッセージを使用
-			throw new BookNotFoundError(0);
+			throw new BookNotFoundError();
 		}
 	}
 
