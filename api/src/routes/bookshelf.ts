@@ -8,6 +8,7 @@ import { Hono } from "hono";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import type { BookStatusValue, BookTypeValue } from "../db/schema/bookshelf";
 import { BadRequestError } from "../exceptions";
+import { BaseError } from "../exceptions/base";
 import {
 	BookNotFoundError,
 	BookshelfNotFoundError,
@@ -161,18 +162,40 @@ async function parseRequestBody<T = unknown>(c: Context): Promise<T | null> {
  * @returns HTTPステータスコード
  */
 function determineStatusCode(error: unknown): ContentfulStatusCode {
-	if (
-		error instanceof BookNotFoundError ||
-		error instanceof BookshelfNotFoundError
-	) {
-		return 404;
-	}
-	if (
-		error instanceof InvalidBookDataError ||
-		error instanceof InvalidBookshelfDataError ||
-		error instanceof BadRequestError
-	) {
-		return 400;
+	if (error instanceof BaseError) {
+		return error.statusCode as ContentfulStatusCode;
 	}
 	return 500;
+}
+
+if (import.meta.vitest) {
+	const { test, expect } = import.meta.vitest;
+
+	test("determineStatusCode はBaseErrorインスタンスから正しいステータスコードを返す", () => {
+		const notFoundError = new BookNotFoundError(1);
+		expect(determineStatusCode(notFoundError)).toBe(404);
+
+		const bookshelfNotFoundError = new BookshelfNotFoundError(1);
+		expect(determineStatusCode(bookshelfNotFoundError)).toBe(404);
+
+		const invalidDataError = new InvalidBookDataError("Invalid data");
+		expect(determineStatusCode(invalidDataError)).toBe(400);
+
+		const invalidBookshelfError = new InvalidBookshelfDataError("Invalid data");
+		expect(determineStatusCode(invalidBookshelfError)).toBe(400);
+
+		const badRequestError = new BadRequestError("Bad request");
+		expect(determineStatusCode(badRequestError)).toBe(400);
+	});
+
+	test("determineStatusCode は非BaseErrorインスタンスに対して500を返す", () => {
+		const plainError = new Error("Something went wrong");
+		expect(determineStatusCode(plainError)).toBe(500);
+
+		const stringError = "Error string";
+		expect(determineStatusCode(stringError)).toBe(500);
+
+		const unknownError = null;
+		expect(determineStatusCode(unknownError)).toBe(500);
+	});
 }
