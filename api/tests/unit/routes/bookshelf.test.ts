@@ -6,6 +6,10 @@ import { Hono } from "hono";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import type { Book } from "../../../src/db/schema/bookshelf";
 import { BookStatus, BookType } from "../../../src/db/schema/bookshelf";
+import {
+	BookNotFoundError,
+	InvalidBookDataError,
+} from "../../../src/exceptions/bookshelf";
 import { createBookshelfRouter } from "../../../src/routes/bookshelf";
 import type { IBookshelfService } from "../../../src/services/BookshelfService";
 
@@ -119,7 +123,7 @@ describe("本棚APIエンドポイント", () => {
 
 		test("無効なステータスの場合400エラーを返す", async () => {
 			vi.mocked(mockService.getBooks).mockRejectedValue(
-				new Error("Invalid status: invalid"),
+				new InvalidBookDataError("Invalid status: invalid"),
 			);
 
 			const response = await app.request("/api/bookshelf?status=invalid");
@@ -163,7 +167,7 @@ describe("本棚APIエンドポイント", () => {
 
 		test("存在しないIDの場合404エラーを返す", async () => {
 			vi.mocked(mockService.getBook).mockRejectedValue(
-				new Error("Book not found"),
+				new BookNotFoundError(0, 999),
 			);
 
 			const response = await app.request("/api/bookshelf/999");
@@ -171,7 +175,7 @@ describe("本棚APIエンドポイント", () => {
 
 			expect(response.status).toBe(404);
 			expect(json.success).toBe(false);
-			expect(json.error).toBe("Book not found");
+			expect(json.error).toBe("Book with id 999 not found in bookshelf 0");
 		});
 
 		test("無効なIDの場合400エラーを返す", async () => {
@@ -230,7 +234,7 @@ describe("本棚APIエンドポイント", () => {
 			};
 
 			vi.mocked(mockService.createBook).mockRejectedValue(
-				new Error("URL is required for type: pdf"),
+				new InvalidBookDataError("URL is required for type: pdf"),
 			);
 
 			const response = await app.request("/api/bookshelf", {
@@ -299,7 +303,7 @@ describe("本棚APIエンドポイント", () => {
 
 		test("存在しない本を更新しようとすると404エラーを返す", async () => {
 			vi.mocked(mockService.updateBook).mockRejectedValue(
-				new Error("Book not found"),
+				new BookNotFoundError(0, 999),
 			);
 
 			const response = await app.request("/api/bookshelf/999", {
@@ -311,7 +315,7 @@ describe("本棚APIエンドポイント", () => {
 
 			expect(response.status).toBe(404);
 			expect(json.success).toBe(false);
-			expect(json.error).toBe("Book not found");
+			expect(json.error).toBe("Book with id 999 not found in bookshelf 0");
 		});
 	});
 
@@ -355,7 +359,7 @@ describe("本棚APIエンドポイント", () => {
 
 		test("無効なステータスの場合400エラーを返す", async () => {
 			vi.mocked(mockService.updateBookStatus).mockRejectedValue(
-				new Error("Invalid status: invalid"),
+				new InvalidBookDataError("Invalid status: invalid"),
 			);
 
 			const response = await app.request("/api/bookshelf/1/status", {
@@ -388,7 +392,7 @@ describe("本棚APIエンドポイント", () => {
 
 		test("存在しない本を削除しようとすると404エラーを返す", async () => {
 			vi.mocked(mockService.deleteBook).mockRejectedValue(
-				new Error("Book not found"),
+				new BookNotFoundError(0, 999),
 			);
 
 			const response = await app.request("/api/bookshelf/999", {
@@ -398,7 +402,7 @@ describe("本棚APIエンドポイント", () => {
 
 			expect(response.status).toBe(404);
 			expect(json.success).toBe(false);
-			expect(json.error).toBe("Book not found");
+			expect(json.error).toBe("Book with id 999 not found in bookshelf 0");
 		});
 	});
 });

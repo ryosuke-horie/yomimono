@@ -10,6 +10,10 @@ import type {
 	InsertBook,
 } from "../db/schema/bookshelf";
 import { BookStatus, BookType } from "../db/schema/bookshelf";
+import {
+	BookNotFoundError,
+	InvalidBookDataError,
+} from "../exceptions/bookshelf";
 import type { IBookRepository } from "../interfaces/repository/book";
 
 // エラーメッセージの定数化
@@ -166,7 +170,7 @@ export class BookshelfService implements IBookshelfService {
 	async deleteBook(id: number): Promise<void> {
 		const success = await this.bookRepository.delete(id);
 		if (!success) {
-			throw new Error(ERROR_MESSAGES.BOOK_NOT_FOUND);
+			throw new BookNotFoundError(0, id);
 		}
 	}
 
@@ -178,7 +182,7 @@ export class BookshelfService implements IBookshelfService {
 	private validateTitle(title: string | undefined | null): void {
 		const result = this.checkTitleValidity(title);
 		if (!result.isValid && result.error) {
-			throw new Error(result.error);
+			throw new InvalidBookDataError(result.error);
 		}
 	}
 
@@ -202,7 +206,7 @@ export class BookshelfService implements IBookshelfService {
 	 */
 	private validateType(type: string): void {
 		if (!this.isValidType(type)) {
-			throw new Error(ERROR_MESSAGES.INVALID_TYPE(type));
+			throw new InvalidBookDataError(ERROR_MESSAGES.INVALID_TYPE(type));
 		}
 	}
 
@@ -211,7 +215,7 @@ export class BookshelfService implements IBookshelfService {
 	 */
 	private validateStatus(status: string): void {
 		if (!this.isValidStatus(status)) {
-			throw new Error(ERROR_MESSAGES.INVALID_STATUS(status));
+			throw new InvalidBookDataError(ERROR_MESSAGES.INVALID_STATUS(status));
 		}
 	}
 
@@ -223,7 +227,7 @@ export class BookshelfService implements IBookshelfService {
 		url: string | undefined | null,
 	): void {
 		if (this.isValidType(type) && this.isUrlRequiredType(type) && !url) {
-			throw new Error(ERROR_MESSAGES.URL_REQUIRED(type));
+			throw new InvalidBookDataError(ERROR_MESSAGES.URL_REQUIRED(type));
 		}
 	}
 
@@ -232,7 +236,8 @@ export class BookshelfService implements IBookshelfService {
 	 */
 	private assertBookExists(book: Book | null): asserts book is Book {
 		if (!book) {
-			throw new Error(ERROR_MESSAGES.BOOK_NOT_FOUND);
+			// IDが不明なのでとりあえず0で作成（呼び出し元で適切なIDが分かる場合は改善の余地あり）
+			throw new BookNotFoundError(0, 0);
 		}
 	}
 
@@ -499,7 +504,9 @@ if (import.meta.vitest) {
 			test("存在しない本を削除しようとするとエラーになる", async () => {
 				vi.mocked(mockRepository.delete).mockResolvedValue(false);
 
-				await expect(service.deleteBook(999)).rejects.toThrow("Book not found");
+				await expect(service.deleteBook(999)).rejects.toThrow(
+					BookNotFoundError,
+				);
 			});
 		});
 	});

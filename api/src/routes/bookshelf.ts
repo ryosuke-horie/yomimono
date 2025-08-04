@@ -6,6 +6,12 @@
 import type { Context } from "hono";
 import { Hono } from "hono";
 import type { BookStatusValue, BookTypeValue } from "../db/schema/bookshelf";
+import {
+	BookNotFoundError,
+	BookshelfNotFoundError,
+	InvalidBookDataError,
+	InvalidBookshelfDataError,
+} from "../exceptions/bookshelf";
 import type { IBookshelfService } from "../services/BookshelfService";
 
 /**
@@ -24,8 +30,8 @@ export const createBookshelfRouter = (bookshelfService: IBookshelfService) => {
 			return c.json({ success: true, books });
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Unknown error";
-			const statusCode = determineStatusCode(message);
-			return c.json({ success: false, error: message }, statusCode);
+			const statusCode = determineStatusCode(error);
+			return c.json({ success: false, error: message }, statusCode as any);
 		}
 	});
 
@@ -41,8 +47,8 @@ export const createBookshelfRouter = (bookshelfService: IBookshelfService) => {
 			return c.json({ success: true, book });
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Unknown error";
-			const statusCode = determineStatusCode(message);
-			return c.json({ success: false, error: message }, statusCode);
+			const statusCode = determineStatusCode(error);
+			return c.json({ success: false, error: message }, statusCode as any);
 		}
 	});
 
@@ -68,8 +74,8 @@ export const createBookshelfRouter = (bookshelfService: IBookshelfService) => {
 			return c.json({ success: true, book }, 201);
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Unknown error";
-			const statusCode = determineStatusCode(message);
-			return c.json({ success: false, error: message }, statusCode);
+			const statusCode = determineStatusCode(error);
+			return c.json({ success: false, error: message }, statusCode as any);
 		}
 	});
 
@@ -98,8 +104,8 @@ export const createBookshelfRouter = (bookshelfService: IBookshelfService) => {
 			return c.json({ success: true, book });
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Unknown error";
-			const statusCode = determineStatusCode(message);
-			return c.json({ success: false, error: message }, statusCode);
+			const statusCode = determineStatusCode(error);
+			return c.json({ success: false, error: message }, statusCode as any);
 		}
 	});
 
@@ -124,8 +130,8 @@ export const createBookshelfRouter = (bookshelfService: IBookshelfService) => {
 			return c.json({ success: true, book });
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Unknown error";
-			const statusCode = determineStatusCode(message);
-			return c.json({ success: false, error: message }, statusCode);
+			const statusCode = determineStatusCode(error);
+			return c.json({ success: false, error: message }, statusCode as any);
 		}
 	});
 
@@ -141,8 +147,8 @@ export const createBookshelfRouter = (bookshelfService: IBookshelfService) => {
 			return c.json({ success: true, message: "Book deleted successfully" });
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Unknown error";
-			const statusCode = determineStatusCode(message);
-			return c.json({ success: false, error: message }, statusCode);
+			const statusCode = determineStatusCode(error);
+			return c.json({ success: false, error: message }, statusCode as any);
 		}
 	});
 
@@ -176,19 +182,20 @@ async function parseRequestBody<T = unknown>(c: Context): Promise<T | null> {
 }
 
 /**
- * エラーメッセージからHTTPステータスコードを決定する
- * @param message エラーメッセージ
+ * エラー型からHTTPステータスコードを決定する
+ * @param error エラーオブジェクト
  * @returns HTTPステータスコード
  */
-function determineStatusCode(message: string): number {
-	if (message.includes("not found") || message.includes("Not found")) {
+function determineStatusCode(error: unknown): number {
+	if (
+		error instanceof BookNotFoundError ||
+		error instanceof BookshelfNotFoundError
+	) {
 		return 404;
 	}
 	if (
-		message.includes("Invalid") ||
-		message.includes("required") ||
-		message.includes("URL is required") ||
-		message.includes("must be")
+		error instanceof InvalidBookDataError ||
+		error instanceof InvalidBookshelfDataError
 	) {
 		return 400;
 	}
