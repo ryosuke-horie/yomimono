@@ -67,19 +67,78 @@ jobs:
           echo "::error::MCPのビルドに失敗しました"
           exit 1
 
+      - name: Test API Connection
+        id: test-api
+        run: |
+          echo "APIの接続テスト..."
+          API_URL="https://effective-yomimono-api.ryosuke-horie37.workers.dev"
+          
+          # APIヘルスチェック
+          if curl -f -s -o /dev/null -w "%{http_code}" "${API_URL}/api/health" | grep -q "200\|404"; then
+            echo "✅ APIへの接続が確認できました"
+            echo "api_status=success" >> $GITHUB_OUTPUT
+          else
+            echo "::warning::APIへの接続に問題がある可能性があります"
+            echo "api_status=warning" >> $GITHUB_OUTPUT
+          fi
+          
+          # ラベルエンドポイントのテスト
+          LABELS_RESPONSE=$(curl -s -w "\n%{http_code}" "${API_URL}/api/labels" | tail -n 1)
+          if [[ "$LABELS_RESPONSE" == "200" ]]; then
+            echo "✅ ラベルAPIエンドポイントが正常に応答しています"
+          else
+            echo "::warning::ラベルAPIエンドポイントの応答: HTTP $LABELS_RESPONSE"
+          fi
+        continue-on-error: true
+
       - name: Test MCP Server
         id: test-mcp
         run: |
           echo "MCPサーバーの起動テスト..."
           cd mcp
-          timeout 5s node build/index.js 2>&1 || true
+          
+          # MCPサーバーを起動して初期化を待つ
+          timeout 10s node build/index.js 2>&1 | head -20 || true
+          
+          # ビルドファイルの存在確認
+          if [ -f "build/index.js" ]; then
+            echo "✅ MCPビルドファイルが存在します"
+            echo "mcp_status=success" >> $GITHUB_OUTPUT
+          else
+            echo "::error::MCPビルドファイルが見つかりません"
+            echo "mcp_status=failure" >> $GITHUB_OUTPUT
+          fi
+          
           echo "MCPサーバーのテスト完了"
         continue-on-error: true
+
+      - name: Pre-flight Check
+        id: preflight
+        run: |
+          echo "事前チェック開始..."
+          
+          # 必要な環境変数の確認
+          if [[ -z "${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}" ]]; then
+            echo "::error::CLAUDE_CODE_OAUTH_TOKEN が設定されていません"
+            exit 1
+          fi
+          
+          # MCPとAPIのステータス確認
+          if [[ "${{ steps.test-mcp.outputs.mcp_status }}" == "failure" ]]; then
+            echo "::warning::MCPサーバーのテストに失敗しています"
+          fi
+          
+          if [[ "${{ steps.test-api.outputs.api_status }}" == "warning" ]]; then
+            echo "::warning::API接続に問題がある可能性があります"
+          fi
+          
+          echo "✅ 事前チェック完了"
 
       - name: Run Claude Auto Labeling (Attempt 1)
         id: claude-labeling-1
         uses: anthropics/claude-code-action@beta
         continue-on-error: true
+        timeout-minutes: 5
         env:
           ACTIONS_RUNNER_DEBUG: true
           ACTIONS_STEP_DEBUG: true
@@ -139,11 +198,18 @@ jobs:
             - ラベル名は簡潔で分かりやすいものにしてください
             - エラーが発生した場合は詳細を報告してください
 
+      - name: Wait Before Retry
+        if: steps.claude-labeling-1.outcome == 'failure'
+        run: |
+          echo "::warning::1回目の試行が失敗しました。10秒待機してからリトライします..."
+          sleep 10
+
       - name: Run Claude Auto Labeling (Retry - Attempt 2)
         if: steps.claude-labeling-1.outcome == 'failure'
         id: claude-labeling-2
         uses: anthropics/claude-code-action@beta
         continue-on-error: true
+        timeout-minutes: 5
         env:
           ACTIONS_RUNNER_DEBUG: true
           ACTIONS_STEP_DEBUG: true
@@ -191,11 +257,18 @@ jobs:
             - 処理失敗: Z件
             ```
 
+      - name: Wait Before Final Retry
+        if: steps.claude-labeling-1.outcome == 'failure' && steps.claude-labeling-2.outcome == 'failure'
+        run: |
+          echo "::warning::2回目の試行も失敗しました。20秒待機してから最終リトライします..."
+          sleep 20
+
       - name: Run Claude Auto Labeling (Final Retry - Attempt 3)
         if: steps.claude-labeling-1.outcome == 'failure' && steps.claude-labeling-2.outcome == 'failure'
         id: claude-labeling-3
         uses: anthropics/claude-code-action@beta
         continue-on-error: true
+        timeout-minutes: 5
         env:
           ACTIONS_RUNNER_DEBUG: true
           ACTIONS_STEP_DEBUG: true

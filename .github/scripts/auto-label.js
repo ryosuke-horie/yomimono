@@ -24,26 +24,47 @@ const LABEL_RULES = {
   'パフォーマンス': ['パフォーマンス', '最適化', 'チューニング', '高速化', 'キャッシュ']
 };
 
-async function fetchFromAPI(endpoint) {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`);
-  if (!response.ok) {
-    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+async function fetchFromAPI(endpoint, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        signal: AbortSignal.timeout(10000) // 10秒タイムアウト
+      });
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      }
+      return response.json();
+    } catch (error) {
+      console.warn(`  ⚠️ APIリクエスト失敗 (試行 ${i + 1}/${retries}): ${error.message}`);
+      if (i === retries - 1) throw error;
+      // リトライ前に待機
+      await new Promise(resolve => setTimeout(resolve, 2000 * (i + 1)));
+    }
   }
-  return response.json();
 }
 
-async function putToAPI(endpoint, data) {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+async function putToAPI(endpoint, data, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+        signal: AbortSignal.timeout(10000) // 10秒タイムアウト
+      });
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      }
+      return response.json();
+    } catch (error) {
+      console.warn(`  ⚠️ PUTリクエスト失敗 (試行 ${i + 1}/${retries}): ${error.message}`);
+      if (i === retries - 1) throw error;
+      // リトライ前に待機
+      await new Promise(resolve => setTimeout(resolve, 2000 * (i + 1)));
+    }
   }
-  return response.json();
 }
 
 function determineLabel(article) {
@@ -62,21 +83,50 @@ function determineLabel(article) {
 }
 
 async function main() {
-  console.log('=== 自動ラベル付け処理開始 ===');
+  console.log('=== 自動ラベル付け処理開始 (フォールバックスクリプト) ===');
   console.log(`設定: DRY_RUN=${DRY_RUN}, MAX_ARTICLES=${MAX_ARTICLES || '制限なし'}`);
+  console.log(`API URL: ${API_BASE_URL}`);
+  
+  // APIヘルスチェック
+  console.log('API接続チェック中...');
+  try {
+    const healthCheck = await fetch(`${API_BASE_URL}/api/labels`, {
+      signal: AbortSignal.timeout(5000)
+    });
+    if (healthCheck.ok) {
+      console.log('✅ API接続正常');
+    } else {
+      console.warn(`⚠️ API応答: ${healthCheck.status}`);
+    }
+  } catch (error) {
+    console.error('❌ API接続エラー:', error.message);
+    console.log('続行します...');
+  }
   
   try {
     // 既存のラベル一覧を取得
     console.log('既存のラベル一覧を取得中...');
-    const labelsResponse = await fetchFromAPI('/api/labels');
-    const labels = labelsResponse.labels || labelsResponse || [];
-    console.log(`✅ ${labels.length}個のラベルを取得しました`);
+    let labels = [];
+    try {
+      const labelsResponse = await fetchFromAPI('/api/labels');
+      labels = labelsResponse.labels || labelsResponse || [];
+      console.log(`✅ ${labels.length}個のラベルを取得しました`);
+    } catch (error) {
+      console.error('❌ ラベル取得失敗:', error.message);
+      console.log('デフォルトラベルを使用して続行します');
+    }
     
     // ラベル付けされていない記事を取得
     console.log('未ラベル記事を取得中...');
-    const articlesResponse = await fetchFromAPI('/api/bookmarks/unlabeled');
-    const unlabeledArticles = articlesResponse.bookmarks || articlesResponse || [];
-    console.log(`✅ ${unlabeledArticles.length}個の未ラベル記事を取得しました`);
+    let unlabeledArticles = [];
+    try {
+      const articlesResponse = await fetchFromAPI('/api/bookmarks/unlabeled');
+      unlabeledArticles = articlesResponse.bookmarks || articlesResponse || [];
+      console.log(`✅ ${unlabeledArticles.length}個の未ラベル記事を取得しました`);
+    } catch (error) {
+      console.error('❌ 未ラベル記事取得失敗:', error.message);
+      throw error; // ここは重要なのでエラーを上げる
+    }
     
     if (!Array.isArray(unlabeledArticles) || unlabeledArticles.length === 0) {
       console.log('ℹ️ ラベル付けが必要な記事はありません');
