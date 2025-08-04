@@ -14,6 +14,7 @@ import {
 	BookNotFoundError,
 	InvalidBookDataError,
 } from "../exceptions/bookshelf";
+import { NotFoundError } from "../exceptions/http";
 import type { IBookRepository } from "../interfaces/repository/book";
 
 // エラーメッセージの定数化
@@ -81,11 +82,17 @@ export class BookshelfService implements IBookshelfService {
 	 * IDで本を取得する
 	 * @param id 本のID
 	 * @returns 本のデータ
+	 * @throws {BookNotFoundError} 本が見つからない場合
 	 */
 	async getBook(id: number): Promise<Book> {
-		const book = await this.bookRepository.findById(id);
-		this.assertBookExists(book);
-		return book;
+		try {
+			return await this.bookRepository.findById(id);
+		} catch (error) {
+			if (error instanceof NotFoundError) {
+				throw new BookNotFoundError(0, id);
+			}
+			throw error;
+		}
 	}
 
 	/**
@@ -115,11 +122,19 @@ export class BookshelfService implements IBookshelfService {
 	 * @param id 更新する本のID
 	 * @param data 更新データ
 	 * @returns 更新された本
+	 * @throws {BookNotFoundError} 本が見つからない場合
 	 */
 	async updateBook(id: number, data: Partial<InsertBook>): Promise<Book> {
 		// 存在確認
-		const existingBook = await this.bookRepository.findById(id);
-		this.assertBookExists(existingBook);
+		let existingBook: Book;
+		try {
+			existingBook = await this.bookRepository.findById(id);
+		} catch (error) {
+			if (error instanceof NotFoundError) {
+				throw new BookNotFoundError(0, id);
+			}
+			throw error;
+		}
 
 		// 更新データのバリデーション
 		if (data.title !== undefined) {
@@ -232,7 +247,9 @@ export class BookshelfService implements IBookshelfService {
 	}
 
 	/**
-	 * 本の存在確認
+	 * 本の存在確認（update/markAsCompletedの結果チェック用）
+	 * @param book チェック対象の本
+	 * @throws {BookNotFoundError} 本がnullの場合
 	 */
 	private assertBookExists(book: Book | null): asserts book is Book {
 		if (!book) {

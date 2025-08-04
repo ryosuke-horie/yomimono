@@ -8,6 +8,7 @@ import {
 	BookNotFoundError,
 	InvalidBookDataError,
 } from "../exceptions/bookshelf";
+import { NotFoundError } from "../exceptions/http";
 import type { IBookRepository } from "../interfaces/repository/book";
 import { BookshelfService } from "./BookshelfService";
 
@@ -121,7 +122,9 @@ describe("BookshelfService", () => {
 
 		test("存在しないIDを指定した場合エラーが発生する", async () => {
 			const mockRepository = createMockRepository();
-			mockRepository.findById = vi.fn().mockResolvedValue(null);
+			mockRepository.findById = vi
+				.fn()
+				.mockRejectedValue(new NotFoundError("Book with id 999 not found"));
 
 			const service = new BookshelfService(mockRepository);
 
@@ -268,7 +271,9 @@ describe("BookshelfService", () => {
 
 		test("存在しない本を更新しようとした場合エラーが発生する", async () => {
 			const mockRepository = createMockRepository();
-			mockRepository.findById = vi.fn().mockResolvedValue(null);
+			mockRepository.findById = vi
+				.fn()
+				.mockRejectedValue(new NotFoundError("Book with id 999 not found"));
 
 			const service = new BookshelfService(mockRepository);
 

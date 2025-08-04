@@ -20,9 +20,10 @@ export interface IBookRepository {
 	/**
 	 * IDで書籍を取得する
 	 * @param id 書籍ID
-	 * @returns 書籍データ（見つからない場合はnull）
+	 * @returns 書籍データ
+	 * @throws {NotFoundError} 書籍が見つからない場合
 	 */
-	findById(id: number): Promise<Book | null>;
+	findById(id: number): Promise<Book>;
 
 	/**
 	 * すべての書籍を取得する

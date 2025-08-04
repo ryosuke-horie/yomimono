@@ -5,6 +5,7 @@
 
 import type { Context } from "hono";
 import { Hono } from "hono";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
 import type { BookStatusValue, BookTypeValue } from "../db/schema/bookshelf";
 import {
 	BookNotFoundError,
@@ -31,7 +32,7 @@ export const createBookshelfRouter = (bookshelfService: IBookshelfService) => {
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Unknown error";
 			const statusCode = determineStatusCode(error);
-			return c.json({ success: false, error: message }, statusCode as any);
+			return c.json({ success: false, error: message }, statusCode);
 		}
 	});
 
@@ -48,7 +49,7 @@ export const createBookshelfRouter = (bookshelfService: IBookshelfService) => {
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Unknown error";
 			const statusCode = determineStatusCode(error);
-			return c.json({ success: false, error: message }, statusCode as any);
+			return c.json({ success: false, error: message }, statusCode);
 		}
 	});
 
@@ -75,7 +76,7 @@ export const createBookshelfRouter = (bookshelfService: IBookshelfService) => {
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Unknown error";
 			const statusCode = determineStatusCode(error);
-			return c.json({ success: false, error: message }, statusCode as any);
+			return c.json({ success: false, error: message }, statusCode);
 		}
 	});
 
@@ -105,7 +106,7 @@ export const createBookshelfRouter = (bookshelfService: IBookshelfService) => {
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Unknown error";
 			const statusCode = determineStatusCode(error);
-			return c.json({ success: false, error: message }, statusCode as any);
+			return c.json({ success: false, error: message }, statusCode);
 		}
 	});
 
@@ -131,7 +132,7 @@ export const createBookshelfRouter = (bookshelfService: IBookshelfService) => {
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Unknown error";
 			const statusCode = determineStatusCode(error);
-			return c.json({ success: false, error: message }, statusCode as any);
+			return c.json({ success: false, error: message }, statusCode);
 		}
 	});
 
@@ -148,7 +149,7 @@ export const createBookshelfRouter = (bookshelfService: IBookshelfService) => {
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Unknown error";
 			const statusCode = determineStatusCode(error);
-			return c.json({ success: false, error: message }, statusCode as any);
+			return c.json({ success: false, error: message }, statusCode);
 		}
 	});
 
@@ -186,7 +187,7 @@ async function parseRequestBody<T = unknown>(c: Context): Promise<T | null> {
  * @param error エラーオブジェクト
  * @returns HTTPステータスコード
  */
-function determineStatusCode(error: unknown): number {
+function determineStatusCode(error: unknown): ContentfulStatusCode {
 	if (
 		error instanceof BookNotFoundError ||
 		error instanceof BookshelfNotFoundError
