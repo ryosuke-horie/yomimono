@@ -5,6 +5,8 @@
 
 "use client";
 
+import { useEffect, useRef } from "react";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { useCreateBook } from "../queries/useCreateBook";
 import type { CreateBookInput, UpdateBookInput } from "../types";
 import { BookForm } from "./BookForm";
@@ -16,6 +18,36 @@ interface AddBookModalProps {
 
 export function AddBookModal({ isOpen, onClose }: AddBookModalProps) {
 	const createBook = useCreateBook();
+	const focusTrapRef = useFocusTrap(isOpen);
+	const previousFocusRef = useRef<HTMLElement | null>(null);
+
+	// ESCキーでモーダルを閉じる
+	useEffect(() => {
+		if (!isOpen) return;
+
+		const handleEscape = (event: KeyboardEvent) => {
+			if (event.key === "Escape") {
+				onClose();
+			}
+		};
+
+		document.addEventListener("keydown", handleEscape);
+		return () => {
+			document.removeEventListener("keydown", handleEscape);
+		};
+	}, [isOpen, onClose]);
+
+	// モーダル開閉時のフォーカス管理
+	useEffect(() => {
+		if (isOpen) {
+			// 現在のフォーカスを保存
+			previousFocusRef.current = document.activeElement as HTMLElement;
+		} else if (previousFocusRef.current) {
+			// モーダルを閉じるときに元の要素にフォーカスを戻す
+			previousFocusRef.current.focus();
+			previousFocusRef.current = null;
+		}
+	}, [isOpen]);
 
 	if (!isOpen) return null;
 
@@ -31,9 +63,11 @@ export function AddBookModal({ isOpen, onClose }: AddBookModalProps) {
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
 			<div
+				ref={focusTrapRef}
 				className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
 				role="dialog"
 				aria-labelledby="modal-title"
+				aria-modal="true"
 			>
 				<h2 id="modal-title" className="text-xl font-bold mb-4">
 					本を追加
