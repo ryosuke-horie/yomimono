@@ -11,6 +11,7 @@ import type {
 	InsertBook,
 } from "../db/schema";
 import { books } from "../db/schema";
+import { NotFoundError } from "../exceptions/http";
 import type { IBookRepository } from "../interfaces/repository/book";
 
 export class BookRepository implements IBookRepository {
@@ -27,11 +28,16 @@ export class BookRepository implements IBookRepository {
 
 	/**
 	 * IDで書籍を取得する
+	 * @throws {NotFoundError} 書籍が見つからない場合
 	 */
-	async findById(id: number): Promise<Book | null> {
+	async findById(id: number): Promise<Book> {
 		const [book] = await this.db.select().from(books).where(eq(books.id, id));
 
-		return book ?? null;
+		if (!book) {
+			throw new NotFoundError(`Book with id ${id} not found`);
+		}
+
+		return book;
 	}
 
 	/**

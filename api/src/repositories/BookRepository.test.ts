@@ -5,6 +5,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Book, InsertBook } from "../db/schema";
 import { BookStatus, BookType } from "../db/schema";
+import { NotFoundError } from "../exceptions/http";
 import { BookRepository } from "./BookRepository";
 
 describe("BookRepository", () => {
@@ -121,15 +122,15 @@ describe("BookRepository", () => {
 			expect(mockDb.where).toHaveBeenCalledWith(expect.anything());
 		});
 
-		it("存在しないIDの場合nullを返す", async () => {
+		it("存在しないIDの場合NotFoundErrorをスローする", async () => {
 			// Arrange
 			mockDb.where.mockResolvedValue([]);
 
-			// Act
-			const result = await repository.findById(999);
-
-			// Assert
-			expect(result).toBeNull();
+			// Act & Assert
+			await expect(repository.findById(999)).rejects.toThrow(NotFoundError);
+			await expect(repository.findById(999)).rejects.toThrow(
+				"Book with id 999 not found",
+			);
 		});
 	});
 
