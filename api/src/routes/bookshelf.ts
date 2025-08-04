@@ -7,6 +7,7 @@ import type { Context } from "hono";
 import { Hono } from "hono";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import type { BookStatusValue, BookTypeValue } from "../db/schema/bookshelf";
+import { BadRequestError } from "../exceptions";
 import {
 	BookNotFoundError,
 	BookshelfNotFoundError,
@@ -14,6 +15,7 @@ import {
 	InvalidBookshelfDataError,
 } from "../exceptions/bookshelf";
 import type { IBookshelfService } from "../services/BookshelfService";
+import { validateId as validateIdUtil } from "../utils/validation";
 
 /**
  * 本棚ルーターを作成する
@@ -39,11 +41,7 @@ export const createBookshelfRouter = (bookshelfService: IBookshelfService) => {
 	// GET /api/bookshelf/:id - 詳細取得
 	app.get("/:id", async (c) => {
 		try {
-			const id = validateId(c.req.param("id"));
-			if (!id) {
-				return c.json({ success: false, error: "Invalid ID" }, 400);
-			}
-
+			const id = validateIdUtil(c.req.param("id"));
 			const book = await bookshelfService.getBook(id);
 			return c.json({ success: true, book });
 		} catch (error) {
@@ -83,11 +81,7 @@ export const createBookshelfRouter = (bookshelfService: IBookshelfService) => {
 	// PUT /api/bookshelf/:id - 更新
 	app.put("/:id", async (c) => {
 		try {
-			const id = validateId(c.req.param("id"));
-			if (!id) {
-				return c.json({ success: false, error: "Invalid ID" }, 400);
-			}
-
+			const id = validateIdUtil(c.req.param("id"));
 			const body =
 				await parseRequestBody<
 					Partial<{
@@ -113,11 +107,7 @@ export const createBookshelfRouter = (bookshelfService: IBookshelfService) => {
 	// PATCH /api/bookshelf/:id/status - ステータス更新
 	app.patch("/:id/status", async (c) => {
 		try {
-			const id = validateId(c.req.param("id"));
-			if (!id) {
-				return c.json({ success: false, error: "Invalid ID" }, 400);
-			}
-
+			const id = validateIdUtil(c.req.param("id"));
 			const body = await parseRequestBody<{ status: BookStatusValue }>(c);
 			if (!body) {
 				return c.json({ success: false, error: "Invalid request body" }, 400);
@@ -139,11 +129,7 @@ export const createBookshelfRouter = (bookshelfService: IBookshelfService) => {
 	// DELETE /api/bookshelf/:id - 削除
 	app.delete("/:id", async (c) => {
 		try {
-			const id = validateId(c.req.param("id"));
-			if (!id) {
-				return c.json({ success: false, error: "Invalid ID" }, 400);
-			}
-
+			const id = validateIdUtil(c.req.param("id"));
 			await bookshelfService.deleteBook(id);
 			return c.json({ success: true, message: "Book deleted successfully" });
 		} catch (error) {
@@ -155,19 +141,6 @@ export const createBookshelfRouter = (bookshelfService: IBookshelfService) => {
 
 	return app;
 };
-
-/**
- * IDをバリデーションする
- * @param id ID文字列
- * @returns 有効な数値ID、無効な場合はnull
- */
-function validateId(id: string): number | null {
-	const numId = Number(id);
-	if (Number.isNaN(numId) || numId <= 0) {
-		return null;
-	}
-	return numId;
-}
 
 /**
  * リクエストボディをパースする
@@ -196,7 +169,8 @@ function determineStatusCode(error: unknown): ContentfulStatusCode {
 	}
 	if (
 		error instanceof InvalidBookDataError ||
-		error instanceof InvalidBookshelfDataError
+		error instanceof InvalidBookshelfDataError ||
+		error instanceof BadRequestError
 	) {
 		return 400;
 	}
