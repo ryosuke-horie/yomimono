@@ -206,3 +206,191 @@ export const BookCard = ({ book, onDelete }: BookCardProps) => {
 		</div>
 	);
 };
+
+if (import.meta.vitest) {
+	const { describe, it, expect, vi } = import.meta.vitest;
+	const { render, screen, fireEvent } = await import("@testing-library/react");
+	const React = await import("react");
+
+	// useUpdateBookStatusのモック
+	vi.mock("@/features/bookshelf/queries/useUpdateBookStatus", () => ({
+		useUpdateBookStatus: vi.fn(() => ({
+			mutate: vi.fn(),
+			isPending: false,
+		})),
+	}));
+
+	// next/imageのモック
+	vi.mock("next/image", () => ({
+		default: (props: any) => {
+			const React = require("react");
+			return React.createElement("img", props);
+		},
+	}));
+
+	describe("BookCard", () => {
+		const mockBook: Book = {
+			id: 1,
+			type: "book",
+			title: "テスト書籍",
+			url: "https://example.com",
+			imageUrl: "https://example.com/image.jpg",
+			status: "unread",
+			completedAt: null,
+			createdAt: "2024-01-01T00:00:00Z",
+			updatedAt: "2024-01-01T00:00:00Z",
+		};
+
+		it("書籍情報が正しく表示される", () => {
+			render(React.createElement(BookCard, { book: mockBook }));
+
+			expect(screen.getByText("テスト書籍")).toBeInTheDocument();
+			expect(screen.getByText("書籍")).toBeInTheDocument();
+			expect(screen.getByText("未読")).toBeInTheDocument();
+			expect(screen.getByText("リンクを開く →")).toBeInTheDocument();
+		});
+
+		it("PDFタイプの表示が正しい", () => {
+			const pdfBook: Book = {
+				...mockBook,
+				type: "pdf",
+			};
+
+			render(React.createElement(BookCard, { book: pdfBook }));
+			expect(screen.getByText("PDF")).toBeInTheDocument();
+		});
+
+		it("GitHubタイプの表示が正しい", () => {
+			const githubBook: Book = {
+				...mockBook,
+				type: "github",
+			};
+
+			render(React.createElement(BookCard, { book: githubBook }));
+			expect(screen.getByText("GitHub")).toBeInTheDocument();
+		});
+
+		it("Zennタイプの表示が正しい", () => {
+			const zennBook: Book = {
+				...mockBook,
+				type: "zenn",
+			};
+
+			render(React.createElement(BookCard, { book: zennBook }));
+			expect(screen.getByText("Zenn")).toBeInTheDocument();
+		});
+
+		it("画像がある場合は表示される", () => {
+			render(React.createElement(BookCard, { book: mockBook }));
+			const img = screen.getByAltText("テスト書籍");
+			expect(img).toHaveAttribute("src", "https://example.com/image.jpg");
+		});
+
+		it("画像がない場合はアイコンが表示される", () => {
+			const bookWithoutImage: Book = {
+				...mockBook,
+				imageUrl: null,
+			};
+
+			render(React.createElement(BookCard, { book: bookWithoutImage }));
+			const iconContainer = screen.getByText((content, element) => {
+				return element?.tagName === "DIV" && element.className.includes("bg-gradient-to-br");
+			});
+			expect(iconContainer).toBeInTheDocument();
+		});
+
+		it("未読の書籍に対して正しいボタンが表示される", () => {
+			render(React.createElement(BookCard, { book: mockBook }));
+
+			expect(screen.queryByText("未読に戻す")).not.toBeInTheDocument();
+			expect(screen.getByText("読書中にする")).toBeInTheDocument();
+			expect(screen.getByText("完了にする")).toBeInTheDocument();
+		});
+
+		it("読書中の書籍に対して正しいボタンが表示される", () => {
+			const readingBook: Book = {
+				...mockBook,
+				status: "reading",
+			};
+
+			render(React.createElement(BookCard, { book: readingBook }));
+
+			expect(screen.getByText("未読に戻す")).toBeInTheDocument();
+			expect(screen.queryByText("読書中にする")).not.toBeInTheDocument();
+			expect(screen.getByText("完了にする")).toBeInTheDocument();
+		});
+
+		it("完了済みの書籍に対して正しいボタンと完了日が表示される", () => {
+			const completedBook: Book = {
+				...mockBook,
+				status: "completed",
+				completedAt: "2024-01-15T00:00:00Z",
+			};
+
+			render(React.createElement(BookCard, { book: completedBook }));
+
+			expect(screen.getByText("未読に戻す")).toBeInTheDocument();
+			expect(screen.getByText("読書中にする")).toBeInTheDocument();
+			expect(screen.queryByText("完了にする")).not.toBeInTheDocument();
+			expect(screen.getByText(/完了日:/)).toBeInTheDocument();
+		});
+
+		it("ステータス変更ボタンクリック時にmutateが呼ばれる", async () => {
+			const mockMutate = vi.fn();
+			const { useUpdateBookStatus } = await import(
+				"@/features/bookshelf/queries/useUpdateBookStatus"
+			);
+			(useUpdateBookStatus as ReturnType<typeof vi.fn>).mockReturnValue({
+				mutate: mockMutate,
+				isPending: false,
+			});
+
+			render(React.createElement(BookCard, { book: mockBook }));
+
+			const readingButton = screen.getByText("読書中にする");
+			fireEvent.click(readingButton);
+
+			expect(mockMutate).toHaveBeenCalledWith({
+				id: 1,
+				status: "reading",
+			});
+		});
+
+		it("削除ボタンがonDelete propsがある場合のみ表示される", () => {
+			const mockDelete = vi.fn();
+
+			const { rerender } = render(
+				React.createElement(BookCard, { book: mockBook })
+			);
+			expect(screen.queryByText("削除")).not.toBeInTheDocument();
+
+			rerender(
+				React.createElement(BookCard, { book: mockBook, onDelete: mockDelete })
+			);
+			expect(screen.getByText("削除")).toBeInTheDocument();
+		});
+
+		it("削除ボタンクリック時にonDeleteが呼ばれる", () => {
+			const mockDelete = vi.fn();
+
+			render(
+				React.createElement(BookCard, { book: mockBook, onDelete: mockDelete })
+			);
+
+			const deleteButton = screen.getByText("削除");
+			fireEvent.click(deleteButton);
+
+			expect(mockDelete).toHaveBeenCalledWith(1);
+		});
+
+		it("URLがない場合はリンクが表示されない", () => {
+			const bookWithoutUrl: Book = {
+				...mockBook,
+				url: null,
+			};
+
+			render(React.createElement(BookCard, { book: bookWithoutUrl }));
+			expect(screen.queryByText("リンクを開く →")).not.toBeInTheDocument();
+		});
+	});
+}
