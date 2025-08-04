@@ -278,12 +278,12 @@ if (import.meta.vitest) {
 				React.createElement(BookForm, { onSubmit, onCancel }),
 			);
 
-			const typeSelect = container.querySelector("#type") as HTMLSelectElement;
-			const titleInput = container.querySelector("#title") as HTMLInputElement;
-			const urlInput = container.querySelector("#url") as HTMLInputElement;
+			const typeSelect = container.querySelector("#type") as unknown as HTMLSelectElement;
+			const titleInput = container.querySelector("#title") as unknown as HTMLInputElement;
+			const urlInput = container.querySelector("#url") as unknown as HTMLInputElement;
 			const imageUrlInput = container.querySelector(
 				"#imageUrl",
-			) as HTMLInputElement;
+			) as unknown as HTMLInputElement;
 
 			expect(typeSelect.value).toBe("book");
 			expect(titleInput.value).toBe("");
@@ -293,13 +293,14 @@ if (import.meta.vitest) {
 
 		test("編集モードで既存データが正しく表示される", () => {
 			const mockBook: Book = {
-				id: "1",
+				id: 1,
 				type: "pdf",
 				title: "テストPDF",
 				url: "https://example.com/test.pdf",
 				imageUrl: "https://example.com/image.jpg",
 				status: "unread",
 				progress: 0,
+				completedAt: null,
 				createdAt: new Date().toISOString(),
 				updatedAt: new Date().toISOString(),
 			};
@@ -310,12 +311,12 @@ if (import.meta.vitest) {
 				React.createElement(BookForm, { book: mockBook, onSubmit, onCancel }),
 			);
 
-			const typeSelect = container.querySelector("#type") as HTMLSelectElement;
-			const titleInput = container.querySelector("#title") as HTMLInputElement;
-			const urlInput = container.querySelector("#url") as HTMLInputElement;
+			const typeSelect = container.querySelector("#type") as unknown as HTMLSelectElement;
+			const titleInput = container.querySelector("#title") as unknown as HTMLInputElement;
+			const urlInput = container.querySelector("#url") as unknown as HTMLInputElement;
 			const imageUrlInput = container.querySelector(
 				"#imageUrl",
-			) as HTMLInputElement;
+			) as unknown as HTMLInputElement;
 
 			expect(typeSelect.value).toBe("pdf");
 			expect(titleInput.value).toBe("テストPDF");
@@ -330,7 +331,7 @@ if (import.meta.vitest) {
 				React.createElement(BookForm, { onSubmit, onCancel }),
 			);
 
-			const form = container.querySelector("form") as HTMLFormElement;
+			const form = container.querySelector("form") as unknown as HTMLFormElement;
 			fireEvent.submit(form);
 
 			// バリデーションエラーは同期的に表示される
@@ -347,9 +348,9 @@ if (import.meta.vitest) {
 				React.createElement(BookForm, { onSubmit, onCancel }),
 			);
 
-			const typeSelect = container.querySelector("#type") as HTMLSelectElement;
-			const titleInput = container.querySelector("#title") as HTMLInputElement;
-			const form = container.querySelector("form") as HTMLFormElement;
+			const typeSelect = container.querySelector("#type") as unknown as HTMLSelectElement;
+			const titleInput = container.querySelector("#title") as unknown as HTMLInputElement;
+			const form = container.querySelector("form") as unknown as HTMLFormElement;
 
 			// PDFタイプを選択
 			fireEvent.change(typeSelect, { target: { value: "pdf" } });
@@ -370,8 +371,8 @@ if (import.meta.vitest) {
 				React.createElement(BookForm, { onSubmit, onCancel }),
 			);
 
-			const titleInput = container.querySelector("#title") as HTMLInputElement;
-			const form = container.querySelector("form") as HTMLFormElement;
+			const titleInput = container.querySelector("#title") as unknown as HTMLInputElement;
+			const form = container.querySelector("form") as unknown as HTMLFormElement;
 
 			fireEvent.change(titleInput, { target: { value: "テスト書籍" } });
 			fireEvent.submit(form);

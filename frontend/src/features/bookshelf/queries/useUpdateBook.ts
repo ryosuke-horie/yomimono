@@ -11,7 +11,7 @@ export function useUpdateBook() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: ({ id, data }: { id: string; data: UpdateBookInput }) =>
+		mutationFn: ({ id, data }: { id: number; data: UpdateBookInput }) =>
 			updateBook(id, data),
 		onSuccess: () => {
 			// 成功時にキャッシュを無効化
@@ -35,7 +35,7 @@ if (import.meta.vitest) {
 	}));
 
 	vi.mock("./api", () => ({
-		updateBook: vi.fn(() => Promise.resolve({ id: "1", title: "Updated" })),
+		updateBook: vi.fn(() => Promise.resolve({ id: 1, title: "Updated" })),
 	}));
 
 	describe("useUpdateBook", () => {
@@ -44,13 +44,13 @@ if (import.meta.vitest) {
 			const hook = useUpdateBook();
 
 			const testData = {
-				id: "test-id",
+				id: 123,
 				data: { title: "New Title" },
 			};
 
 			await hook.mutate(testData);
 
-			expect(mockUpdateBook).toHaveBeenCalledWith("test-id", {
+			expect(mockUpdateBook).toHaveBeenCalledWith(123, {
 				title: "New Title",
 			});
 		});

@@ -100,13 +100,14 @@ if (import.meta.vitest) {
 
 	describe("EditBookModal", () => {
 		const mockBook: Book = {
-			id: "1",
+			id: 1,
 			type: "book",
 			title: "テスト書籍",
 			url: "https://example.com",
 			imageUrl: "https://example.com/image.jpg",
 			status: "unread",
 			progress: 0,
+			completedAt: null,
 			createdAt: new Date().toISOString(),
 			updatedAt: new Date().toISOString(),
 		};
@@ -199,7 +200,7 @@ if (import.meta.vitest) {
 			await waitFor(() => {
 				expect(mockMutate).toHaveBeenCalledWith(
 					{
-						id: "1",
+						id: 1,
 						data: { title: "Updated Title" },
 					},
 					expect.objectContaining({
