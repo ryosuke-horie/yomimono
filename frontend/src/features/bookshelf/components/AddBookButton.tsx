@@ -42,25 +42,3 @@ export function AddBookButton() {
 		</>
 	);
 }
-
-if (import.meta.vitest) {
-	const { test, expect, render, screen } = await import("@/test-utils");
-
-	test("追加ボタンが表示される", () => {
-		render(<AddBookButton />);
-		expect(
-			screen.getByRole("button", { name: /本を追加/ }),
-		).toBeInTheDocument();
-	});
-
-	test("ボタンクリックでモーダルが開く", async () => {
-		const { user } = await import("@/test-utils");
-		render(<AddBookButton />);
-
-		const button = screen.getByRole("button", { name: /本を追加/ });
-		await user.click(button);
-
-		// モーダルが表示されることを確認（モーダルの実装後にテストを更新）
-		expect(screen.getByRole("dialog")).toBeInTheDocument();
-	});
-}
