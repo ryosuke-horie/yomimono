@@ -2,7 +2,7 @@
  * シードデータ管理サービス
  * 開発環境でのテストデータ生成・管理機能を提供
  */
-import { count, desc } from "drizzle-orm";
+import { count, desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { getCurrentDatabaseConfig } from "../config/database";
 import { articleLabels, bookmarks, favorites, labels } from "../db/schema";
@@ -154,11 +154,11 @@ export class SeedService implements ISeedService {
 				db
 					.select({ count: count() })
 					.from(bookmarks)
-					.where(bookmarks.isRead.eq(false)),
+					.where(eq(bookmarks.isRead, false)),
 				db
 					.select({ count: count() })
 					.from(bookmarks)
-					.where(bookmarks.isRead.eq(true)),
+					.where(eq(bookmarks.isRead, true)),
 				db
 					.select({ updatedAt: bookmarks.updatedAt })
 					.from(bookmarks)

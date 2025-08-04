@@ -593,7 +593,7 @@ if (import.meta.vitest) {
 				const bookmarks = generateBookmarkData(10);
 
 				for (const bookmark of bookmarks) {
-					if (bookmark.isRead) {
+					if (bookmark.isRead && bookmark.updatedAt && bookmark.createdAt) {
 						expect(bookmark.updatedAt.getTime()).toBeGreaterThanOrEqual(
 							bookmark.createdAt.getTime(),
 						);

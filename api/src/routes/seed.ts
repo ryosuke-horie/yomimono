@@ -270,7 +270,7 @@ if (import.meta.vitest) {
 				});
 
 				const res = await app.fetch(req);
-				const json = await res.json();
+				const json = (await res.json()) as any;
 
 				expect(res.status).toBe(200);
 				expect(json.success).toBe(true);
@@ -302,7 +302,7 @@ if (import.meta.vitest) {
 
 				const req = new Request("http://localhost/", { method: "POST" });
 				const res = await app.fetch(req);
-				const json = await res.json();
+				const json = (await res.json()) as any;
 
 				expect(res.status).toBe(200);
 				expect(json.success).toBe(true);
@@ -333,7 +333,7 @@ if (import.meta.vitest) {
 
 				const req = new Request("http://localhost/", { method: "POST" });
 				const res = await app.fetch(req);
-				const json = await res.json();
+				const json = (await res.json()) as any;
 
 				expect(res.status).toBe(500);
 				expect(json.success).toBe(false);
@@ -359,7 +359,7 @@ if (import.meta.vitest) {
 
 				const req = new Request("http://localhost/clear", { method: "POST" });
 				const res = await app.fetch(req);
-				const json = await res.json();
+				const json = (await res.json()) as any;
 
 				expect(res.status).toBe(200);
 				expect(json.success).toBe(true);
@@ -391,7 +391,7 @@ if (import.meta.vitest) {
 
 				const req = new Request("http://localhost/status", { method: "GET" });
 				const res = await app.fetch(req);
-				const json = await res.json();
+				const json = (await res.json()) as any;
 
 				expect(res.status).toBe(200);
 				expect(json.success).toBe(true);
@@ -432,7 +432,7 @@ if (import.meta.vitest) {
 				});
 
 				const res = await app.fetch(req);
-				const json = await res.json();
+				const json = (await res.json()) as any;
 
 				expect(res.status).toBe(200);
 				expect(json.success).toBe(true);
@@ -451,7 +451,7 @@ if (import.meta.vitest) {
 				});
 
 				const res = await app.fetch(req);
-				const json = await res.json();
+				const json = (await res.json()) as any;
 
 				expect(res.status).toBe(400);
 				expect(json.success).toBe(false);
@@ -471,7 +471,7 @@ if (import.meta.vitest) {
 				});
 
 				const res = await app.fetch(req);
-				const json = await res.json();
+				const json = (await res.json()) as any;
 
 				expect(res.status).toBe(400);
 				expect(json.success).toBe(false);

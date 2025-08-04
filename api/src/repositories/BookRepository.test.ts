@@ -53,7 +53,7 @@ describe("BookRepository", () => {
 			delete: vi.fn().mockReturnThis(),
 		};
 
-		repository = new BookRepository(mockDb);
+		repository = new BookRepository(mockDb as any);
 	});
 
 	describe("create", () => {
