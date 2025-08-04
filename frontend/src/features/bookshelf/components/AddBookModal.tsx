@@ -100,7 +100,7 @@ if (import.meta.vitest) {
 			expect(screen.getByLabelText("タイトル *")).toBeInTheDocument();
 			expect(screen.getByLabelText("タイプ *")).toBeInTheDocument();
 			expect(screen.getByLabelText("URL")).toBeInTheDocument();
-			expect(screen.getByLabelText("表紙画像URL")).toBeInTheDocument();
+			expect(screen.getByLabelText("画像URL")).toBeInTheDocument();
 		});
 
 		it("タイプのセレクトボックスに正しいオプションがある", () => {
@@ -212,7 +212,7 @@ if (import.meta.vitest) {
 				}),
 			);
 
-			const submitButton = screen.getByText("追加中...") as HTMLButtonElement;
+			const submitButton = screen.getByText("送信中...") as HTMLButtonElement;
 			expect(submitButton).toBeDisabled();
 		});
 
@@ -276,7 +276,7 @@ if (import.meta.vitest) {
 			);
 
 			const imageUrlInput = screen.getByLabelText(
-				"表紙画像URL",
+				"画像URL",
 			) as HTMLInputElement;
 			fireEvent.change(imageUrlInput, {
 				target: { value: "https://example.com/image.jpg" },

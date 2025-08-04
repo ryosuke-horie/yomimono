@@ -332,7 +332,8 @@ if (import.meta.vitest) {
 			fireEvent.submit(form);
 
 			// バリデーションエラーは同期的に表示される
-			const errorMessage = container.querySelector(".text-red-500");
+			// p.text-red-500でエラーメッセージを取得（ラベルの*ではなく）
+			const errorMessage = container.querySelector("p.text-red-500");
 			expect(errorMessage?.textContent).toBe("タイトルは必須です");
 			expect(onSubmit).not.toHaveBeenCalled();
 		});
@@ -354,7 +355,8 @@ if (import.meta.vitest) {
 			fireEvent.submit(form);
 
 			// バリデーションエラーは同期的に表示される
-			const errorMessage = container.querySelector(".text-red-500");
+			// p.text-red-500でエラーメッセージを取得（ラベルの*ではなく）
+			const errorMessage = container.querySelector("p.text-red-500");
 			expect(errorMessage?.textContent).toBe("URLは必須です");
 			expect(onSubmit).not.toHaveBeenCalled();
 		});

@@ -67,33 +67,36 @@ if (import.meta.vitest) {
 		})),
 	}));
 
-	// BookFormのモック
-	vi.mock("./BookForm", () => ({
-		BookForm: vi.fn(({ onSubmit, onCancel, book, isSubmitting }) =>
-			React.createElement("div", { "data-testid": "book-form" }, [
-				React.createElement("div", { key: "title" }, book?.title || ""),
-				React.createElement(
-					"button",
-					{
-						key: "submit",
-						onClick: () => onSubmit({ title: "Updated Title" }),
-						disabled: isSubmitting,
-						"data-testid": "submit-button",
-					},
-					isSubmitting ? "更新中..." : "更新",
-				),
-				React.createElement(
-					"button",
-					{
-						key: "cancel",
-						onClick: onCancel,
-						"data-testid": "cancel-button",
-					},
-					"キャンセル",
-				),
-			]),
-		),
-	}));
+	// BookFormのモック - Reactはモック外でインポートし、内部で使用
+	vi.mock("./BookForm", async () => {
+		const React = await import("react");
+		return {
+			BookForm: vi.fn(({ onSubmit, onCancel, book, isSubmitting }) =>
+				React.createElement("div", { "data-testid": "book-form" }, [
+					React.createElement("div", { key: "title" }, book?.title || ""),
+					React.createElement(
+						"button",
+						{
+							key: "submit",
+							onClick: () => onSubmit({ title: "Updated Title" }),
+							disabled: isSubmitting,
+							"data-testid": "submit-button",
+						},
+						isSubmitting ? "更新中..." : "更新",
+					),
+					React.createElement(
+						"button",
+						{
+							key: "cancel",
+							onClick: onCancel,
+							"data-testid": "cancel-button",
+						},
+						"キャンセル",
+					),
+				]),
+			),
+		};
+	});
 
 	describe("EditBookModal", () => {
 		const mockBook: Book = {
@@ -149,9 +152,9 @@ if (import.meta.vitest) {
 			expect(screen.getByTestId("book-form")).toBeInTheDocument();
 		});
 
-		it("BookFormに正しいpropsが渡される", () => {
+		it("BookFormに正しいpropsが渡される", async () => {
 			const mockOnClose = vi.fn();
-			const { BookForm } = require("./BookForm");
+			const { BookForm } = await import("./BookForm");
 
 			render(
 				React.createElement(EditBookModal, {
@@ -166,8 +169,9 @@ if (import.meta.vitest) {
 					book: mockBook,
 					onCancel: mockOnClose,
 					isSubmitting: false,
+					onSubmit: expect.any(Function),
 				}),
-				expect.any(Object),
+				undefined,
 			);
 		});
 
