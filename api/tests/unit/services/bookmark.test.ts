@@ -104,7 +104,7 @@ describe("DefaultBookmarkService", () => {
 
 			it("エラーを適切に伝播すること", async () => {
 				const bookmarkId = 1;
-				const error = new Error("Already favorited");
+				const error = new Error("すでにお気に入りに登録されています");
 				mockAddToFavorites.mockRejectedValue(error);
 
 				await expect(service.addToFavorites(bookmarkId)).rejects.toThrow(error);
@@ -133,7 +133,7 @@ describe("DefaultBookmarkService", () => {
 
 			it("エラーを適切に伝播すること", async () => {
 				const bookmarkId = 1;
-				const error = new Error("Favorite not found");
+				const error = new Error("お気に入りが見つかりません");
 				mockRemoveFromFavorites.mockRejectedValue(error);
 
 				await expect(service.removeFromFavorites(bookmarkId)).rejects.toThrow(
@@ -345,7 +345,7 @@ describe("DefaultBookmarkService", () => {
 			mockMarkAsRead.mockResolvedValue(false);
 
 			await expect(service.markBookmarkAsRead(bookmarkId)).rejects.toThrow(
-				"Bookmark not found",
+				"ブックマークが見つかりません",
 			);
 			expect(mockMarkAsRead).toHaveBeenCalledWith(bookmarkId);
 		});

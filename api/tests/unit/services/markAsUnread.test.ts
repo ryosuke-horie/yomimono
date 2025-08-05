@@ -44,7 +44,7 @@ describe("markBookmarkAsUnread", () => {
 		mockMarkAsUnread.mockResolvedValue(false);
 
 		await expect(service.markBookmarkAsUnread(999)).rejects.toThrow(
-			"Bookmark not found",
+			"ブックマークが見つかりません",
 		);
 		expect(mockMarkAsUnread).toHaveBeenCalledWith(999);
 	});

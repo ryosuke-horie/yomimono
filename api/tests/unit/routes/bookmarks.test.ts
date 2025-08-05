@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Bookmark, Label } from "../../../src/db/schema";
+import { NotFoundError } from "../../../src/exceptions";
 import type { Env } from "../../../src/index";
 import type { BookmarkWithLabel } from "../../../src/interfaces/repository/bookmark";
 import type { IBookmarkService } from "../../../src/interfaces/service/bookmark";
@@ -334,7 +335,7 @@ describe("BookmarkRouter", () => {
 			});
 
 			it("存在しないブックマークの場合404を返すこと", async () => {
-				mockAddToFavorites.mockRejectedValue(new Error("Bookmark not found"));
+				mockAddToFavorites.mockRejectedValue(new NotFoundError("ブックマークが見つかりません"));
 				const res = await app.request("/api/bookmarks/999/favorite", {
 					method: "POST",
 				});
@@ -343,7 +344,7 @@ describe("BookmarkRouter", () => {
 					message: string;
 				};
 				expect(res.status).toBe(404);
-				expect(data).toEqual({ success: false, message: "Bookmark not found" });
+				expect(data).toEqual({ success: false, message: "ブックマークが見つかりません" });
 			});
 		});
 
@@ -361,7 +362,7 @@ describe("BookmarkRouter", () => {
 
 			it("存在しないお気に入りの場合404を返すこと", async () => {
 				mockRemoveFromFavorites.mockRejectedValue(
-					new Error("Favorite not found"),
+					new NotFoundError("お気に入りが見つかりません"),
 				);
 				const res = await app.request("/api/bookmarks/999/favorite", {
 					method: "DELETE",
@@ -371,7 +372,7 @@ describe("BookmarkRouter", () => {
 					message: string;
 				}; // Add type assertion
 				expect(res.status).toBe(404);
-				expect(data).toEqual({ success: false, message: "Favorite not found" });
+				expect(data).toEqual({ success: false, message: "お気に入りが見つかりません" });
 			});
 		});
 
@@ -470,13 +471,13 @@ describe("BookmarkRouter", () => {
 		});
 
 		it("存在しないブックマークの場合404を返すこと", async () => {
-			mockMarkBookmarkAsRead.mockRejectedValue(new Error("Bookmark not found"));
+			mockMarkBookmarkAsRead.mockRejectedValue(new NotFoundError("ブックマークが見つかりません"));
 			const res = await app.request("/api/bookmarks/999/read", {
 				method: "PATCH",
 			});
 			const data = (await res.json()) as { success: boolean; message: string };
 			expect(res.status).toBe(404);
-			expect(data).toEqual({ success: false, message: "Bookmark not found" });
+			expect(data).toEqual({ success: false, message: "ブックマークが見つかりません" });
 		});
 
 		it("エラー時に500を返すこと", async () => {

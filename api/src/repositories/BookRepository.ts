@@ -34,7 +34,7 @@ export class BookRepository implements IBookRepository {
 		const [book] = await this.db.select().from(books).where(eq(books.id, id));
 
 		if (!book) {
-			throw new NotFoundError(`Book with id ${id} not found`);
+			throw new NotFoundError(`ID ${id} の書籍が見つかりません`);
 		}
 
 		return book;

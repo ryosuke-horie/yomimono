@@ -124,7 +124,7 @@ describe("BookshelfService", () => {
 			const mockRepository = createMockRepository();
 			mockRepository.findById = vi
 				.fn()
-				.mockRejectedValue(new NotFoundError("Book with id 999 not found"));
+				.mockRejectedValue(new NotFoundError("ID 999 の書籍が見つかりません"));
 
 			const service = new BookshelfService(mockRepository);
 
@@ -273,7 +273,7 @@ describe("BookshelfService", () => {
 			const mockRepository = createMockRepository();
 			mockRepository.findById = vi
 				.fn()
-				.mockRejectedValue(new NotFoundError("Book with id 999 not found"));
+				.mockRejectedValue(new NotFoundError("ID 999 の書籍が見つかりません"));
 
 			const service = new BookshelfService(mockRepository);
 

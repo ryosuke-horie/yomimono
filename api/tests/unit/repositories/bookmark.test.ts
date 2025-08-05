@@ -633,7 +633,7 @@ describe("ブックマークリポジトリ", () => {
 			mockDbClient.get.mockResolvedValue(null);
 
 			await expect(repository.addToFavorites(999)).rejects.toThrow(
-				"Bookmark not found",
+				"ブックマークが見つかりません",
 			);
 
 			expect(mockDbClient.select).toHaveBeenCalled();
@@ -652,7 +652,7 @@ describe("ブックマークリポジトリ", () => {
 				);
 
 			await expect(repository.addToFavorites(1)).rejects.toThrow(
-				"Already favorited",
+				"すでにお気に入りに登録されています",
 			);
 
 			expect(mockDbClient.select).toHaveBeenCalledTimes(2);
@@ -684,7 +684,7 @@ describe("ブックマークリポジトリ", () => {
 			mockDbClient.run.mockResolvedValue({ meta: { changes: 0 } });
 
 			await expect(repository.removeFromFavorites(999)).rejects.toThrow(
-				"Favorite not found",
+				"お気に入りが見つかりません",
 			);
 
 			expect(mockDbClient.delete).toHaveBeenCalledWith(favorites);

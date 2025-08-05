@@ -129,7 +129,7 @@ describe("BookRepository", () => {
 			// Act & Assert
 			await expect(repository.findById(999)).rejects.toThrow(NotFoundError);
 			await expect(repository.findById(999)).rejects.toThrow(
-				"Book with id 999 not found",
+				"ID 999 の書籍が見つかりません",
 			);
 		});
 	});
