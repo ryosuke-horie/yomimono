@@ -82,7 +82,8 @@ export default function BookshelfDetailPage() {
 	const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
 	// フックは条件分岐の前に呼ぶ必要がある
-	const { data: book, isLoading, error } = useGetBook(id);
+	// idがnullの場合は0を渡す（useGetBook内でenabled: id > 0の条件により実行されない）
+	const { data: book, isLoading, error } = useGetBook(id ?? 0);
 	const updateStatus = useUpdateBookStatus();
 	const deleteBook = useDeleteBook();
 
@@ -668,8 +669,8 @@ if (import.meta.vitest) {
 
 					render(React.createElement(BookshelfDetailPage));
 
-					// useGetBookが呼ばれることを確認（nullの場合でも呼ばれる）
-					expect(useGetBook).toHaveBeenCalledWith(null);
+					// useGetBookが呼ばれることを確認（nullの場合は0で呼ばれる）
+					expect(useGetBook).toHaveBeenCalledWith(0);
 
 					// エラーメッセージが表示されることを確認
 					expect(screen.getByText("無効なIDです")).toBeInTheDocument();
