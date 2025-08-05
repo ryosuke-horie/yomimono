@@ -8,7 +8,7 @@
 
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { EditBookModal } from "@/features/bookshelf/components/EditBookModal";
 import { useDeleteBook } from "@/features/bookshelf/queries/useDeleteBook";
 import { useGetBook } from "@/features/bookshelf/queries/useGetBook";
@@ -63,7 +63,20 @@ const BookHelpers = {
 export default function BookshelfDetailPage() {
 	const params = useParams();
 	const router = useRouter();
-	const id = Number(params?.id);
+	const id = useMemo(() => {
+		const rawId = params?.id;
+
+		// パラメータが存在しない、または配列の場合
+		if (!rawId || Array.isArray(rawId)) {
+			return 0;
+		}
+
+		// 数値への変換と検証
+		const numId = Number(rawId);
+
+		// 正の整数であることを確認
+		return Number.isInteger(numId) && numId > 0 ? numId : 0;
+	}, [params?.id]);
 
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 	const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -573,6 +586,43 @@ if (import.meta.vitest) {
 					isOpen: true,
 				}),
 				undefined,
+			);
+		});
+
+		describe("IDパラメータの検証", () => {
+			it.each([
+				{ id: "123", expected: 123, description: "正常な数値文字列" },
+				{ id: "1", expected: 1, description: "単一の数値" },
+				{ id: "abc", expected: 0, description: "文字列" },
+				{ id: "-1", expected: 0, description: "負の数" },
+				{ id: "3.14", expected: 0, description: "小数" },
+				{ id: ["123", "456"], expected: 0, description: "配列" },
+				{ id: undefined, expected: 0, description: "undefined" },
+				{ id: null, expected: 0, description: "null" },
+			])(
+				"$description ($id) は $expected に変換される",
+				async ({ id, expected }) => {
+					const { useParams } = await import("next/navigation");
+					const { useGetBook } = await import(
+						"@/features/bookshelf/queries/useGetBook"
+					);
+
+					(useParams as ReturnType<typeof vi.fn>).mockReturnValue({ id });
+					const mockGetBook = vi.fn();
+					(useGetBook as ReturnType<typeof vi.fn>).mockImplementation(
+						mockGetBook,
+					);
+
+					mockGetBook.mockReturnValue({
+						data: undefined,
+						isLoading: true,
+						error: null,
+					});
+
+					render(React.createElement(BookshelfDetailPage));
+
+					expect(mockGetBook).toHaveBeenCalledWith(expected);
+				},
 			);
 		});
 	});
