@@ -373,7 +373,9 @@ describe("Labels Route", () => {
 
 			expect(res.status).toBe(400);
 			expect(body.success).toBe(false);
-			expect(body.message).toContain("name is required");
+			expect(body.message).toBe(
+				"name is required and must be a non-empty string",
+			);
 			expect(mockCreateLabel).not.toHaveBeenCalled();
 		});
 
@@ -391,7 +393,9 @@ describe("Labels Route", () => {
 
 			expect(res.status).toBe(400);
 			expect(body.success).toBe(false);
-			expect(body.message).toContain("name is required");
+			expect(body.message).toBe(
+				"name is required and must be a non-empty string",
+			);
 			expect(mockCreateLabel).not.toHaveBeenCalled();
 		});
 
