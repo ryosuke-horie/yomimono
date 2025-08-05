@@ -68,22 +68,46 @@ export default function BookshelfDetailPage() {
 
 		// パラメータが存在しない、または配列の場合
 		if (!rawId || Array.isArray(rawId)) {
-			return 0;
+			return null;
 		}
 
 		// 数値への変換と検証
 		const numId = Number(rawId);
 
 		// 正の整数であることを確認
-		return Number.isInteger(numId) && numId > 0 ? numId : 0;
+		return Number.isInteger(numId) && numId > 0 ? numId : null;
 	}, [params?.id]);
 
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 	const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
+	// フックは条件分岐の前に呼ぶ必要がある
 	const { data: book, isLoading, error } = useGetBook(id);
 	const updateStatus = useUpdateBookStatus();
 	const deleteBook = useDeleteBook();
+
+	// 無効なIDの場合は早期リターン
+	if (id === null) {
+		return (
+			<div className="container mx-auto px-4 py-8">
+				<div className="max-w-2xl mx-auto">
+					<div className="bg-red-50 border border-red-200 rounded-lg p-6">
+						<h2 className="text-lg font-semibold text-red-800 mb-2">
+							無効なIDです
+						</h2>
+						<p className="text-red-600">正しいURLでアクセスしてください</p>
+						<button
+							type="button"
+							onClick={() => router.push("/bookshelf")}
+							className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+						>
+							一覧に戻る
+						</button>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	// ステータス変更ハンドラー
 	const handleStatusChange = (newStatus: BookStatusValue) => {
@@ -593,14 +617,8 @@ if (import.meta.vitest) {
 			it.each([
 				{ id: "123", expected: 123, description: "正常な数値文字列" },
 				{ id: "1", expected: 1, description: "単一の数値" },
-				{ id: "abc", expected: 0, description: "文字列" },
-				{ id: "-1", expected: 0, description: "負の数" },
-				{ id: "3.14", expected: 0, description: "小数" },
-				{ id: ["123", "456"], expected: 0, description: "配列" },
-				{ id: undefined, expected: 0, description: "undefined" },
-				{ id: null, expected: 0, description: "null" },
 			])(
-				"$description ($id) は $expected に変換される",
+				"有効なID: $description ($id) は $expected に変換される",
 				async ({ id, expected }) => {
 					const { useParams } = await import("next/navigation");
 					const { useGetBook } = await import(
@@ -622,6 +640,42 @@ if (import.meta.vitest) {
 					render(React.createElement(BookshelfDetailPage));
 
 					expect(mockGetBook).toHaveBeenCalledWith(expected);
+				},
+			);
+
+			it.each([
+				{ id: "abc", description: "文字列" },
+				{ id: "-1", description: "負の数" },
+				{ id: "3.14", description: "小数" },
+				{ id: ["123", "456"], description: "配列" },
+				{ id: undefined, description: "undefined" },
+				{ id: null, description: "null" },
+			])(
+				"無効なID: $description ($id) は早期リターンでエラー画面を表示",
+				async ({ id }) => {
+					const { useParams } = await import("next/navigation");
+					const { useGetBook } = await import(
+						"@/features/bookshelf/queries/useGetBook"
+					);
+
+					(useParams as ReturnType<typeof vi.fn>).mockReturnValue({ id });
+					const mockGetBook = vi.fn();
+					(useGetBook as ReturnType<typeof vi.fn>).mockReturnValue({
+						data: undefined,
+						isLoading: false,
+						error: null,
+					});
+
+					render(React.createElement(BookshelfDetailPage));
+
+					// useGetBookが呼ばれることを確認（nullの場合でも呼ばれる）
+					expect(useGetBook).toHaveBeenCalledWith(null);
+
+					// エラーメッセージが表示されることを確認
+					expect(screen.getByText("無効なIDです")).toBeInTheDocument();
+					expect(
+						screen.getByText("正しいURLでアクセスしてください"),
+					).toBeInTheDocument();
 				},
 			);
 		});
