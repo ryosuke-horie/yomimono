@@ -22,7 +22,8 @@
 		"seed:development": "NODE_ENV=development npx tsx src/scripts/seed.ts",
 		"seed:test": "NODE_ENV=development npx tsx -e \"(async () => { const m = await import('./src/scripts/seed.ts'); await m.runSeedData({bookmarkCount: 5, labelCount: 3, favoriteRatio: 0.2}); })()\"",
 		"seed:custom": "NODE_ENV=development npx tsx -e \"(async () => { const m = await import('./src/scripts/seed.ts'); await m.runSeedData({bookmarkCount: 50, labelCount: 8, favoriteRatio: 0.4}); })()\"",
-		"seed:clear": "NODE_ENV=development npx tsx -e \"(async () => { const m = await import('./src/scripts/seed.ts'); await m.clearDatabase(); })()\""
+		"seed:clear": "NODE_ENV=development npx tsx -e \"(async () => { const m = await import('./src/scripts/seed.ts'); await m.clearDatabase(); })()\"",
+		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
 		"dotenv": "^17.0.1",

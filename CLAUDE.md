@@ -109,6 +109,7 @@ export function distance(a: Point, b: Point): number {
 - ビルド: `cd frontend && pnpm run build` - フロントエンドを本番用にビルド
 - リント: `pnpm run lint` - それぞれのディレクトリでリンターを実行
 - フォーマット: `pnpm run format` - それぞれのディレクトリでコードをフォーマット
+- 型チェック: `pnpm run typecheck` - それぞれのディレクトリでTypeScriptの型チェックを実行
 - テスト: `cd api && pnpm run test` - すべてのテストを実行
 - 単一テスト: `cd api && pnpm vitest run tests/unit/path/to/test.ts` - 特定のテストを実行
 - テストカバレッジ: `cd api && pnpm test -- --coverage` - カバレッジレポート生成（9割以上必要）
