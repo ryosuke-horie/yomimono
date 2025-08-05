@@ -173,22 +173,20 @@ export const createBookmarksRouter = (
 			await bookmarkService.addToFavorites(id);
 			return c.json({ success: true });
 		} catch (error) {
-			if (error instanceof Error && !(error instanceof BadRequestError)) {
-				if (error.message === "Bookmark not found") {
-					const notFoundError = new NotFoundError("Bookmark not found");
-					return c.json(createErrorResponseBody(notFoundError), 404);
-				}
-				if (error.message === "Already favorited") {
-					const conflictError = new ConflictError("Already added to favorites");
-					return c.json(createErrorResponseBody(conflictError), 409);
-				}
+			if (error instanceof NotFoundError) {
+				return c.json(createErrorResponseBody(error), 404);
+			}
+			if (error instanceof ConflictError) {
+				return c.json(createErrorResponseBody(error), 409);
+			}
+			if (error instanceof BadRequestError) {
+				return c.json(createErrorResponseBody(error), 400);
 			}
 			console.error("Failed to add to favorites:", error);
-			const errorResponse = createErrorResponse(error);
-			return c.json(
-				createErrorResponseBody(error),
-				toContentfulStatusCode(errorResponse.statusCode),
+			const internalError = new InternalServerError(
+				"Failed to add to favorites",
 			);
+			return c.json(createErrorResponseBody(internalError), 500);
 		}
 	});
 
@@ -199,18 +197,17 @@ export const createBookmarksRouter = (
 			await bookmarkService.removeFromFavorites(id);
 			return c.json({ success: true });
 		} catch (error) {
-			if (error instanceof Error && !(error instanceof BadRequestError)) {
-				if (error.message === "Favorite not found") {
-					const notFoundError = new NotFoundError("Favorite not found");
-					return c.json(createErrorResponseBody(notFoundError), 404);
-				}
+			if (error instanceof NotFoundError) {
+				return c.json(createErrorResponseBody(error), 404);
+			}
+			if (error instanceof BadRequestError) {
+				return c.json(createErrorResponseBody(error), 400);
 			}
 			console.error("Failed to remove from favorites:", error);
-			const errorResponse = createErrorResponse(error);
-			return c.json(
-				createErrorResponseBody(error),
-				toContentfulStatusCode(errorResponse.statusCode),
+			const internalError = new InternalServerError(
+				"Failed to remove from favorites",
 			);
+			return c.json(createErrorResponseBody(internalError), 500);
 		}
 	});
 
@@ -236,19 +233,17 @@ export const createBookmarksRouter = (
 			await bookmarkService.markBookmarkAsRead(id);
 			return c.json({ success: true });
 		} catch (error) {
-			if (error instanceof Error && error.message === "Bookmark not found") {
-				const notFoundError = new NotFoundError("Bookmark not found");
-				return c.json(createErrorResponseBody(notFoundError), 404);
+			if (error instanceof NotFoundError) {
+				return c.json(createErrorResponseBody(error), 404);
+			}
+			if (error instanceof BadRequestError) {
+				return c.json(createErrorResponseBody(error), 400);
 			}
 			console.error("Failed to mark bookmark as read:", error);
 			const internalError = new InternalServerError(
 				"Failed to mark bookmark as read",
 			);
-			const errorResponse = createErrorResponse(internalError);
-			return c.json(
-				createErrorResponseBody(internalError),
-				toContentfulStatusCode(errorResponse.statusCode),
-			);
+			return c.json(createErrorResponseBody(internalError), 500);
 		}
 	});
 
@@ -260,9 +255,11 @@ export const createBookmarksRouter = (
 			await bookmarkService.markBookmarkAsUnread(id);
 			return c.json({ success: true });
 		} catch (error) {
-			if (error instanceof Error && error.message === "Bookmark not found") {
-				const notFoundError = new NotFoundError("Bookmark not found");
-				return c.json(createErrorResponseBody(notFoundError), 404);
+			if (error instanceof NotFoundError) {
+				return c.json(createErrorResponseBody(error), 404);
+			}
+			if (error instanceof BadRequestError) {
+				return c.json(createErrorResponseBody(error), 400);
 			}
 			console.error("Failed to mark bookmark as unread:", error);
 			const internalError = new InternalServerError(

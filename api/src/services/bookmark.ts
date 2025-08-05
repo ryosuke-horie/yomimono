@@ -98,14 +98,14 @@ export class DefaultBookmarkService implements IBookmarkService {
 	async markBookmarkAsRead(id: number): Promise<void> {
 		const updated = await this.repository.markAsRead(id);
 		if (!updated) {
-			throw new NotFoundError("Bookmark not found");
+			throw new NotFoundError("ブックマークが見つかりません");
 		}
 	}
 
 	async markBookmarkAsUnread(id: number): Promise<void> {
 		const updated = await this.repository.markAsUnread(id);
 		if (!updated) {
-			throw new NotFoundError("Bookmark not found");
+			throw new NotFoundError("ブックマークが見つかりません");
 		}
 	}
 

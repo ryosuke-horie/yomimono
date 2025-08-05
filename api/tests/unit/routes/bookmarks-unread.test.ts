@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { NotFoundError } from "../../../src/exceptions";
 import type { Env } from "../../../src/index";
 import type { IBookmarkService } from "../../../src/interfaces/service/bookmark";
 import type { ILabelService } from "../../../src/interfaces/service/label";
@@ -59,14 +60,17 @@ describe("Bookmark Unread Endpoint", () => {
 
 		it("存在しないブックマークの場合404を返すこと", async () => {
 			mockMarkBookmarkAsUnread.mockRejectedValue(
-				new Error("Bookmark not found"),
+				new NotFoundError("ブックマークが見つかりません"),
 			);
 			const res = await app.request("/api/bookmarks/999/unread", {
 				method: "PATCH",
 			});
 			const data = (await res.json()) as { success: boolean; message: string };
 			expect(res.status).toBe(404);
-			expect(data).toEqual({ success: false, message: "Bookmark not found" });
+			expect(data).toEqual({
+				success: false,
+				message: "ブックマークが見つかりません",
+			});
 		});
 
 		it("エラー時に500を返すこと", async () => {

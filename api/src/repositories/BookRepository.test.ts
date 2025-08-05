@@ -2,6 +2,8 @@
  * BookRepositoryのテスト
  * TDD/BDDアプローチで本棚機能のリポジトリ層をテスト
  */
+
+import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Book, InsertBook } from "../db/schema";
 import { BookStatus, BookType } from "../db/schema";
@@ -54,7 +56,7 @@ describe("BookRepository", () => {
 			delete: vi.fn().mockReturnThis(),
 		};
 
-		repository = new BookRepository(mockDb as any);
+		repository = new BookRepository(mockDb as unknown as DrizzleD1Database);
 	});
 
 	describe("create", () => {
@@ -129,7 +131,7 @@ describe("BookRepository", () => {
 			// Act & Assert
 			await expect(repository.findById(999)).rejects.toThrow(NotFoundError);
 			await expect(repository.findById(999)).rejects.toThrow(
-				"Book with id 999 not found",
+				"ID 999 の書籍が見つかりません",
 			);
 		});
 	});

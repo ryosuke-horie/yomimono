@@ -269,7 +269,7 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 				.get();
 
 			if (!bookmark) {
-				throw new NotFoundError("Bookmark not found");
+				throw new NotFoundError("ブックマークが見つかりません");
 			}
 
 			// 既にお気に入りに追加されているか確認
@@ -280,7 +280,7 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 				.get();
 
 			if (existing) {
-				throw new ConflictError("Already favorited");
+				throw new ConflictError("すでにお気に入りに登録されています");
 			}
 
 			// お気に入りに追加
@@ -302,7 +302,7 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 				.run();
 
 			if (!result.meta?.changes) {
-				throw new NotFoundError("Favorite not found");
+				throw new NotFoundError("お気に入りが見つかりません");
 			}
 		} catch (error) {
 			console.error("Failed to remove from favorites:", error);
