@@ -16,7 +16,7 @@ import { useUpdateBookStatus } from "@/features/bookshelf/queries/useUpdateBookS
 import type { BookStatusValue } from "@/features/bookshelf/types";
 import { BookStatus, BookType } from "@/features/bookshelf/types";
 
-// ヘルパー関数をファイルトップレベルに定義
+// ヘルパー関数をオブジェクトにまとめて再作成を防止
 const BookHelpers = {
 	getBookIcon: (type: string) => {
 		switch (type) {
