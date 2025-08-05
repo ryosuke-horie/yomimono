@@ -16,51 +16,49 @@ import { useUpdateBookStatus } from "@/features/bookshelf/queries/useUpdateBookS
 import type { BookStatusValue } from "@/features/bookshelf/types";
 import { BookStatus, BookType } from "@/features/bookshelf/types";
 
-// アイコンの取得関数
-const getBookIcon = (type: string) => {
-	switch (type) {
-		case BookType.BOOK:
-			return "📚";
-		case BookType.PDF:
-			return "📄";
-		case BookType.GITHUB:
-			return "🐙";
-		case BookType.ZENN:
-			return "📝";
-		default:
-			return "📖";
-	}
-};
-
-// ステータスのラベル取得関数
-const getStatusLabel = (status: BookStatusValue) => {
-	switch (status) {
-		case BookStatus.UNREAD:
-			return "未読";
-		case BookStatus.READING:
-			return "読書中";
-		case BookStatus.COMPLETED:
-			return "読了";
-		default:
-			return status;
-	}
-};
-
-// タイプのラベル取得関数
-const getTypeLabel = (type: string) => {
-	switch (type) {
-		case BookType.BOOK:
-			return "書籍";
-		case BookType.PDF:
-			return "PDF";
-		case BookType.GITHUB:
-			return "GitHub";
-		case BookType.ZENN:
-			return "Zenn";
-		default:
-			return type;
-	}
-};
+// ヘルパー関数をオブジェクトにまとめて再作成を防止
+const BookHelpers = {
+	getBookIcon: (type: string) => {
+		switch (type) {
+			case BookType.BOOK:
+				return "📚";
+			case BookType.PDF:
+				return "📄";
+			case BookType.GITHUB:
+				return "🐙";
+			case BookType.ZENN:
+				return "📝";
+			default:
+				return "📖";
+		}
+	},
+	getStatusLabel: (status: BookStatusValue) => {
+		switch (status) {
+			case BookStatus.UNREAD:
+				return "未読";
+			case BookStatus.READING:
+				return "読書中";
+			case BookStatus.COMPLETED:
+				return "読了";
+			default:
+				return status;
+		}
+	},
+	getTypeLabel: (type: string) => {
+		switch (type) {
+			case BookType.BOOK:
+				return "書籍";
+			case BookType.PDF:
+				return "PDF";
+			case BookType.GITHUB:
+				return "GitHub";
+			case BookType.ZENN:
+				return "Zenn";
+			default:
+				return type;
+		}
+	},
+} as const;
 
 export default function BookshelfDetailPage() {
 	const params = useParams();
@@ -155,7 +153,9 @@ export default function BookshelfDetailPage() {
 								</div>
 							) : (
 								<div className="w-32 h-32 bg-gray-100 rounded flex items-center justify-center">
-									<span className="text-5xl">{getBookIcon(book.type)}</span>
+									<span className="text-5xl">
+										{BookHelpers.getBookIcon(book.type)}
+									</span>
 								</div>
 							)}
 						</div>
@@ -189,7 +189,9 @@ export default function BookshelfDetailPage() {
 						{/* タイプ */}
 						<div>
 							<dt className="text-sm font-medium text-gray-500">タイプ</dt>
-							<dd className="mt-1 text-lg">{getTypeLabel(book.type)}</dd>
+							<dd className="mt-1 text-lg">
+								{BookHelpers.getTypeLabel(book.type)}
+							</dd>
 						</div>
 
 						{/* URL (PDF/GitHub/Zennの場合) */}
@@ -242,7 +244,7 @@ export default function BookshelfDetailPage() {
 													: "bg-gray-200 text-gray-700 hover:bg-gray-300"
 											} ${updateStatus.isPending ? "opacity-50 cursor-not-allowed" : ""}`}
 										>
-											{getStatusLabel(status)}
+											{BookHelpers.getStatusLabel(status)}
 										</button>
 									))}
 								</div>
