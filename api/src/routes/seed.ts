@@ -229,6 +229,41 @@ export const createSeedRouter = (seedService: ISeedService) => {
 if (import.meta.vitest) {
 	const { test, expect, describe, beforeEach, vi } = import.meta.vitest;
 
+	// テスト用の型定義
+	interface SeedResponse {
+		success: boolean;
+		message?: string;
+		error?: string;
+		data?: {
+			generated?: {
+				bookmarks: number;
+				labels: number;
+				articleLabels: number;
+				favorites: number;
+			};
+			cleared?: {
+				bookmarks: number;
+				labels: number;
+				articleLabels: number;
+				favorites: number;
+			};
+			executionTimeMs?: number;
+			options?: {
+				bookmarkCount?: number;
+				labelCount?: number;
+				favoriteRatio?: number;
+				forceRun?: boolean;
+			};
+			bookmarkCount?: number;
+			labelCount?: number;
+			articleLabelCount?: number;
+			favoriteCount?: number;
+			unreadCount?: number;
+			readCount?: number;
+			lastUpdatedAt?: string;
+		};
+	}
+
 	// モックサービスの作成
 	const mockSeedService = {
 		generateSeedData: vi.fn(),
@@ -270,7 +305,7 @@ if (import.meta.vitest) {
 				});
 
 				const res = await app.fetch(req);
-				const json = (await res.json()) as any;
+				const json = (await res.json()) as SeedResponse;
 
 				expect(res.status).toBe(200);
 				expect(json.success).toBe(true);
@@ -302,7 +337,7 @@ if (import.meta.vitest) {
 
 				const req = new Request("http://localhost/", { method: "POST" });
 				const res = await app.fetch(req);
-				const json = (await res.json()) as any;
+				const json = (await res.json()) as SeedResponse;
 
 				expect(res.status).toBe(200);
 				expect(json.success).toBe(true);
@@ -333,7 +368,7 @@ if (import.meta.vitest) {
 
 				const req = new Request("http://localhost/", { method: "POST" });
 				const res = await app.fetch(req);
-				const json = (await res.json()) as any;
+				const json = (await res.json()) as SeedResponse;
 
 				expect(res.status).toBe(500);
 				expect(json.success).toBe(false);
@@ -359,7 +394,7 @@ if (import.meta.vitest) {
 
 				const req = new Request("http://localhost/clear", { method: "POST" });
 				const res = await app.fetch(req);
-				const json = (await res.json()) as any;
+				const json = (await res.json()) as SeedResponse;
 
 				expect(res.status).toBe(200);
 				expect(json.success).toBe(true);
@@ -391,7 +426,7 @@ if (import.meta.vitest) {
 
 				const req = new Request("http://localhost/status", { method: "GET" });
 				const res = await app.fetch(req);
-				const json = (await res.json()) as any;
+				const json = (await res.json()) as SeedResponse;
 
 				expect(res.status).toBe(200);
 				expect(json.success).toBe(true);
@@ -432,7 +467,7 @@ if (import.meta.vitest) {
 				});
 
 				const res = await app.fetch(req);
-				const json = (await res.json()) as any;
+				const json = (await res.json()) as SeedResponse;
 
 				expect(res.status).toBe(200);
 				expect(json.success).toBe(true);
@@ -451,7 +486,7 @@ if (import.meta.vitest) {
 				});
 
 				const res = await app.fetch(req);
-				const json = (await res.json()) as any;
+				const json = (await res.json()) as SeedResponse;
 
 				expect(res.status).toBe(400);
 				expect(json.success).toBe(false);
@@ -471,7 +506,7 @@ if (import.meta.vitest) {
 				});
 
 				const res = await app.fetch(req);
-				const json = (await res.json()) as any;
+				const json = (await res.json()) as SeedResponse;
 
 				expect(res.status).toBe(400);
 				expect(json.success).toBe(false);

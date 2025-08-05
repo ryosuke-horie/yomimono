@@ -335,7 +335,9 @@ describe("BookmarkRouter", () => {
 			});
 
 			it("存在しないブックマークの場合404を返すこと", async () => {
-				mockAddToFavorites.mockRejectedValue(new NotFoundError("ブックマークが見つかりません"));
+				mockAddToFavorites.mockRejectedValue(
+					new NotFoundError("ブックマークが見つかりません"),
+				);
 				const res = await app.request("/api/bookmarks/999/favorite", {
 					method: "POST",
 				});
@@ -344,7 +346,10 @@ describe("BookmarkRouter", () => {
 					message: string;
 				};
 				expect(res.status).toBe(404);
-				expect(data).toEqual({ success: false, message: "ブックマークが見つかりません" });
+				expect(data).toEqual({
+					success: false,
+					message: "ブックマークが見つかりません",
+				});
 			});
 		});
 
@@ -372,7 +377,10 @@ describe("BookmarkRouter", () => {
 					message: string;
 				}; // Add type assertion
 				expect(res.status).toBe(404);
-				expect(data).toEqual({ success: false, message: "お気に入りが見つかりません" });
+				expect(data).toEqual({
+					success: false,
+					message: "お気に入りが見つかりません",
+				});
 			});
 		});
 
@@ -471,13 +479,18 @@ describe("BookmarkRouter", () => {
 		});
 
 		it("存在しないブックマークの場合404を返すこと", async () => {
-			mockMarkBookmarkAsRead.mockRejectedValue(new NotFoundError("ブックマークが見つかりません"));
+			mockMarkBookmarkAsRead.mockRejectedValue(
+				new NotFoundError("ブックマークが見つかりません"),
+			);
 			const res = await app.request("/api/bookmarks/999/read", {
 				method: "PATCH",
 			});
 			const data = (await res.json()) as { success: boolean; message: string };
 			expect(res.status).toBe(404);
-			expect(data).toEqual({ success: false, message: "ブックマークが見つかりません" });
+			expect(data).toEqual({
+				success: false,
+				message: "ブックマークが見つかりません",
+			});
 		});
 
 		it("エラー時に500を返すこと", async () => {

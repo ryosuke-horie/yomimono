@@ -142,7 +142,16 @@ describe("JOIN重複問題の修正検証", () => {
 			},
 		];
 
-		const labelsResult: any[] = []; // ラベルなし
+		const labelsResult: Array<{
+			articleId: number;
+			label: {
+				id: number;
+				name: string;
+				description: string;
+				createdAt: Date;
+				updatedAt: Date;
+			};
+		}> = []; // ラベルなし
 
 		mockDbClient.all
 			.mockResolvedValueOnce(bookmarksResult)

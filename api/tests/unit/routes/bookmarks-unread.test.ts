@@ -67,7 +67,10 @@ describe("Bookmark Unread Endpoint", () => {
 			});
 			const data = (await res.json()) as { success: boolean; message: string };
 			expect(res.status).toBe(404);
-			expect(data).toEqual({ success: false, message: "ブックマークが見つかりません" });
+			expect(data).toEqual({
+				success: false,
+				message: "ブックマークが見つかりません",
+			});
 		});
 
 		it("エラー時に500を返すこと", async () => {

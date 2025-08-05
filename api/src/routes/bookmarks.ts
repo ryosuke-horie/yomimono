@@ -183,7 +183,9 @@ export const createBookmarksRouter = (
 				return c.json(createErrorResponseBody(error), 400);
 			}
 			console.error("Failed to add to favorites:", error);
-			const internalError = new InternalServerError("Failed to add to favorites");
+			const internalError = new InternalServerError(
+				"Failed to add to favorites",
+			);
 			return c.json(createErrorResponseBody(internalError), 500);
 		}
 	});
@@ -202,7 +204,9 @@ export const createBookmarksRouter = (
 				return c.json(createErrorResponseBody(error), 400);
 			}
 			console.error("Failed to remove from favorites:", error);
-			const internalError = new InternalServerError("Failed to remove from favorites");
+			const internalError = new InternalServerError(
+				"Failed to remove from favorites",
+			);
 			return c.json(createErrorResponseBody(internalError), 500);
 		}
 	});

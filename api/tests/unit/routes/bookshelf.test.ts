@@ -13,6 +13,25 @@ import {
 import { createBookshelfRouter } from "../../../src/routes/bookshelf";
 import type { IBookshelfService } from "../../../src/services/BookshelfService";
 
+// テスト用の型定義
+interface BookResponse {
+	success: boolean;
+	book?: Book & {
+		createdAt: string;
+		updatedAt: string;
+		completedAt?: string | null;
+	};
+	books?: Array<
+		Book & {
+			createdAt: string;
+			updatedAt: string;
+			completedAt?: string | null;
+		}
+	>;
+	error?: string;
+	message?: string;
+}
+
 // モックサービスの作成
 const createMockService = (): IBookshelfService => ({
 	getBooks: vi.fn(),
@@ -69,7 +88,7 @@ describe("本棚APIエンドポイント", () => {
 			vi.mocked(mockService.getBooks).mockResolvedValue(mockBooks);
 
 			const response = await app.request("/api/bookshelf");
-			const json = (await response.json()) as any;
+			const json = (await response.json()) as BookResponse;
 
 			expect(response.status).toBe(200);
 			expect(json.success).toBe(true);
@@ -107,7 +126,7 @@ describe("本棚APIエンドポイント", () => {
 			vi.mocked(mockService.getBooks).mockResolvedValue(mockBooks);
 
 			const response = await app.request("/api/bookshelf?status=unread");
-			const json = (await response.json()) as any;
+			const json = (await response.json()) as BookResponse;
 
 			expect(response.status).toBe(200);
 			expect(json.success).toBe(true);
@@ -127,7 +146,7 @@ describe("本棚APIエンドポイント", () => {
 			);
 
 			const response = await app.request("/api/bookshelf?status=invalid");
-			const json = (await response.json()) as any;
+			const json = (await response.json()) as BookResponse;
 
 			expect(response.status).toBe(400);
 			expect(json.success).toBe(false);
@@ -153,7 +172,7 @@ describe("本棚APIエンドポイント", () => {
 			vi.mocked(mockService.getBook).mockResolvedValue(mockBook);
 
 			const response = await app.request("/api/bookshelf/1");
-			const json = (await response.json()) as any;
+			const json = (await response.json()) as BookResponse;
 
 			expect(response.status).toBe(200);
 			expect(json.success).toBe(true);
@@ -171,7 +190,7 @@ describe("本棚APIエンドポイント", () => {
 			);
 
 			const response = await app.request("/api/bookshelf/999");
-			const json = (await response.json()) as any;
+			const json = (await response.json()) as BookResponse;
 
 			expect(response.status).toBe(404);
 			expect(json.success).toBe(false);
@@ -180,7 +199,7 @@ describe("本棚APIエンドポイント", () => {
 
 		test("無効なIDの場合400エラーを返す", async () => {
 			const response = await app.request("/api/bookshelf/invalid");
-			const json = (await response.json()) as any;
+			const json = (await response.json()) as BookResponse;
 
 			expect(response.status).toBe(400);
 			expect(json.success).toBe(false);
@@ -214,7 +233,7 @@ describe("本棚APIエンドポイント", () => {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(inputData),
 			});
-			const json = (await response.json()) as any;
+			const json = (await response.json()) as BookResponse;
 
 			expect(response.status).toBe(201);
 			expect(json.success).toBe(true);
@@ -242,7 +261,7 @@ describe("本棚APIエンドポイント", () => {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(inputData),
 			});
-			const json = (await response.json()) as any;
+			const json = (await response.json()) as BookResponse;
 
 			expect(response.status).toBe(400);
 			expect(json.success).toBe(false);
@@ -255,7 +274,7 @@ describe("本棚APIエンドポイント", () => {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ type: BookType.BOOK }),
 			});
-			const json = (await response.json()) as any;
+			const json = (await response.json()) as BookResponse;
 
 			expect(response.status).toBe(400);
 			expect(json.success).toBe(false);
@@ -289,7 +308,7 @@ describe("本棚APIエンドポイント", () => {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(updateData),
 			});
-			const json = (await response.json()) as any;
+			const json = (await response.json()) as BookResponse;
 
 			expect(response.status).toBe(200);
 			expect(json.success).toBe(true);
@@ -311,7 +330,7 @@ describe("本棚APIエンドポイント", () => {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ title: "更新" }),
 			});
-			const json = (await response.json()) as any;
+			const json = (await response.json()) as BookResponse;
 
 			expect(response.status).toBe(404);
 			expect(json.success).toBe(false);
@@ -341,7 +360,7 @@ describe("本棚APIエンドポイント", () => {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ status: BookStatus.COMPLETED }),
 			});
-			const json = (await response.json()) as any;
+			const json = (await response.json()) as BookResponse;
 
 			expect(response.status).toBe(200);
 			expect(json.success).toBe(true);
@@ -367,7 +386,7 @@ describe("本棚APIエンドポイント", () => {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ status: "invalid" }),
 			});
-			const json = (await response.json()) as any;
+			const json = (await response.json()) as BookResponse;
 
 			expect(response.status).toBe(400);
 			expect(json.success).toBe(false);
@@ -382,7 +401,7 @@ describe("本棚APIエンドポイント", () => {
 			const response = await app.request("/api/bookshelf/1", {
 				method: "DELETE",
 			});
-			const json = (await response.json()) as any;
+			const json = (await response.json()) as BookResponse;
 
 			expect(response.status).toBe(200);
 			expect(json.success).toBe(true);
@@ -398,7 +417,7 @@ describe("本棚APIエンドポイント", () => {
 			const response = await app.request("/api/bookshelf/999", {
 				method: "DELETE",
 			});
-			const json = (await response.json()) as any;
+			const json = (await response.json()) as BookResponse;
 
 			expect(response.status).toBe(404);
 			expect(json.success).toBe(false);
