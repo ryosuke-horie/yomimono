@@ -89,7 +89,7 @@ export class BookshelfService implements IBookshelfService {
 			return await this.bookRepository.findById(id);
 		} catch (error) {
 			if (error instanceof NotFoundError) {
-				throw new BookNotFoundError(id);
+				throw new BookNotFoundError(null, id);
 			}
 			throw error;
 		}
@@ -131,7 +131,7 @@ export class BookshelfService implements IBookshelfService {
 			existingBook = await this.bookRepository.findById(id);
 		} catch (error) {
 			if (error instanceof NotFoundError) {
-				throw new BookNotFoundError(id);
+				throw new BookNotFoundError(null, id);
 			}
 			throw error;
 		}

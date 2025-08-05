@@ -186,7 +186,7 @@ describe("本棚APIエンドポイント", () => {
 
 		test("存在しないIDの場合404エラーを返す", async () => {
 			vi.mocked(mockService.getBook).mockRejectedValue(
-				new BookNotFoundError(999),
+				new BookNotFoundError(null, 999),
 			);
 
 			const response = await app.request("/api/bookshelf/999");
@@ -322,7 +322,7 @@ describe("本棚APIエンドポイント", () => {
 
 		test("存在しない本を更新しようとすると404エラーを返す", async () => {
 			vi.mocked(mockService.updateBook).mockRejectedValue(
-				new BookNotFoundError(999),
+				new BookNotFoundError(null, 999),
 			);
 
 			const response = await app.request("/api/bookshelf/999", {
@@ -411,7 +411,7 @@ describe("本棚APIエンドポイント", () => {
 
 		test("存在しない本を削除しようとすると404エラーを返す", async () => {
 			vi.mocked(mockService.deleteBook).mockRejectedValue(
-				new BookNotFoundError(999),
+				new BookNotFoundError(null, 999),
 			);
 
 			const response = await app.request("/api/bookshelf/999", {
