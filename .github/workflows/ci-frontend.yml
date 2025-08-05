@@ -33,11 +33,18 @@ jobs:
           # pnpm/action-setupのデフォルトディレクトリをクリーンアップ
           rm -rf ~/setup-pnpm || true
           rm -rf /home/runner-user/setup-pnpm || true
+          rm -rf ~/.local/share/pnpm || true
+          rm -rf ~/work/_temp/setup-pnpm || true
+          rm -rf /opt/hostedtoolcache/pnpm || true
+          # pnpmのグローバル設定もクリア
+          rm -rf ~/.pnpm-store || true
+          rm -rf ~/.config/pnpm || true
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9.14.4
+          dest: ~/setup-pnpm-frontend
 
       - name: Install dependencies
         working-directory: ./frontend

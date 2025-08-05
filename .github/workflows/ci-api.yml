@@ -33,11 +33,17 @@ jobs:
           # pnpm/action-setupのデフォルトディレクトリをクリーンアップ
           rm -rf ~/setup-pnpm || true
           rm -rf /home/runner-user/setup-pnpm || true
+          # node_modulesやpnpmキャッシュもクリーンアップ
+          rm -rf ~/.pnpm-store || true
+          rm -rf ~/.local/share/pnpm || true
+          # プロセスがファイルを掴んでいる可能性があるため、少し待機
+          sleep 2
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9.14.4
+          dest: ~/pnpm-temp
 
       - name: Install dependencies
         working-directory: ./api
