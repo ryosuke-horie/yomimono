@@ -203,8 +203,19 @@ export default function BookshelfDetailPage() {
 										<a
 											href={book.url}
 											target="_blank"
-											rel="noopener noreferrer"
+											rel="noopener noreferrer nofollow"
 											className="text-blue-600 hover:underline"
+											onClick={(e) => {
+												// URLの基本的な検証
+												if (book.url) {
+													try {
+														new URL(book.url);
+													} catch {
+														e.preventDefault();
+														alert("無効なURLです");
+													}
+												}
+											}}
 										>
 											{book.url}
 										</a>
