@@ -660,7 +660,6 @@ if (import.meta.vitest) {
 					);
 
 					(useParams as ReturnType<typeof vi.fn>).mockReturnValue({ id });
-					const mockGetBook = vi.fn();
 					(useGetBook as ReturnType<typeof vi.fn>).mockReturnValue({
 						data: undefined,
 						isLoading: false,

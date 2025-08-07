@@ -11,7 +11,7 @@ export const useGetBook = (id: number) => {
 		queryKey: bookshelfKeys.detail(id),
 		queryFn: () => getBook(id),
 		staleTime: 1000 * 60 * 5, // 5分間はキャッシュを使用
-		enabled: id > 0, // 有効なIDの場合のみクエリを実行
+		enabled: Number.isInteger(id) && id > 0, // 有効なIDの場合のみクエリを実行
 	});
 };
 
@@ -74,6 +74,17 @@ if (import.meta.vitest) {
 			const { getBook } = await import("./api");
 
 			renderHook(() => useGetBook(0), {
+				wrapper: createWrapper(),
+			});
+
+			expect(getBook).not.toHaveBeenCalled();
+		});
+
+		it("整数以外のIDの場合はクエリを実行しない", async () => {
+			const { getBook } = await import("./api");
+
+			// 小数の場合
+			renderHook(() => useGetBook(1.5), {
 				wrapper: createWrapper(),
 			});
 
