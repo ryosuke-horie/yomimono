@@ -8,7 +8,7 @@
 
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EditBookModal } from "@/features/bookshelf/components/EditBookModal";
 import { useDeleteBook } from "@/features/bookshelf/queries/useDeleteBook";
 import { useGetBook } from "@/features/bookshelf/queries/useGetBook";
@@ -87,6 +87,25 @@ export default function BookshelfDetailPage() {
 	const updateStatus = useUpdateBookStatus();
 	const deleteBook = useDeleteBook();
 
+	// 削除確認ダイアログのフォーカストラップとESCキー処理
+	useEffect(() => {
+		if (showDeleteConfirmation) {
+			// ダイアログ表示時にフォーカスを移動
+			const dialog = document.querySelector('[role="dialog"]');
+			const firstButton = dialog?.querySelector("button");
+			firstButton?.focus();
+
+			// ESCキーでダイアログを閉じる
+			const handleEsc = (e: KeyboardEvent) => {
+				if (e.key === "Escape") {
+					setShowDeleteConfirmation(false);
+				}
+			};
+			document.addEventListener("keydown", handleEsc);
+			return () => document.removeEventListener("keydown", handleEsc);
+		}
+	}, [showDeleteConfirmation]);
+
 	// 無効なIDの場合は早期リターン
 	if (id === null) {
 		return (
@@ -136,10 +155,13 @@ export default function BookshelfDetailPage() {
 		return (
 			<div className="container mx-auto px-4 py-8">
 				<div className="max-w-2xl mx-auto">
-					<div className="animate-pulse">
-						<div className="h-32 bg-gray-200 rounded mb-4" />
-						<div className="h-8 bg-gray-200 rounded mb-4" />
-						<div className="h-4 bg-gray-200 rounded w-1/2" />
+					<div role="status" aria-live="polite">
+						<span className="sr-only">データを読み込み中です</span>
+						<div className="animate-pulse">
+							<div className="h-32 bg-gray-200 rounded mb-4" />
+							<div className="h-8 bg-gray-200 rounded mb-4" />
+							<div className="h-4 bg-gray-200 rounded w-1/2" />
+						</div>
 					</div>
 				</div>
 			</div>
@@ -206,6 +228,7 @@ export default function BookshelfDetailPage() {
 									type="button"
 									onClick={() => setIsEditModalOpen(true)}
 									className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+									aria-label={`${book.title}を編集`}
 								>
 									編集
 								</button>
@@ -213,6 +236,7 @@ export default function BookshelfDetailPage() {
 									type="button"
 									onClick={() => setShowDeleteConfirmation(true)}
 									className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+									aria-label={`${book.title}を削除`}
 								>
 									削除
 								</button>
@@ -281,6 +305,8 @@ export default function BookshelfDetailPage() {
 													? "bg-blue-600 text-white"
 													: "bg-gray-200 text-gray-700 hover:bg-gray-300"
 											} ${updateStatus.isPending ? "opacity-50 cursor-not-allowed" : ""}`}
+											aria-label={`ステータスを${BookHelpers.getStatusLabel(status)}に変更`}
+											aria-pressed={book.status === status}
 										>
 											{BookHelpers.getStatusLabel(status)}
 										</button>
@@ -330,10 +356,18 @@ export default function BookshelfDetailPage() {
 
 			{/* 削除確認ダイアログ */}
 			{showDeleteConfirmation && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+				<div
+					className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+					role="dialog"
+					aria-modal="true"
+					aria-labelledby="delete-dialog-title"
+					aria-describedby="delete-dialog-description"
+				>
 					<div className="bg-white rounded-lg p-6 max-w-sm w-full">
-						<h3 className="text-lg font-semibold mb-4">削除の確認</h3>
-						<p className="mb-6">
+						<h3 id="delete-dialog-title" className="text-lg font-semibold mb-4">
+							削除の確認
+						</h3>
+						<p id="delete-dialog-description" className="mb-6">
 							「{book.title}」を削除してもよろしいですか？
 							この操作は取り消せません。
 						</p>
@@ -342,6 +376,7 @@ export default function BookshelfDetailPage() {
 								type="button"
 								onClick={() => setShowDeleteConfirmation(false)}
 								className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+								aria-label="削除をキャンセル"
 							>
 								キャンセル
 							</button>
@@ -350,6 +385,7 @@ export default function BookshelfDetailPage() {
 								onClick={handleDelete}
 								disabled={deleteBook.isPending}
 								className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+								aria-label={`${book.title}を削除`}
 							>
 								{deleteBook.isPending ? "削除中..." : "削除"}
 							</button>
@@ -627,12 +663,7 @@ if (import.meta.vitest) {
 					);
 
 					(useParams as ReturnType<typeof vi.fn>).mockReturnValue({ id });
-					const mockGetBook = vi.fn();
-					(useGetBook as ReturnType<typeof vi.fn>).mockImplementation(
-						mockGetBook,
-					);
-
-					mockGetBook.mockReturnValue({
+					(useGetBook as ReturnType<typeof vi.fn>).mockReturnValue({
 						data: undefined,
 						isLoading: true,
 						error: null,
@@ -640,7 +671,7 @@ if (import.meta.vitest) {
 
 					render(React.createElement(BookshelfDetailPage));
 
-					expect(mockGetBook).toHaveBeenCalledWith(expected);
+					expect(useGetBook).toHaveBeenCalledWith(expected);
 				},
 			);
 
@@ -660,7 +691,6 @@ if (import.meta.vitest) {
 					);
 
 					(useParams as ReturnType<typeof vi.fn>).mockReturnValue({ id });
-					const mockGetBook = vi.fn();
 					(useGetBook as ReturnType<typeof vi.fn>).mockReturnValue({
 						data: undefined,
 						isLoading: false,
@@ -679,6 +709,121 @@ if (import.meta.vitest) {
 					).toBeInTheDocument();
 				},
 			);
+		});
+
+		describe("アクセシビリティの確認", () => {
+			it("削除確認ダイアログにARIA属性が正しく設定されている", async () => {
+				const { useGetBook } = await import(
+					"@/features/bookshelf/queries/useGetBook"
+				);
+				(useGetBook as ReturnType<typeof vi.fn>).mockReturnValue({
+					data: mockBook,
+					isLoading: false,
+					error: null,
+				});
+
+				render(React.createElement(BookshelfDetailPage));
+
+				// 削除ボタンをクリック（ヘッダーの削除ボタン）
+				const deleteButtons = screen.getAllByText("削除");
+				fireEvent.click(deleteButtons[0]);
+
+				// ダイアログのARIA属性を確認
+				const dialog = screen.getByRole("dialog");
+				expect(dialog).toHaveAttribute("aria-modal", "true");
+				expect(dialog).toHaveAttribute(
+					"aria-labelledby",
+					"delete-dialog-title",
+				);
+				expect(dialog).toHaveAttribute(
+					"aria-describedby",
+					"delete-dialog-description",
+				);
+
+				// タイトルとdescriptionのIDを確認
+				expect(screen.getByText("削除の確認")).toHaveAttribute(
+					"id",
+					"delete-dialog-title",
+				);
+				expect(
+					screen.getByText(/「テスト書籍」を削除してもよろしいですか/),
+				).toHaveAttribute("id", "delete-dialog-description");
+
+				// ボタンのaria-labelを確認
+				const cancelButton = screen.getByRole("button", {
+					name: "削除をキャンセル",
+				});
+				expect(cancelButton).toBeInTheDocument();
+
+				// 削除ボタンは2つある（ヘッダーとダイアログ内）ので、getAllByRoleを使用
+				const allDeleteButtons = screen.getAllByRole("button", {
+					name: "テスト書籍を削除",
+				});
+				expect(allDeleteButtons).toHaveLength(2);
+				expect(allDeleteButtons[1]).toBeInTheDocument(); // ダイアログ内の削除ボタン
+			});
+
+			it("編集・削除ボタンにaria-labelが設定されている", async () => {
+				const { useGetBook } = await import(
+					"@/features/bookshelf/queries/useGetBook"
+				);
+				(useGetBook as ReturnType<typeof vi.fn>).mockReturnValue({
+					data: mockBook,
+					isLoading: false,
+					error: null,
+				});
+
+				render(React.createElement(BookshelfDetailPage));
+
+				expect(
+					screen.getByRole("button", { name: "テスト書籍を編集" }),
+				).toBeInTheDocument();
+				expect(
+					screen.getByRole("button", { name: "テスト書籍を削除" }),
+				).toBeInTheDocument();
+			});
+
+			it("ステータスボタンにaria-label/aria-pressedが設定されている", async () => {
+				const { useGetBook } = await import(
+					"@/features/bookshelf/queries/useGetBook"
+				);
+				(useGetBook as ReturnType<typeof vi.fn>).mockReturnValue({
+					data: mockBook,
+					isLoading: false,
+					error: null,
+				});
+
+				render(React.createElement(BookshelfDetailPage));
+
+				const unreadButton = screen.getByRole("button", {
+					name: "ステータスを未読に変更",
+				});
+				expect(unreadButton).toHaveAttribute("aria-pressed", "true");
+
+				const readingButton = screen.getByRole("button", {
+					name: "ステータスを読書中に変更",
+				});
+				expect(readingButton).toHaveAttribute("aria-pressed", "false");
+			});
+
+			it("ローディング状態でスクリーンリーダー向けのメッセージが表示される", async () => {
+				const { useGetBook } = await import(
+					"@/features/bookshelf/queries/useGetBook"
+				);
+				(useGetBook as ReturnType<typeof vi.fn>).mockReturnValue({
+					data: undefined,
+					isLoading: true,
+					error: null,
+				});
+
+				render(React.createElement(BookshelfDetailPage));
+
+				const status = screen.getByRole("status");
+				expect(status).toHaveAttribute("aria-live", "polite");
+				expect(screen.getByText("データを読み込み中です")).toHaveClass(
+					"sr-only",
+				);
+			});
 		});
 	});
 }
