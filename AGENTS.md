@@ -1,0 +1,39 @@
+# Repository Guidelines
+
+## プロジェクト構成と配置
+- ルート配下: `api`(Cloudflare Workers/Hono), `frontend`(Next.js), `extension`(Chrome拡張), `mcp`(MCPユーティリティ), `docs`(設計/ADR)。
+- テスト: APIは`api/tests`(Vitest)、フロントは`frontend/src`の単体＋`frontend/e2e`のE2E(Playwright)。
+- アセット: `frontend/public`、拡張の画像は`extension/images`。
+
+## 開発・ビルド・テスト
+- 依存関係: `pnpm i`（`only-allow`でpnpm固定）。
+- 同時起動: ルートで`pnpm run dev:full`（API/FEを並行起動）。
+- API: `cd api && pnpm run dev`（Wranglerローカル）/ `pnpm run deploy`。
+- フロント: `cd frontend && pnpm run dev|build|start`、プレビュー`pnpm run preview`。
+- Lint/Format: ルートまたは各パッケージで`pnpm run lint|format`（Biome使用）。
+- テスト: API `pnpm -C api run test`、FE 単体 `pnpm -C frontend run test:run`、E2E `pnpm -C frontend run test:e2e`。
+  - 注: GitHub-hostedでのE2Eは一時停止中。ローカルで実行してください。
+
+## コーディング規約・命名
+- フォーマッタ: Biome（タブインデント、ダブルクォート、import整列）。
+- 言語: TypeScript（API/FE/MCP）、拡張はJS中心。
+- 命名: 変数/関数camelCase、ReactコンポーネントPascalCase、ファイル`kebab-case.ts[x]`。
+- TSDocコメントを先頭に、可能なら実装と同一ファイルにVitest（`import.meta.vitest`）でTDDを推奨。
+
+## テスト方針
+- フレームワーク: Vitest（API/FE）、Playwright（E2E）。
+- カバレッジ: APIはlines 76%/funcs・branches 80%、FEはglobal 80%（各`vitest.config.ts`参照）。
+- 実行例: `pnpm -C frontend run test:coverage`、`pnpm -C api run test`。
+- E2Eは`pnpm run dev:full`でサーバー起動後に実行。
+
+## コミット／PR
+- メッセージ: 絵文字＋日本語の要約（例: `🐛 fix: null IDを正しく扱う`）。`closes #123`等でIssue紐付け。ブランチは`issue-123`。
+- PR: 目的/変更範囲/動作確認手順/スクリーンショット（UI）を記載。CIパス、lint/format済みが必須。
+
+## セキュリティ・設定
+- `.env`はコミットしない。各ディレクトリの`.env.example`を複製し使用。Wrangler/DB操作はdevとprodを明確に区別。
+- マイグレーションは`api`のdrizzle-kitスクリプトを利用。CIでの自動実行は避ける。
+
+## 言語・コミュニケーション
+- 原則、日本語で記述・説明・レビューを行う（コードコメント/テスト説明含む）。
+- 例外が必要な場合でも、要約は日本語を添付してください。
