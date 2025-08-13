@@ -11,6 +11,22 @@ import type {
 } from "@/features/bookshelf/types";
 import { API_BASE_URL } from "@/lib/api/config";
 
+// APIエラークラス
+export class ApiError extends Error {
+	constructor(
+		message: string,
+		public readonly details: {
+			cause?: unknown;
+			statusCode?: number;
+			operation?: string;
+			endpoint?: string;
+		} = {},
+	) {
+		super(message);
+		this.name = "ApiError";
+	}
+}
+
 // APIレスポンスの型定義
 interface BookshelfApiResponse<T = Book> {
 	success: boolean;
@@ -34,23 +50,46 @@ export const getBooks = async (status?: BookStatusValue): Promise<Book[]> => {
 	}
 
 	const url = `${API_BASE_URL}/api/bookshelf${params.toString() ? `?${params.toString()}` : ""}`;
-	const response = await fetch(url, {
-		headers: {
-			Accept: "application/json",
-			"Content-Type": "application/json",
-		},
-	});
+	try {
+		const response = await fetch(url, {
+			headers: {
+				Accept: "application/json",
+				"Content-Type": "application/json",
+			},
+		});
 
-	if (!response.ok) {
-		throw new Error(`Failed to fetch books: ${response.status}`);
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({}));
+			throw new ApiError(
+				`本棚アイテムの取得に失敗しました: ${errorData.error || response.statusText}`,
+				{
+					statusCode: response.status,
+					operation: "get_books",
+					endpoint: url,
+					cause: errorData,
+				},
+			);
+		}
+
+		const data = (await response.json()) as BookshelfApiResponse<Book>;
+		if (!data.success) {
+			throw new ApiError(data.error || "本棚アイテムの取得に失敗しました", {
+				operation: "get_books",
+				endpoint: url,
+			});
+		}
+
+		return data.books || [];
+	} catch (error) {
+		if (error instanceof ApiError) {
+			throw error;
+		}
+		throw new ApiError("本棚アイテムの取得中にエラーが発生しました", {
+			cause: error,
+			operation: "get_books",
+			endpoint: url,
+		});
 	}
-
-	const data = (await response.json()) as BookshelfApiResponse<Book>;
-	if (!data.success) {
-		throw new Error(data.error || "Failed to fetch books");
-	}
-
-	return data.books || [];
 };
 
 /**
@@ -60,23 +99,52 @@ export const getBooks = async (status?: BookStatusValue): Promise<Book[]> => {
  */
 export const getBook = async (id: number): Promise<Book> => {
 	const url = `${API_BASE_URL}/api/bookshelf/${id}`;
-	const response = await fetch(url, {
-		headers: {
-			Accept: "application/json",
-			"Content-Type": "application/json",
-		},
-	});
+	try {
+		const response = await fetch(url, {
+			headers: {
+				Accept: "application/json",
+				"Content-Type": "application/json",
+			},
+		});
 
-	if (!response.ok) {
-		throw new Error(`Failed to fetch book: ${response.status}`);
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({}));
+			throw new ApiError(
+				`本棚アイテムの取得に失敗しました (ID: ${id}): ${errorData.error || response.statusText}`,
+				{
+					statusCode: response.status,
+					operation: "get_book",
+					endpoint: url,
+					cause: errorData,
+				},
+			);
+		}
+
+		const data = (await response.json()) as BookshelfApiResponse<Book>;
+		if (!data.success || !data.book) {
+			throw new ApiError(
+				data.error || `本棚アイテムが見つかりません (ID: ${id})`,
+				{
+					operation: "get_book",
+					endpoint: url,
+				},
+			);
+		}
+
+		return data.book;
+	} catch (error) {
+		if (error instanceof ApiError) {
+			throw error;
+		}
+		throw new ApiError(
+			`本棚アイテムの取得中にエラーが発生しました (ID: ${id})`,
+			{
+				cause: error,
+				operation: "get_book",
+				endpoint: url,
+			},
+		);
 	}
-
-	const data = (await response.json()) as BookshelfApiResponse<Book>;
-	if (!data.success || !data.book) {
-		throw new Error(data.error || "Failed to fetch book");
-	}
-
-	return data.book;
 };
 
 // --- Mutation Functions ---
@@ -88,25 +156,48 @@ export const getBook = async (id: number): Promise<Book> => {
  */
 export const createBook = async (input: CreateBookInput): Promise<Book> => {
 	const url = `${API_BASE_URL}/api/bookshelf`;
-	const response = await fetch(url, {
-		method: "POST",
-		headers: {
-			Accept: "application/json",
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify(input),
-	});
+	try {
+		const response = await fetch(url, {
+			method: "POST",
+			headers: {
+				Accept: "application/json",
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(input),
+		});
 
-	if (!response.ok) {
-		throw new Error(`Failed to create book: ${response.status}`);
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({}));
+			throw new ApiError(
+				`本棚アイテムの作成に失敗しました: ${errorData.error || response.statusText}`,
+				{
+					statusCode: response.status,
+					operation: "create_book",
+					endpoint: url,
+					cause: errorData,
+				},
+			);
+		}
+
+		const data = (await response.json()) as BookshelfApiResponse<Book>;
+		if (!data.success || !data.book) {
+			throw new ApiError(data.error || "本棚アイテムの作成に失敗しました", {
+				operation: "create_book",
+				endpoint: url,
+			});
+		}
+
+		return data.book;
+	} catch (error) {
+		if (error instanceof ApiError) {
+			throw error;
+		}
+		throw new ApiError("本棚アイテムの作成中にエラーが発生しました", {
+			cause: error,
+			operation: "create_book",
+			endpoint: url,
+		});
 	}
-
-	const data = (await response.json()) as BookshelfApiResponse<Book>;
-	if (!data.success || !data.book) {
-		throw new Error(data.error || "Failed to create book");
-	}
-
-	return data.book;
 };
 
 /**
@@ -120,25 +211,54 @@ export const updateBook = async (
 	input: UpdateBookInput,
 ): Promise<Book> => {
 	const url = `${API_BASE_URL}/api/bookshelf/${id}`;
-	const response = await fetch(url, {
-		method: "PUT",
-		headers: {
-			Accept: "application/json",
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify(input),
-	});
+	try {
+		const response = await fetch(url, {
+			method: "PUT",
+			headers: {
+				Accept: "application/json",
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(input),
+		});
 
-	if (!response.ok) {
-		throw new Error(`Failed to update book: ${response.status}`);
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({}));
+			throw new ApiError(
+				`本棚アイテムの更新に失敗しました (ID: ${id}): ${errorData.error || response.statusText}`,
+				{
+					statusCode: response.status,
+					operation: "update_book",
+					endpoint: url,
+					cause: errorData,
+				},
+			);
+		}
+
+		const data = (await response.json()) as BookshelfApiResponse<Book>;
+		if (!data.success || !data.book) {
+			throw new ApiError(
+				data.error || `本棚アイテムの更新に失敗しました (ID: ${id})`,
+				{
+					operation: "update_book",
+					endpoint: url,
+				},
+			);
+		}
+
+		return data.book;
+	} catch (error) {
+		if (error instanceof ApiError) {
+			throw error;
+		}
+		throw new ApiError(
+			`本棚アイテムの更新中にエラーが発生しました (ID: ${id})`,
+			{
+				cause: error,
+				operation: "update_book",
+				endpoint: url,
+			},
+		);
 	}
-
-	const data = (await response.json()) as BookshelfApiResponse<Book>;
-	if (!data.success || !data.book) {
-		throw new Error(data.error || "Failed to update book");
-	}
-
-	return data.book;
 };
 
 /**
@@ -152,25 +272,51 @@ export const updateBookStatus = async (
 	status: BookStatusValue,
 ): Promise<Book> => {
 	const url = `${API_BASE_URL}/api/bookshelf/${id}/status`;
-	const response = await fetch(url, {
-		method: "PATCH",
-		headers: {
-			Accept: "application/json",
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({ status }),
-	});
+	try {
+		const response = await fetch(url, {
+			method: "PATCH",
+			headers: {
+				Accept: "application/json",
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ status }),
+		});
 
-	if (!response.ok) {
-		throw new Error(`Failed to update book status: ${response.status}`);
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({}));
+			throw new ApiError(
+				`ステータスの更新に失敗しました (ID: ${id}): ${errorData.error || response.statusText}`,
+				{
+					statusCode: response.status,
+					operation: "update_book_status",
+					endpoint: url,
+					cause: errorData,
+				},
+			);
+		}
+
+		const data = (await response.json()) as BookshelfApiResponse<Book>;
+		if (!data.success || !data.book) {
+			throw new ApiError(
+				data.error || `ステータスの更新に失敗しました (ID: ${id})`,
+				{
+					operation: "update_book_status",
+					endpoint: url,
+				},
+			);
+		}
+
+		return data.book;
+	} catch (error) {
+		if (error instanceof ApiError) {
+			throw error;
+		}
+		throw new ApiError(`ステータスの更新中にエラーが発生しました (ID: ${id})`, {
+			cause: error,
+			operation: "update_book_status",
+			endpoint: url,
+		});
 	}
-
-	const data = (await response.json()) as BookshelfApiResponse<Book>;
-	if (!data.success || !data.book) {
-		throw new Error(data.error || "Failed to update book status");
-	}
-
-	return data.book;
 };
 
 /**
@@ -179,21 +325,50 @@ export const updateBookStatus = async (
  */
 export const deleteBook = async (id: number): Promise<void> => {
 	const url = `${API_BASE_URL}/api/bookshelf/${id}`;
-	const response = await fetch(url, {
-		method: "DELETE",
-		headers: {
-			Accept: "application/json",
-			"Content-Type": "application/json",
-		},
-	});
+	try {
+		const response = await fetch(url, {
+			method: "DELETE",
+			headers: {
+				Accept: "application/json",
+				"Content-Type": "application/json",
+			},
+		});
 
-	if (!response.ok) {
-		throw new Error(`Failed to delete book: ${response.status}`);
-	}
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({}));
+			throw new ApiError(
+				`本棚アイテムの削除に失敗しました (ID: ${id}): ${errorData.error || response.statusText}`,
+				{
+					statusCode: response.status,
+					operation: "delete_book",
+					endpoint: url,
+					cause: errorData,
+				},
+			);
+		}
 
-	const data = (await response.json()) as BookshelfApiResponse;
-	if (!data.success) {
-		throw new Error(data.error || "Failed to delete book");
+		const data = (await response.json()) as BookshelfApiResponse;
+		if (!data.success) {
+			throw new ApiError(
+				data.error || `本棚アイテムの削除に失敗しました (ID: ${id})`,
+				{
+					operation: "delete_book",
+					endpoint: url,
+				},
+			);
+		}
+	} catch (error) {
+		if (error instanceof ApiError) {
+			throw error;
+		}
+		throw new ApiError(
+			`本棚アイテムの削除中にエラーが発生しました (ID: ${id})`,
+			{
+				cause: error,
+				operation: "delete_book",
+				endpoint: url,
+			},
+		);
 	}
 };
 
@@ -253,13 +428,48 @@ if (import.meta.vitest) {
 			);
 		});
 
-		it("APIエラー時に例外をスローする", async () => {
+		it("APIエラー時にApiErrorをスローする", async () => {
 			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 				ok: false,
 				status: 500,
+				statusText: "Internal Server Error",
+				json: async () => ({ error: "サーバーエラー" }),
 			});
 
-			await expect(getBooks()).rejects.toThrow("Failed to fetch books: 500");
+			try {
+				await getBooks();
+				expect.fail("エラーがスローされるべき");
+			} catch (error) {
+				expect(error).toBeInstanceOf(ApiError);
+				expect(error).toMatchObject({
+					name: "ApiError",
+					message: expect.stringContaining("本棚アイテムの取得に失敗しました"),
+					details: expect.objectContaining({
+						statusCode: 500,
+						operation: "get_books",
+					}),
+				});
+			}
+		});
+		it("レスポンスパースエラー時にApiErrorをスローする", async () => {
+			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+				ok: true,
+				json: async () => ({ success: false, error: "データ不正" }),
+			});
+
+			try {
+				await getBooks();
+				expect.fail("エラーがスローされるべき");
+			} catch (error) {
+				expect(error).toBeInstanceOf(ApiError);
+				expect(error).toMatchObject({
+					name: "ApiError",
+					message: "データ不正",
+					details: expect.objectContaining({
+						operation: "get_books",
+					}),
+				});
+			}
 		});
 	});
 
@@ -300,6 +510,37 @@ if (import.meta.vitest) {
 				}),
 			);
 		});
+
+		it("作成失敗時にApiErrorをスローする", async () => {
+			const input: CreateBookInput = {
+				type: "book",
+				title: "新しい書籍",
+				url: null,
+				imageUrl: null,
+			};
+
+			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+				ok: false,
+				status: 400,
+				statusText: "Bad Request",
+				json: async () => ({ error: "必須項目が不足しています" }),
+			});
+
+			try {
+				await createBook(input);
+				expect.fail("エラーがスローされるべき");
+			} catch (error) {
+				expect(error).toBeInstanceOf(ApiError);
+				expect(error).toMatchObject({
+					name: "ApiError",
+					message: expect.stringContaining("本棚アイテムの作成に失敗しました"),
+					details: expect.objectContaining({
+						statusCode: 400,
+						operation: "create_book",
+					}),
+				});
+			}
+		});
 	});
 
 	describe("updateBookStatus", () => {
@@ -335,6 +576,30 @@ if (import.meta.vitest) {
 				}),
 			);
 		});
+
+		it("ステータス更新失敗時にApiErrorをスローする", async () => {
+			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+				ok: false,
+				status: 404,
+				statusText: "Not Found",
+				json: async () => ({ error: "アイテムが見つかりません" }),
+			});
+
+			try {
+				await updateBookStatus(999, "completed");
+				expect.fail("エラーがスローされるべき");
+			} catch (error) {
+				expect(error).toBeInstanceOf(ApiError);
+				expect(error).toMatchObject({
+					name: "ApiError",
+					message: expect.stringContaining("ステータスの更新に失敗しました"),
+					details: expect.objectContaining({
+						statusCode: 404,
+						operation: "update_book_status",
+					}),
+				});
+			}
+		});
 	});
 
 	describe("deleteBook", () => {
@@ -358,6 +623,30 @@ if (import.meta.vitest) {
 					method: "DELETE",
 				}),
 			);
+		});
+
+		it("削除失敗時にApiErrorをスローする", async () => {
+			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+				ok: false,
+				status: 403,
+				statusText: "Forbidden",
+				json: async () => ({ error: "削除権限がありません" }),
+			});
+
+			try {
+				await deleteBook(1);
+				expect.fail("エラーがスローされるべき");
+			} catch (error) {
+				expect(error).toBeInstanceOf(ApiError);
+				expect(error).toMatchObject({
+					name: "ApiError",
+					message: expect.stringContaining("本棚アイテムの削除に失敗しました"),
+					details: expect.objectContaining({
+						statusCode: 403,
+						operation: "delete_book",
+					}),
+				});
+			}
 		});
 	});
 }
