@@ -22,6 +22,19 @@ export const BookStatus = {
 
 export type BookStatusValue = (typeof BookStatus)[keyof typeof BookStatus];
 
+// BookId型の定義（ブランド型）
+export type BookId = number & { readonly __brand: unique symbol };
+
+// BookIdのバリデーション関数
+export function isValidBookId(value: unknown): value is BookId {
+	return typeof value === "number" && Number.isInteger(value) && value > 0;
+}
+
+// BookIdへの変換関数
+export function toBookId(value: number): BookId | null {
+	return isValidBookId(value) ? (value as BookId) : null;
+}
+
 // 本棚アイテムの型定義
 export interface Book {
 	id: number;
@@ -71,6 +84,42 @@ if (import.meta.vitest) {
 			expect(BookStatus.UNREAD).toBe("unread");
 			expect(BookStatus.READING).toBe("reading");
 			expect(BookStatus.COMPLETED).toBe("completed");
+		});
+	});
+
+	describe("BookId型のヘルパー関数", () => {
+		describe("isValidBookId", () => {
+			it("正の整数の場合はtrueを返す", () => {
+				expect(isValidBookId(1)).toBe(true);
+				expect(isValidBookId(100)).toBe(true);
+				expect(isValidBookId(999)).toBe(true);
+			});
+
+			it("無効な値の場合はfalseを返す", () => {
+				expect(isValidBookId(0)).toBe(false);
+				expect(isValidBookId(-1)).toBe(false);
+				expect(isValidBookId(1.5)).toBe(false);
+				expect(isValidBookId("1")).toBe(false);
+				expect(isValidBookId(null)).toBe(false);
+				expect(isValidBookId(undefined)).toBe(false);
+				expect(isValidBookId(Number.NaN)).toBe(false);
+				expect(isValidBookId(Number.POSITIVE_INFINITY)).toBe(false);
+			});
+		});
+
+		describe("toBookId", () => {
+			it("正の整数の場合はBookIdを返す", () => {
+				const bookId = toBookId(1);
+				expect(bookId).toBe(1);
+			});
+
+			it("無効な値の場合はnullを返す", () => {
+				expect(toBookId(0)).toBe(null);
+				expect(toBookId(-1)).toBe(null);
+				expect(toBookId(1.5)).toBe(null);
+				expect(toBookId(Number.NaN)).toBe(null);
+				expect(toBookId(Number.POSITIVE_INFINITY)).toBe(null);
+			});
 		});
 	});
 
