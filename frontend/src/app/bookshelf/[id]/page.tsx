@@ -15,6 +15,7 @@ import { useGetBook } from "@/features/bookshelf/queries/useGetBook";
 import { useUpdateBookStatus } from "@/features/bookshelf/queries/useUpdateBookStatus";
 import type { BookStatusValue } from "@/features/bookshelf/types";
 import { BookStatus, BookType } from "@/features/bookshelf/types";
+import { useToast } from "@/hooks/useToast";
 
 // ヘルパー関数をオブジェクトにまとめて再作成を防止
 const BookHelpers = {
@@ -63,6 +64,7 @@ const BookHelpers = {
 export default function BookshelfDetailPage() {
 	const params = useParams();
 	const router = useRouter();
+	const { showToast } = useToast();
 	const id = useMemo(() => {
 		const rawId = params?.id;
 
@@ -276,7 +278,12 @@ export default function BookshelfDetailPage() {
 														new URL(book.url);
 													} catch {
 														e.preventDefault();
-														alert("無効なURLです");
+														showToast({
+															type: "error",
+															message:
+																"無効なURLです。正しいURL形式を入力してください。",
+															duration: 3000,
+														});
 													}
 												}
 											}}
@@ -434,6 +441,13 @@ if (import.meta.vitest) {
 	// EditBookModalのモック
 	vi.mock("@/features/bookshelf/components/EditBookModal", () => ({
 		EditBookModal: vi.fn(() => null),
+	}));
+
+	// useToastフックのモック
+	vi.mock("@/hooks/useToast", () => ({
+		useToast: vi.fn(() => ({
+			showToast: vi.fn(),
+		})),
 	}));
 
 	describe("BookshelfDetailPage", () => {
@@ -823,6 +837,78 @@ if (import.meta.vitest) {
 				expect(screen.getByText("データを読み込み中です")).toHaveClass(
 					"sr-only",
 				);
+			});
+
+			it("無効なURLをクリックするとToast通知が表示される", async () => {
+				const mockShowToast = vi.fn();
+
+				// useToastフックのモック更新
+				const { useToast } = await import("@/hooks/useToast");
+				(useToast as ReturnType<typeof vi.fn>).mockReturnValue({
+					showToast: mockShowToast,
+				});
+
+				const { useGetBook } = await import(
+					"@/features/bookshelf/queries/useGetBook"
+				);
+
+				const mockBookWithInvalidUrl = {
+					...mockBook,
+					type: "pdf" as const,
+					url: "not-a-valid-url",
+				};
+
+				(useGetBook as ReturnType<typeof vi.fn>).mockReturnValue({
+					data: mockBookWithInvalidUrl,
+					isLoading: false,
+					error: null,
+				});
+
+				render(React.createElement(BookshelfDetailPage));
+
+				const linkElement = screen.getByText("not-a-valid-url");
+				fireEvent.click(linkElement);
+
+				// Toast通知が呼ばれることを確認
+				expect(mockShowToast).toHaveBeenCalledWith({
+					type: "error",
+					message: "無効なURLです。正しいURL形式を入力してください。",
+					duration: 3000,
+				});
+			});
+
+			it("有効なURLをクリックしてもToast通知は表示されない", async () => {
+				const mockShowToast = vi.fn();
+
+				// useToastフックのモック更新
+				const { useToast } = await import("@/hooks/useToast");
+				(useToast as ReturnType<typeof vi.fn>).mockReturnValue({
+					showToast: mockShowToast,
+				});
+
+				const { useGetBook } = await import(
+					"@/features/bookshelf/queries/useGetBook"
+				);
+
+				const mockBookWithValidUrl = {
+					...mockBook,
+					type: "github" as const,
+					url: "https://github.com/user/repo",
+				};
+
+				(useGetBook as ReturnType<typeof vi.fn>).mockReturnValue({
+					data: mockBookWithValidUrl,
+					isLoading: false,
+					error: null,
+				});
+
+				render(React.createElement(BookshelfDetailPage));
+
+				const linkElement = screen.getByText("https://github.com/user/repo");
+				fireEvent.click(linkElement);
+
+				// Toast通知が呼ばれないことを確認
+				expect(mockShowToast).not.toHaveBeenCalled();
 			});
 		});
 	});
