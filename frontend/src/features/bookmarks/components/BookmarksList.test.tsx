@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
+import { ToastProvider } from "@/hooks/useToast";
 import { BookmarksList } from "./BookmarksList";
 
 const createTestQueryClient = () =>
@@ -38,7 +39,9 @@ describe("BookmarksList", () => {
 		const queryClient = createTestQueryClient();
 		render(
 			<QueryClientProvider client={queryClient}>
-				<BookmarksList bookmarks={[]} />
+				<ToastProvider>
+					<BookmarksList bookmarks={[]} />
+				</ToastProvider>
 			</QueryClientProvider>,
 		);
 		expect(
@@ -52,7 +55,9 @@ describe("BookmarksList", () => {
 
 		render(
 			<QueryClientProvider client={queryClient}>
-				<BookmarksList bookmarks={bookmarks} />
+				<ToastProvider>
+					<BookmarksList bookmarks={bookmarks} />
+				</ToastProvider>
 			</QueryClientProvider>,
 		);
 
@@ -70,7 +75,9 @@ describe("BookmarksList", () => {
 
 		render(
 			<QueryClientProvider client={queryClient}>
-				<BookmarksList bookmarks={bookmarks} />
+				<ToastProvider>
+					<BookmarksList bookmarks={bookmarks} />
+				</ToastProvider>
 			</QueryClientProvider>,
 		);
 
@@ -87,7 +94,9 @@ describe("BookmarksList", () => {
 
 		render(
 			<QueryClientProvider client={queryClient}>
-				<BookmarksList bookmarks={bookmarks} onLabelClick={onLabelClick} />
+				<ToastProvider>
+					<BookmarksList bookmarks={bookmarks} onLabelClick={onLabelClick} />
+				</ToastProvider>
 			</QueryClientProvider>,
 		);
 
@@ -103,7 +112,9 @@ describe("BookmarksList", () => {
 
 		render(
 			<QueryClientProvider client={queryClient}>
-				<BookmarksList bookmarks={bookmarks} />
+				<ToastProvider>
+					<BookmarksList bookmarks={bookmarks} />
+				</ToastProvider>
 			</QueryClientProvider>,
 		);
 
@@ -124,7 +135,9 @@ describe("BookmarksList", () => {
 
 		render(
 			<QueryClientProvider client={queryClient}>
-				<BookmarksList bookmarks={bookmarks} />
+				<ToastProvider>
+					<BookmarksList bookmarks={bookmarks} />
+				</ToastProvider>
 			</QueryClientProvider>,
 		);
 
