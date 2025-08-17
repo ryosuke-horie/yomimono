@@ -172,7 +172,7 @@ if (import.meta.vitest) {
 	const { test, expect } = import.meta.vitest;
 
 	test("determineStatusCode はBaseErrorインスタンスから正しいステータスコードを返す", () => {
-		const notFoundError = new BookNotFoundError(null, 1);
+		const notFoundError = new BookNotFoundError(1);
 		expect(determineStatusCode(notFoundError)).toBe(404);
 
 		const bookshelfNotFoundError = new BookshelfNotFoundError(1);

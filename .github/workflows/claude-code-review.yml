@@ -29,10 +29,8 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
-          mode: "experimental-review"
-          
           # Custom instructions for Japanese code reviews
-          custom_instructions: |
+          direct_prompt: |
             **重要: このレビューは必ず日本語で実施してください。すべてのコメント、フィードバック、提案を日本語で記述してください。**
             
             このプルリクエスト（PR）をレビューし、以下の観点から詳細なフィードバックを提供してください。
