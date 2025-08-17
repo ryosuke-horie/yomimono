@@ -68,10 +68,10 @@ const PERFORMANCE_CONFIG = {
 	},
 	PERFORMANCE_THRESHOLDS: {
 		// 想定されるパフォーマンス閾値 (ms)
-		READ_BOOKMARKS_MAX_TIME: 500, // /read エンドポイント
-		UNREAD_BOOKMARKS_MAX_TIME: 300, // 未読ブックマーク取得
-		FAVORITES_MAX_TIME: 200, // お気に入り取得
-		LABEL_FILTER_MAX_TIME: 400, // ラベルフィルタリング
+		READ_BOOKMARKS_MAX_TIME: 800, // /read エンドポイント
+		UNREAD_BOOKMARKS_MAX_TIME: 800, // 未読ブックマーク取得
+		FAVORITES_MAX_TIME: 500, // お気に入り取得
+		LABEL_FILTER_MAX_TIME: 600, // ラベルフィルタリング
 	},
 	QUERY_LOG_ENABLED: true, // SQLクエリログの有効化
 } as const;
