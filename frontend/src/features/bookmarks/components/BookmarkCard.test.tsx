@@ -139,7 +139,9 @@ describe("BookmarkCard", () => {
 
 	it("IDコピーボタンクリック時にクリップボードエラーが発生した場合、エラーToastを表示する", async () => {
 		// クリップボードAPIをエラーを返すようにモック
-		const mockWriteText = vi.fn().mockRejectedValue(new Error("Clipboard error"));
+		const mockWriteText = vi
+			.fn()
+			.mockRejectedValue(new Error("Clipboard error"));
 		Object.assign(navigator, {
 			clipboard: {
 				writeText: mockWriteText,
@@ -153,7 +155,9 @@ describe("BookmarkCard", () => {
 
 		// エラーToast通知が表示されることを確認
 		await waitFor(() => {
-			expect(screen.getByText("クリップボードへのコピーに失敗しました")).toBeInTheDocument();
+			expect(
+				screen.getByText("クリップボードへのコピーに失敗しました"),
+			).toBeInTheDocument();
 		});
 
 		// モックをリセット
@@ -182,7 +186,9 @@ describe("BookmarkCard", () => {
 
 	it("URLコピーボタンクリック時にクリップボードエラーが発生した場合、エラーToastを表示する", async () => {
 		// クリップボードAPIをエラーを返すようにモック
-		const mockWriteText = vi.fn().mockRejectedValue(new Error("Clipboard error"));
+		const mockWriteText = vi
+			.fn()
+			.mockRejectedValue(new Error("Clipboard error"));
 		Object.assign(navigator, {
 			clipboard: {
 				writeText: mockWriteText,

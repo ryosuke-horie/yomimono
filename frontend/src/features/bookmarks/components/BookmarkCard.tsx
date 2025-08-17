@@ -65,7 +65,7 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 				message: "IDをコピーしました",
 				duration: 2000,
 			});
-		} catch (error) {
+		} catch {
 			showToast({
 				type: "error",
 				message: "クリップボードへのコピーに失敗しました",
@@ -85,7 +85,7 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 				message: "URLをコピーしました",
 				duration: 2000,
 			});
-		} catch (error) {
+		} catch {
 			showToast({
 				type: "error",
 				message: "URLのコピーに失敗しました",

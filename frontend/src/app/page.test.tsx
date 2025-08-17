@@ -4,6 +4,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ToastProvider } from "@/hooks/useToast";
 import Page from "./page";
 
 // Next.js router のモック
@@ -26,7 +27,9 @@ const createWrapper = () => {
 		},
 	});
 	return ({ children }: { children: React.ReactNode }) => (
-		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+		<QueryClientProvider client={queryClient}>
+			<ToastProvider>{children}</ToastProvider>
+		</QueryClientProvider>
 	);
 };
 
