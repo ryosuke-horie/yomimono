@@ -55,6 +55,13 @@ export class BookshelfOperationError extends BaseError {
 	}
 }
 
+export class BookOperationError extends HttpError {
+	constructor(operation: string) {
+		super(`Book ${operation} failed: book not found`, 404);
+		this.name = "BookOperationError";
+	}
+}
+
 if (import.meta.vitest) {
 	const { test, expect } = import.meta.vitest;
 
@@ -128,5 +135,14 @@ if (import.meta.vitest) {
 		expect(error.statusCode).toBe(500);
 		expect(error).toBeInstanceOf(Error);
 		expect(error).toBeInstanceOf(BaseError);
+	});
+
+	test("BookOperationError を正しく作成できる", () => {
+		const error = new BookOperationError("update");
+		expect(error.message).toBe("Book update failed: book not found");
+		expect(error.name).toBe("BookOperationError");
+		expect(error.statusCode).toBe(404);
+		expect(error).toBeInstanceOf(Error);
+		expect(error).toBeInstanceOf(HttpError);
 	});
 }

@@ -6,6 +6,7 @@ import { describe, expect, test, vi } from "vitest";
 import type { Book, BookStatusValue, BookTypeValue } from "../db/schema";
 import {
 	BookNotFoundError,
+	BookOperationError,
 	InvalidBookDataError,
 } from "../exceptions/bookshelf";
 import { NotFoundError } from "../exceptions/http";
@@ -282,6 +283,28 @@ describe("BookshelfService", () => {
 			);
 		});
 
+		test("更新操作が失敗した場合エラーが発生する", async () => {
+			const mockRepository = createMockRepository();
+			mockRepository.findById = vi.fn().mockResolvedValue({
+				id: 1,
+				type: "book",
+				title: "既存の本",
+				url: null,
+				imageUrl: null,
+				status: "unread",
+				completedAt: null,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			});
+			mockRepository.update = vi.fn().mockResolvedValue(null);
+
+			const service = new BookshelfService(mockRepository);
+
+			await expect(
+				service.updateBook(1, { title: "更新された本" }),
+			).rejects.toThrow(BookOperationError);
+		});
+
 		test("タイプ変更時のURL必須チェック", async () => {
 			const mockRepository = createMockRepository();
 			mockRepository.findById = vi.fn().mockResolvedValue({
@@ -366,7 +389,7 @@ describe("BookshelfService", () => {
 			const service = new BookshelfService(mockRepository);
 
 			await expect(service.updateBookStatus(999, "reading")).rejects.toThrow(
-				BookNotFoundError,
+				BookOperationError,
 			);
 		});
 	});
