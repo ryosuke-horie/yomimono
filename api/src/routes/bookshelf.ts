@@ -157,13 +157,22 @@ async function parseRequestBody<T = unknown>(c: Context): Promise<T | null> {
 }
 
 /**
+ * ステータスコードが有効なContentfulStatusCodeかを判定する型ガード
+ * @param code ステータスコード
+ * @returns ContentfulStatusCodeとして有効な場合true
+ */
+function isValidStatusCode(code: number): code is ContentfulStatusCode {
+	return [200, 201, 400, 404, 500].includes(code);
+}
+
+/**
  * エラー型からHTTPステータスコードを決定する
  * @param error エラーオブジェクト
  * @returns HTTPステータスコード
  */
 function determineStatusCode(error: unknown): ContentfulStatusCode {
-	if (error instanceof BaseError) {
-		return error.statusCode as ContentfulStatusCode;
+	if (error instanceof BaseError && isValidStatusCode(error.statusCode)) {
+		return error.statusCode;
 	}
 	return 500;
 }
@@ -197,5 +206,44 @@ if (import.meta.vitest) {
 
 		const unknownError = null;
 		expect(determineStatusCode(unknownError)).toBe(500);
+	});
+
+	test("isValidStatusCode は有効なステータスコードを正しく判定する", () => {
+		// 有効なステータスコード
+		expect(isValidStatusCode(200)).toBe(true);
+		expect(isValidStatusCode(201)).toBe(true);
+		expect(isValidStatusCode(400)).toBe(true);
+		expect(isValidStatusCode(404)).toBe(true);
+		expect(isValidStatusCode(500)).toBe(true);
+
+		// 無効なステータスコード
+		expect(isValidStatusCode(302)).toBe(false);
+		expect(isValidStatusCode(401)).toBe(false);
+		expect(isValidStatusCode(403)).toBe(false);
+		expect(isValidStatusCode(503)).toBe(false);
+		expect(isValidStatusCode(999)).toBe(false);
+	});
+
+	test("determineStatusCode は不正なステータスコードを持つBaseErrorに対して500を返す", () => {
+		// 不正なステータスコードを持つカスタムエラーを作成
+		class CustomError extends BaseError {
+			constructor(statusCode: number) {
+				super("Custom error", statusCode, true);
+			}
+		}
+
+		// 無効なステータスコードのテスト
+		const invalidStatusError1 = new CustomError(302);
+		expect(determineStatusCode(invalidStatusError1)).toBe(500);
+
+		const invalidStatusError2 = new CustomError(401);
+		expect(determineStatusCode(invalidStatusError2)).toBe(500);
+
+		const invalidStatusError3 = new CustomError(999);
+		expect(determineStatusCode(invalidStatusError3)).toBe(500);
+
+		// 有効なステータスコードは正しく返される
+		const validStatusError = new CustomError(404);
+		expect(determineStatusCode(validStatusError)).toBe(404);
 	});
 }
