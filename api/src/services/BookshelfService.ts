@@ -12,6 +12,7 @@ import type {
 import { BookStatus, BookType } from "../db/schema/bookshelf";
 import {
 	BookNotFoundError,
+	BookOperationError,
 	InvalidBookDataError,
 } from "../exceptions/bookshelf";
 import { NotFoundError } from "../exceptions/http";
@@ -155,7 +156,7 @@ export class BookshelfService implements IBookshelfService {
 		this.validateUrlRequirement(newType, newUrl);
 
 		const updatedBook = await this.bookRepository.update(id, data);
-		this.assertBookExists(updatedBook);
+		this.assertBookExists(updatedBook, "update");
 		return updatedBook;
 	}
 
@@ -174,7 +175,7 @@ export class BookshelfService implements IBookshelfService {
 				? await this.bookRepository.markAsCompleted(id)
 				: await this.bookRepository.updateStatus(id, status);
 
-		this.assertBookExists(book);
+		this.assertBookExists(book, "status update");
 		return book;
 	}
 
@@ -249,12 +250,15 @@ export class BookshelfService implements IBookshelfService {
 	/**
 	 * 本の存在確認（update/markAsCompletedの結果チェック用）
 	 * @param book チェック対象の本
-	 * @throws {BookNotFoundError} 本がnullの場合
+	 * @param operation 実行中の操作名
+	 * @throws {BookOperationError} 本がnullの場合
 	 */
-	private assertBookExists(book: Book | null): asserts book is Book {
+	private assertBookExists(
+		book: Book | null,
+		operation: string,
+	): asserts book is Book {
 		if (!book) {
-			// assertメソッドはIDが不明なため、汎用的なエラーメッセージを使用
-			throw new BookNotFoundError();
+			throw new BookOperationError(operation);
 		}
 	}
 
