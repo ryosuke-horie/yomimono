@@ -4,8 +4,14 @@
 import { BaseError, HttpError } from "./base";
 
 export class BookshelfNotFoundError extends HttpError {
-	constructor(id: number) {
-		super(`Bookshelf with id ${id} not found`, 404);
+	constructor();
+	constructor(id: number);
+	constructor(id?: number) {
+		const message =
+			id === undefined
+				? "Bookshelf not found"
+				: `Bookshelf with id ${id} not found`;
+		super(message, 404);
 		this.name = "BookshelfNotFoundError";
 	}
 }
@@ -13,21 +19,18 @@ export class BookshelfNotFoundError extends HttpError {
 export class BookNotFoundError extends HttpError {
 	constructor();
 	constructor(bookId: number);
-	constructor(bookshelfId: number | null, bookId: number);
-	constructor(bookshelfIdOrBookId?: number | null, bookId?: number) {
+	constructor(bookshelfId: number, bookId: number);
+	constructor(bookshelfIdOrBookId?: number, bookId?: number) {
 		let message: string;
-		if (bookshelfIdOrBookId === undefined) {
+		if (bookshelfIdOrBookId === undefined && bookId === undefined) {
+			// パラメータなし
 			message = "Book not found";
-		} else if (bookId !== undefined) {
-			// bookshelfIdOrBookId is bookshelfId in this case
-			if (bookshelfIdOrBookId === null) {
-				message = `Book with id ${bookId} not found`;
-			} else {
-				message = `Book with id ${bookId} not found in bookshelf ${bookshelfIdOrBookId}`;
-			}
-		} else {
-			// bookshelfIdOrBookId is bookId in this case
+		} else if (bookId === undefined) {
+			// 単一パラメータ: bookId のみ
 			message = `Book with id ${bookshelfIdOrBookId} not found`;
+		} else {
+			// 2つのパラメータ: bookshelfId と bookId
+			message = `Book with id ${bookId} not found in bookshelf ${bookshelfIdOrBookId}`;
 		}
 		super(message, 404);
 		this.name = "BookNotFoundError";
@@ -65,9 +68,18 @@ export class BookOperationError extends HttpError {
 if (import.meta.vitest) {
 	const { test, expect } = import.meta.vitest;
 
-	test("BookshelfNotFoundError を正しく作成できる", () => {
+	test("BookshelfNotFoundError を正しく作成できる（ID指定）", () => {
 		const error = new BookshelfNotFoundError(1);
 		expect(error.message).toBe("Bookshelf with id 1 not found");
+		expect(error.name).toBe("BookshelfNotFoundError");
+		expect(error.statusCode).toBe(404);
+		expect(error).toBeInstanceOf(Error);
+		expect(error).toBeInstanceOf(HttpError);
+	});
+
+	test("BookshelfNotFoundError を正しく作成できる（ID不明）", () => {
+		const error = new BookshelfNotFoundError();
+		expect(error.message).toBe("Bookshelf not found");
 		expect(error.name).toBe("BookshelfNotFoundError");
 		expect(error.statusCode).toBe(404);
 		expect(error).toBeInstanceOf(Error);
@@ -95,15 +107,6 @@ if (import.meta.vitest) {
 	test("BookNotFoundError を正しく作成できる（本棚IDと本ID）", () => {
 		const error = new BookNotFoundError(1, 2);
 		expect(error.message).toBe("Book with id 2 not found in bookshelf 1");
-		expect(error.name).toBe("BookNotFoundError");
-		expect(error.statusCode).toBe(404);
-		expect(error).toBeInstanceOf(Error);
-		expect(error).toBeInstanceOf(HttpError);
-	});
-
-	test("BookNotFoundError を正しく作成できる（本棚IDがnullの場合）", () => {
-		const error = new BookNotFoundError(null, 2);
-		expect(error.message).toBe("Book with id 2 not found");
 		expect(error.name).toBe("BookNotFoundError");
 		expect(error.statusCode).toBe(404);
 		expect(error).toBeInstanceOf(Error);
