@@ -1,16 +1,13 @@
 name: Claude Code Review
 
-# This workflow triggers when @claude is mentioned in PR comments
+# This workflow triggers on PR creation and updates
 on:
-  issue_comment:
-    types: [created]
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   claude-review:
-    # Only run on PR comments (not issue comments) when @claude is mentioned
-    if: |
-      github.event.issue.pull_request &&
-      contains(github.event.comment.body, '@claude')
+    # Run on all PR events
     
     runs-on: ubuntu-latest
     permissions:
