@@ -6,6 +6,7 @@ import { useMarkBookmarkAsUnread } from "@/features/bookmarks/queries/useMarkBoo
 import { useToggleFavoriteBookmark } from "@/features/bookmarks/queries/useToggleFavoriteBookmark";
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 import { LabelDisplay } from "@/features/labels/components/LabelDisplay";
+import { useToast } from "@/hooks/useToast";
 
 interface Props {
 	bookmark: BookmarkWithLabel;
@@ -24,6 +25,7 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 		useMarkBookmarkAsUnread();
 	const [isCopied, setIsCopied] = useState(false);
 	const [isUrlCopied, setIsUrlCopied] = useState(false);
+	const { showToast } = useToast();
 
 	const handleFavoriteToggle = () => {
 		toggleFavorite({ id, isCurrentlyFavorite: isFavorite });
@@ -58,8 +60,17 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 			await navigator.clipboard.writeText(id.toString());
 			setIsCopied(true);
 			setTimeout(() => setIsCopied(false), 2000); // 2秒後にリセット
-		} catch (error) {
-			console.error("クリップボードへのコピーに失敗しました", error);
+			showToast({
+				type: "success",
+				message: "IDをコピーしました",
+				duration: 2000,
+			});
+		} catch {
+			showToast({
+				type: "error",
+				message: "クリップボードへのコピーに失敗しました",
+				duration: 3000,
+			});
 		}
 	};
 
@@ -69,8 +80,17 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 			await navigator.clipboard.writeText(url);
 			setIsUrlCopied(true);
 			setTimeout(() => setIsUrlCopied(false), 2000); // 2秒後にリセット
-		} catch (error) {
-			console.error("URLのコピーに失敗しました", error);
+			showToast({
+				type: "success",
+				message: "URLをコピーしました",
+				duration: 2000,
+			});
+		} catch {
+			showToast({
+				type: "error",
+				message: "URLのコピーに失敗しました",
+				duration: 3000,
+			});
 		}
 	};
 

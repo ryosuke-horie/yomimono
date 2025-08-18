@@ -2,8 +2,9 @@
  * BookmarkCardコンポーネントのテスト
  */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ToastProvider } from "@/hooks/useToast";
 import type { BookmarkWithLabel } from "../types";
 import { BookmarkCard } from "./BookmarkCard";
 
@@ -58,7 +59,9 @@ const renderWithQueryClient = (component: React.ReactElement) => {
 		},
 	});
 	return render(
-		<QueryClientProvider client={queryClient}>{component}</QueryClientProvider>,
+		<QueryClientProvider client={queryClient}>
+			<ToastProvider>{component}</ToastProvider>
+		</QueryClientProvider>,
 	);
 };
 
@@ -127,6 +130,42 @@ describe("BookmarkCard", () => {
 		fireEvent.click(copyIdButton);
 
 		expect(navigator.clipboard.writeText).toHaveBeenCalledWith("1");
+
+		// 成功Toast通知が表示されることを確認
+		await waitFor(() => {
+			expect(screen.getByText("IDをコピーしました")).toBeInTheDocument();
+		});
+	});
+
+	it("IDコピーボタンクリック時にクリップボードエラーが発生した場合、エラーToastを表示する", async () => {
+		// クリップボードAPIをエラーを返すようにモック
+		const mockWriteText = vi
+			.fn()
+			.mockRejectedValue(new Error("Clipboard error"));
+		Object.assign(navigator, {
+			clipboard: {
+				writeText: mockWriteText,
+			},
+		});
+
+		renderWithQueryClient(<BookmarkCard bookmark={mockBookmark} />);
+
+		const copyIdButton = screen.getByTitle("ID: 1をコピー");
+		fireEvent.click(copyIdButton);
+
+		// エラーToast通知が表示されることを確認
+		await waitFor(() => {
+			expect(
+				screen.getByText("クリップボードへのコピーに失敗しました"),
+			).toBeInTheDocument();
+		});
+
+		// モックをリセット
+		Object.assign(navigator, {
+			clipboard: {
+				writeText: vi.fn().mockResolvedValue(undefined),
+			},
+		});
 	});
 
 	it("URLコピーボタンをクリックするとURLがクリップボードにコピーされる", async () => {
@@ -138,6 +177,40 @@ describe("BookmarkCard", () => {
 		expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
 			"https://example.com",
 		);
+
+		// 成功Toast通知が表示されることを確認
+		await waitFor(() => {
+			expect(screen.getByText("URLをコピーしました")).toBeInTheDocument();
+		});
+	});
+
+	it("URLコピーボタンクリック時にクリップボードエラーが発生した場合、エラーToastを表示する", async () => {
+		// クリップボードAPIをエラーを返すようにモック
+		const mockWriteText = vi
+			.fn()
+			.mockRejectedValue(new Error("Clipboard error"));
+		Object.assign(navigator, {
+			clipboard: {
+				writeText: mockWriteText,
+			},
+		});
+
+		renderWithQueryClient(<BookmarkCard bookmark={mockBookmark} />);
+
+		const copyUrlButton = screen.getByTitle("URLをコピー");
+		fireEvent.click(copyUrlButton);
+
+		// エラーToast通知が表示されることを確認
+		await waitFor(() => {
+			expect(screen.getByText("URLのコピーに失敗しました")).toBeInTheDocument();
+		});
+
+		// モックをリセット
+		Object.assign(navigator, {
+			clipboard: {
+				writeText: vi.fn().mockResolvedValue(undefined),
+			},
+		});
 	});
 
 	it("ラベルがある場合、ラベルを表示する", () => {
