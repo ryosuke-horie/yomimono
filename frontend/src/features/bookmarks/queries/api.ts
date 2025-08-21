@@ -1,5 +1,6 @@
 import type { Bookmark, BookmarkWithLabel } from "@/features/bookmarks/types";
 import { API_BASE_URL } from "@/lib/api/config";
+import { ApiError, createApiError } from "@/lib/api/errors";
 import type { ApiBookmarkResponse, ApiResponse } from "@/types/api";
 
 // --- Query Functions ---
@@ -24,7 +25,8 @@ export const getRecentlyReadBookmarks = async (): Promise<{
 	});
 	const responseText = await response.text();
 	if (!response.ok)
-		throw new Error(
+		throw createApiError(
+			response,
 			`Failed to fetch recently read bookmarks: ${response.status}`,
 		);
 	try {
@@ -33,16 +35,23 @@ export const getRecentlyReadBookmarks = async (): Promise<{
 		if (!data.success) {
 			// エラーレスポンスとして型アサーション (ApiResponse<unknown> を使用)
 			const errorData = data as ApiResponse<unknown>;
-			throw new Error(
+			throw new ApiError(
 				errorData.message || "Unknown error fetching recent bookmarks",
+				"API_ERROR",
+				errorData,
 			);
 		}
 		// 成功レスポンスとして型アサーション
 		const successData = data as RecentBookmarksApiResponse;
 		return successData.bookmarks || {};
 	} catch (e) {
-		console.error("Failed to parse response:", e, { responseText });
-		throw new Error("Invalid response format");
+		// 既にApiErrorの場合はそのまま再スロー
+		if (e instanceof ApiError) throw e;
+		// パースエラーの場合はApiErrorでラップ
+		throw new ApiError("Invalid response format", "PARSE_ERROR", {
+			originalError: e,
+			responseText,
+		});
 	}
 };
 
@@ -56,13 +65,22 @@ export const markBookmarkAsRead = async (id: number): Promise<void> => {
 	});
 	const responseText = await response.text();
 	if (!response.ok)
-		throw new Error(`Failed to mark as read: ${response.status}`);
+		throw createApiError(
+			response,
+			`Failed to mark as read: ${response.status}`,
+		);
 	try {
 		const data = JSON.parse(responseText) as ApiBookmarkResponse;
-		if (!data.success) throw new Error(data.message);
+		if (!data.success)
+			throw new ApiError(data.message || "Operation failed", "API_ERROR", data);
 	} catch (e) {
-		console.error("Failed to parse response:", e, { responseText });
-		throw new Error("Invalid response format");
+		// 既にApiErrorの場合はそのまま再スロー
+		if (e instanceof ApiError) throw e;
+		// パースエラーの場合はApiErrorでラップ
+		throw new ApiError("Invalid response format", "PARSE_ERROR", {
+			originalError: e,
+			responseText,
+		});
 	}
 };
 
@@ -74,13 +92,22 @@ export const markBookmarkAsUnread = async (id: number): Promise<void> => {
 	});
 	const responseText = await response.text();
 	if (!response.ok)
-		throw new Error(`Failed to mark as unread: ${response.status}`);
+		throw createApiError(
+			response,
+			`Failed to mark as unread: ${response.status}`,
+		);
 	try {
 		const data = JSON.parse(responseText) as ApiBookmarkResponse;
-		if (!data.success) throw new Error(data.message);
+		if (!data.success)
+			throw new ApiError(data.message || "Operation failed", "API_ERROR", data);
 	} catch (e) {
-		console.error("Failed to parse response:", e, { responseText });
-		throw new Error("Invalid response format");
+		// 既にApiErrorの場合はそのまま再スロー
+		if (e instanceof ApiError) throw e;
+		// パースエラーの場合はApiErrorでラップ
+		throw new ApiError("Invalid response format", "PARSE_ERROR", {
+			originalError: e,
+			responseText,
+		});
 	}
 };
 
@@ -91,9 +118,13 @@ export const addBookmarkToFavorites = async (id: number): Promise<void> => {
 		headers: { Accept: "application/json", "Content-Type": "application/json" },
 	});
 	if (!response.ok)
-		throw new Error(`Failed to add to favorites: ${response.status}`);
+		throw createApiError(
+			response,
+			`Failed to add to favorites: ${response.status}`,
+		);
 	const data = (await response.json()) as ApiBookmarkResponse;
-	if (!data.success) throw new Error(data.message);
+	if (!data.success)
+		throw new ApiError(data.message || "Operation failed", "API_ERROR", data);
 };
 
 export const removeBookmarkFromFavorites = async (
@@ -105,9 +136,13 @@ export const removeBookmarkFromFavorites = async (
 		headers: { Accept: "application/json", "Content-Type": "application/json" },
 	});
 	if (!response.ok)
-		throw new Error(`Failed to remove from favorites: ${response.status}`);
+		throw createApiError(
+			response,
+			`Failed to remove from favorites: ${response.status}`,
+		);
 	const data = (await response.json()) as ApiBookmarkResponse;
-	if (!data.success) throw new Error(data.message);
+	if (!data.success)
+		throw new ApiError(data.message || "Operation failed", "API_ERROR", data);
 };
 
 export const createBookmark = async (data: {
@@ -128,6 +163,10 @@ export const createBookmark = async (data: {
 
 	if (!response.ok) {
 		const errorData = (await response.json()) as ApiResponse<unknown>;
-		throw new Error(errorData.message || "Failed to create bookmark");
+		throw createApiError(
+			response,
+			errorData.message || "Failed to create bookmark",
+			errorData,
+		);
 	}
 };
