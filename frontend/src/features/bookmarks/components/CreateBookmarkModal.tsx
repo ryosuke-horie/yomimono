@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Modal } from "@/components/Modal";
+import { useToast } from "@/hooks/useToast";
 import { useCreateBookmark } from "../queries/useCreateBookmark";
 
 const bookmarkSchema = z.object({
@@ -20,6 +21,7 @@ export function CreateBookmarkModal({
 	isOpen,
 	onClose,
 }: CreateBookmarkModalProps) {
+	const { showToast } = useToast();
 	const {
 		register,
 		handleSubmit,
@@ -36,11 +38,44 @@ export function CreateBookmarkModal({
 			onSuccess: () => {
 				reset();
 				onClose();
+				showToast({
+					type: "success",
+					message: "記事を追加しました",
+					duration: 3000,
+				});
 				// ページの上部へスクロール（新しい記事が表示される位置）
 				window.scrollTo({ top: 0, behavior: "smooth" });
 			},
 			onError: (error) => {
-				console.error("記事の追加に失敗しました:", error);
+				// エラータイプに応じた適切なメッセージを表示
+				let errorMessage = "記事の追加に失敗しました";
+
+				// ネットワークエラーの検出
+				if (error instanceof Error) {
+					if (
+						error.message.includes("network") ||
+						error.message.includes("fetch")
+					) {
+						errorMessage =
+							"ネットワークエラーが発生しました。接続を確認してください";
+					} else if (
+						error.message.includes("duplicate") ||
+						error.message.includes("already exists")
+					) {
+						errorMessage = "この記事は既に追加されています";
+					} else if (
+						error.message.includes("validation") ||
+						error.message.includes("invalid")
+					) {
+						errorMessage = "入力内容を確認してください";
+					}
+				}
+
+				showToast({
+					type: "error",
+					message: errorMessage,
+					duration: 5000,
+				});
 			},
 		});
 	};
