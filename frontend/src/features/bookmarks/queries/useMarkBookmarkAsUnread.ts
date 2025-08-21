@@ -5,17 +5,10 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
+import type { ToastOptions } from "@/features/bookmarks/types/toast";
 import type { BookmarksData } from "./api";
 import { markBookmarkAsUnread } from "./api";
 import { bookmarkKeys } from "./queryKeys";
-
-interface ToastOptions {
-	showToast: (options: {
-		type: "success" | "error" | "info";
-		message: string;
-		duration?: number;
-	}) => void;
-}
 
 export const useMarkBookmarkAsUnread = (options?: ToastOptions) => {
 	const queryClient = useQueryClient();
@@ -206,7 +199,7 @@ if (import.meta.vitest) {
 			}) => {};
 
 			// ToastOptions型の構造が正しいことを確認
-			const validOptions: ToastOptions = { showToast: mockShowToast };
+			const validOptions = { showToast: mockShowToast };
 			expect(validOptions).toHaveProperty("showToast");
 			expect(typeof validOptions.showToast).toBe("function");
 		});
