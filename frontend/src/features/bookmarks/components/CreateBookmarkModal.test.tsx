@@ -8,14 +8,44 @@ import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import { CreateBookmarkModal } from "./CreateBookmarkModal";
 
+// モック関数の定義（vi.hoistedを使用してホイスティング）
+const { mockCreateBookmark, mockShowToast, mockScrollToTop } = vi.hoisted(
+	() => {
+		return {
+			mockCreateBookmark: vi.fn(),
+			mockShowToast: vi.fn(),
+			mockScrollToTop: vi.fn(),
+		};
+	},
+);
+
 // useCreateBookmarkのモック
-const mockCreateBookmark = vi.fn();
 vi.mock("../queries/useCreateBookmark", () => ({
 	useCreateBookmark: () => ({
 		mutate: mockCreateBookmark,
 		isPending: false,
 	}),
 }));
+
+// useToastのモック
+vi.mock("@/hooks/useToast", () => ({
+	useToast: () => ({
+		showToast: mockShowToast,
+		hideToast: vi.fn(),
+	}),
+}));
+
+// error-handlerのモック
+vi.mock("../utils/error-handler", async () => {
+	const actual = await vi.importActual<typeof import("../utils/error-handler")>(
+		"../utils/error-handler",
+	);
+	return {
+		...actual,
+		getBookmarkErrorMessage: actual.getBookmarkErrorMessage,
+		scrollToTop: mockScrollToTop,
+	};
+});
 
 // Modalコンポーネントのモック
 vi.mock("@/components/Modal", () => ({
@@ -41,7 +71,7 @@ vi.mock("@/components/Modal", () => ({
 		) : null,
 }));
 
-// window.scrollToのモック
+// window.scrollToのモック（error-handler内で使用されるため）
 Object.defineProperty(window, "scrollTo", {
 	value: vi.fn(),
 	writable: true,
@@ -71,6 +101,7 @@ describe("CreateBookmarkModal", () => {
 	beforeEach(() => {
 		wrapper = createWrapper();
 		vi.clearAllMocks();
+		mockShowToast.mockClear();
 	});
 
 	describe("基本表示", () => {
@@ -222,7 +253,7 @@ describe("CreateBookmarkModal", () => {
 			);
 		});
 
-		it("作成成功時にモーダルが閉じてフォームがリセットされる", async () => {
+		it("作成成功時にモーダルが閉じてフォームがリセットされ、成功Toastが表示される", async () => {
 			const user = userEvent.setup();
 
 			// 成功時のコールバックを実行するモック
@@ -250,18 +281,19 @@ describe("CreateBookmarkModal", () => {
 			// モーダルが閉じられることを確認
 			expect(mockOnClose).toHaveBeenCalled();
 
-			// スクロール処理が呼ばれることを確認
-			expect(window.scrollTo).toHaveBeenCalledWith({
-				top: 0,
-				behavior: "smooth",
+			// 成功Toastが表示されることを確認
+			expect(mockShowToast).toHaveBeenCalledWith({
+				type: "success",
+				message: "記事を追加しました",
+				duration: 3000,
 			});
+
+			// スクロール処理が呼ばれることを確認
+			expect(mockScrollToTop).toHaveBeenCalled();
 		});
 
-		it("作成エラー時にエラーログが出力される", async () => {
+		it("作成エラー時にエラーToastが表示される", async () => {
 			const user = userEvent.setup();
-			const consoleSpy = vi
-				.spyOn(console, "error")
-				.mockImplementation(() => {});
 
 			// エラー時のコールバックを実行するモック
 			const mockError = new Error("作成失敗");
@@ -284,12 +316,102 @@ describe("CreateBookmarkModal", () => {
 			await user.type(urlInput, "https://example.com/test");
 			await user.click(submitButton);
 
-			expect(consoleSpy).toHaveBeenCalledWith(
-				"記事の追加に失敗しました:",
-				mockError,
-			);
+			// エラーToastが表示されることを確認
+			expect(mockShowToast).toHaveBeenCalledWith({
+				type: "error",
+				message: "記事の追加に失敗しました",
+				duration: 5000,
+			});
+		});
 
-			consoleSpy.mockRestore();
+		it("ネットワークエラー時に適切なメッセージが表示される", async () => {
+			const user = userEvent.setup();
+
+			// ネットワークエラーを模倣（TypeErrorとして）
+			const mockError = new TypeError("Failed to fetch");
+			const mockCreateBookmarkError = vi.fn((_data, callbacks) => {
+				callbacks.onError(mockError);
+			});
+
+			vi.mocked(mockCreateBookmark).mockImplementation(mockCreateBookmarkError);
+
+			render(<CreateBookmarkModal isOpen={true} onClose={mockOnClose} />, {
+				wrapper,
+			});
+
+			const titleInput = screen.getByLabelText("タイトル");
+			const urlInput = screen.getByLabelText("URL");
+			const submitButton = screen.getByRole("button", { name: "追加" });
+
+			await user.type(titleInput, "テスト記事");
+			await user.type(urlInput, "https://example.com/test");
+			await user.click(submitButton);
+
+			expect(mockShowToast).toHaveBeenCalledWith({
+				type: "error",
+				message: "ネットワークエラーが発生しました。接続を確認してください",
+				duration: 5000,
+			});
+		});
+
+		it("409エラー時に重複メッセージが表示される", async () => {
+			const user = userEvent.setup();
+
+			// 409エラーを模倣（ApiError型として）
+			const mockError = { status: 409, message: "Conflict" };
+			const mockCreateBookmarkError = vi.fn((_data, callbacks) => {
+				callbacks.onError(mockError);
+			});
+
+			vi.mocked(mockCreateBookmark).mockImplementation(mockCreateBookmarkError);
+
+			render(<CreateBookmarkModal isOpen={true} onClose={mockOnClose} />, {
+				wrapper,
+			});
+
+			const titleInput = screen.getByLabelText("タイトル");
+			const urlInput = screen.getByLabelText("URL");
+			const submitButton = screen.getByRole("button", { name: "追加" });
+
+			await user.type(titleInput, "テスト記事");
+			await user.type(urlInput, "https://example.com/test");
+			await user.click(submitButton);
+
+			expect(mockShowToast).toHaveBeenCalledWith({
+				type: "error",
+				message: "この記事は既に追加されています",
+				duration: 5000,
+			});
+		});
+
+		it("400番台エラー時にバリデーションメッセージが表示される", async () => {
+			const user = userEvent.setup();
+
+			// 400エラーを模倣
+			const mockError = { status: 400, message: "Bad Request" };
+			const mockCreateBookmarkError = vi.fn((_data, callbacks) => {
+				callbacks.onError(mockError);
+			});
+
+			vi.mocked(mockCreateBookmark).mockImplementation(mockCreateBookmarkError);
+
+			render(<CreateBookmarkModal isOpen={true} onClose={mockOnClose} />, {
+				wrapper,
+			});
+
+			const titleInput = screen.getByLabelText("タイトル");
+			const urlInput = screen.getByLabelText("URL");
+			const submitButton = screen.getByRole("button", { name: "追加" });
+
+			await user.type(titleInput, "テスト記事");
+			await user.type(urlInput, "https://example.com/test");
+			await user.click(submitButton);
+
+			expect(mockShowToast).toHaveBeenCalledWith({
+				type: "error",
+				message: "入力内容を確認してください",
+				duration: 5000,
+			});
 		});
 	});
 

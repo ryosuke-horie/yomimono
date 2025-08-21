@@ -2,7 +2,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Modal } from "@/components/Modal";
+import { useToast } from "@/hooks/useToast";
 import { useCreateBookmark } from "../queries/useCreateBookmark";
+import { getBookmarkErrorMessage, scrollToTop } from "../utils/error-handler";
 
 const bookmarkSchema = z.object({
 	title: z.string().min(1, "タイトルは必須です"),
@@ -20,6 +22,7 @@ export function CreateBookmarkModal({
 	isOpen,
 	onClose,
 }: CreateBookmarkModalProps) {
+	const { showToast } = useToast();
 	const {
 		register,
 		handleSubmit,
@@ -36,11 +39,23 @@ export function CreateBookmarkModal({
 			onSuccess: () => {
 				reset();
 				onClose();
+				showToast({
+					type: "success",
+					message: "記事を追加しました",
+					duration: 3000,
+				});
 				// ページの上部へスクロール（新しい記事が表示される位置）
-				window.scrollTo({ top: 0, behavior: "smooth" });
+				scrollToTop();
 			},
 			onError: (error) => {
-				console.error("記事の追加に失敗しました:", error);
+				// エラータイプに応じた適切なメッセージを取得
+				const errorMessage = getBookmarkErrorMessage(error);
+
+				showToast({
+					type: "error",
+					message: errorMessage,
+					duration: 5000,
+				});
 			},
 		});
 	};
