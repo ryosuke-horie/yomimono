@@ -9,13 +9,15 @@ import { vi } from "vitest";
 import { CreateBookmarkModal } from "./CreateBookmarkModal";
 
 // モック関数の定義（vi.hoistedを使用してホイスティング）
-const { mockCreateBookmark, mockShowToast, mockScrollToTop } = vi.hoisted(() => {
-	return {
-		mockCreateBookmark: vi.fn(),
-		mockShowToast: vi.fn(),
-		mockScrollToTop: vi.fn(),
-	};
-});
+const { mockCreateBookmark, mockShowToast, mockScrollToTop } = vi.hoisted(
+	() => {
+		return {
+			mockCreateBookmark: vi.fn(),
+			mockShowToast: vi.fn(),
+			mockScrollToTop: vi.fn(),
+		};
+	},
+);
 
 // useCreateBookmarkのモック
 vi.mock("../queries/useCreateBookmark", () => ({
