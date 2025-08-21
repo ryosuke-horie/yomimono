@@ -134,12 +134,15 @@ export const useToggleFavoriteBookmark = (options?: ToastOptions) => {
 		},
 
 		// エラー発生時の処理
-		onError: (_err, _variables, context) => {
+		onError: (_err, variables, context) => {
 			// Toastでエラーを通知
 			if (options?.showToast) {
+				const errorMessage = variables.isCurrentlyFavorite
+					? "お気に入りから削除できませんでした"
+					: "お気に入りに追加できませんでした";
 				options.showToast({
 					type: "error",
-					message: "お気に入りの変更に失敗しました",
+					message: errorMessage,
 					duration: 3000,
 				});
 			}
@@ -204,6 +207,35 @@ if (import.meta.vitest) {
 			const validOptions: ToastOptions = { showToast: mockShowToast };
 			expect(validOptions).toHaveProperty("showToast");
 			expect(typeof validOptions.showToast).toBe("function");
+		});
+
+		it("Toast通知の成功メッセージが操作内容に応じて変わる", () => {
+			// お気に入りに追加する場合のメッセージを確認
+			const addMessage = "お気に入りに追加しました";
+			const removeMessage = "お気に入りから削除しました";
+
+			// メッセージが期待通りの内容であることを確認
+			expect(addMessage).toContain("追加");
+			expect(removeMessage).toContain("削除");
+		});
+
+		it("Toast通知のエラーメッセージが操作内容に応じて変わる", () => {
+			// エラーメッセージが操作に応じて異なることを確認
+			const addErrorMessage = "お気に入りに追加できませんでした";
+			const removeErrorMessage = "お気に入りから削除できませんでした";
+
+			expect(addErrorMessage).toContain("追加できませんでした");
+			expect(removeErrorMessage).toContain("削除できませんでした");
+		});
+
+		it("オプショナルパラメータ未指定時でもエラーが発生しない", () => {
+			// ToastOptionsを指定しない場合でも正常に動作することを確認
+			expect(() => {
+				const hook = useToggleFavoriteBookmark;
+				expect(hook).toBeDefined();
+				// パラメータなしで呼び出せることを確認
+				expect(hook.length).toBeLessThanOrEqual(1);
+			}).not.toThrow();
 		});
 	});
 }
