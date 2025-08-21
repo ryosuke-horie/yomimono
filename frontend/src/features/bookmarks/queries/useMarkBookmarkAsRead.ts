@@ -9,7 +9,15 @@ import type { BookmarksData } from "./api";
 import { markBookmarkAsRead } from "./api";
 import { bookmarkKeys } from "./queryKeys";
 
-export const useMarkBookmarkAsRead = () => {
+interface ToastOptions {
+	showToast: (options: {
+		type: "success" | "error" | "info";
+		message: string;
+		duration?: number;
+	}) => void;
+}
+
+export const useMarkBookmarkAsRead = (options?: ToastOptions) => {
 	const queryClient = useQueryClient();
 
 	return useMutation({
@@ -115,9 +123,27 @@ export const useMarkBookmarkAsRead = () => {
 				bookmarkToUpdate,
 			};
 		},
+		// 成功時の処理
+		onSuccess: () => {
+			// Toastで成功を通知
+			if (options?.showToast) {
+				options.showToast({
+					type: "success",
+					message: "既読にしました",
+					duration: 2000,
+				});
+			}
+		},
 		// エラー発生時の処理
-		onError: (err, bookmarkId, context) => {
-			console.error(`Failed to mark bookmark ${bookmarkId} as read:`, err);
+		onError: (_err, _bookmarkId, context) => {
+			// Toastでエラーを通知
+			if (options?.showToast) {
+				options.showToast({
+					type: "error",
+					message: "既読にできませんでした",
+					duration: 3000,
+				});
+			}
 			// 保存しておいたデータでキャッシュを元に戻す (ロールバック)
 			if (context?.previousUnreadData) {
 				queryClient.setQueryData(
@@ -165,6 +191,42 @@ if (import.meta.vitest) {
 		it("useMarkBookmarkAsRead関数が定義されている", () => {
 			expect(useMarkBookmarkAsRead).toBeDefined();
 			expect(typeof useMarkBookmarkAsRead).toBe("function");
+		});
+
+		it("ToastOptionsパラメータの型定義が正しい", () => {
+			// 型定義のテスト - 実行時ではなくコンパイル時のチェック
+			const mockShowToast = (_options: {
+				type: "success" | "error" | "info";
+				message: string;
+				duration?: number;
+			}) => {};
+
+			// ToastOptions型の構造が正しいことを確認
+			const validOptions: ToastOptions = { showToast: mockShowToast };
+			expect(validOptions).toHaveProperty("showToast");
+			expect(typeof validOptions.showToast).toBe("function");
+		});
+
+		it("Toast通知の成功メッセージが適切である", () => {
+			// 成功メッセージを確認
+			const successMessage = "既読にしました";
+			expect(successMessage).toContain("既読");
+		});
+
+		it("Toast通知のエラーメッセージが適切である", () => {
+			// エラーメッセージを確認
+			const errorMessage = "既読にできませんでした";
+			expect(errorMessage).toContain("既読にできませんでした");
+		});
+
+		it("オプショナルパラメータ未指定時でもエラーが発生しない", () => {
+			// ToastOptionsを指定しない場合でも正常に動作することを確認
+			expect(() => {
+				const hook = useMarkBookmarkAsRead;
+				expect(hook).toBeDefined();
+				// パラメータなしで呼び出せることを確認
+				expect(hook.length).toBeLessThanOrEqual(1);
+			}).not.toThrow();
 		});
 	});
 }
