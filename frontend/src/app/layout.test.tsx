@@ -23,6 +23,7 @@ vi.mock("@/providers/QueryProvider", () => ({
 	QueryProvider: ({ children }: { children: React.ReactNode }) => (
 		<div data-testid="query-provider">{children}</div>
 	),
+	QueryErrorHandler: () => null,
 }));
 
 describe("RootLayout", () => {

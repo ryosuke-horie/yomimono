@@ -4,8 +4,10 @@
  */
 import { type QueryClient, useQueryClient } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { QueryProvider } from "./QueryProvider";
+import { describe, expect, it, vi } from "vitest";
+import { ToastProvider } from "@/hooks/useToast";
+import * as queryClientModule from "@/lib/api/queryClient";
+import { QueryErrorHandler, QueryProvider } from "./QueryProvider";
 
 // テスト用コンポーネント：QueryClientの設定確認用
 function TestComponent() {
@@ -173,5 +175,64 @@ describe("QueryProvider", () => {
 		expect(screen.getByTestId("has-queries-config")).toHaveTextContent(
 			"has queries config",
 		);
+	});
+
+	it("mutationsのデフォルトエラーハンドラーが設定される", () => {
+		function MutationOptionsTest() {
+			const queryClient = useQueryClient();
+			const defaultOptions = queryClient.getDefaultOptions();
+
+			return (
+				<div>
+					<div data-testid="has-mutations-error-handler">
+						{defaultOptions.mutations?.onError
+							? "has error handler"
+							: "no error handler"}
+					</div>
+				</div>
+			);
+		}
+
+		render(
+			<QueryProvider>
+				<MutationOptionsTest />
+			</QueryProvider>,
+		);
+
+		expect(screen.getByTestId("has-mutations-error-handler")).toHaveTextContent(
+			"has error handler",
+		);
+	});
+});
+
+describe("QueryErrorHandler", () => {
+	it("マウント時にsetGlobalShowToastが呼ばれる", () => {
+		const setGlobalShowToastSpy = vi.spyOn(
+			queryClientModule,
+			"setGlobalShowToast",
+		);
+
+		render(
+			<ToastProvider>
+				<QueryErrorHandler />
+			</ToastProvider>,
+		);
+
+		expect(setGlobalShowToastSpy).toHaveBeenCalledWith(expect.any(Function));
+		setGlobalShowToastSpy.mockRestore();
+	});
+
+	it("何もレンダリングしない", () => {
+		const { container } = render(
+			<ToastProvider>
+				<QueryErrorHandler />
+				<div data-testid="sibling">Sibling</div>
+			</ToastProvider>,
+		);
+
+		// QueryErrorHandlerはnullを返すので、それ自体は何もレンダリングしない
+		// 他の要素は正常にレンダリングされる
+		const sibling = container.querySelector('[data-testid="sibling"]');
+		expect(sibling).toBeInTheDocument();
 	});
 });
