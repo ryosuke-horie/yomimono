@@ -4,6 +4,7 @@ import { z } from "zod";
 import { Modal } from "@/components/Modal";
 import { useToast } from "@/hooks/useToast";
 import { useCreateBookmark } from "../queries/useCreateBookmark";
+import { getBookmarkErrorMessage, scrollToTop } from "../utils/error-handler";
 
 const bookmarkSchema = z.object({
 	title: z.string().min(1, "タイトルは必須です"),
@@ -44,32 +45,11 @@ export function CreateBookmarkModal({
 					duration: 3000,
 				});
 				// ページの上部へスクロール（新しい記事が表示される位置）
-				window.scrollTo({ top: 0, behavior: "smooth" });
+				scrollToTop();
 			},
 			onError: (error) => {
-				// エラータイプに応じた適切なメッセージを表示
-				let errorMessage = "記事の追加に失敗しました";
-
-				// ネットワークエラーの検出
-				if (error instanceof Error) {
-					if (
-						error.message.includes("network") ||
-						error.message.includes("fetch")
-					) {
-						errorMessage =
-							"ネットワークエラーが発生しました。接続を確認してください";
-					} else if (
-						error.message.includes("duplicate") ||
-						error.message.includes("already exists")
-					) {
-						errorMessage = "この記事は既に追加されています";
-					} else if (
-						error.message.includes("validation") ||
-						error.message.includes("invalid")
-					) {
-						errorMessage = "入力内容を確認してください";
-					}
-				}
+				// エラータイプに応じた適切なメッセージを取得
+				const errorMessage = getBookmarkErrorMessage(error);
 
 				showToast({
 					type: "error",
