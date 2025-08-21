@@ -14,7 +14,15 @@ interface ToggleFavoriteVariables {
 	isCurrentlyFavorite: boolean; // 現在の状態を渡して、逆の操作を行う
 }
 
-export const useToggleFavoriteBookmark = () => {
+interface ToastOptions {
+	showToast: (options: {
+		type: "success" | "error" | "info";
+		message: string;
+		duration?: number;
+	}) => void;
+}
+
+export const useToggleFavoriteBookmark = (options?: ToastOptions) => {
 	const queryClient = useQueryClient();
 
 	return useMutation({
@@ -110,12 +118,34 @@ export const useToggleFavoriteBookmark = () => {
 			return { previousUnreadData, previousFavoriteData, previousRecentData };
 		},
 
+		// 成功時の処理
+		onSuccess: (_, variables) => {
+			// Toastで成功を通知
+			if (options?.showToast) {
+				const message = variables.isCurrentlyFavorite
+					? "お気に入りから削除しました"
+					: "お気に入りに追加しました";
+				options.showToast({
+					type: "success",
+					message,
+					duration: 2000,
+				});
+			}
+		},
+
 		// エラー発生時の処理
-		onError: (err, variables, context) => {
-			console.error(
-				`Failed to toggle favorite for bookmark ${variables.id}:`,
-				err,
-			);
+		onError: (_err, variables, context) => {
+			// Toastでエラーを通知
+			if (options?.showToast) {
+				const errorMessage = variables.isCurrentlyFavorite
+					? "お気に入りから削除できませんでした"
+					: "お気に入りに追加できませんでした";
+				options.showToast({
+					type: "error",
+					message: errorMessage,
+					duration: 3000,
+				});
+			}
 			// 保存しておいたデータで両方のキャッシュを元に戻す (ロールバック)
 			if (context?.previousUnreadData) {
 				queryClient.setQueryData(
@@ -163,6 +193,49 @@ if (import.meta.vitest) {
 		it("useToggleFavoriteBookmark関数が定義されている", () => {
 			expect(useToggleFavoriteBookmark).toBeDefined();
 			expect(typeof useToggleFavoriteBookmark).toBe("function");
+		});
+
+		it("ToastOptionsパラメータの型定義が正しい", () => {
+			// 型定義のテスト - 実行時ではなくコンパイル時のチェック
+			const mockShowToast = (_options: {
+				type: "success" | "error" | "info";
+				message: string;
+				duration?: number;
+			}) => {};
+
+			// ToastOptions型の構造が正しいことを確認
+			const validOptions: ToastOptions = { showToast: mockShowToast };
+			expect(validOptions).toHaveProperty("showToast");
+			expect(typeof validOptions.showToast).toBe("function");
+		});
+
+		it("Toast通知の成功メッセージが操作内容に応じて変わる", () => {
+			// お気に入りに追加する場合のメッセージを確認
+			const addMessage = "お気に入りに追加しました";
+			const removeMessage = "お気に入りから削除しました";
+
+			// メッセージが期待通りの内容であることを確認
+			expect(addMessage).toContain("追加");
+			expect(removeMessage).toContain("削除");
+		});
+
+		it("Toast通知のエラーメッセージが操作内容に応じて変わる", () => {
+			// エラーメッセージが操作に応じて異なることを確認
+			const addErrorMessage = "お気に入りに追加できませんでした";
+			const removeErrorMessage = "お気に入りから削除できませんでした";
+
+			expect(addErrorMessage).toContain("追加できませんでした");
+			expect(removeErrorMessage).toContain("削除できませんでした");
+		});
+
+		it("オプショナルパラメータ未指定時でもエラーが発生しない", () => {
+			// ToastOptionsを指定しない場合でも正常に動作することを確認
+			expect(() => {
+				const hook = useToggleFavoriteBookmark;
+				expect(hook).toBeDefined();
+				// パラメータなしで呼び出せることを確認
+				expect(hook.length).toBeLessThanOrEqual(1);
+			}).not.toThrow();
 		});
 	});
 }

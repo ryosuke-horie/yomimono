@@ -17,15 +17,15 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 	const { id, title, url, createdAt, isRead, isFavorite, label } = bookmark;
 	const formattedDate = new Date(createdAt).toLocaleDateString("ja-JP");
 
+	const { showToast } = useToast();
 	const { mutate: toggleFavorite, isPending: isTogglingFavorite } =
-		useToggleFavoriteBookmark();
+		useToggleFavoriteBookmark({ showToast });
 	const { mutate: markAsReadMutate, isPending: isMarkingAsRead } =
 		useMarkBookmarkAsRead();
 	const { mutate: markAsUnreadMutate, isPending: isMarkingAsUnread } =
 		useMarkBookmarkAsUnread();
 	const [isCopied, setIsCopied] = useState(false);
 	const [isUrlCopied, setIsUrlCopied] = useState(false);
-	const { showToast } = useToast();
 
 	const handleFavoriteToggle = () => {
 		toggleFavorite({ id, isCurrentlyFavorite: isFavorite });
