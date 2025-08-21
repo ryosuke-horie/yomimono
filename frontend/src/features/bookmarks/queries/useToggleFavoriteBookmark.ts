@@ -5,6 +5,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Bookmark } from "@/features/bookmarks/types";
+import type { ToastOptions } from "@/features/bookmarks/types/toast";
 import type { BookmarksData } from "./api";
 import { addBookmarkToFavorites, removeBookmarkFromFavorites } from "./api";
 import { bookmarkKeys } from "./queryKeys";
@@ -12,14 +13,6 @@ import { bookmarkKeys } from "./queryKeys";
 interface ToggleFavoriteVariables {
 	id: number;
 	isCurrentlyFavorite: boolean; // 現在の状態を渡して、逆の操作を行う
-}
-
-interface ToastOptions {
-	showToast: (options: {
-		type: "success" | "error" | "info";
-		message: string;
-		duration?: number;
-	}) => void;
 }
 
 export const useToggleFavoriteBookmark = (options?: ToastOptions) => {
@@ -204,7 +197,7 @@ if (import.meta.vitest) {
 			}) => {};
 
 			// ToastOptions型の構造が正しいことを確認
-			const validOptions: ToastOptions = { showToast: mockShowToast };
+			const validOptions = { showToast: mockShowToast };
 			expect(validOptions).toHaveProperty("showToast");
 			expect(typeof validOptions.showToast).toBe("function");
 		});

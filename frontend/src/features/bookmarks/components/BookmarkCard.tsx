@@ -21,9 +21,9 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 	const { mutate: toggleFavorite, isPending: isTogglingFavorite } =
 		useToggleFavoriteBookmark({ showToast });
 	const { mutate: markAsReadMutate, isPending: isMarkingAsRead } =
-		useMarkBookmarkAsRead();
+		useMarkBookmarkAsRead({ showToast });
 	const { mutate: markAsUnreadMutate, isPending: isMarkingAsUnread } =
-		useMarkBookmarkAsUnread();
+		useMarkBookmarkAsUnread({ showToast });
 	const [isCopied, setIsCopied] = useState(false);
 	const [isUrlCopied, setIsUrlCopied] = useState(false);
 

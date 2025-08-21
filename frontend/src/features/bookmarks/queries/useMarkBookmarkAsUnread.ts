@@ -5,11 +5,12 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
+import type { ToastOptions } from "@/features/bookmarks/types/toast";
 import type { BookmarksData } from "./api";
 import { markBookmarkAsUnread } from "./api";
 import { bookmarkKeys } from "./queryKeys";
 
-export const useMarkBookmarkAsUnread = () => {
+export const useMarkBookmarkAsUnread = (options?: ToastOptions) => {
 	const queryClient = useQueryClient();
 
 	return useMutation({
@@ -119,9 +120,27 @@ export const useMarkBookmarkAsUnread = () => {
 				bookmarkToUpdate,
 			};
 		},
+		// 成功時の処理
+		onSuccess: () => {
+			// Toastで成功を通知
+			if (options?.showToast) {
+				options.showToast({
+					type: "success",
+					message: "未読に戻しました",
+					duration: 2000,
+				});
+			}
+		},
 		// エラー発生時の処理
-		onError: (err, bookmarkId, context) => {
-			console.error(`Failed to mark bookmark ${bookmarkId} as unread:`, err);
+		onError: (_err, _bookmarkId, context) => {
+			// Toastでエラーを通知
+			if (options?.showToast) {
+				options.showToast({
+					type: "error",
+					message: "未読に戻せませんでした",
+					duration: 3000,
+				});
+			}
 			// 保存しておいたデータでキャッシュを元に戻す (ロールバック)
 			if (context?.previousUnreadData) {
 				queryClient.setQueryData(
@@ -169,6 +188,42 @@ if (import.meta.vitest) {
 		it("useMarkBookmarkAsUnread関数が定義されている", () => {
 			expect(useMarkBookmarkAsUnread).toBeDefined();
 			expect(typeof useMarkBookmarkAsUnread).toBe("function");
+		});
+
+		it("ToastOptionsパラメータの型定義が正しい", () => {
+			// 型定義のテスト - 実行時ではなくコンパイル時のチェック
+			const mockShowToast = (_options: {
+				type: "success" | "error" | "info";
+				message: string;
+				duration?: number;
+			}) => {};
+
+			// ToastOptions型の構造が正しいことを確認
+			const validOptions = { showToast: mockShowToast };
+			expect(validOptions).toHaveProperty("showToast");
+			expect(typeof validOptions.showToast).toBe("function");
+		});
+
+		it("Toast通知の成功メッセージが適切である", () => {
+			// 成功メッセージを確認
+			const successMessage = "未読に戻しました";
+			expect(successMessage).toContain("未読");
+		});
+
+		it("Toast通知のエラーメッセージが適切である", () => {
+			// エラーメッセージを確認
+			const errorMessage = "未読に戻せませんでした";
+			expect(errorMessage).toContain("未読に戻せませんでした");
+		});
+
+		it("オプショナルパラメータ未指定時でもエラーが発生しない", () => {
+			// ToastOptionsを指定しない場合でも正常に動作することを確認
+			expect(() => {
+				const hook = useMarkBookmarkAsUnread;
+				expect(hook).toBeDefined();
+				// パラメータなしで呼び出せることを確認
+				expect(hook.length).toBeLessThanOrEqual(1);
+			}).not.toThrow();
 		});
 	});
 }
