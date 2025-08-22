@@ -11,9 +11,23 @@ export function ToastContainer({ toasts, onClose }: ToastContainerProps) {
 	if (toasts.length === 0) return null;
 
 	return (
-		<div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm w-full sm:max-w-md">
-			{toasts.map((toast) => (
-				<Toast key={toast.id} toast={toast} onClose={onClose} />
+		<div
+			className="fixed top-4 right-4 z-50 space-y-2 max-w-sm w-full sm:max-w-md"
+			style={{
+				// コンテナ全体のスムーズな高さ変化
+				transition: "height 0.3s ease-out",
+			}}
+		>
+			{toasts.map((toast, index) => (
+				<div
+					key={toast.id}
+					style={{
+						// 複数のToast表示時にずらしたアニメーション
+						animationDelay: `${index * 50}ms`,
+					}}
+				>
+					<Toast toast={toast} onClose={onClose} />
+				</div>
 			))}
 		</div>
 	);
@@ -65,6 +79,28 @@ if (import.meta.vitest) {
 
 			const containerDiv = container.firstChild as HTMLElement;
 			expect(containerDiv).toHaveClass("fixed", "top-4", "right-4", "z-50");
+		});
+
+		test("複数のToastにスタガーアニメーション遅延が適用される", () => {
+			const mockOnClose = vi.fn();
+			const toasts: ToastMessage[] = [
+				{ id: "1", type: "success", message: "1つ目" },
+				{ id: "2", type: "info", message: "2つ目" },
+				{ id: "3", type: "error", message: "3つ目" },
+			];
+
+			const { container } = render(
+				<ToastContainer toasts={toasts} onClose={mockOnClose} />,
+			);
+
+			const wrapperDivs = container.querySelectorAll(
+				".fixed > div",
+			) as NodeListOf<HTMLElement>;
+
+			// 各Toastラッパーに異なる遅延が設定されていることを確認
+			expect(wrapperDivs[0].style.animationDelay).toBe("0ms");
+			expect(wrapperDivs[1].style.animationDelay).toBe("50ms");
+			expect(wrapperDivs[2].style.animationDelay).toBe("100ms");
 		});
 	});
 }
