@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ToastProvider } from "@/hooks/useToast";
+import { ToastProvider } from "@/providers/ToastProvider";
 import FavoritesPage from "./page";
 
 // API呼び出しをモック

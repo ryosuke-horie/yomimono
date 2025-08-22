@@ -5,12 +5,12 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
-import type { ToastOptions } from "@/features/bookmarks/types/toast";
+import type { QueryToastOptions } from "@/types/toast";
 import type { BookmarksData } from "./api";
 import { markBookmarkAsRead } from "./api";
 import { bookmarkKeys } from "./queryKeys";
 
-export const useMarkBookmarkAsRead = (options?: ToastOptions) => {
+export const useMarkBookmarkAsRead = (options?: QueryToastOptions) => {
 	const queryClient = useQueryClient();
 
 	return useMutation({

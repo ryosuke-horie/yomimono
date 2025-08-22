@@ -5,7 +5,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Bookmark } from "@/features/bookmarks/types";
-import type { ToastOptions } from "@/features/bookmarks/types/toast";
+import type { QueryToastOptions } from "@/types/toast";
 import type { BookmarksData } from "./api";
 import { addBookmarkToFavorites, removeBookmarkFromFavorites } from "./api";
 import { bookmarkKeys } from "./queryKeys";
@@ -15,7 +15,7 @@ interface ToggleFavoriteVariables {
 	isCurrentlyFavorite: boolean; // 現在の状態を渡して、逆の操作を行う
 }
 
-export const useToggleFavoriteBookmark = (options?: ToastOptions) => {
+export const useToggleFavoriteBookmark = (options?: QueryToastOptions) => {
 	const queryClient = useQueryClient();
 
 	return useMutation({

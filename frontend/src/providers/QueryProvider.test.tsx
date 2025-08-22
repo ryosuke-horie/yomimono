@@ -5,8 +5,8 @@
 import { type QueryClient, useQueryClient } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { ToastProvider } from "@/hooks/useToast";
 import * as queryClientModule from "@/lib/api/queryClient";
+import { ToastProvider } from "@/providers/ToastProvider";
 import { QueryErrorHandler, QueryProvider } from "./QueryProvider";
 
 // テスト用コンポーネント：QueryClientの設定確認用
