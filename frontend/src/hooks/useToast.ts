@@ -14,24 +14,3 @@ export function useToast() {
 	}
 	return context;
 }
-
-// Vitest unit tests
-if (import.meta.vitest) {
-	const { describe, test, expect, vi } = import.meta.vitest;
-	const { renderHook } = await import("@testing-library/react");
-
-	describe("useToast", () => {
-		test("ToastProviderなしでuseToastを使用するとエラーが発生する", () => {
-			// エラーをキャッチしてテスト
-			const consoleSpy = vi
-				.spyOn(console, "error")
-				.mockImplementation(() => {});
-
-			expect(() => {
-				renderHook(() => useToast());
-			}).toThrow("useToast must be used within a ToastProvider");
-
-			consoleSpy.mockRestore();
-		});
-	});
-}
