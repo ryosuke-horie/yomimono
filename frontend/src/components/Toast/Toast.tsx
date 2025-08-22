@@ -6,20 +6,7 @@
 
 import { useEffect } from "react";
 import { FiAlertCircle, FiCheckCircle, FiInfo, FiX } from "react-icons/fi";
-
-export type ToastType = "success" | "error" | "info";
-
-export interface ToastMessage {
-	id: string;
-	type: ToastType;
-	message: string;
-	duration?: number;
-}
-
-interface ToastProps {
-	toast: ToastMessage;
-	onClose: (id: string) => void;
-}
+import type { ToastMessage, ToastProps, ToastType } from "@/types/toast";
 
 const getToastStyles = (type: ToastType) => {
 	switch (type) {

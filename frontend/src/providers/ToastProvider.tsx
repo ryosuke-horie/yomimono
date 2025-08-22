@@ -1,45 +1,27 @@
 /**
- * Toast通知を管理するカスタムフック
- * Toast通知の表示・非表示を制御する
+ * Toast通知のプロバイダーコンポーネント
+ * アプリケーション全体でToast通知機能を提供する
  */
 "use client";
 
-import type { ReactNode } from "react";
-import { createContext, useCallback, useContext, useState } from "react";
-import {
-	ToastContainer,
-	type ToastMessage,
-	type ToastType,
-} from "@/components/Toast";
+import { createContext, useCallback, useState } from "react";
+import { ToastContainer } from "@/components/Toast";
+import type {
+	ToastContextValue,
+	ToastMessage,
+	ToastOptions,
+	ToastProviderProps,
+} from "@/types/toast";
 
-interface ToastContextValue {
-	showToast: (options: {
-		type: ToastType;
-		message: string;
-		duration?: number;
-	}) => void;
-	hideToast: (id: string) => void;
-}
-
-const ToastContext = createContext<ToastContextValue | undefined>(undefined);
-
-interface ToastProviderProps {
-	children: ReactNode;
-}
+export const ToastContext = createContext<ToastContextValue | undefined>(
+	undefined,
+);
 
 export function ToastProvider({ children }: ToastProviderProps) {
 	const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
 	const showToast = useCallback(
-		({
-			type,
-			message,
-			duration = 3000,
-		}: {
-			type: ToastType;
-			message: string;
-			duration?: number;
-		}) => {
+		({ type, message, duration = 3000 }: ToastOptions) => {
 			const id = Date.now().toString();
 			const newToast: ToastMessage = {
 				id,
@@ -65,57 +47,35 @@ export function ToastProvider({ children }: ToastProviderProps) {
 	);
 }
 
-export function useToast() {
-	const context = useContext(ToastContext);
-	if (!context) {
-		throw new Error("useToast must be used within a ToastProvider");
-	}
-	return context;
-}
-
 // Vitest unit tests
 if (import.meta.vitest) {
 	const { describe, test, expect, vi } = import.meta.vitest;
-	const { renderHook, act, waitFor } = await import("@testing-library/react");
 	const { render, screen } = await import("@testing-library/react");
+	const { act, waitFor } = await import("@testing-library/react");
 	const userEvent = (await import("@testing-library/user-event")).default;
+	const { useContext } = await import("react");
 
-	describe("useToast", () => {
-		test("ToastProviderなしでuseToastを使用するとエラーが発生する", () => {
-			// エラーをキャッチしてテスト
-			const consoleSpy = vi
-				.spyOn(console, "error")
-				.mockImplementation(() => {});
+	describe("ToastProvider", () => {
+		test("子コンポーネントとToastContainerをレンダリングする", () => {
+			render(
+				<ToastProvider>
+					<div>Test Child</div>
+				</ToastProvider>,
+			);
 
-			expect(() => {
-				renderHook(() => useToast());
-			}).toThrow("useToast must be used within a ToastProvider");
-
-			consoleSpy.mockRestore();
+			expect(screen.getByText("Test Child")).toBeInTheDocument();
 		});
 
 		test("showToastで新しいToastが表示される", async () => {
-			const wrapper = ({ children }: { children: ReactNode }) => (
-				<ToastProvider>{children}</ToastProvider>
-			);
-
-			const { result } = renderHook(() => useToast(), { wrapper });
-
-			act(() => {
-				result.current.showToast({
-					type: "success",
-					message: "テストメッセージ",
-				});
-			});
-
-			// ToastProviderを含む完全なコンポーネントをレンダリング
 			const TestComponent = () => {
-				const { showToast } = useToast();
+				const context = useContext(ToastContext);
+				if (!context) throw new Error("Context not found");
+				const { showToast } = context;
 				return (
 					<button
 						type="button"
 						onClick={() =>
-							showToast({ type: "success", message: "ボタンからのメッセージ" })
+							showToast({ type: "success", message: "テストメッセージ" })
 						}
 					>
 						Show Toast
@@ -133,23 +93,23 @@ if (import.meta.vitest) {
 			await userEvent.click(button);
 
 			await waitFor(() => {
-				expect(screen.getByText("ボタンからのメッセージ")).toBeInTheDocument();
+				expect(screen.getByText("テストメッセージ")).toBeInTheDocument();
 			});
 		});
 
 		test("hideToastでToastが非表示になる", async () => {
 			const TestComponent = () => {
-				const { showToast } = useToast();
+				const context = useContext(ToastContext);
+				if (!context) throw new Error("Context not found");
+				const { showToast } = context;
 				return (
 					<button
 						type="button"
 						onClick={() => {
-							// showToast内部でIDが自動生成されるため、この方法では制御できない
-							// 代わりに、Toastコンポーネントの閉じるボタンをクリックする
 							showToast({
 								type: "info",
 								message: "閉じるテスト",
-								duration: 10000, // 自動で閉じないように長めに設定
+								duration: 10000,
 							});
 						}}
 					>
@@ -171,7 +131,6 @@ if (import.meta.vitest) {
 				expect(screen.getByText("閉じるテスト")).toBeInTheDocument();
 			});
 
-			// Toastコンポーネントの閉じるボタンをクリック
 			const closeButton = screen.getByLabelText("閉じる");
 			await userEvent.click(closeButton);
 
@@ -182,7 +141,9 @@ if (import.meta.vitest) {
 
 		test("複数のToastを同時に表示できる", async () => {
 			const TestComponent = () => {
-				const { showToast } = useToast();
+				const context = useContext(ToastContext);
+				if (!context) throw new Error("Context not found");
+				const { showToast } = context;
 				return (
 					<button
 						type="button"
@@ -217,7 +178,9 @@ if (import.meta.vitest) {
 			vi.useFakeTimers({ shouldAdvanceTime: true });
 
 			const TestComponent = () => {
-				const { showToast } = useToast();
+				const context = useContext(ToastContext);
+				if (!context) throw new Error("Context not found");
+				const { showToast } = context;
 				return (
 					<button
 						type="button"
@@ -249,7 +212,6 @@ if (import.meta.vitest) {
 				expect(screen.getByText("自動で消える")).toBeInTheDocument();
 			});
 
-			// 2秒経過させる
 			await act(async () => {
 				vi.advanceTimersByTime(2000);
 			});

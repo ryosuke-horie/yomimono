@@ -4,12 +4,8 @@
  */
 "use client";
 
-import { Toast, type ToastMessage } from "./Toast";
-
-interface ToastContainerProps {
-	toasts: ToastMessage[];
-	onClose: (id: string) => void;
-}
+import type { ToastContainerProps, ToastMessage } from "@/types/toast";
+import { Toast } from "./Toast";
 
 export function ToastContainer({ toasts, onClose }: ToastContainerProps) {
 	if (toasts.length === 0) return null;
