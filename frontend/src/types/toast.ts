@@ -6,7 +6,7 @@
 /**
  * Toast通知のタイプ
  */
-export type ToastType = "success" | "error" | "info";
+export type ToastType = "success" | "error" | "warning" | "info";
 
 /**
  * Toast通知メッセージの構造

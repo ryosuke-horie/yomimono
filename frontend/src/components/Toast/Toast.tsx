@@ -5,7 +5,13 @@
 "use client";
 
 import { useEffect } from "react";
-import { FiAlertCircle, FiCheckCircle, FiInfo, FiX } from "react-icons/fi";
+import {
+	FiAlertCircle,
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiInfo,
+	FiX,
+} from "react-icons/fi";
 import type { ToastMessage, ToastProps, ToastType } from "@/types/toast";
 
 const getToastStyles = (type: ToastType) => {
@@ -14,6 +20,8 @@ const getToastStyles = (type: ToastType) => {
 			return "bg-green-500 text-white";
 		case "error":
 			return "bg-red-500 text-white";
+		case "warning":
+			return "bg-yellow-500 text-gray-800";
 		case "info":
 			return "bg-blue-500 text-white";
 		default:
@@ -27,6 +35,8 @@ const getToastIcon = (type: ToastType) => {
 			return <FiCheckCircle className="w-5 h-5" />;
 		case "error":
 			return <FiAlertCircle className="w-5 h-5" />;
+		case "warning":
+			return <FiAlertTriangle className="w-5 h-5" />;
 		case "info":
 			return <FiInfo className="w-5 h-5" />;
 		default:
@@ -120,6 +130,24 @@ if (import.meta.vitest) {
 			expect(screen.getByText("お知らせ")).toBeInTheDocument();
 		});
 
+		test("warning typeのToastが正しくレンダリングされる", () => {
+			const mockOnClose = vi.fn();
+			const toast: ToastMessage = {
+				id: "3-warning",
+				type: "warning",
+				message: "注意: この操作は取り消せません",
+			};
+
+			render(<Toast toast={toast} onClose={mockOnClose} />);
+
+			const alertElement = screen.getByRole("alert");
+			expect(alertElement).toHaveClass("bg-yellow-500");
+			expect(alertElement).toHaveClass("text-gray-800");
+			expect(
+				screen.getByText("注意: この操作は取り消せません"),
+			).toBeInTheDocument();
+		});
+
 		test("閉じるボタンをクリックするとonCloseが呼ばれる", async () => {
 			const mockOnClose = vi.fn();
 			const toast: ToastMessage = {
@@ -153,6 +181,28 @@ if (import.meta.vitest) {
 
 			await waitFor(() => {
 				expect(mockOnClose).toHaveBeenCalledWith("5");
+			});
+
+			vi.useRealTimers();
+		});
+
+		test("warning typeのToastが自動的に閉じる", async () => {
+			vi.useFakeTimers({ shouldAdvanceTime: true });
+			const mockOnClose = vi.fn();
+			const toast: ToastMessage = {
+				id: "5-warning",
+				type: "warning",
+				message: "警告: 4秒後に自動で閉じます",
+				duration: 4000,
+			};
+
+			render(<Toast toast={toast} onClose={mockOnClose} />);
+
+			// 4000ms経過させる
+			await vi.advanceTimersByTimeAsync(4000);
+
+			await waitFor(() => {
+				expect(mockOnClose).toHaveBeenCalledWith("5-warning");
 			});
 
 			vi.useRealTimers();
