@@ -1,6 +1,12 @@
+/**
+ * グローバルエラーバウンダリ - Next.jsのエラーページ
+ * アプリケーション全体で発生したエラーをキャッチして表示
+ * エラー発生時にToast通知を表示し、ユーザーに視覚的なフィードバックを提供
+ */
 "use client";
 
 import { useEffect } from "react";
+import { useToast } from "@/hooks/useToast";
 
 export default function ErrorPage({
 	error,
@@ -9,9 +15,21 @@ export default function ErrorPage({
 	error: Error & { digest?: string };
 	reset: () => void;
 }) {
+	const { showToast } = useToast();
+
 	useEffect(() => {
-		console.error("エラーが発生しました:", error);
-	}, [error]);
+		// 開発環境ではコンソールにも出力（デバッグ用）
+		if (process.env.NODE_ENV === "development") {
+			console.error("エラーが発生しました:", error);
+		}
+
+		// ユーザー向けのToast通知
+		showToast({
+			type: "error",
+			message: "エラーが発生しました。しばらく経ってから再度お試しください。",
+			duration: 5000,
+		});
+	}, [error, showToast]);
 
 	return (
 		<main className="container mx-auto px-4 py-8">

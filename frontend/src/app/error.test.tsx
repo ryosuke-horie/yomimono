@@ -4,6 +4,7 @@
  */
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { ToastProvider } from "@/providers/ToastProvider";
 import ErrorPage from "./error";
 
 // コンソールエラーをモック化
@@ -15,12 +16,28 @@ describe("ErrorPage", () => {
 	const mockError = new Error("テストエラー");
 	const mockReset = vi.fn();
 
+	// 開発環境としてテストを実行するため、環境変数を設定
+	const originalEnv = process.env.NODE_ENV;
+
+	beforeAll(() => {
+		process.env.NODE_ENV = "development";
+	});
+
+	afterAll(() => {
+		process.env.NODE_ENV = originalEnv;
+	});
+
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
 
+	// ErrorPageをToastProviderでラップするヘルパー関数
+	const renderWithToastProvider = (component: React.ReactElement) => {
+		return render(<ToastProvider>{component}</ToastProvider>);
+	};
+
 	it("エラーページが正しくレンダリングされる", () => {
-		render(<ErrorPage error={mockError} reset={mockReset} />);
+		renderWithToastProvider(<ErrorPage error={mockError} reset={mockReset} />);
 
 		expect(screen.getByText("エラーが発生しました")).toBeInTheDocument();
 		expect(
@@ -30,7 +47,7 @@ describe("ErrorPage", () => {
 	});
 
 	it("mainコンテナが正しいクラスを持つ", () => {
-		const { container } = render(
+		const { container } = renderWithToastProvider(
 			<ErrorPage error={mockError} reset={mockReset} />,
 		);
 		const mainElement = container.querySelector("main");
@@ -39,7 +56,7 @@ describe("ErrorPage", () => {
 	});
 
 	it("エラーアラートが正しいスタイルクラスを持つ", () => {
-		const { container } = render(
+		const { container } = renderWithToastProvider(
 			<ErrorPage error={mockError} reset={mockReset} />,
 		);
 		const alertContainer = container.querySelector(".bg-red-50");
@@ -54,7 +71,7 @@ describe("ErrorPage", () => {
 	});
 
 	it("エラーアイコンが正しく表示される", () => {
-		const { container } = render(
+		const { container } = renderWithToastProvider(
 			<ErrorPage error={mockError} reset={mockReset} />,
 		);
 		const errorIcon = container.querySelector("svg");
@@ -66,7 +83,7 @@ describe("ErrorPage", () => {
 	});
 
 	it("エラータイトルが正しいスタイルを持つ", () => {
-		render(<ErrorPage error={mockError} reset={mockReset} />);
+		renderWithToastProvider(<ErrorPage error={mockError} reset={mockReset} />);
 		const title = screen.getByText("エラーが発生しました");
 
 		expect(title).toHaveClass("text-sm", "font-medium", "text-red-800");
@@ -74,7 +91,7 @@ describe("ErrorPage", () => {
 	});
 
 	it("エラーメッセージが正しいスタイルを持つ", () => {
-		const { container } = render(
+		const { container } = renderWithToastProvider(
 			<ErrorPage error={mockError} reset={mockReset} />,
 		);
 		const messageContainer = container.querySelector(
@@ -90,7 +107,7 @@ describe("ErrorPage", () => {
 	});
 
 	it("再試行ボタンが正しいスタイルを持つ", () => {
-		render(<ErrorPage error={mockError} reset={mockReset} />);
+		renderWithToastProvider(<ErrorPage error={mockError} reset={mockReset} />);
 		const retryButton = screen.getByText("再試行");
 
 		expect(retryButton).toHaveClass(
@@ -115,7 +132,7 @@ describe("ErrorPage", () => {
 	});
 
 	it("再試行ボタンクリックでreset関数が呼ばれる", () => {
-		render(<ErrorPage error={mockError} reset={mockReset} />);
+		renderWithToastProvider(<ErrorPage error={mockError} reset={mockReset} />);
 		const retryButton = screen.getByText("再試行");
 
 		fireEvent.click(retryButton);
@@ -124,7 +141,7 @@ describe("ErrorPage", () => {
 	});
 
 	it("useEffectでコンソールエラーが呼ばれる", () => {
-		render(<ErrorPage error={mockError} reset={mockReset} />);
+		renderWithToastProvider(<ErrorPage error={mockError} reset={mockReset} />);
 
 		expect(mockConsoleError).toHaveBeenCalledWith(
 			"エラーが発生しました:",
@@ -138,7 +155,9 @@ describe("ErrorPage", () => {
 		};
 		errorWithDigest.digest = "test-digest-123";
 
-		render(<ErrorPage error={errorWithDigest} reset={mockReset} />);
+		renderWithToastProvider(
+			<ErrorPage error={errorWithDigest} reset={mockReset} />,
+		);
 
 		expect(screen.getByText("エラーが発生しました")).toBeInTheDocument();
 		expect(mockConsoleError).toHaveBeenCalledWith(
@@ -148,14 +167,18 @@ describe("ErrorPage", () => {
 	});
 
 	it("エラーオブジェクトが変更されると useEffect が再実行される", () => {
-		const { rerender } = render(
+		const { rerender } = renderWithToastProvider(
 			<ErrorPage error={mockError} reset={mockReset} />,
 		);
 
 		expect(mockConsoleError).toHaveBeenCalledTimes(1);
 
 		const newError = new Error("新しいエラー");
-		rerender(<ErrorPage error={newError} reset={mockReset} />);
+		rerender(
+			<ToastProvider>
+				<ErrorPage error={newError} reset={mockReset} />
+			</ToastProvider>,
+		);
 
 		expect(mockConsoleError).toHaveBeenCalledTimes(2);
 		expect(mockConsoleError).toHaveBeenLastCalledWith(
