@@ -14,6 +14,9 @@ import {
 } from "react-icons/fi";
 import type { ToastMessage, ToastProps, ToastType } from "@/types/toast";
 
+// アニメーション時間の定数（CSSと同期）
+const ANIMATION_DURATION = 300;
+
 const getToastStyles = (type: ToastType) => {
 	switch (type) {
 		case "success":
@@ -50,7 +53,7 @@ export function Toast({ toast, onClose }: ToastProps) {
 	const handleClose = useCallback(() => {
 		setIsClosing(true);
 		// アニメーション完了後に実際に削除
-		setTimeout(() => onClose(toast.id), 300);
+		setTimeout(() => onClose(toast.id), ANIMATION_DURATION);
 	}, [onClose, toast.id]);
 
 	useEffect(() => {
@@ -171,7 +174,7 @@ if (import.meta.vitest) {
 			await userEvent.click(closeButton);
 
 			// アニメーション完了後のonCloseが呼ばれる
-			await vi.advanceTimersByTimeAsync(300);
+			await vi.advanceTimersByTimeAsync(ANIMATION_DURATION);
 
 			await waitFor(() => {
 				expect(mockOnClose).toHaveBeenCalledWith("4");
@@ -195,7 +198,7 @@ if (import.meta.vitest) {
 			// duration後にアニメーション開始
 			await vi.advanceTimersByTimeAsync(3000);
 			// アニメーション完了後のonClose実行
-			await vi.advanceTimersByTimeAsync(300);
+			await vi.advanceTimersByTimeAsync(ANIMATION_DURATION);
 
 			await waitFor(() => {
 				expect(mockOnClose).toHaveBeenCalledWith("5");
@@ -219,7 +222,7 @@ if (import.meta.vitest) {
 			// duration後にアニメーション開始
 			await vi.advanceTimersByTimeAsync(4000);
 			// アニメーション完了後のonClose実行
-			await vi.advanceTimersByTimeAsync(300);
+			await vi.advanceTimersByTimeAsync(ANIMATION_DURATION);
 
 			await waitFor(() => {
 				expect(mockOnClose).toHaveBeenCalledWith("5-warning");
@@ -245,7 +248,7 @@ if (import.meta.vitest) {
 			unmount();
 
 			// 残りの3秒+アニメーション時間経過させる
-			vi.advanceTimersByTime(3300);
+			vi.advanceTimersByTime(3000 + ANIMATION_DURATION);
 
 			// onCloseが呼ばれていないことを確認
 			expect(mockOnClose).not.toHaveBeenCalled();

@@ -65,24 +65,6 @@
 	}
 }
 
-@keyframes toast-fade-in {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
-}
-
-@keyframes toast-fade-out {
-	from {
-		opacity: 1;
-	}
-	to {
-		opacity: 0;
-	}
-}
-
 /* アニメーションクラス */
 .animate-toast-slide-in {
 	animation: toast-slide-in 0.3s ease-out forwards;
@@ -92,20 +74,10 @@
 	animation: toast-slide-out 0.3s ease-in forwards;
 }
 
-.animate-toast-fade-in {
-	animation: toast-fade-in 0.3s ease-out forwards;
-}
-
-.animate-toast-fade-out {
-	animation: toast-fade-out 0.3s ease-in forwards;
-}
-
 /* アクセシビリティ: アニメーション無効化対応 */
 @media (prefers-reduced-motion: reduce) {
 	.animate-toast-slide-in,
-	.animate-toast-slide-out,
-	.animate-toast-fade-in,
-	.animate-toast-fade-out {
+	.animate-toast-slide-out {
 		animation: none;
 		transition: none;
 	}
