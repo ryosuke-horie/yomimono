@@ -40,7 +40,7 @@
 		"@biomejs/biome": "^2.0.6",
 		"@cloudflare/workers-types": "^4.20250701.0",
 		"@opennextjs/cloudflare": "1.6.3",
-		"@playwright/test": "^1.53.2",
+		"@playwright/test": "^1.55.0",
 		"@tailwindcss/postcss": "^4.1.11",
 		"@testing-library/dom": "^10.4.0",
 		"@testing-library/jest-dom": "^6.8.0",
