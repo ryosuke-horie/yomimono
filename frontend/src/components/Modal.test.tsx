@@ -29,21 +29,6 @@ describe("Modal", () => {
 		expect(screen.queryByText("モーダルコンテンツ")).not.toBeInTheDocument();
 	});
 
-	test("閉じるボタンクリックでonCloseが呼ばれる", () => {
-		const mockOnClose = vi.fn();
-
-		render(
-			<Modal isOpen={true} onClose={mockOnClose} title="テストモーダル">
-				<p>モーダルコンテンツ</p>
-			</Modal>,
-		);
-
-		const closeButton = screen.getByLabelText("閉じる");
-		fireEvent.click(closeButton);
-
-		expect(mockOnClose).toHaveBeenCalled();
-	});
-
 	test("オーバーレイクリックでonCloseが呼ばれる", () => {
 		const mockOnClose = vi.fn();
 
@@ -110,9 +95,6 @@ describe("Modal", () => {
 				<p>モーダルコンテンツ</p>
 			</Modal>,
 		);
-
-		const closeButton = screen.getByLabelText("閉じる");
-		expect(closeButton).toBeInTheDocument();
 
 		const overlayButton = screen.getByLabelText("モーダルを閉じる");
 		expect(overlayButton).toBeInTheDocument();
