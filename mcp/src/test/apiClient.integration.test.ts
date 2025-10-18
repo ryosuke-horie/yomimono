@@ -2,8 +2,9 @@
  * MCPサーバーのラベル関連機能の統合テスト
  * モックAPIサーバーとの連携をシミュレート
  */
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+
 import type { MockInstance } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import * as apiClient from "../lib/apiClient.js";
 
 describe("Label API Integration Tests", () => {
@@ -101,9 +102,7 @@ describe("Label API Integration Tests", () => {
 			// ラベル作成
 			if (urlStr.endsWith("/api/labels") && method === "POST") {
 				const body = JSON.parse(options?.body as string);
-				const existingLabel = Array.from(mockLabels.values()).find(
-					(l) => l.name === body.name,
-				);
+				const existingLabel = Array.from(mockLabels.values()).find((l) => l.name === body.name);
 
 				if (existingLabel) {
 					return {
@@ -200,9 +199,7 @@ describe("Label API Integration Tests", () => {
 				}
 
 				// 使用中のラベルかチェック
-				const isInUse = Array.from(mockArticles.values()).some(
-					(a) => a.labelId === labelId,
-				);
+				const isInUse = Array.from(mockArticles.values()).some((a) => a.labelId === labelId);
 				if (isInUse) {
 					return {
 						ok: false,
@@ -254,9 +251,7 @@ describe("Label API Integration Tests", () => {
 				}
 
 				const body = JSON.parse(options?.body as string);
-				let label = Array.from(mockLabels.values()).find(
-					(l) => l.name === body.labelName,
-				);
+				let label = Array.from(mockLabels.values()).find((l) => l.name === body.labelName);
 
 				// ラベルが存在しない場合は作成
 				if (!label) {
@@ -285,9 +280,7 @@ describe("Label API Integration Tests", () => {
 				const { articleIds, labelName, description } = body;
 
 				// ラベルを取得または作成
-				let label = Array.from(mockLabels.values()).find(
-					(l) => l.name === labelName,
-				);
+				let label = Array.from(mockLabels.values()).find((l) => l.name === labelName);
 
 				if (!label) {
 					label = {
@@ -364,10 +357,7 @@ describe("Label API Integration Tests", () => {
 			expect(unlabeledArticles.length).toBeGreaterThan(0);
 
 			// 3. 新しいラベルを作成
-			const newLabel = await apiClient.createLabel(
-				"技術記事",
-				"技術関連の記事",
-			);
+			const newLabel = await apiClient.createLabel("技術記事", "技術関連の記事");
 			expect(newLabel.name).toBe("技術記事");
 			expect(newLabel.id).toBeDefined();
 
@@ -377,10 +367,7 @@ describe("Label API Integration Tests", () => {
 			expect(labelsAfterCreate[0].name).toBe("技術記事");
 
 			// 5. 記事にラベルを割り当て
-			await apiClient.assignLabelToArticle(
-				unlabeledArticles[0].id,
-				"技術記事",
-			);
+			await apiClient.assignLabelToArticle(unlabeledArticles[0].id, "技術記事");
 
 			// 6. 未ラベル記事が減っていることを確認
 			const unlabeledAfterAssign = await apiClient.getUnlabeledArticles();
@@ -393,11 +380,7 @@ describe("Label API Integration Tests", () => {
 			const articleIds = unlabeledArticles.map((a) => a.id);
 
 			// 2. 複数記事に一括でラベルを割り当て（ラベルは自動作成される）
-			const result = await apiClient.assignLabelsToMultipleArticles(
-				articleIds,
-				"一括ラベル",
-				"一括で割り当てたラベル",
-			);
+			const result = await apiClient.assignLabelsToMultipleArticles(articleIds, "一括ラベル", "一括で割り当てたラベル");
 
 			expect(result.successful).toBe(articleIds.length);
 			expect(result.skipped).toBe(0);
@@ -411,7 +394,7 @@ describe("Label API Integration Tests", () => {
 
 		test("既存のラベルに記事を追加するワークフロー", async () => {
 			// 1. ラベルを作成
-			const label = await apiClient.createLabel("既存ラベル");
+			const _label = await apiClient.createLabel("既存ラベル");
 
 			// 2. 最初の記事にラベルを割り当て
 			const articles = await apiClient.getUnlabeledArticles();
@@ -433,9 +416,7 @@ describe("Label API Integration Tests", () => {
 			await apiClient.createLabel("重複ラベル", "最初の説明");
 
 			// 2. 同じ名前で再度作成を試みる
-			await expect(
-				apiClient.createLabel("重複ラベル", "別の説明"),
-			).rejects.toThrow("Label already exists");
+			await expect(apiClient.createLabel("重複ラベル", "別の説明")).rejects.toThrow("Label already exists");
 
 			// 3. ラベルは1つだけ存在することを確認
 			const labels = await apiClient.getLabels();
@@ -443,9 +424,7 @@ describe("Label API Integration Tests", () => {
 		});
 
 		test("存在しない記事へのラベル割り当てがエラーになること", async () => {
-			await expect(
-				apiClient.assignLabelToArticle(999, "テストラベル"),
-			).rejects.toThrow("Failed to assign label");
+			await expect(apiClient.assignLabelToArticle(999, "テストラベル")).rejects.toThrow("Failed to assign label");
 		});
 
 		test("使用中のラベルの削除がエラーになること", async () => {
@@ -457,9 +436,7 @@ describe("Label API Integration Tests", () => {
 			await apiClient.assignLabelToArticle(articles[0].id, "使用中ラベル");
 
 			// 3. ラベルの削除を試みる（失敗するはず）
-			await expect(apiClient.deleteLabel(label.id)).rejects.toThrow(
-				"Cannot delete label: still in use",
-			);
+			await expect(apiClient.deleteLabel(label.id)).rejects.toThrow("Cannot delete label: still in use");
 		});
 
 		test("複数記事への一括割り当てで一部が失敗するケース", async () => {
@@ -467,10 +444,7 @@ describe("Label API Integration Tests", () => {
 			const invalidIds = [999, 1000];
 			const mixedIds = [...validIds, ...invalidIds];
 
-			const result = await apiClient.assignLabelsToMultipleArticles(
-				mixedIds,
-				"混在ラベル",
-			);
+			const result = await apiClient.assignLabelsToMultipleArticles(mixedIds, "混在ラベル");
 
 			expect(result.successful).toBe(2);
 			expect(result.skipped).toBe(0);
@@ -486,10 +460,7 @@ describe("Label API Integration Tests", () => {
 			const label = await apiClient.createLabel("更新テスト", "初期説明");
 
 			// 2. ラベルの説明を更新
-			const updated = await apiClient.updateLabelDescription(
-				label.id,
-				"更新された説明",
-			);
+			const updated = await apiClient.updateLabelDescription(label.id, "更新された説明");
 			expect(updated.description).toBe("更新された説明");
 
 			// 3. 更新が永続化されていることを確認
@@ -519,9 +490,7 @@ describe("Label API Integration Tests", () => {
 			expect(labelsAfterDelete[0].id).toBe(label2.id);
 
 			// 5. 削除されたラベルの取得がエラーになることを確認
-			await expect(apiClient.getLabelById(label1.id)).rejects.toThrow(
-				"Failed to fetch label",
-			);
+			await expect(apiClient.getLabelById(label1.id)).rejects.toThrow("Failed to fetch label");
 		});
 	});
 
@@ -534,10 +503,7 @@ describe("Label API Integration Tests", () => {
 			await apiClient.assignLabelToArticle(articleId, "重複テスト");
 
 			// 2. 同じ記事に同じラベルを一括割り当て
-			const result = await apiClient.assignLabelsToMultipleArticles(
-				[articleId],
-				"重複テスト",
-			);
+			const result = await apiClient.assignLabelsToMultipleArticles([articleId], "重複テスト");
 
 			expect(result.successful).toBe(0);
 			expect(result.skipped).toBe(1);
@@ -549,17 +515,11 @@ describe("Label API Integration Tests", () => {
 			const articleIds = articles.map((a) => a.id);
 
 			// 1. 最初の一括割り当て
-			const firstResult = await apiClient.assignLabelsToMultipleArticles(
-				articleIds,
-				"一括テスト",
-			);
+			const firstResult = await apiClient.assignLabelsToMultipleArticles(articleIds, "一括テスト");
 			expect(firstResult.successful).toBe(articleIds.length);
 
 			// 2. 同じ記事に再度一括割り当て
-			const secondResult = await apiClient.assignLabelsToMultipleArticles(
-				articleIds,
-				"一括テスト",
-			);
+			const secondResult = await apiClient.assignLabelsToMultipleArticles(articleIds, "一括テスト");
 			expect(secondResult.successful).toBe(0);
 			expect(secondResult.skipped).toBe(articleIds.length);
 		});
@@ -595,11 +555,7 @@ describe("Concurrent Operations", () => {
 		});
 
 		// 並行して複数のリクエストを送信
-		const promises = [
-			apiClient.getLabels(),
-			apiClient.getLabels(),
-			apiClient.getLabels(),
-		];
+		const promises = [apiClient.getLabels(), apiClient.getLabels(), apiClient.getLabels()];
 
 		const results = await Promise.all(promises);
 

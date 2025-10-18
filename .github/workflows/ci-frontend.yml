@@ -17,7 +17,7 @@ on:
 jobs:
   frontend-checks:
     name: Frontend - Lint, TypeCheck, Test & Build
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     
     steps:
       - name: Checkout code
@@ -28,12 +28,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Clean pnpm setup directory
-        run: |
-          # pnpm/action-setupのデフォルトディレクトリをクリーンアップ
-          rm -rf ~/setup-pnpm || true
-          rm -rf /home/runner-user/setup-pnpm || true
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -42,10 +36,8 @@ jobs:
       - name: Install dependencies
         working-directory: ./frontend
         run: |
-          # 古いnode_modulesを削除して一貫性を保つ
-          rm -rf node_modules
           pnpm install
-          # self-hosted runner用にオプショナル依存関係を明示的にインストール
+          # ランナー環境で不足しがちなオプショナル依存関係を明示的にインストール
           pnpm add @rollup/rollup-linux-x64-gnu --save-optional
 
       - name: Run linter

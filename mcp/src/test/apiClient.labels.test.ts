@@ -1,8 +1,9 @@
 /**
  * MCPサーバーのラベル関連機能の包括的なテスト
  */
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+
 import type { MockInstance } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import * as apiClient from "../lib/apiClient.js";
 
 describe("Label API Functions", () => {
@@ -66,9 +67,7 @@ describe("Label API Functions", () => {
 				statusText: "Internal Server Error",
 			} as Response);
 
-			await expect(apiClient.getLabels()).rejects.toThrow(
-				"Failed to fetch labels: Internal Server Error",
-			);
+			await expect(apiClient.getLabels()).rejects.toThrow("Failed to fetch labels: Internal Server Error");
 		});
 
 		test("不正なレスポンス形式でエラーをスローすること", async () => {
@@ -80,9 +79,7 @@ describe("Label API Functions", () => {
 				}),
 			} as Response);
 
-			await expect(apiClient.getLabels()).rejects.toThrow(
-				"Invalid API response for labels:",
-			);
+			await expect(apiClient.getLabels()).rejects.toThrow("Invalid API response for labels:");
 		});
 
 		test("空のラベル配列を正常に処理できること", async () => {
@@ -130,9 +127,7 @@ describe("Label API Functions", () => {
 
 			const result = await apiClient.getUnlabeledArticles();
 
-			expect(fetchMock).toHaveBeenCalledWith(
-				"http://localhost:3000/api/bookmarks/unlabeled",
-			);
+			expect(fetchMock).toHaveBeenCalledWith("http://localhost:3000/api/bookmarks/unlabeled");
 			expect(result).toEqual(
 				mockArticles.map((article) => ({
 					...article,
@@ -148,9 +143,7 @@ describe("Label API Functions", () => {
 				statusText: "Not Found",
 			} as Response);
 
-			await expect(apiClient.getUnlabeledArticles()).rejects.toThrow(
-				"Failed to fetch unlabeled articles: Not Found",
-			);
+			await expect(apiClient.getUnlabeledArticles()).rejects.toThrow("Failed to fetch unlabeled articles: Not Found");
 		});
 
 		test("不正なレスポンス形式でエラーをスローすること", async () => {
@@ -163,9 +156,7 @@ describe("Label API Functions", () => {
 				}),
 			} as Response);
 
-			await expect(apiClient.getUnlabeledArticles()).rejects.toThrow(
-				"Invalid API response for unlabeled articles",
-			);
+			await expect(apiClient.getUnlabeledArticles()).rejects.toThrow("Invalid API response for unlabeled articles");
 		});
 	});
 
@@ -178,19 +169,16 @@ describe("Label API Functions", () => {
 
 			await apiClient.assignLabelToArticle(1, "技術記事", "技術関連の記事");
 
-			expect(fetchMock).toHaveBeenCalledWith(
-				"http://localhost:3000/api/bookmarks/1/label",
-				{
-					method: "PUT",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						labelName: "技術記事",
-						description: "技術関連の記事",
-					}),
+			expect(fetchMock).toHaveBeenCalledWith("http://localhost:3000/api/bookmarks/1/label", {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
 				},
-			);
+				body: JSON.stringify({
+					labelName: "技術記事",
+					description: "技術関連の記事",
+				}),
+			});
 		});
 
 		test("説明なしでラベルを割り当てできること", async () => {
@@ -201,19 +189,16 @@ describe("Label API Functions", () => {
 
 			await apiClient.assignLabelToArticle(1, "技術記事");
 
-			expect(fetchMock).toHaveBeenCalledWith(
-				"http://localhost:3000/api/bookmarks/1/label",
-				{
-					method: "PUT",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						labelName: "技術記事",
-						description: undefined,
-					}),
+			expect(fetchMock).toHaveBeenCalledWith("http://localhost:3000/api/bookmarks/1/label", {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
 				},
-			);
+				body: JSON.stringify({
+					labelName: "技術記事",
+					description: undefined,
+				}),
+			});
 		});
 
 		test("APIエラー時に適切なエラーをスローすること", async () => {
@@ -222,9 +207,7 @@ describe("Label API Functions", () => {
 				statusText: "Bad Request",
 			} as Response);
 
-			await expect(
-				apiClient.assignLabelToArticle(1, "技術記事"),
-			).rejects.toThrow(
+			await expect(apiClient.assignLabelToArticle(1, "技術記事")).rejects.toThrow(
 				'Failed to assign label "技術記事" to article 1: Bad Request',
 			);
 		});
@@ -251,26 +234,19 @@ describe("Label API Functions", () => {
 				json: async () => mockResponse,
 			} as Response);
 
-			const result = await apiClient.assignLabelsToMultipleArticles(
-				[1, 2, 3, 4],
-				"技術記事",
-				"技術関連の記事",
-			);
+			const result = await apiClient.assignLabelsToMultipleArticles([1, 2, 3, 4], "技術記事", "技術関連の記事");
 
-			expect(fetchMock).toHaveBeenCalledWith(
-				"http://localhost:3000/api/bookmarks/batch-label",
-				{
-					method: "PUT",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						articleIds: [1, 2, 3, 4],
-						labelName: "技術記事",
-						description: "技術関連の記事",
-					}),
+			expect(fetchMock).toHaveBeenCalledWith("http://localhost:3000/api/bookmarks/batch-label", {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
 				},
-			);
+				body: JSON.stringify({
+					articleIds: [1, 2, 3, 4],
+					labelName: "技術記事",
+					description: "技術関連の記事",
+				}),
+			});
 
 			expect(result).toEqual({
 				successful: 3,
@@ -303,10 +279,7 @@ describe("Label API Functions", () => {
 				json: async () => mockResponse,
 			} as Response);
 
-			const result = await apiClient.assignLabelsToMultipleArticles(
-				[1, 2, 3, 4],
-				"技術記事",
-			);
+			const result = await apiClient.assignLabelsToMultipleArticles([1, 2, 3, 4], "技術記事");
 
 			expect(result.errors).toHaveLength(2);
 			expect(result.errors[0]).toEqual({
@@ -335,10 +308,7 @@ describe("Label API Functions", () => {
 				json: async () => mockResponse,
 			} as Response);
 
-			const result = await apiClient.assignLabelsToMultipleArticles(
-				[],
-				"技術記事",
-			);
+			const result = await apiClient.assignLabelsToMultipleArticles([], "技術記事");
 
 			expect(result.successful).toBe(0);
 			expect(result.skipped).toBe(0);
@@ -354,9 +324,9 @@ describe("Label API Functions", () => {
 				}),
 			} as Response);
 
-			await expect(
-				apiClient.assignLabelsToMultipleArticles([1, 2], ""),
-			).rejects.toThrow("Invalid label name: Bad Request");
+			await expect(apiClient.assignLabelsToMultipleArticles([1, 2], "")).rejects.toThrow(
+				"Invalid label name: Bad Request",
+			);
 		});
 
 		test("JSONパースエラー時に適切なエラーをスローすること", async () => {
@@ -367,9 +337,7 @@ describe("Label API Functions", () => {
 				},
 			} as unknown as Response);
 
-			await expect(
-				apiClient.assignLabelsToMultipleArticles([1], "test"),
-			).rejects.toThrow(
+			await expect(apiClient.assignLabelsToMultipleArticles([1], "test")).rejects.toThrow(
 				"Failed to parse response for batch label assignment: Invalid JSON",
 			);
 		});
@@ -385,9 +353,9 @@ describe("Label API Functions", () => {
 				}),
 			} as Response);
 
-			await expect(
-				apiClient.assignLabelsToMultipleArticles([1], "test"),
-			).rejects.toThrow("Invalid API response for batch label assignment:");
+			await expect(apiClient.assignLabelsToMultipleArticles([1], "test")).rejects.toThrow(
+				"Invalid API response for batch label assignment:",
+			);
 		});
 
 		test("null/undefined レスポンスを適切に処理すること", async () => {
@@ -397,9 +365,9 @@ describe("Label API Functions", () => {
 				json: async () => null,
 			} as Response);
 
-			await expect(
-				apiClient.assignLabelsToMultipleArticles([1], "test"),
-			).rejects.toThrow("Invalid API response for batch label assignment:");
+			await expect(apiClient.assignLabelsToMultipleArticles([1], "test")).rejects.toThrow(
+				"Invalid API response for batch label assignment:",
+			);
 
 			// undefinedレスポンスのテスト
 			fetchMock.mockResolvedValueOnce({
@@ -407,9 +375,9 @@ describe("Label API Functions", () => {
 				json: async () => undefined,
 			} as Response);
 
-			await expect(
-				apiClient.assignLabelsToMultipleArticles([1], "test"),
-			).rejects.toThrow("Invalid API response for batch label assignment:");
+			await expect(apiClient.assignLabelsToMultipleArticles([1], "test")).rejects.toThrow(
+				"Invalid API response for batch label assignment:",
+			);
 		});
 	});
 
@@ -482,9 +450,7 @@ describe("Label API Functions", () => {
 				}),
 			} as Response);
 
-			await expect(apiClient.createLabel("既存ラベル")).rejects.toThrow(
-				"Label already exists: Conflict (Status: 409)",
-			);
+			await expect(apiClient.createLabel("既存ラベル")).rejects.toThrow("Label already exists: Conflict (Status: 409)");
 		});
 
 		test("JSONパースエラー時に適切なエラーをスローすること", async () => {
@@ -523,9 +489,7 @@ describe("Label API Functions", () => {
 
 			const result = await apiClient.getLabelById(1);
 
-			expect(fetchMock).toHaveBeenCalledWith(
-				"http://localhost:3000/api/labels/1",
-			);
+			expect(fetchMock).toHaveBeenCalledWith("http://localhost:3000/api/labels/1");
 			expect(result).toEqual(mockLabel);
 		});
 
@@ -535,9 +499,7 @@ describe("Label API Functions", () => {
 				statusText: "Not Found",
 			} as Response);
 
-			await expect(apiClient.getLabelById(999)).rejects.toThrow(
-				"Failed to fetch label with ID 999: Not Found",
-			);
+			await expect(apiClient.getLabelById(999)).rejects.toThrow("Failed to fetch label with ID 999: Not Found");
 		});
 
 		test("JSONパースエラー時に適切なエラーをスローすること", async () => {
@@ -574,16 +536,13 @@ describe("Label API Functions", () => {
 
 			const result = await apiClient.updateLabelDescription(1, "更新された説明");
 
-			expect(fetchMock).toHaveBeenCalledWith(
-				"http://localhost:3000/api/labels/1",
-				{
-					method: "PATCH",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({ description: "更新された説明" }),
+			expect(fetchMock).toHaveBeenCalledWith("http://localhost:3000/api/labels/1", {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
 				},
-			);
+				body: JSON.stringify({ description: "更新された説明" }),
+			});
 
 			expect(result).toEqual(mockLabel);
 		});
@@ -616,9 +575,7 @@ describe("Label API Functions", () => {
 				statusText: "Not Found",
 			} as Response);
 
-			await expect(
-				apiClient.updateLabelDescription(999, "新しい説明"),
-			).rejects.toThrow(
+			await expect(apiClient.updateLabelDescription(999, "新しい説明")).rejects.toThrow(
 				"Failed to update description for label 999: Not Found",
 			);
 		});
@@ -636,12 +593,9 @@ describe("Label API Functions", () => {
 
 			await expect(apiClient.deleteLabel(1)).resolves.toBeUndefined();
 
-			expect(fetchMock).toHaveBeenCalledWith(
-				"http://localhost:3000/api/labels/1",
-				{
-					method: "DELETE",
-				},
-			);
+			expect(fetchMock).toHaveBeenCalledWith("http://localhost:3000/api/labels/1", {
+				method: "DELETE",
+			});
 		});
 
 		test("存在しないラベルの削除でエラーをスローすること", async () => {
@@ -654,9 +608,7 @@ describe("Label API Functions", () => {
 				}),
 			} as Response);
 
-			await expect(apiClient.deleteLabel(999)).rejects.toThrow(
-				"Label not found: Not Found (Status: 404)",
-			);
+			await expect(apiClient.deleteLabel(999)).rejects.toThrow("Label not found: Not Found (Status: 404)");
 		});
 
 		test("使用中のラベルの削除でエラーをスローすること", async () => {
@@ -679,9 +631,7 @@ describe("Label API Functions", () => {
 		test("API_BASE_URLが設定されていない場合エラーをスローすること", async () => {
 			delete process.env.API_BASE_URL;
 
-			await expect(apiClient.getLabels()).rejects.toThrow(
-				"API_BASE_URL environment variable is not set",
-			);
+			await expect(apiClient.getLabels()).rejects.toThrow("API_BASE_URL environment variable is not set");
 		});
 
 		test("API_BASE_URLが正しく使用されること", async () => {
@@ -765,8 +715,6 @@ describe("Error Recovery and Retry Logic", () => {
 	test("タイムアウトエラーを適切に処理すること", async () => {
 		fetchMock.mockRejectedValueOnce(new Error("Request timeout"));
 
-		await expect(apiClient.getUnlabeledArticles()).rejects.toThrow(
-			"Request timeout",
-		);
+		await expect(apiClient.getUnlabeledArticles()).rejects.toThrow("Request timeout");
 	});
 });

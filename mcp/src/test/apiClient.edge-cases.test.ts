@@ -1,8 +1,9 @@
 /**
  * MCPサーバーのエッジケースと境界値テスト
  */
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+
 import type { MockInstance } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import * as apiClient from "../lib/apiClient.js";
 
 describe("Edge Cases and Boundary Value Tests", () => {
@@ -48,10 +49,7 @@ describe("Edge Cases and Boundary Value Tests", () => {
 				}),
 			} as Response);
 
-			const result = await apiClient.assignLabelsToMultipleArticles(
-				largeArticleIds,
-				"大量処理",
-			);
+			const result = await apiClient.assignLabelsToMultipleArticles(largeArticleIds, "大量処理");
 
 			expect(result.successful).toBe(900);
 			expect(result.skipped).toBe(50);
@@ -76,10 +74,7 @@ describe("Edge Cases and Boundary Value Tests", () => {
 				}),
 			} as Response);
 
-			const result = await apiClient.assignLabelsToMultipleArticles(
-				[42],
-				"単一",
-			);
+			const result = await apiClient.assignLabelsToMultipleArticles([42], "単一");
 
 			expect(result.successful).toBe(1);
 			expect(result.errors).toEqual([]);
@@ -103,10 +98,7 @@ describe("Edge Cases and Boundary Value Tests", () => {
 				}),
 			} as Response);
 
-			const result = await apiClient.assignLabelsToMultipleArticles(
-				[1, 2, 3, 4, 5],
-				"既存",
-			);
+			const result = await apiClient.assignLabelsToMultipleArticles([1, 2, 3, 4, 5], "既存");
 
 			expect(result.successful).toBe(0);
 			expect(result.skipped).toBe(5);
@@ -134,10 +126,7 @@ describe("Edge Cases and Boundary Value Tests", () => {
 				}),
 			} as Response);
 
-			const result = await apiClient.assignLabelsToMultipleArticles(
-				[-1, -2, 0],
-				"無効",
-			);
+			const result = await apiClient.assignLabelsToMultipleArticles([-1, -2, 0], "無効");
 
 			expect(result.successful).toBe(0);
 			expect(result.errors).toHaveLength(3);
@@ -404,13 +393,9 @@ describe("Edge Cases and Boundary Value Tests", () => {
 				statusText: "Bad Request",
 			} as Response);
 
-			await expect(apiClient.getLabelById(-1)).rejects.toThrow(
-				"Failed to fetch label with ID -1: Bad Request",
-			);
+			await expect(apiClient.getLabelById(-1)).rejects.toThrow("Failed to fetch label with ID -1: Bad Request");
 
-			expect(fetchMock).toHaveBeenCalledWith(
-				"http://localhost:3000/api/labels/-1",
-			);
+			expect(fetchMock).toHaveBeenCalledWith("http://localhost:3000/api/labels/-1");
 		});
 	});
 
@@ -522,9 +507,9 @@ describe("Edge Cases and Boundary Value Tests", () => {
 			} as Response);
 
 			// Zodバリデーションでエラーになるはず
-			await expect(
-				apiClient.assignLabelsToMultipleArticles([1, 2, 3], "テスト"),
-			).rejects.toThrow("Invalid API response");
+			await expect(apiClient.assignLabelsToMultipleArticles([1, 2, 3], "テスト")).rejects.toThrow(
+				"Invalid API response",
+			);
 		});
 	});
 
@@ -543,9 +528,7 @@ describe("Edge Cases and Boundary Value Tests", () => {
 		test("接続拒否エラーを適切に処理すること", async () => {
 			fetchMock.mockRejectedValueOnce(new Error("ECONNREFUSED"));
 
-			await expect(apiClient.getUnlabeledArticles()).rejects.toThrow(
-				"ECONNREFUSED",
-			);
+			await expect(apiClient.getUnlabeledArticles()).rejects.toThrow("ECONNREFUSED");
 		});
 
 		test("DNSエラーを適切に処理すること", async () => {

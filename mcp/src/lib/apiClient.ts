@@ -95,9 +95,7 @@ export async function getUnlabeledArticles() {
 	// Corrected path: /api/bookmarks/unlabeled
 	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks/unlabeled`);
 	if (!response.ok) {
-		throw new Error(
-			`Failed to fetch unlabeled articles: ${response.statusText}`,
-		);
+		throw new Error(`Failed to fetch unlabeled articles: ${response.statusText}`);
 	}
 	const data = await response.json();
 
@@ -149,9 +147,7 @@ export async function getLabels() {
 	}
 	// Access success property safely through parsed data
 	if (!parsed.data.success) {
-		throw new Error(
-			`API indicated failure when fetching labels: ${JSON.stringify(parsed.data)}`,
-		);
+		throw new Error(`API indicated failure when fetching labels: ${JSON.stringify(parsed.data)}`);
 	}
 	return parsed.data.labels;
 }
@@ -163,31 +159,22 @@ export async function getLabels() {
  * @param description - Optional description for the label if it's created.
  * @returns A promise that resolves when the label is successfully assigned.
  */
-export async function assignLabelToArticle(
-	articleId: number,
-	labelName: string,
-	description?: string,
-) {
+export async function assignLabelToArticle(articleId: number, labelName: string, description?: string) {
 	// Corrected path: /api/bookmarks/:id/label
-	const response = await fetch(
-		`${getApiBaseUrl()}/api/bookmarks/${articleId}/label`,
-		{
-			method: "PUT",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				labelName,
-				description,
-			}),
+	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks/${articleId}/label`, {
+		method: "PUT",
+		headers: {
+			"Content-Type": "application/json",
 		},
-	);
+		body: JSON.stringify({
+			labelName,
+			description,
+		}),
+	});
 
 	if (!response.ok) {
 		// Consider more specific error handling based on status code if needed
-		throw new Error(
-			`Failed to assign label "${labelName}" to article ${articleId}: ${response.statusText}`,
-		);
+		throw new Error(`Failed to assign label "${labelName}" to article ${articleId}: ${response.statusText}`);
 	}
 	// Assuming the API returns no content or confirmation on success
 	// Check for specific success status codes if applicable (e.g., 200 OK, 204 No Content)
@@ -215,10 +202,7 @@ export async function createLabel(labelName: string, description?: string) {
 	try {
 		// Check content type before parsing, or handle potential empty body for 201/204
 		const contentType = response.headers.get("content-type");
-		if (
-			response.ok &&
-			(!contentType || !contentType.includes("application/json"))
-		) {
+		if (response.ok && (!contentType || !contentType.includes("application/json"))) {
 			// If response is OK but not JSON (e.g., 201 with empty body or wrong content type)
 			// We might assume success based on status code, or throw an error if JSON is expected.
 			// Let's assume the API *should* return JSON on success based on its route handler.
@@ -227,8 +211,7 @@ export async function createLabel(labelName: string, description?: string) {
 		data = await response.json(); // Attempt to parse JSON
 	} catch (parseError: unknown) {
 		// Handle JSON parsing error
-		const errorMessage =
-			parseError instanceof Error ? parseError.message : String(parseError);
+		const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
 		if (!response.ok) {
 			// If the request failed and JSON parsing failed, throw an error including status
 			throw new Error(
@@ -244,17 +227,10 @@ export async function createLabel(labelName: string, description?: string) {
 	if (!response.ok) {
 		// If response is not ok, but JSON parsing succeeded, try to extract error message
 		let errorMessage = `Failed to create label "${labelName}"`;
-		if (
-			typeof data === "object" &&
-			data !== null &&
-			"message" in data &&
-			typeof data.message === "string"
-		) {
+		if (typeof data === "object" && data !== null && "message" in data && typeof data.message === "string") {
 			errorMessage = data.message;
 		}
-		throw new Error(
-			`${errorMessage}: ${response.statusText} (Status: ${response.status})`,
-		);
+		throw new Error(`${errorMessage}: ${response.statusText} (Status: ${response.status})`);
 	}
 
 	// If response.ok and JSON parsing succeeded, validate with Zod
@@ -276,27 +252,20 @@ export async function createLabel(labelName: string, description?: string) {
 export async function getLabelById(id: number) {
 	const response = await fetch(`${getApiBaseUrl()}/api/labels/${id}`);
 	if (!response.ok) {
-		throw new Error(
-			`Failed to fetch label with ID ${id}: ${response.statusText}`,
-		);
+		throw new Error(`Failed to fetch label with ID ${id}: ${response.statusText}`);
 	}
 
 	let data: unknown;
 	try {
 		data = await response.json();
 	} catch (parseError: unknown) {
-		const errorMessage =
-			parseError instanceof Error ? parseError.message : String(parseError);
-		throw new Error(
-			`Failed to parse response when fetching label ${id}: ${errorMessage}`,
-		);
+		const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
+		throw new Error(`Failed to parse response when fetching label ${id}: ${errorMessage}`);
 	}
 
 	const parsed = GetLabelByIdResponseSchema.safeParse(data);
 	if (!parsed.success) {
-		throw new Error(
-			`Invalid API response for label ${id}: ${parsed.error.message}`,
-		);
+		throw new Error(`Invalid API response for label ${id}: ${parsed.error.message}`);
 	}
 
 	return parsed.data.label;
@@ -308,10 +277,7 @@ export async function getLabelById(id: number) {
  * @param description - The new description (or null to remove the description).
  * @returns A promise that resolves to the updated label object.
  */
-export async function updateLabelDescription(
-	id: number,
-	description: string | null,
-) {
+export async function updateLabelDescription(id: number, description: string | null) {
 	const response = await fetch(`${getApiBaseUrl()}/api/labels/${id}`, {
 		method: "PATCH",
 		headers: {
@@ -321,27 +287,20 @@ export async function updateLabelDescription(
 	});
 
 	if (!response.ok) {
-		throw new Error(
-			`Failed to update description for label ${id}: ${response.statusText}`,
-		);
+		throw new Error(`Failed to update description for label ${id}: ${response.statusText}`);
 	}
 
 	let data: unknown;
 	try {
 		data = await response.json();
 	} catch (parseError: unknown) {
-		const errorMessage =
-			parseError instanceof Error ? parseError.message : String(parseError);
-		throw new Error(
-			`Failed to parse response when updating label ${id} description: ${errorMessage}`,
-		);
+		const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
+		throw new Error(`Failed to parse response when updating label ${id} description: ${errorMessage}`);
 	}
 
 	const parsed = UpdateLabelDescriptionResponseSchema.safeParse(data);
 	if (!parsed.success) {
-		throw new Error(
-			`Invalid API response after updating label description: ${parsed.error.message}`,
-		);
+		throw new Error(`Invalid API response after updating label description: ${parsed.error.message}`);
 	}
 
 	return parsed.data.label;
@@ -356,38 +315,24 @@ export async function deleteLabel(id: number): Promise<void> {
 	try {
 		data = await response.json();
 	} catch (parseError: unknown) {
-		const errorMessage =
-			parseError instanceof Error ? parseError.message : String(parseError);
+		const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
 		if (!response.ok) {
-			throw new Error(
-				`Failed to delete label ${id}. Status: ${response.status} ${response.statusText}`,
-			);
+			throw new Error(`Failed to delete label ${id}. Status: ${response.status} ${response.statusText}`);
 		}
-		throw new Error(
-			`Unexpected response format when deleting label ${id}: ${errorMessage}`,
-		);
+		throw new Error(`Unexpected response format when deleting label ${id}: ${errorMessage}`);
 	}
 
 	if (!response.ok) {
 		let errorMessage = `Failed to delete label ${id}`;
-		if (
-			typeof data === "object" &&
-			data !== null &&
-			"message" in data &&
-			typeof data.message === "string"
-		) {
+		if (typeof data === "object" && data !== null && "message" in data && typeof data.message === "string") {
 			errorMessage = data.message;
 		}
-		throw new Error(
-			`${errorMessage}: ${response.statusText} (Status: ${response.status})`,
-		);
+		throw new Error(`${errorMessage}: ${response.statusText} (Status: ${response.status})`);
 	}
 
 	const parsed = DeleteLabelResponseSchema.safeParse(data);
 	if (!parsed.success) {
-		throw new Error(
-			`Invalid API response after deleting label. Zod errors: ${parsed.error.message}`,
-		);
+		throw new Error(`Invalid API response after deleting label. Zod errors: ${parsed.error.message}`);
 	}
 }
 
@@ -424,27 +369,16 @@ export async function assignLabelsToMultipleArticles(
 	try {
 		data = await response.json();
 	} catch (parseError: unknown) {
-		const errorMessage =
-			parseError instanceof Error ? parseError.message : String(parseError);
-		throw new Error(
-			`Failed to parse response for batch label assignment: ${errorMessage}`,
-		);
+		const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
+		throw new Error(`Failed to parse response for batch label assignment: ${errorMessage}`);
 	}
 
 	// デバッグ用：レスポンスをログ出力
-	console.log(
-		"Batch label assignment response:",
-		JSON.stringify(data, null, 2),
-	);
+	console.log("Batch label assignment response:", JSON.stringify(data, null, 2));
 
 	if (!response.ok) {
 		let errorMessage = `Failed to batch assign label "${labelName}"`;
-		if (
-			typeof data === "object" &&
-			data !== null &&
-			"message" in data &&
-			typeof data.message === "string"
-		) {
+		if (typeof data === "object" && data !== null && "message" in data && typeof data.message === "string") {
 			errorMessage = data.message;
 		}
 		throw new Error(`${errorMessage}: ${response.statusText}`);
@@ -466,9 +400,7 @@ export async function assignLabelsToMultipleArticles(
 
 	const parsed = BatchResultSchema.safeParse(data);
 	if (!parsed.success) {
-		throw new Error(
-			`Invalid API response for batch label assignment: ${parsed.error.message}`,
-		);
+		throw new Error(`Invalid API response for batch label assignment: ${parsed.error.message}`);
 	}
 
 	// successプロパティを除いた結果を返す
@@ -502,21 +434,15 @@ const BookmarkResponseSchema = z.object({
  * @returns ブックマーク情報
  */
 export async function getBookmarkById(bookmarkId: number) {
-	const response = await fetch(
-		`${getApiBaseUrl()}/api/bookmarks/${bookmarkId}`,
-	);
+	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks/${bookmarkId}`);
 	if (!response.ok) {
-		throw new Error(
-			`Failed to fetch bookmark ${bookmarkId}: ${response.statusText}`,
-		);
+		throw new Error(`Failed to fetch bookmark ${bookmarkId}: ${response.statusText}`);
 	}
 
 	const data = await response.json();
 	const parsed = BookmarkResponseSchema.safeParse(data);
 	if (!parsed.success) {
-		throw new Error(
-			`Invalid API response for bookmark ${bookmarkId}: ${parsed.error.message}`,
-		);
+		throw new Error(`Invalid API response for bookmark ${bookmarkId}: ${parsed.error.message}`);
 	}
 	return parsed.data.bookmark;
 }
@@ -558,21 +484,15 @@ const MarkAsReadResponseSchema = z.object({
  * @returns 指定したラベルの未読記事のリスト
  */
 export async function getUnreadArticlesByLabel(labelName: string) {
-	const response = await fetch(
-		`${getApiBaseUrl()}/api/bookmarks?label=${encodeURIComponent(labelName)}`,
-	);
+	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks?label=${encodeURIComponent(labelName)}`);
 	if (!response.ok) {
-		throw new Error(
-			`Failed to fetch unread articles for label "${labelName}": ${response.statusText}`,
-		);
+		throw new Error(`Failed to fetch unread articles for label "${labelName}": ${response.statusText}`);
 	}
 
 	const data = await response.json();
 	const parsed = ArticlesResponseSchema.safeParse(data);
 	if (!parsed.success) {
-		throw new Error(
-			`Invalid API response for unread articles by label: ${parsed.error.message}`,
-		);
+		throw new Error(`Invalid API response for unread articles by label: ${parsed.error.message}`);
 	}
 	return parsed.data.bookmarks;
 }
@@ -592,9 +512,7 @@ export async function getUnreadBookmarks() {
 	// /api/bookmarksはArticleSchemaの形式で返すため、ArticlesResponseSchemaを使用
 	const parsed = ArticlesResponseSchema.safeParse(data);
 	if (!parsed.success) {
-		throw new Error(
-			`Invalid API response for unread bookmarks: ${parsed.error.message}`,
-		);
+		throw new Error(`Invalid API response for unread bookmarks: ${parsed.error.message}`);
 	}
 	// ArticleSchemaの形式をBookmarkWithReadStatusSchemaの形式に変換
 	const bookmarksWithReadStatus = parsed.data.bookmarks.map((bookmark) => ({
@@ -604,15 +522,9 @@ export async function getUnreadBookmarks() {
 		labels: bookmark.label ? [bookmark.label.name] : [],
 		isRead: bookmark.isRead,
 		isFavorite: bookmark.isFavorite ?? false,
-		createdAt:
-			typeof bookmark.createdAt === "string"
-				? bookmark.createdAt
-				: bookmark.createdAt.toISOString(),
+		createdAt: typeof bookmark.createdAt === "string" ? bookmark.createdAt : bookmark.createdAt.toISOString(),
 		readAt: null,
-		updatedAt:
-			typeof bookmark.updatedAt === "string"
-				? bookmark.updatedAt
-				: bookmark.updatedAt.toISOString(),
+		updatedAt: typeof bookmark.updatedAt === "string" ? bookmark.updatedAt : bookmark.updatedAt.toISOString(),
 	}));
 	return bookmarksWithReadStatus;
 }
@@ -630,9 +542,7 @@ export async function getReadBookmarks() {
 	const data = await response.json();
 	const parsed = BookmarksListResponseSchema.safeParse(data);
 	if (!parsed.success) {
-		throw new Error(
-			`Invalid API response for read bookmarks: ${parsed.error.message}`,
-		);
+		throw new Error(`Invalid API response for read bookmarks: ${parsed.error.message}`);
 	}
 	return parsed.data.bookmarks;
 }
@@ -643,25 +553,18 @@ export async function getReadBookmarks() {
  * @returns 処理結果
  */
 export async function markBookmarkAsRead(bookmarkId: number) {
-	const response = await fetch(
-		`${getApiBaseUrl()}/api/bookmarks/${bookmarkId}/read`,
-		{
-			method: "PATCH",
-		},
-	);
+	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks/${bookmarkId}/read`, {
+		method: "PATCH",
+	});
 
 	if (!response.ok) {
-		throw new Error(
-			`Failed to mark bookmark ${bookmarkId} as read: ${response.statusText}`,
-		);
+		throw new Error(`Failed to mark bookmark ${bookmarkId} as read: ${response.statusText}`);
 	}
 
 	const data = await response.json();
 	const parsed = MarkAsReadResponseSchema.safeParse(data);
 	if (!parsed.success) {
-		throw new Error(
-			`Invalid API response after marking bookmark as read: ${parsed.error.message}`,
-		);
+		throw new Error(`Invalid API response after marking bookmark as read: ${parsed.error.message}`);
 	}
 	return parsed.data;
 }
@@ -683,38 +586,24 @@ export async function cleanupUnusedLabels(): Promise<{
 	try {
 		data = await response.json();
 	} catch (parseError: unknown) {
-		const errorMessage =
-			parseError instanceof Error ? parseError.message : String(parseError);
+		const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
 		if (!response.ok) {
-			throw new Error(
-				`Failed to cleanup unused labels. Status: ${response.status} ${response.statusText}`,
-			);
+			throw new Error(`Failed to cleanup unused labels. Status: ${response.status} ${response.statusText}`);
 		}
-		throw new Error(
-			`Unexpected response format when cleaning up labels: ${errorMessage}`,
-		);
+		throw new Error(`Unexpected response format when cleaning up labels: ${errorMessage}`);
 	}
 
 	if (!response.ok) {
 		let errorMessage = "Failed to cleanup unused labels";
-		if (
-			typeof data === "object" &&
-			data !== null &&
-			"message" in data &&
-			typeof data.message === "string"
-		) {
+		if (typeof data === "object" && data !== null && "message" in data && typeof data.message === "string") {
 			errorMessage = data.message;
 		}
-		throw new Error(
-			`${errorMessage}: ${response.statusText} (Status: ${response.status})`,
-		);
+		throw new Error(`${errorMessage}: ${response.statusText} (Status: ${response.status})`);
 	}
 
 	const parsed = CleanupLabelsResponseSchema.safeParse(data);
 	if (!parsed.success) {
-		throw new Error(
-			`Invalid API response after cleaning up labels. Zod errors: ${parsed.error.message}`,
-		);
+		throw new Error(`Invalid API response after cleaning up labels. Zod errors: ${parsed.error.message}`);
 	}
 
 	return {
