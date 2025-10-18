@@ -28,16 +28,13 @@ mcp/
 ### 主要依存関係
 
 #### プロダクション依存関係
-- **@modelcontextprotocol/sdk** (^1.12.1): MCPプロトコル実装のコアSDK
-- **zod** (^3.25.50): スキーマ検証とTypeScript型安全性
+- **@modelcontextprotocol/sdk** (^1.17.4): MCPプロトコル実装のコアSDK
+- **zod** (^4.1.5): スキーマ検証とTypeScript型安全性
 
 #### 開発依存関係
-- **@biomejs/biome** (^1.9.4): 高速なリント・フォーマットツール
-- **@types/node** (^22.15.29): Node.js型定義
-- **@vitest/coverage-v8** (^3.2.1): テストカバレッジ計測
-- **dotenv** (^16.5.0): 環境変数管理
-- **playwright** (^1.52.0): 高度な記事内容取得用ブラウザ自動化
-- **vitest** (^3.1.4): 高速テストランナー
+- **@biomejs/biome** (^2.1.3): 高速なリント・フォーマットツール
+- **@types/node** (^24.0.8): Node.js型定義
+- **dotenv** (^17.2.1): 環境変数管理
 - **typescript** (^5.8.3): TypeScriptコンパイラ（peerDependency）
 
 ### スクリプト定義
@@ -46,11 +43,8 @@ mcp/
 {
   "build": "tsc",                    // TypeScriptコンパイル
   "lint": "biome check --write .",   // リント実行
-  "format": "biome format --write .", // フォーマット実行
-  "typecheck": "tsc --noEmit",       // 型チェックのみ
-  "test": "vitest run",              // テスト実行
-  "test:watch": "vitest",            // テスト監視モード
-  "test:coverage": "vitest run --coverage" // カバレッジ付きテスト
+  "format": "biome check --write .", // フォーマット実行
+  "typecheck": "tsc --noEmit"        // 型チェックのみ
 }
 ```
 
@@ -229,7 +223,6 @@ async function fallbackFetchContent(url: string): Promise<ArticleContent> {
 ```bash
 cd mcp
 npm run build     # TypeScriptコンパイル
-npm run test      # テスト実行
 npm run lint      # リント実行
 ```
 
