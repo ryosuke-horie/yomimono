@@ -1,86 +1,70 @@
-name: Claude Code Review
+name: PR Review with Progress Tracking
 
-# This workflow triggers on PR creation and updates
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  issue_comment:
+    types: [created]
 
 jobs:
-  claude-review:
-    # Run on all PR events
-    
+  review-with-tracking:
+    # PRコメントで@claudeがメンションされた場合のみ実行
+    if: github.event.issue.pull_request && contains(github.event.comment.body, '@claude')
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
-      issues: read
+      pull-requests: write
       id-token: write
       actions: read
-    
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 1
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - name: Run Claude Code Review
-        id: claude-review
-        uses: anthropics/claude-code-action@beta
+      - name: PR Review with Progress Tracking
+        uses: anthropics/claude-code-action@e8bad572273ce919ba15fec95aef0ce974464753 # v1.0.13
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          track_progress: true
+          allowed_bots: "dependabot"
 
-          # Custom instructions for Japanese code reviews
-          direct_prompt: |
-            **重要: このレビューは必ず日本語で実施してください。すべてのコメント、フィードバック、提案を日本語で記述してください。**
-            
-            このプルリクエスト（PR）をレビューし、以下の観点から詳細なフィードバックを提供してください。
-            
-            **コメントの書き方:**
-            * **結論を先に:** 各指摘事項の冒頭で、要点を一行で簡潔に述べてください。
-            * **理由と提案:** 結論の後に、そのように判断した理由や背景、具体的な修正案を詳しく説明してください。
-            * **建設的に:** 改善点を指摘する際は、具体的な解決策も提示してください。
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.issue.number }}
 
-            **レビューの観点:**
-            - CLAUDE.mdのガイドラインに従っているか
-            - バグやセキュリティリスクがないか
+            このプルリクエスト（PR）をレビューし、GitHub のレビュー機能を使ってフィードバックをしてください。作業は次の手順に沿って進めてください：
+            1.  **レビューを開始する:** `mcp__github__create_pending_pull_request_review` を使って、保留中のレビューを開始します。
+            2.  **変更内容を確認する:** `mcp__github__get_pull_request_diff` を使って、コードの変更点や行番号を把握します。
+            3.  **インラインコメントを追加する:** 改善点や懸念事項があるコードの行には `mcp__github__add_pull_request_review_comment_to_pending_review` を使ってコメントを追加してください。修正方針が明確な場合には積極的にsuggestionを利用してください。
+            4.  **レビューを提出する:** `mcp__github__submit_pending_pull_request_review` を使って、イベントタイプを「COMMENT」に設定してレビューを提出してください。まとめコメントは空文字列("")で構いません（※「REQUEST_CHANGES」は使わないでください）。
+
+            **コメントの書き方に関する重要事項**
+
+            * **インラインコメントの構成:**
+                * **結論を先に:** 各インラインコメントの冒頭で、指摘内容の要点を一行で簡潔に述べてください。
+                * **理由と提案:** 結論の後に、そのように判断した理由や背景、具体的な修正案を詳しく説明してください。
+                * **指摘中心に:** インラインコメントは、修正提案、バグの可能性、可読性の問題など、具体的な改善点に焦点を当ててください。
+
+            * **ポジティブなフィードバックについて:**
+                * **インラインコメントでは禁止:** インラインコメントでは肯定的なコメントは一切残さないでください。改善点や懸念事項の指摘のみに徹してください。
+                * **自動更新コメントのみ使用:** レビュー自体にまとめコメントは不要です。Claude Code Actionが自動的に更新する同一コメント内で全ての情報を提供するため、個別のまとめコメントは記載しないでください。
+
+            * **レビューの観点について:**
             - 保守性や可読性は十分か
             - 設計やアーキテクチャに妥当性があるか
-            - コード品質とベストプラクティス
+            - コード品質とベストプラクティスの遵守
             - 潜在的なバグや問題
-            - セキュリティの懸念
-            - テストカバレッジ
-            
-            **フィードバック形式:**
-            - 各指摘事項をファイル名と行番号（可能な場合）と共に明記
-            - 重要度を明示（🔴 重大、🟡 中程度、🟢 軽微）
-            - 具体的なコード例やsuggestionを含める
-            
+            - セキュリティ上の懸念点
+            - TypeScriptの型定義
+              - Matt Pocockを参考に、型定義の適切さを確認してください。
+
+            **重要な再確認事項:**
+            このPRレビューを実施する際は、上記のすべての指示に従ってください。特に以下の点を必ず守ってください：
+            1. インラインコメントは改善点・懸念事項・バグの可能性の指摘のみに限定する（肯定的コメントは一切禁止）
+            2. レビュー提出時のまとめコメントは空文字列("")とし、個別のレビュー完了コメントは投稿しない
+            3. スティッキーコメントが自動更新されるため、それ以外の総括的なコメントは不要
+            4. 各インラインコメントでは結論を先に述べ、その後に理由と具体的な修正案を提示する
+
             すべてのフィードバックは日本語で、建設的かつ実用的な内容にしてください。
-            
-            **再度強調: このレビュー全体を通じて、すべてのコメントとフィードバックは日本語で記述することが必須です。英語でのコメントは禁止されています。**
 
-          # Use sticky comments to update the same comment
-          use_sticky_comment: true
-          
-          # Optional: Customize review based on file types
-          # direct_prompt: |
-          #   Review this PR focusing on:
-          #   - For TypeScript files: Type safety and proper interface usage
-          #   - For API endpoints: Security, input validation, and error handling
-          #   - For React components: Performance, accessibility, and best practices
-          #   - For tests: Coverage, edge cases, and test quality
-          
-          # Optional: Different prompts for different authors
-          # direct_prompt: |
-          #   ${{ github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR' && 
-          #   'Welcome! Please review this PR from a first-time contributor. Be encouraging and provide detailed explanations for any suggestions.' ||
-          #   'Please provide a thorough code review focusing on our coding standards and best practices.' }}
-          
-          # Optional: Add specific tools for running tests or linting
-          # allowed_tools: "Bash(npm run test),Bash(npm run lint),Bash(npm run typecheck)"
-          
-          # Optional: Skip review for certain conditions
-          # if: |
-          #   !contains(github.event.pull_request.title, '[skip-review]') &&
-          #   !contains(github.event.pull_request.title, '[WIP]')
-
+          claude_args: |
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
+            --model "claude-haiku-4-5-20251001"
