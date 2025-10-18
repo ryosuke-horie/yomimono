@@ -10,7 +10,6 @@ This directory contains the MCP (Model Context Protocol) server that provides to
 - **`getUnlabeledArticles`**: ラベル付けされていない記事をAPIから取得します。（引数なし）
 - **`getLabels`**: 既存のラベル一覧をAPIから取得します。（引数なし）
 - **`assignLabel`**: 指定された記事IDに指定されたラベル名をAPI経由で割り当てます。（引数: `articleId`, `labelName`, `description`）
-- **`createLabel`**: 新しいラベルを作成します。（引数: `labelName`, `description`）
 - **`getLabelById`**: 特定のラベルを取得します。（引数: `labelId`）
 - **`deleteLabel`**: ラベルを削除します。（引数: `labelId`）
 - **`updateLabelDescription`**: ラベルの説明を更新します。（引数: `labelId`, `description`）
