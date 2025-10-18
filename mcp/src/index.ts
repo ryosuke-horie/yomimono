@@ -29,8 +29,7 @@ server.tool(
 				isError: false,
 			};
 		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
+			const errorMessage = error instanceof Error ? error.message : String(error);
 			console.error("Error in getUnlabeledArticles tool:", errorMessage);
 			return {
 				content: [
@@ -58,13 +57,10 @@ server.tool(
 				isError: false,
 			};
 		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
+			const errorMessage = error instanceof Error ? error.message : String(error);
 			console.error("Error in getLabels tool:", errorMessage);
 			return {
-				content: [
-					{ type: "text", text: `Error fetching labels: ${errorMessage}` },
-				],
+				content: [{ type: "text", text: `Error fetching labels: ${errorMessage}` }],
 				isError: true,
 			};
 		}
@@ -83,11 +79,7 @@ server.tool(
 	async ({ articleId, labelName, description }) => {
 		// Destructure arguments
 		try {
-			await apiClient.assignLabelToArticle(
-				articleId,
-				labelName,
-				description ?? undefined,
-			);
+			await apiClient.assignLabelToArticle(articleId, labelName, description ?? undefined);
 			return {
 				content: [
 					{
@@ -98,8 +90,7 @@ server.tool(
 				isError: false,
 			};
 		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
+			const errorMessage = error instanceof Error ? error.message : String(error);
 			console.error(
 				`Error in assignLabel tool (articleId: ${articleId}, labelName: ${labelName}, description: ${description}):`,
 				errorMessage,
@@ -128,10 +119,7 @@ server.tool(
 	async ({ labelName, description }) => {
 		// Destructure arguments
 		try {
-			const newLabel = await apiClient.createLabel(
-				labelName,
-				description ?? undefined,
-			);
+			const newLabel = await apiClient.createLabel(labelName, description ?? undefined);
 			return {
 				content: [
 					{
@@ -142,12 +130,8 @@ server.tool(
 				isError: false,
 			};
 		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
-			console.error(
-				`Error in createLabel tool (labelName: ${labelName}, description: ${description}):`,
-				errorMessage,
-			);
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			console.error(`Error in createLabel tool (labelName: ${labelName}, description: ${description}):`, errorMessage);
 			return {
 				content: [
 					{
@@ -180,12 +164,8 @@ server.tool(
 				isError: false,
 			};
 		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
-			console.error(
-				`Error in getLabelById tool (labelId: ${labelId}):`,
-				errorMessage,
-			);
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			console.error(`Error in getLabelById tool (labelId: ${labelId}):`, errorMessage);
 			return {
 				content: [
 					{
@@ -218,12 +198,8 @@ server.tool(
 				isError: false,
 			};
 		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
-			console.error(
-				`Error in deleteLabel tool (labelId: ${labelId}):`,
-				errorMessage,
-			);
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			console.error(`Error in deleteLabel tool (labelId: ${labelId}):`, errorMessage);
 			return {
 				content: [
 					{
@@ -246,10 +222,7 @@ server.tool(
 	},
 	async ({ labelId, description }) => {
 		try {
-			const updatedLabel = await apiClient.updateLabelDescription(
-				labelId,
-				description,
-			);
+			const updatedLabel = await apiClient.updateLabelDescription(labelId, description);
 			return {
 				content: [
 					{
@@ -260,8 +233,7 @@ server.tool(
 				isError: false,
 			};
 		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
+			const errorMessage = error instanceof Error ? error.message : String(error);
 			console.error(
 				`Error in updateLabelDescription tool (labelId: ${labelId}, description: ${description}):`,
 				errorMessage,
@@ -292,11 +264,7 @@ server.tool(
 		// Destructure arguments
 		try {
 			// 入力値の検証
-			if (
-				!articleIds ||
-				!Array.isArray(articleIds) ||
-				articleIds.length === 0
-			) {
+			if (!articleIds || !Array.isArray(articleIds) || articleIds.length === 0) {
 				throw new Error("articleIds must be a non-empty array");
 			}
 			if (!labelName || typeof labelName !== "string") {
@@ -309,11 +277,7 @@ server.tool(
 				description,
 			});
 
-			const result = await apiClient.assignLabelsToMultipleArticles(
-				articleIds,
-				labelName,
-				description ?? undefined,
-			);
+			const result = await apiClient.assignLabelsToMultipleArticles(articleIds, labelName, description ?? undefined);
 			return {
 				content: [
 					{
@@ -324,8 +288,7 @@ server.tool(
 				isError: false,
 			};
 		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
+			const errorMessage = error instanceof Error ? error.message : String(error);
 			console.error(
 				`Error in assignLabelsToMultipleArticles tool (articleIds: ${JSON.stringify(articleIds)}, labelName: ${labelName}, description: ${description}):`,
 				errorMessage,
@@ -363,12 +326,8 @@ server.tool(
 				isError: false,
 			};
 		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
-			console.error(
-				`Error in getBookmarkById tool (bookmarkId: ${bookmarkId}):`,
-				errorMessage,
-			);
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			console.error(`Error in getBookmarkById tool (bookmarkId: ${bookmarkId}):`, errorMessage);
 			return {
 				content: [
 					{
@@ -401,12 +360,8 @@ server.tool(
 				isError: false,
 			};
 		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
-			console.error(
-				`Error in getUnreadArticlesByLabel tool (labelName: ${labelName}):`,
-				errorMessage,
-			);
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			console.error(`Error in getUnreadArticlesByLabel tool (labelName: ${labelName}):`, errorMessage);
 			return {
 				content: [
 					{
@@ -437,8 +392,7 @@ server.tool(
 				isError: false,
 			};
 		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
+			const errorMessage = error instanceof Error ? error.message : String(error);
 			console.error("Error in getUnreadBookmarks tool:", errorMessage);
 			return {
 				content: [
@@ -470,8 +424,7 @@ server.tool(
 				isError: false,
 			};
 		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
+			const errorMessage = error instanceof Error ? error.message : String(error);
 			console.error("Error in getReadBookmarks tool:", errorMessage);
 			return {
 				content: [
@@ -505,12 +458,8 @@ server.tool(
 				isError: false,
 			};
 		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
-			console.error(
-				`Error in markBookmarkAsRead tool (bookmarkId: ${bookmarkId}):`,
-				errorMessage,
-			);
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			console.error(`Error in markBookmarkAsRead tool (bookmarkId: ${bookmarkId}):`, errorMessage);
 			return {
 				content: [
 					{

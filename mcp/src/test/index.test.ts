@@ -45,11 +45,7 @@ describe("assignLabelsToMultipleArticles", () => {
 		global.fetch = vi.fn().mockResolvedValue(mockResponse);
 		process.env.API_BASE_URL = "http://localhost:3000";
 
-		const result = await apiClient.assignLabelsToMultipleArticles(
-			[1, 2, 3],
-			"テストラベル",
-			"テスト用の説明",
-		);
+		const result = await apiClient.assignLabelsToMultipleArticles([1, 2, 3], "テストラベル", "テスト用の説明");
 
 		expect(result).toEqual({
 			successful: 2,
@@ -78,8 +74,8 @@ describe("assignLabelsToMultipleArticles", () => {
 		global.fetch = vi.fn().mockResolvedValue(mockResponse);
 		process.env.API_BASE_URL = "http://localhost:3000";
 
-		await expect(
-			apiClient.assignLabelsToMultipleArticles([1], "テストラベル"),
-		).rejects.toThrow("Invalid request: Bad Request");
+		await expect(apiClient.assignLabelsToMultipleArticles([1], "テストラベル")).rejects.toThrow(
+			"Invalid request: Bad Request",
+		);
 	});
 });

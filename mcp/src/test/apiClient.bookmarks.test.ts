@@ -1,8 +1,9 @@
 /**
  * MCPサーバーのブックマーク関連機能のテスト
  */
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+
 import type { MockInstance } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import * as apiClient from "../lib/apiClient.js";
 
 describe("Bookmark API Functions", () => {
@@ -44,9 +45,7 @@ describe("Bookmark API Functions", () => {
 
 			const result = await apiClient.getBookmarkById(1);
 
-			expect(fetchMock).toHaveBeenCalledWith(
-				"http://localhost:3000/api/bookmarks/1",
-			);
+			expect(fetchMock).toHaveBeenCalledWith("http://localhost:3000/api/bookmarks/1");
 			expect(result).toEqual(mockBookmark);
 		});
 
@@ -56,9 +55,7 @@ describe("Bookmark API Functions", () => {
 				statusText: "Not Found",
 			} as Response);
 
-			await expect(apiClient.getBookmarkById(999)).rejects.toThrow(
-				"Failed to fetch bookmark 999: Not Found",
-			);
+			await expect(apiClient.getBookmarkById(999)).rejects.toThrow("Failed to fetch bookmark 999: Not Found");
 		});
 
 		test("不正なレスポンス形式でエラーをスローすること", async () => {
@@ -70,9 +67,7 @@ describe("Bookmark API Functions", () => {
 				}),
 			} as Response);
 
-			await expect(apiClient.getBookmarkById(1)).rejects.toThrow(
-				"Invalid API response for bookmark 1:",
-			);
+			await expect(apiClient.getBookmarkById(1)).rejects.toThrow("Invalid API response for bookmark 1:");
 		});
 	});
 
@@ -148,9 +143,7 @@ describe("Bookmark API Functions", () => {
 				statusText: "Bad Request",
 			} as Response);
 
-			await expect(
-				apiClient.getUnreadArticlesByLabel("無効なラベル"),
-			).rejects.toThrow(
+			await expect(apiClient.getUnreadArticlesByLabel("無効なラベル")).rejects.toThrow(
 				'Failed to fetch unread articles for label "無効なラベル": Bad Request',
 			);
 		});
@@ -166,9 +159,7 @@ describe("Bookmark API Functions", () => {
 
 			const result = await apiClient.getUnreadArticlesByLabel("");
 
-			expect(fetchMock).toHaveBeenCalledWith(
-				"http://localhost:3000/api/bookmarks?label=",
-			);
+			expect(fetchMock).toHaveBeenCalledWith("http://localhost:3000/api/bookmarks?label=");
 			expect(result).toEqual([]);
 		});
 	});
@@ -334,9 +325,7 @@ describe("Bookmark API Functions", () => {
 
 			const result = await apiClient.getReadBookmarks();
 
-			expect(fetchMock).toHaveBeenCalledWith(
-				"http://localhost:3000/api/bookmarks/read",
-			);
+			expect(fetchMock).toHaveBeenCalledWith("http://localhost:3000/api/bookmarks/read");
 			expect(result).toEqual(mockBookmarks);
 		});
 
@@ -346,9 +335,7 @@ describe("Bookmark API Functions", () => {
 				statusText: "Service Unavailable",
 			} as Response);
 
-			await expect(apiClient.getReadBookmarks()).rejects.toThrow(
-				"Failed to fetch read bookmarks: Service Unavailable",
-			);
+			await expect(apiClient.getReadBookmarks()).rejects.toThrow("Failed to fetch read bookmarks: Service Unavailable");
 		});
 
 		test("不正なレスポンス形式でエラーをスローすること", async () => {
@@ -361,9 +348,7 @@ describe("Bookmark API Functions", () => {
 				}),
 			} as Response);
 
-			await expect(apiClient.getReadBookmarks()).rejects.toThrow(
-				"Invalid API response for read bookmarks:",
-			);
+			await expect(apiClient.getReadBookmarks()).rejects.toThrow("Invalid API response for read bookmarks:");
 		});
 
 		test("labelsがundefinedの場合空配列に変換されること", async () => {
@@ -430,12 +415,9 @@ describe("Bookmark API Functions", () => {
 
 			const result = await apiClient.markBookmarkAsRead(1);
 
-			expect(fetchMock).toHaveBeenCalledWith(
-				"http://localhost:3000/api/bookmarks/1/read",
-				{
-					method: "PATCH",
-				},
-			);
+			expect(fetchMock).toHaveBeenCalledWith("http://localhost:3000/api/bookmarks/1/read", {
+				method: "PATCH",
+			});
 			expect(result).toEqual({
 				success: true,
 				message: "Bookmark marked as read successfully",
@@ -448,9 +430,7 @@ describe("Bookmark API Functions", () => {
 				statusText: "Not Found",
 			} as Response);
 
-			await expect(apiClient.markBookmarkAsRead(999)).rejects.toThrow(
-				"Failed to mark bookmark 999 as read: Not Found",
-			);
+			await expect(apiClient.markBookmarkAsRead(999)).rejects.toThrow("Failed to mark bookmark 999 as read: Not Found");
 		});
 
 		test("既に既読のブックマークでも成功すること", async () => {
@@ -502,12 +482,9 @@ describe("Bookmark API Functions", () => {
 
 			const result = await apiClient.cleanupUnusedLabels();
 
-			expect(fetchMock).toHaveBeenCalledWith(
-				"http://localhost:3000/api/labels/cleanup",
-				{
-					method: "DELETE",
-				},
-			);
+			expect(fetchMock).toHaveBeenCalledWith("http://localhost:3000/api/labels/cleanup", {
+				method: "DELETE",
+			});
 			expect(result).toEqual({
 				deletedCount: 3,
 				deletedLabels: mockResponse.deletedLabels,
