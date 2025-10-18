@@ -11,27 +11,16 @@ mcp/
 ├── README.md                # プロジェクト概要とセットアップガイド
 ├── package.json            # 依存関係とスクリプト定義
 ├── tsconfig.json           # TypeScript設定
-├── vitest.config.ts        # テスト設定
 ├── biome.json             # リント・フォーマット設定
 ├── index.ts               # ルートエントリーポイント
 ├── build/                 # ビルド出力（TypeScriptコンパイル後）
-├── coverage/              # テストカバレッジレポート
 ├── node_modules/          # 依存関係
 └── src/                   # ソースコード
     ├── index.ts           # MCPサーバーメインファイル
-    ├── lib/               # 共通ライブラリ
-    │   ├── apiClient.ts   # API通信クライアント
-    │   └── articleContentFetcher.ts  # 記事コンテンツ取得機能
-    └── test/              # テストファイル群
-        ├── apiClient.comprehensive.test.ts
-        ├── articleContentFetcher.*.test.ts
-        ├── getUnreadArticlesByLabel.test.ts
-        ├── index.main.test.ts
-        ├── integration-mcp-api.test.ts
-        ├── mcpServer.test.ts
-        ├── ratingApiClient.test.ts
-        ├── ratingMcpTools.test.ts
-        └── readStatus.test.ts
+    └── lib/               # 共通ライブラリ
+        └── apiClient.ts   # API通信クライアント
+
+> **更新 (2025-10-18)**: 自動テスト関連のファイル・ディレクトリは削除済み。
 ```
 
 ## 依存関係とライブラリ
@@ -77,34 +66,31 @@ mcp/
 
 #### 提供ツール群
 
-##### ラベル管理ツール（8種類）
+##### ラベル管理ツール（7種類）
 1. **getUnlabeledArticles**: ラベルなし記事取得
 2. **getLabels**: 既存ラベル一覧取得
 3. **assignLabel**: 記事へのラベル割り当て
-4. **createLabel**: 新ラベル作成
-5. **getLabelById**: 特定ラベル取得
-6. **deleteLabel**: ラベル削除
-7. **updateLabelDescription**: ラベル説明更新
-8. **assignLabelsToMultipleArticles**: 一括ラベル付与
+4. **getLabelById**: 特定ラベル取得
+5. **deleteLabel**: ラベル削除
+6. **updateLabelDescription**: ラベル説明更新
+7. **assignLabelsToMultipleArticles**: 一括ラベル付与
 
-##### 記事管理ツール（5種類）
-9. **getBookmarkById**: ブックマーク詳細取得
-10. **getUnreadArticlesByLabel**: ラベル別未読記事取得
-11. **getUnreadBookmarks**: 未読ブックマーク一覧
-12. **getReadBookmarks**: 既読ブックマーク一覧
-13. **markBookmarkAsRead**: 既読マーク
+##### ブックマーク管理ツール（3種類）
+8. **getUnreadBookmarks**: 未読ブックマーク一覧
+9. **getReadBookmarks**: 既読ブックマーク一覧
+10. **markBookmarkAsRead**: 既読マーク
 
 ##### 記事評価ツール（6種類）
-14. **rateArticleWithContent**: 記事内容付き評価準備
-15. **createArticleRating**: 記事評価作成
-16. **getArticleRating**: 記事評価取得
-17. **updateArticleRating**: 記事評価更新
-18. **getArticleRatings**: 評価一覧（フィルター・ソート対応）
-19. **getRatingStats**: 評価統計情報取得
+11. **rateArticleWithContent**: 記事内容付き評価準備
+12. **createArticleRating**: 記事評価作成
+13. **getArticleRating**: 記事評価取得
+14. **updateArticleRating**: 記事評価更新
+15. **getArticleRatings**: 評価一覧（フィルター・ソート対応）
+16. **getRatingStats**: 評価統計情報取得
 
 ##### 高度なMCP機能ツール（2種類）
-20. **getTopRatedArticles**: 高評価記事Top取得
-21. **bulkRateArticles**: 一括評価（最大10件）
+17. **getTopRatedArticles**: 高評価記事Top取得
+18. **bulkRateArticles**: 一括評価（最大10件）
 
 ### 2. API通信クライアント (`src/lib/apiClient.ts`)
 
@@ -119,15 +105,12 @@ mcp/
 export async function getUnlabeledArticles()
 export async function getLabels()
 export async function assignLabelToArticle()
-export async function createLabel()
 export async function getLabelById()
 export async function deleteLabel()
 export async function updateLabelDescription()
 export async function assignLabelsToMultipleArticles()
 
 // ブックマーク管理
-export async function getBookmarkById()
-export async function getUnreadArticlesByLabel()
 export async function getUnreadBookmarks()
 export async function getReadBookmarks()
 export async function markBookmarkAsRead()

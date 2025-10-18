@@ -1,5 +1,7 @@
 # 記事要約機能 MCP設計
 
+> **注意 (2025-10-18 更新)**: `getBookmarksWithoutSummary`、`saveSummary`、`updateSummary`、`getBookmarkById` など要約関連のMCPツールは廃止済みです。本ドキュメントはアーカイブ目的で残しており、実装は現在存在しません。
+
 ## 1. 概要
 
 Claude Desktop上でMCPサーバーを利用して、記事の要約を作成・更新する仕組みを設計します。ユーザーがClaude Desktopを通じて記事のURLを読み込ませ、生成した要約をAPIに保存します。
@@ -33,7 +35,7 @@ Claude Desktop上でMCPサーバーを利用して、記事の要約を作成・
 5. MCPツールで要約をAPIに保存
 6. データベースに要約を永続化
 
-## 3. MCPツール定義
+## 3. MCPツール定義（アーカイブ）
 
 ### 3.1 Tools
 
