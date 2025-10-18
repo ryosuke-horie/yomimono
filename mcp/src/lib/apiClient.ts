@@ -342,41 +342,6 @@ export async function assignLabelsToMultipleArticles(
 	};
 }
 
-// Schema for bookmark
-const BookmarkSchema = z.object({
-	id: z.number(),
-	url: z.string(),
-	title: z.string().nullable(),
-	isRead: z.boolean(),
-	createdAt: z.string(),
-	updatedAt: z.string(),
-});
-
-// Schema for single bookmark response
-const BookmarkResponseSchema = z.object({
-	success: z.literal(true),
-	bookmark: BookmarkSchema,
-});
-
-/**
- * 特定のブックマークを取得します
- * @param bookmarkId - ブックマークID
- * @returns ブックマーク情報
- */
-export async function getBookmarkById(bookmarkId: number) {
-	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks/${bookmarkId}`);
-	if (!response.ok) {
-		throw new Error(`Failed to fetch bookmark ${bookmarkId}: ${response.statusText}`);
-	}
-
-	const data = await response.json();
-	const parsed = BookmarkResponseSchema.safeParse(data);
-	if (!parsed.success) {
-		throw new Error(`Invalid API response for bookmark ${bookmarkId}: ${parsed.error.message}`);
-	}
-	return parsed.data.bookmark;
-}
-
 // Schema for bookmark with read status
 const BookmarkWithReadStatusSchema = z
 	.object({
@@ -407,25 +372,6 @@ const MarkAsReadResponseSchema = z.object({
 	success: z.literal(true),
 	message: z.string(),
 });
-
-/**
- * ラベルで未読記事を取得します
- * @param labelName - ラベル名
- * @returns 指定したラベルの未読記事のリスト
- */
-export async function getUnreadArticlesByLabel(labelName: string) {
-	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks?label=${encodeURIComponent(labelName)}`);
-	if (!response.ok) {
-		throw new Error(`Failed to fetch unread articles for label "${labelName}": ${response.statusText}`);
-	}
-
-	const data = await response.json();
-	const parsed = ArticlesResponseSchema.safeParse(data);
-	if (!parsed.success) {
-		throw new Error(`Invalid API response for unread articles by label: ${parsed.error.message}`);
-	}
-	return parsed.data.bookmarks;
-}
 
 /**
  * 未読のブックマークを取得します
