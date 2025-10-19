@@ -108,44 +108,7 @@ server.tool(
 	},
 );
 
-// 4. Tool to create a new label
-server.tool(
-	"createLabel",
-	// Define input arguments schema using Zod
-	{
-		labelName: z.string().min(1, "Label name cannot be empty"),
-		description: z.string().optional().nullable(),
-	},
-	async ({ labelName, description }) => {
-		// Destructure arguments
-		try {
-			const newLabel = await apiClient.createLabel(labelName, description ?? undefined);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `Successfully created label: ${JSON.stringify(newLabel, null, 2)}`,
-					},
-				],
-				isError: false,
-			};
-		} catch (error: unknown) {
-			const errorMessage = error instanceof Error ? error.message : String(error);
-			console.error(`Error in createLabel tool (labelName: ${labelName}, description: ${description}):`, errorMessage);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `Failed to create label: ${errorMessage}`,
-					},
-				],
-				isError: true,
-			};
-		}
-	},
-);
-
-// 5. Tool to get a label by ID
+// 4. Tool to get a label by ID
 server.tool(
 	"getLabelById",
 	{
@@ -179,7 +142,7 @@ server.tool(
 	},
 );
 
-// 6. Tool to delete a label
+// 5. Tool to delete a label
 server.tool(
 	"deleteLabel",
 	{
@@ -213,7 +176,7 @@ server.tool(
 	},
 );
 
-// 7. Tool to update a label's description
+// 6. Tool to update a label's description
 server.tool(
 	"updateLabelDescription",
 	{
@@ -251,7 +214,7 @@ server.tool(
 	},
 );
 
-// 8. Tool to assign labels to multiple articles
+// 7. Tool to assign labels to multiple articles
 server.tool(
 	"assignLabelsToMultipleArticles",
 	// Define input arguments schema using Zod
@@ -307,75 +270,7 @@ server.tool(
 	},
 );
 
-// 9. Tool to get bookmark by ID
-server.tool(
-	"getBookmarkById",
-	{
-		bookmarkId: z.number().int().positive(),
-	},
-	async ({ bookmarkId }) => {
-		try {
-			const bookmark = await apiClient.getBookmarkById(bookmarkId);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `Bookmark details: ${JSON.stringify(bookmark, null, 2)}`,
-					},
-				],
-				isError: false,
-			};
-		} catch (error: unknown) {
-			const errorMessage = error instanceof Error ? error.message : String(error);
-			console.error(`Error in getBookmarkById tool (bookmarkId: ${bookmarkId}):`, errorMessage);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `Failed to get bookmark: ${errorMessage}`,
-					},
-				],
-				isError: true,
-			};
-		}
-	},
-);
-
-// 10. Tool to get unread articles by label
-server.tool(
-	"getUnreadArticlesByLabel",
-	{
-		labelName: z.string().min(1),
-	},
-	async ({ labelName }) => {
-		try {
-			const articles = await apiClient.getUnreadArticlesByLabel(labelName);
-			return {
-				content: [
-					{
-						type: "text",
-						text: JSON.stringify(articles, null, 2),
-					},
-				],
-				isError: false,
-			};
-		} catch (error: unknown) {
-			const errorMessage = error instanceof Error ? error.message : String(error);
-			console.error(`Error in getUnreadArticlesByLabel tool (labelName: ${labelName}):`, errorMessage);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `Failed to get unread articles by label: ${errorMessage}`,
-					},
-				],
-				isError: true,
-			};
-		}
-	},
-);
-
-// 11. Tool to get unread bookmarks
+// 8. Tool to get unread bookmarks
 server.tool(
 	"getUnreadBookmarks",
 	{}, // No input arguments
@@ -407,7 +302,7 @@ server.tool(
 	},
 );
 
-// 12. Tool to get read bookmarks
+// 9. Tool to get read bookmarks
 server.tool(
 	"getReadBookmarks",
 	{}, // No input arguments
@@ -439,7 +334,7 @@ server.tool(
 	},
 );
 
-// 13. Tool to mark bookmark as read
+// 10. Tool to mark bookmark as read
 server.tool(
 	"markBookmarkAsRead",
 	{

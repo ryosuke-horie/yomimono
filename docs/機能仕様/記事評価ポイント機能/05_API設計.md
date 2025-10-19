@@ -326,7 +326,7 @@ const GetRatingsQuerySchema = z.object({
 ```typescript
 // 記事存在確認
 async function validateArticleExists(articleId: number): Promise<boolean> {
-  const article = await getBookmarkById(articleId);
+  const article = await bookmarkRepository.findById(articleId);
   return !!article;
 }
 

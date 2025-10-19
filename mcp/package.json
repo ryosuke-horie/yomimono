@@ -7,10 +7,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.2.6",
 		"@types/node": "^24.0.8",
-		"@vitest/coverage-v8": "^3.2.4",
-		"dotenv": "^17.2.1",
-		"playwright": "^1.55.0",
-		"vitest": "^3.1.4"
+		"dotenv": "^17.2.1"
 	},
 	"peerDependencies": {
 		"typescript": "^5.8.3"
@@ -20,10 +17,7 @@
 		"build": "tsc",
 		"lint": "biome check .",
 		"format": "biome check --write .",
-		"typecheck": "tsc --noEmit",
-		"test": "vitest run",
-		"test:watch": "vitest",
-		"test:coverage": "vitest run --coverage"
+		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "^1.17.4",

@@ -124,16 +124,7 @@ const result = await callTool("assignLabel", {
 });
 ```
 
-### 4. createLabel
-新しいラベルを作成します。
-
-```typescript
-const result = await callTool("createLabel", {
-  labelName: "newlabel"
-});
-```
-
-### 5. deleteLabel
+### 4. deleteLabel
 指定されたIDのラベルを削除します。
 
 ```typescript
@@ -184,7 +175,7 @@ const result = await callTool("deleteLabel", {
 
 ### 2. ラベル判断エラー
 - タイトルから判断できない場合はスキップ
-- 既存ラベルとの類似性判断が困難な場合は新規ラベルを作成
+- 既存ラベルとの類似性判断が困難な場合は手動でラベルを整備
 
 ## 表記揺れ対策
 

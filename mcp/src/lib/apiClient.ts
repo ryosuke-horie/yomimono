@@ -41,12 +41,6 @@ const LabelsResponseSchema = z.object({
 	labels: z.array(LabelSchema),
 });
 
-// Schema for the POST /api/labels response
-const CreateLabelResponseSchema = z.object({
-	success: z.literal(true),
-	label: LabelSchema,
-});
-
 // Schema for the GET /api/labels/:id response
 const GetLabelByIdResponseSchema = z.object({
 	success: z.literal(true),
@@ -178,70 +172,6 @@ export async function assignLabelToArticle(articleId: number, labelName: string,
 	}
 	// Assuming the API returns no content or confirmation on success
 	// Check for specific success status codes if applicable (e.g., 200 OK, 204 No Content)
-}
-
-/**
- * Creates a new label via the API.
- * @param labelName - The name of the label to create.
- * @param description - Optional description for the label.
- * @returns A promise that resolves to the newly created label object.
- */
-export async function createLabel(labelName: string, description?: string) {
-	const response = await fetch(`${getApiBaseUrl()}/api/labels`, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			name: labelName,
-			description: description,
-		}),
-	});
-
-	let data: unknown;
-	try {
-		// Check content type before parsing, or handle potential empty body for 201/204
-		const contentType = response.headers.get("content-type");
-		if (response.ok && (!contentType || !contentType.includes("application/json"))) {
-			// If response is OK but not JSON (e.g., 201 with empty body or wrong content type)
-			// We might assume success based on status code, or throw an error if JSON is expected.
-			// Let's assume the API *should* return JSON on success based on its route handler.
-			// If parsing fails below, it indicates an issue.
-		}
-		data = await response.json(); // Attempt to parse JSON
-	} catch (parseError: unknown) {
-		// Handle JSON parsing error
-		const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
-		if (!response.ok) {
-			// If the request failed and JSON parsing failed, throw an error including status
-			throw new Error(
-				`Failed to create label "${labelName}". Status: ${response.status} ${response.statusText}. Response body could not be parsed: ${errorMessage}`,
-			);
-		}
-		// If the request succeeded (e.g., 201) but parsing failed (unexpected)
-		throw new Error(
-			`Successfully created label "${labelName}" (Status: ${response.status}) but received an invalid or empty JSON response: ${errorMessage}`,
-		);
-	}
-
-	if (!response.ok) {
-		// If response is not ok, but JSON parsing succeeded, try to extract error message
-		let errorMessage = `Failed to create label "${labelName}"`;
-		if (typeof data === "object" && data !== null && "message" in data && typeof data.message === "string") {
-			errorMessage = data.message;
-		}
-		throw new Error(`${errorMessage}: ${response.statusText} (Status: ${response.status})`);
-	}
-
-	// If response.ok and JSON parsing succeeded, validate with Zod
-	const parsed = CreateLabelResponseSchema.safeParse(data);
-	if (!parsed.success) {
-		throw new Error(
-			`Invalid API response after creating label. Zod errors: ${parsed.error.message}`, // Use .message for cleaner Zod error
-		);
-	}
-
-	return parsed.data.label;
 }
 
 /**
@@ -412,41 +342,6 @@ export async function assignLabelsToMultipleArticles(
 	};
 }
 
-// Schema for bookmark
-const BookmarkSchema = z.object({
-	id: z.number(),
-	url: z.string(),
-	title: z.string().nullable(),
-	isRead: z.boolean(),
-	createdAt: z.string(),
-	updatedAt: z.string(),
-});
-
-// Schema for single bookmark response
-const BookmarkResponseSchema = z.object({
-	success: z.literal(true),
-	bookmark: BookmarkSchema,
-});
-
-/**
- * 特定のブックマークを取得します
- * @param bookmarkId - ブックマークID
- * @returns ブックマーク情報
- */
-export async function getBookmarkById(bookmarkId: number) {
-	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks/${bookmarkId}`);
-	if (!response.ok) {
-		throw new Error(`Failed to fetch bookmark ${bookmarkId}: ${response.statusText}`);
-	}
-
-	const data = await response.json();
-	const parsed = BookmarkResponseSchema.safeParse(data);
-	if (!parsed.success) {
-		throw new Error(`Invalid API response for bookmark ${bookmarkId}: ${parsed.error.message}`);
-	}
-	return parsed.data.bookmark;
-}
-
 // Schema for bookmark with read status
 const BookmarkWithReadStatusSchema = z
 	.object({
@@ -477,25 +372,6 @@ const MarkAsReadResponseSchema = z.object({
 	success: z.literal(true),
 	message: z.string(),
 });
-
-/**
- * ラベルで未読記事を取得します
- * @param labelName - ラベル名
- * @returns 指定したラベルの未読記事のリスト
- */
-export async function getUnreadArticlesByLabel(labelName: string) {
-	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks?label=${encodeURIComponent(labelName)}`);
-	if (!response.ok) {
-		throw new Error(`Failed to fetch unread articles for label "${labelName}": ${response.statusText}`);
-	}
-
-	const data = await response.json();
-	const parsed = ArticlesResponseSchema.safeParse(data);
-	if (!parsed.success) {
-		throw new Error(`Invalid API response for unread articles by label: ${parsed.error.message}`);
-	}
-	return parsed.data.bookmarks;
-}
 
 /**
  * 未読のブックマークを取得します
