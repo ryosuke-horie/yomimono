@@ -140,9 +140,7 @@ export const cleanupUnusedLabels = async (): Promise<{
 	};
 };
 
-// @ts-expect-error - Vitest in-source testing
 if (import.meta.vitest) {
-	// @ts-expect-error
 	const { test, expect, vi, beforeEach, afterEach } = import.meta.vitest;
 
 	// モックのセットアップ
