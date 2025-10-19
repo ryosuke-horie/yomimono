@@ -728,11 +728,11 @@ if (import.meta.vitest) {
 			);
 		});
 
-			describe("アクセシビリティの確認", () => {
-				it("削除確認ダイアログにARIA属性が正しく設定されている", async () => {
-					const { useGetBook } = await import(
-						"@/features/bookshelf/queries/useGetBook"
-					);
+		describe("アクセシビリティの確認", () => {
+			it("削除確認ダイアログにARIA属性が正しく設定されている", async () => {
+				const { useGetBook } = await import(
+					"@/features/bookshelf/queries/useGetBook"
+				);
 				(useGetBook as ReturnType<typeof vi.fn>).mockReturnValue({
 					data: mockBook,
 					isLoading: false,
@@ -746,16 +746,15 @@ if (import.meta.vitest) {
 				fireEvent.click(deleteButtons[0]);
 
 				// ダイアログのARIA属性を確認
-					const dialog = screen.getByRole("dialog");
-					expect(dialog).toHaveAttribute("aria-modal", "true");
-					const title = screen.getByText("削除の確認");
-					const description = screen.getByText(
-						/「テスト書籍」を削除してもよろしいですか/,
-					);
-					expect(title).toHaveAttribute("id");
-					expect(description).toHaveAttribute("id");
-					expect(dialog).toHaveAttribute("aria-labelledby", title.id);
-					expect(dialog).toHaveAttribute("aria-describedby", description.id);
+				const dialog = screen.getByRole("dialog");
+				expect(dialog).toHaveAttribute("aria-modal", "true");
+				const title = screen.getByText("削除の確認");
+				const description =
+					screen.getByText(/「テスト書籍」を削除してもよろしいですか/);
+				expect(title).toHaveAttribute("id");
+				expect(description).toHaveAttribute("id");
+				expect(dialog).toHaveAttribute("aria-labelledby", title.id);
+				expect(dialog).toHaveAttribute("aria-describedby", description.id);
 
 				// ボタンのaria-labelを確認
 				const cancelButton = screen.getByRole("button", {

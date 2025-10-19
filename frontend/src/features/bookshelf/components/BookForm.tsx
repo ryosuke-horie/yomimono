@@ -406,23 +406,23 @@ if (import.meta.vitest) {
 			});
 		});
 
-			test("HTTPとHTTPSプロトコルのURLは有効と判定される", () => {
-				const onSubmit = vi.fn();
-				const onCancel = vi.fn();
-				const { container } = render(
-					React.createElement(BookForm, { onSubmit, onCancel }),
-				);
+		test("HTTPとHTTPSプロトコルのURLは有効と判定される", () => {
+			const onSubmit = vi.fn();
+			const onCancel = vi.fn();
+			const { container } = render(
+				React.createElement(BookForm, { onSubmit, onCancel }),
+			);
 
-				const typeSelect = screen.getByLabelText(
-					/^タイプ/,
-				) as unknown as HTMLSelectElement;
-				const titleInput = screen.getByLabelText(
-					/^タイトル/,
-				) as unknown as HTMLInputElement;
-				const urlInput = screen.getByLabelText(
-					/^URL/,
-				) as unknown as HTMLInputElement;
-				const form = container.querySelector("form") as HTMLFormElement;
+			const typeSelect = screen.getByLabelText(
+				/^タイプ/,
+			) as unknown as HTMLSelectElement;
+			const titleInput = screen.getByLabelText(
+				/^タイトル/,
+			) as unknown as HTMLInputElement;
+			const urlInput = screen.getByLabelText(
+				/^URL/,
+			) as unknown as HTMLInputElement;
+			const form = container.querySelector("form") as HTMLFormElement;
 
 			// PDFタイプを選択（URLが必須）
 			fireEvent.change(typeSelect, { target: { value: "pdf" } });
@@ -456,23 +456,23 @@ if (import.meta.vitest) {
 			});
 		});
 
-			test("HTTP/HTTPS以外のプロトコルは無効と判定される", () => {
-				const onSubmit = vi.fn();
-				const onCancel = vi.fn();
-				const { container } = render(
-					React.createElement(BookForm, { onSubmit, onCancel }),
-				);
+		test("HTTP/HTTPS以外のプロトコルは無効と判定される", () => {
+			const onSubmit = vi.fn();
+			const onCancel = vi.fn();
+			const { container } = render(
+				React.createElement(BookForm, { onSubmit, onCancel }),
+			);
 
-				const typeSelect = screen.getByLabelText(
-					/^タイプ/,
-				) as unknown as HTMLSelectElement;
-				const titleInput = screen.getByLabelText(
-					/^タイトル/,
-				) as unknown as HTMLInputElement;
-				const urlInput = screen.getByLabelText(
-					/^URL/,
-				) as unknown as HTMLInputElement;
-				const form = container.querySelector("form") as HTMLFormElement;
+			const typeSelect = screen.getByLabelText(
+				/^タイプ/,
+			) as unknown as HTMLSelectElement;
+			const titleInput = screen.getByLabelText(
+				/^タイトル/,
+			) as unknown as HTMLInputElement;
+			const urlInput = screen.getByLabelText(
+				/^URL/,
+			) as unknown as HTMLInputElement;
+			const form = container.querySelector("form") as HTMLFormElement;
 
 			// PDFタイプを選択（URLが必須）
 			fireEvent.change(typeSelect, { target: { value: "pdf" } });
