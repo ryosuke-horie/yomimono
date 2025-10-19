@@ -1,16 +1,26 @@
 {
-	"compilerOptions": {
-		"target": "ESNext",
-		"module": "ESNext",
-		"moduleResolution": "Bundler",
-		"strict": true,
-		"skipLibCheck": true,
-		"lib": ["ESNext", "DOM"],
-		"types": ["@types/node", "vitest/importMeta"],
-		"esModuleInterop": true, // Recommended for compatibility
-		"forceConsistentCasingInFileNames": true, // Recommended for consistency
-		"outDir": "./build" // Specify output directory
-	},
-	"include": ["src/**/*", "index.ts"], // Include src and root index.ts
-	"exclude": ["node_modules"]
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "strict": true,
+        "skipLibCheck": true,
+        "lib": [
+            "ESNext",
+            "DOM"
+        ],
+        "types": [
+            "@types/node"
+        ],
+        "esModuleInterop": true, // Recommended for compatibility
+        "forceConsistentCasingInFileNames": true, // Recommended for consistency
+        "outDir": "./build" // Specify output directory
+    },
+    "include": [
+        "src/**/*",
+        "index.ts"
+    ], // Include src and root index.ts
+    "exclude": [
+        "node_modules"
+    ]
 }

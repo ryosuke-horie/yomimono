@@ -302,39 +302,7 @@ server.tool(
 	},
 );
 
-// 9. Tool to get read bookmarks
-server.tool(
-	"getReadBookmarks",
-	{}, // No input arguments
-	async () => {
-		try {
-			const bookmarks = await apiClient.getReadBookmarks();
-			return {
-				content: [
-					{
-						type: "text",
-						text: `既読のブックマークリスト:\n${JSON.stringify(bookmarks, null, 2)}`,
-					},
-				],
-				isError: false,
-			};
-		} catch (error: unknown) {
-			const errorMessage = error instanceof Error ? error.message : String(error);
-			console.error("Error in getReadBookmarks tool:", errorMessage);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `既読ブックマークの取得に失敗しました: ${errorMessage}`,
-					},
-				],
-				isError: true,
-			};
-		}
-	},
-);
-
-// 10. Tool to mark bookmark as read
+// 9. Tool to mark bookmark as read
 server.tool(
 	"markBookmarkAsRead",
 	{

@@ -69,22 +69,21 @@ mcp/
 6. **updateLabelDescription**: ラベル説明更新
 7. **assignLabelsToMultipleArticles**: 一括ラベル付与
 
-##### ブックマーク管理ツール（3種類）
+##### ブックマーク管理ツール（2種類）
 8. **getUnreadBookmarks**: 未読ブックマーク一覧
-9. **getReadBookmarks**: 既読ブックマーク一覧
-10. **markBookmarkAsRead**: 既読マーク
+9. **markBookmarkAsRead**: 既読マーク
 
 ##### 記事評価ツール（6種類）
-11. **rateArticleWithContent**: 記事内容付き評価準備
-12. **createArticleRating**: 記事評価作成
-13. **getArticleRating**: 記事評価取得
-14. **updateArticleRating**: 記事評価更新
-15. **getArticleRatings**: 評価一覧（フィルター・ソート対応）
-16. **getRatingStats**: 評価統計情報取得
+10. **rateArticleWithContent**: 記事内容付き評価準備
+11. **createArticleRating**: 記事評価作成
+12. **getArticleRating**: 記事評価取得
+13. **updateArticleRating**: 記事評価更新
+14. **getArticleRatings**: 評価一覧（フィルター・ソート対応）
+15. **getRatingStats**: 評価統計情報取得
 
 ##### 高度なMCP機能ツール（2種類）
-17. **getTopRatedArticles**: 高評価記事Top取得
-18. **bulkRateArticles**: 一括評価（最大10件）
+16. **getTopRatedArticles**: 高評価記事Top取得
+17. **bulkRateArticles**: 一括評価（最大10件）
 
 ### 2. API通信クライアント (`src/lib/apiClient.ts`)
 
@@ -106,7 +105,6 @@ export async function assignLabelsToMultipleArticles()
 
 // ブックマーク管理
 export async function getUnreadBookmarks()
-export async function getReadBookmarks()
 export async function markBookmarkAsRead()
 
 // 評価機能
