@@ -2,7 +2,7 @@
 
 ## プロジェクト構成と配置
 - ルート配下: `api`(Cloudflare Workers/Hono), `frontend`(Next.js), `extension`(Chrome拡張), `mcp`(MCPユーティリティ), `docs`(設計/ADR)。
-- テスト: APIは`api/tests`(Vitest)、フロントは`frontend/src`の単体＋`frontend/e2e`のE2E(Playwright)。
+- テスト: APIは`api/tests`(Vitest)、フロントは`frontend/src`での単体テスト(Vitest)。
 - アセット: `frontend/public`、拡張の画像は`extension/images`。
 
 ## 開発・ビルド・テスト
@@ -11,8 +11,7 @@
 - API: `cd api && pnpm run dev`（Wranglerローカル）/ `pnpm run deploy`。
 - フロント: `cd frontend && pnpm run dev|build|start`、プレビュー`pnpm run preview`。
 - Lint/Format: ルートまたは各パッケージで`pnpm run lint|format`（Biome使用）。
-- テスト: API `pnpm -C api run test`、FE 単体 `pnpm -C frontend run test:run`、E2E `pnpm -C frontend run test:e2e`。
-  - 注: GitHub-hostedでのE2Eは一時停止中。ローカルで実行してください。
+- テスト: API `pnpm -C api run test`、FE 単体 `pnpm -C frontend run test:run`。
 
 ## コーディング規約・命名
 - フォーマッタ: Biome（タブインデント、ダブルクォート、import整列）。
@@ -21,10 +20,9 @@
 - TSDocコメントを先頭に、可能なら実装と同一ファイルにVitest（`import.meta.vitest`）でTDDを推奨。
 
 ## テスト方針
-- フレームワーク: Vitest（API/FE）、Playwright（E2E）。
+- フレームワーク: Vitest（API/FE）。
 - カバレッジ: APIはlines 76%/funcs・branches 80%、FEはglobal 80%（各`vitest.config.ts`参照）。
 - 実行例: `pnpm -C frontend run test:coverage`、`pnpm -C api run test`。
-- E2Eは`pnpm run dev:full`でサーバー起動後に実行。
 
 ## コミット／PR
 - メッセージ: 絵文字＋日本語の要約（例: `🐛 fix: null IDを正しく扱う`）。`closes #123`等でIssue紐付け。ブランチは`issue-123`。

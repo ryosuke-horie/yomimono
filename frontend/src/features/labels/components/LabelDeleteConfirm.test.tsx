@@ -326,11 +326,11 @@ describe("LabelDeleteConfirm", () => {
 		});
 	});
 
-	describe("アクセシビリティ", () => {
-		it("適切なARIAラベルが設定されている", () => {
-			const mockLabel = createMockLabel();
+		describe("アクセシビリティ", () => {
+			it("適切なARIAラベルが設定されている", () => {
+				const mockLabel = createMockLabel();
 
-			render(
+				render(
 				<LabelDeleteConfirm
 					label={mockLabel}
 					onConfirm={mockOnConfirm}
@@ -338,13 +338,12 @@ describe("LabelDeleteConfirm", () => {
 				/>,
 			);
 
-			const dialog = screen.getByRole("dialog");
-			expect(dialog).toHaveAttribute("aria-modal", "true");
-			expect(dialog).toHaveAttribute("aria-labelledby", "modal-headline");
-
-			const heading = screen.getByText("ラベルを削除しますか？");
-			expect(heading).toHaveAttribute("id", "modal-headline");
-		});
+				const dialog = screen.getByRole("dialog");
+				expect(dialog).toHaveAttribute("aria-modal", "true");
+				const heading = screen.getByText("ラベルを削除しますか？");
+				expect(heading).toHaveAttribute("id");
+				expect(dialog).toHaveAttribute("aria-labelledby", heading.id);
+			});
 
 		it("モーダルが開いたときに最初のボタンにフォーカスが当たる", async () => {
 			const mockLabel = createMockLabel();

@@ -4,7 +4,7 @@
  */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import type {
 	Book,
 	BookTypeValue,
@@ -45,6 +45,11 @@ export function BookForm({
 		title?: string;
 		url?: string;
 	}>({});
+	const formId = useId();
+	const typeFieldId = `${formId}-type`;
+	const titleFieldId = `${formId}-title`;
+	const urlFieldId = `${formId}-url`;
+	const imageUrlFieldId = `${formId}-image-url`;
 
 	// 編集モード時、bookが変更されたらフォームを更新
 	useEffect(() => {
@@ -148,13 +153,13 @@ export function BookForm({
 			{/* タイプ選択 */}
 			<div>
 				<label
-					htmlFor="type"
+					htmlFor={typeFieldId}
 					className="block text-sm font-medium text-gray-700 mb-1"
 				>
 					タイプ <span className="text-red-500">*</span>
 				</label>
 				<select
-					id="type"
+					id={typeFieldId}
 					value={formData.type}
 					onChange={(e) =>
 						handleChange("type", e.target.value as BookTypeValue)
@@ -172,13 +177,13 @@ export function BookForm({
 			{/* タイトル入力 */}
 			<div>
 				<label
-					htmlFor="title"
+					htmlFor={titleFieldId}
 					className="block text-sm font-medium text-gray-700 mb-1"
 				>
 					タイトル <span className="text-red-500">*</span>
 				</label>
 				<input
-					id="title"
+					id={titleFieldId}
 					type="text"
 					value={formData.title}
 					onChange={(e) => handleChange("title", e.target.value)}
@@ -197,13 +202,13 @@ export function BookForm({
 			{/* URL入力 */}
 			<div>
 				<label
-					htmlFor="url"
+					htmlFor={urlFieldId}
 					className="block text-sm font-medium text-gray-700 mb-1"
 				>
 					URL {isUrlRequired && <span className="text-red-500">*</span>}
 				</label>
 				<input
-					id="url"
+					id={urlFieldId}
 					type="url"
 					value={formData.url}
 					onChange={(e) => handleChange("url", e.target.value)}
@@ -223,13 +228,13 @@ export function BookForm({
 			{/* 画像URL入力 */}
 			<div>
 				<label
-					htmlFor="imageUrl"
+					htmlFor={imageUrlFieldId}
 					className="block text-sm font-medium text-gray-700 mb-1"
 				>
 					画像URL
 				</label>
 				<input
-					id="imageUrl"
+					id={imageUrlFieldId}
 					type="url"
 					value={formData.imageUrl}
 					onChange={(e) => handleChange("imageUrl", e.target.value)}
@@ -267,34 +272,32 @@ export function BookForm({
 // Vitestテスト
 if (import.meta.vitest) {
 	const { test, expect, describe, vi } = import.meta.vitest;
-	const { render, fireEvent } = await import("@testing-library/react");
+	const { render, fireEvent, screen } = await import("@testing-library/react");
 	const React = await import("react");
 
 	describe("BookForm", () => {
 		test("新規作成モードで初期値が正しく設定される", () => {
 			const onSubmit = vi.fn();
 			const onCancel = vi.fn();
-			const { container } = render(
-				React.createElement(BookForm, { onSubmit, onCancel }),
-			);
+			render(React.createElement(BookForm, { onSubmit, onCancel }));
 
-			const typeSelect = container.querySelector(
-				"#type",
+			const typeSelect = screen.getByLabelText(
+				/^タイプ/,
 			) as unknown as HTMLSelectElement;
-			const titleInput = container.querySelector(
-				"#title",
+			const titleInput = screen.getByLabelText(
+				/^タイトル/,
 			) as unknown as HTMLInputElement;
-			const urlInput = container.querySelector(
-				"#url",
+			const urlInput = screen.getByLabelText(
+				/^URL/,
 			) as unknown as HTMLInputElement;
-			const imageUrlInput = container.querySelector(
-				"#imageUrl",
+			const imageUrlInput = screen.getByLabelText(
+				/^画像URL/,
 			) as unknown as HTMLInputElement;
 
-			expect(typeSelect.value).toBe("book");
-			expect(titleInput.value).toBe("");
-			expect(urlInput.value).toBe("");
-			expect(imageUrlInput.value).toBe("");
+			expect(typeSelect).toHaveValue("book");
+			expect(titleInput).toHaveValue("");
+			expect(urlInput).toHaveValue("");
+			expect(imageUrlInput).toHaveValue("");
 		});
 
 		test("編集モードで既存データが正しく表示される", () => {
@@ -313,27 +316,27 @@ if (import.meta.vitest) {
 
 			const onSubmit = vi.fn();
 			const onCancel = vi.fn();
-			const { container } = render(
+			render(
 				React.createElement(BookForm, { book: mockBook, onSubmit, onCancel }),
 			);
 
-			const typeSelect = container.querySelector(
-				"#type",
+			const typeSelect = screen.getByLabelText(
+				/^タイプ/,
 			) as unknown as HTMLSelectElement;
-			const titleInput = container.querySelector(
-				"#title",
+			const titleInput = screen.getByLabelText(
+				/^タイトル/,
 			) as unknown as HTMLInputElement;
-			const urlInput = container.querySelector(
-				"#url",
+			const urlInput = screen.getByLabelText(
+				/^URL/,
 			) as unknown as HTMLInputElement;
-			const imageUrlInput = container.querySelector(
-				"#imageUrl",
+			const imageUrlInput = screen.getByLabelText(
+				/^画像URL/,
 			) as unknown as HTMLInputElement;
 
-			expect(typeSelect.value).toBe("pdf");
-			expect(titleInput.value).toBe("テストPDF");
-			expect(urlInput.value).toBe("https://example.com/test.pdf");
-			expect(imageUrlInput.value).toBe("https://example.com/image.jpg");
+			expect(typeSelect).toHaveValue("pdf");
+			expect(titleInput).toHaveValue("テストPDF");
+			expect(urlInput).toHaveValue("https://example.com/test.pdf");
+			expect(imageUrlInput).toHaveValue("https://example.com/image.jpg");
 		});
 
 		test("タイトルが空の場合バリデーションエラーが表示される", () => {
@@ -343,9 +346,7 @@ if (import.meta.vitest) {
 				React.createElement(BookForm, { onSubmit, onCancel }),
 			);
 
-			const form = container.querySelector(
-				"form",
-			) as unknown as HTMLFormElement;
+			const form = container.querySelector("form") as HTMLFormElement;
 			fireEvent.submit(form);
 
 			// バリデーションエラーは同期的に表示される
@@ -362,15 +363,13 @@ if (import.meta.vitest) {
 				React.createElement(BookForm, { onSubmit, onCancel }),
 			);
 
-			const typeSelect = container.querySelector(
-				"#type",
+			const typeSelect = screen.getByLabelText(
+				/^タイプ/,
 			) as unknown as HTMLSelectElement;
-			const titleInput = container.querySelector(
-				"#title",
+			const titleInput = screen.getByLabelText(
+				/^タイトル/,
 			) as unknown as HTMLInputElement;
-			const form = container.querySelector(
-				"form",
-			) as unknown as HTMLFormElement;
+			const form = container.querySelector("form") as HTMLFormElement;
 
 			// PDFタイプを選択
 			fireEvent.change(typeSelect, { target: { value: "pdf" } });
@@ -391,12 +390,10 @@ if (import.meta.vitest) {
 				React.createElement(BookForm, { onSubmit, onCancel }),
 			);
 
-			const titleInput = container.querySelector(
-				"#title",
+			const titleInput = screen.getByLabelText(
+				/^タイトル/,
 			) as unknown as HTMLInputElement;
-			const form = container.querySelector(
-				"form",
-			) as unknown as HTMLFormElement;
+			const form = container.querySelector("form") as HTMLFormElement;
 
 			fireEvent.change(titleInput, { target: { value: "テスト書籍" } });
 			fireEvent.submit(form);
@@ -409,25 +406,23 @@ if (import.meta.vitest) {
 			});
 		});
 
-		test("HTTPとHTTPSプロトコルのURLは有効と判定される", () => {
-			const onSubmit = vi.fn();
-			const onCancel = vi.fn();
-			const { container } = render(
-				React.createElement(BookForm, { onSubmit, onCancel }),
-			);
+			test("HTTPとHTTPSプロトコルのURLは有効と判定される", () => {
+				const onSubmit = vi.fn();
+				const onCancel = vi.fn();
+				const { container } = render(
+					React.createElement(BookForm, { onSubmit, onCancel }),
+				);
 
-			const typeSelect = container.querySelector(
-				"#type",
-			) as unknown as HTMLSelectElement;
-			const titleInput = container.querySelector(
-				"#title",
-			) as unknown as HTMLInputElement;
-			const urlInput = container.querySelector(
-				"#url",
-			) as unknown as HTMLInputElement;
-			const form = container.querySelector(
-				"form",
-			) as unknown as HTMLFormElement;
+				const typeSelect = screen.getByLabelText(
+					/^タイプ/,
+				) as unknown as HTMLSelectElement;
+				const titleInput = screen.getByLabelText(
+					/^タイトル/,
+				) as unknown as HTMLInputElement;
+				const urlInput = screen.getByLabelText(
+					/^URL/,
+				) as unknown as HTMLInputElement;
+				const form = container.querySelector("form") as HTMLFormElement;
 
 			// PDFタイプを選択（URLが必須）
 			fireEvent.change(typeSelect, { target: { value: "pdf" } });
@@ -461,25 +456,23 @@ if (import.meta.vitest) {
 			});
 		});
 
-		test("HTTP/HTTPS以外のプロトコルは無効と判定される", () => {
-			const onSubmit = vi.fn();
-			const onCancel = vi.fn();
-			const { container } = render(
-				React.createElement(BookForm, { onSubmit, onCancel }),
-			);
+			test("HTTP/HTTPS以外のプロトコルは無効と判定される", () => {
+				const onSubmit = vi.fn();
+				const onCancel = vi.fn();
+				const { container } = render(
+					React.createElement(BookForm, { onSubmit, onCancel }),
+				);
 
-			const typeSelect = container.querySelector(
-				"#type",
-			) as unknown as HTMLSelectElement;
-			const titleInput = container.querySelector(
-				"#title",
-			) as unknown as HTMLInputElement;
-			const urlInput = container.querySelector(
-				"#url",
-			) as unknown as HTMLInputElement;
-			const form = container.querySelector(
-				"form",
-			) as unknown as HTMLFormElement;
+				const typeSelect = screen.getByLabelText(
+					/^タイプ/,
+				) as unknown as HTMLSelectElement;
+				const titleInput = screen.getByLabelText(
+					/^タイトル/,
+				) as unknown as HTMLInputElement;
+				const urlInput = screen.getByLabelText(
+					/^URL/,
+				) as unknown as HTMLInputElement;
+				const form = container.querySelector("form") as HTMLFormElement;
 
 			// PDFタイプを選択（URLが必須）
 			fireEvent.change(typeSelect, { target: { value: "pdf" } });

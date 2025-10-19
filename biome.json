@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.0.5/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.1.3/schema.json",
 	"vcs": {
 		"enabled": false,
 		"clientKind": "git",
@@ -17,7 +17,8 @@
 			"!**/*.json",
 			"!**/*.mjs",
 			"!**/drizzle.config.ts",
-			"!**/drizzle/**"
+			"!**/drizzle/**",
+			"!frontend/src/app/globals.css"
 		]
 	},
 	"formatter": {
@@ -48,9 +49,6 @@
 				"useNumberNamespace": "error",
 				"noInferrableTypes": "error",
 				"noUselessElse": "error"
-			},
-			"nursery": {
-				"useUniqueElementIds": "off"
 			}
 		}
 	},

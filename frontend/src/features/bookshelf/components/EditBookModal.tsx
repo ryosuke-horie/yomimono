@@ -5,7 +5,7 @@
 
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { useUpdateBook } from "../queries/useUpdateBook";
 import type { Book, UpdateBookInput } from "../types";
@@ -21,6 +21,7 @@ export function EditBookModal({ book, isOpen, onClose }: EditBookModalProps) {
 	const updateBook = useUpdateBook();
 	const focusTrapRef = useFocusTrap(isOpen && !!book);
 	const previousFocusRef = useRef<HTMLElement | null>(null);
+	const modalTitleId = useId();
 
 	// ESCキーでモーダルを閉じる
 	useEffect(() => {
@@ -69,10 +70,10 @@ export function EditBookModal({ book, isOpen, onClose }: EditBookModalProps) {
 				ref={focusTrapRef}
 				className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
 				role="dialog"
-				aria-labelledby="modal-title"
+				aria-labelledby={modalTitleId}
 				aria-modal="true"
 			>
-				<h2 id="modal-title" className="text-xl font-bold mb-4">
+				<h2 id={modalTitleId} className="text-xl font-bold mb-4">
 					本を編集
 				</h2>
 				<BookForm

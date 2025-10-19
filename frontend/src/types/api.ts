@@ -18,9 +18,9 @@ export interface ApiResponse<T> {
 
 export type ApiBookmarkResponse = ApiResponse<Bookmark>;
 
-// @ts-ignore - Vitest in-source testing
+// @ts-expect-error - Vitest in-source testing
 if (import.meta.vitest) {
-	// @ts-ignore
+	// @ts-expect-error
 	const { test, expect } = import.meta.vitest;
 
 	test("ApiResponse型: 正常レスポンスの型チェック", () => {

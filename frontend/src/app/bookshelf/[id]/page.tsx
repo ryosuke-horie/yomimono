@@ -8,7 +8,7 @@
 
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { EditBookModal } from "@/features/bookshelf/components/EditBookModal";
 import { useDeleteBook } from "@/features/bookshelf/queries/useDeleteBook";
 import { useGetBook } from "@/features/bookshelf/queries/useGetBook";
@@ -82,6 +82,9 @@ export default function BookshelfDetailPage() {
 
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 	const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+	const deleteDialogBaseId = useId();
+	const deleteDialogTitleId = `${deleteDialogBaseId}-title`;
+	const deleteDialogDescriptionId = `${deleteDialogBaseId}-description`;
 
 	// フックは条件分岐の前に呼ぶ必要がある
 	// idがnullの場合は0を渡す（useGetBook内でenabled: id > 0の条件により実行されない）
@@ -367,14 +370,14 @@ export default function BookshelfDetailPage() {
 					className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
 					role="dialog"
 					aria-modal="true"
-					aria-labelledby="delete-dialog-title"
-					aria-describedby="delete-dialog-description"
+					aria-labelledby={deleteDialogTitleId}
+					aria-describedby={deleteDialogDescriptionId}
 				>
 					<div className="bg-white rounded-lg p-6 max-w-sm w-full">
-						<h3 id="delete-dialog-title" className="text-lg font-semibold mb-4">
+						<h3 id={deleteDialogTitleId} className="text-lg font-semibold mb-4">
 							削除の確認
 						</h3>
-						<p id="delete-dialog-description" className="mb-6">
+						<p id={deleteDialogDescriptionId} className="mb-6">
 							「{book.title}」を削除してもよろしいですか？
 							この操作は取り消せません。
 						</p>
@@ -725,11 +728,11 @@ if (import.meta.vitest) {
 			);
 		});
 
-		describe("アクセシビリティの確認", () => {
-			it("削除確認ダイアログにARIA属性が正しく設定されている", async () => {
-				const { useGetBook } = await import(
-					"@/features/bookshelf/queries/useGetBook"
-				);
+			describe("アクセシビリティの確認", () => {
+				it("削除確認ダイアログにARIA属性が正しく設定されている", async () => {
+					const { useGetBook } = await import(
+						"@/features/bookshelf/queries/useGetBook"
+					);
 				(useGetBook as ReturnType<typeof vi.fn>).mockReturnValue({
 					data: mockBook,
 					isLoading: false,
@@ -743,25 +746,16 @@ if (import.meta.vitest) {
 				fireEvent.click(deleteButtons[0]);
 
 				// ダイアログのARIA属性を確認
-				const dialog = screen.getByRole("dialog");
-				expect(dialog).toHaveAttribute("aria-modal", "true");
-				expect(dialog).toHaveAttribute(
-					"aria-labelledby",
-					"delete-dialog-title",
-				);
-				expect(dialog).toHaveAttribute(
-					"aria-describedby",
-					"delete-dialog-description",
-				);
-
-				// タイトルとdescriptionのIDを確認
-				expect(screen.getByText("削除の確認")).toHaveAttribute(
-					"id",
-					"delete-dialog-title",
-				);
-				expect(
-					screen.getByText(/「テスト書籍」を削除してもよろしいですか/),
-				).toHaveAttribute("id", "delete-dialog-description");
+					const dialog = screen.getByRole("dialog");
+					expect(dialog).toHaveAttribute("aria-modal", "true");
+					const title = screen.getByText("削除の確認");
+					const description = screen.getByText(
+						/「テスト書籍」を削除してもよろしいですか/,
+					);
+					expect(title).toHaveAttribute("id");
+					expect(description).toHaveAttribute("id");
+					expect(dialog).toHaveAttribute("aria-labelledby", title.id);
+					expect(dialog).toHaveAttribute("aria-describedby", description.id);
 
 				// ボタンのaria-labelを確認
 				const cancelButton = screen.getByRole("button", {
