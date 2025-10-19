@@ -342,31 +342,6 @@ export async function assignLabelsToMultipleArticles(
 	};
 }
 
-// Schema for bookmark with read status
-const BookmarkWithReadStatusSchema = z
-	.object({
-		id: z.number(),
-		url: z.string(),
-		title: z.string(),
-		labels: z.array(z.string()).optional(), // labelsを任意項目にする
-		isRead: z.boolean(),
-		isFavorite: z.boolean().optional(), // isFavoriteを任意項目にする（APIレスポンスに応じて）
-		createdAt: z.string(),
-		readAt: z.string().nullable().optional(), // readAtを任意項目にする
-		updatedAt: z.string().optional(), // updatedAtを追加（通常の未読ブックマークで必要）
-	})
-	.transform((data) => ({
-		...data,
-		labels: data.labels ?? [], // labelsがundefinedの場合は空配列を設定
-		isFavorite: data.isFavorite ?? false, // isFavoriteがundefinedの場合はfalseを設定
-	}));
-
-// Schema for bookmarks list response
-const BookmarksListResponseSchema = z.object({
-	success: z.literal(true),
-	bookmarks: z.array(BookmarkWithReadStatusSchema),
-});
-
 // Schema for mark as read response
 const MarkAsReadResponseSchema = z.object({
 	success: z.literal(true),
