@@ -30,38 +30,8 @@ importers:
 
 packages:
 
-<<<<<<< HEAD
-  '@ampproject/remapping@2.3.0':
-    resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
-    engines: {node: '>=6.0.0'}
-
-  '@babel/helper-string-parser@7.27.1':
-    resolution: {integrity: sha512-qMlSxKbpRlAridDExk92nSobyDdpPijUq2DW6oDnUqd0iOGxmQjyqhMIihI9+zv4LPyZdRje2cavWPbCbWm3eA==}
-    engines: {node: '>=6.9.0'}
-
-  '@babel/helper-validator-identifier@7.27.1':
-    resolution: {integrity: sha512-D2hP9eA+Sqx1kBZgzxZh0y1trbuU+JoDkiEwqhQ36nodYqJwyEIhPSdMNd7lOm/4io72luTPWH20Yda0xOuUow==}
-    engines: {node: '>=6.9.0'}
-
-  '@babel/parser@7.28.0':
-    resolution: {integrity: sha512-jVZGvOxOuNSsuQuLRTh13nU0AogFlw32w/MT+LV6D3sP5WdbW61E77RnkbaO2dUvmPAYrBDJXGn5gGS6tH4j8g==}
-    engines: {node: '>=6.0.0'}
-    hasBin: true
-
-  '@babel/types@7.28.2':
-    resolution: {integrity: sha512-ruv7Ae4J5dUYULmeXw1gmb7rYRz57OWCPM57pHojnLq/3Z1CK2lNSLTCVjxVk1F/TZHwOZZrOWi0ur95BbLxNQ==}
-    engines: {node: '>=6.9.0'}
-
-  '@bcoe/v8-coverage@1.0.2':
-    resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
-    engines: {node: '>=18'}
-
   '@biomejs/biome@2.2.6':
     resolution: {integrity: sha512-yKTCNGhek0rL5OEW1jbLeZX8LHaM8yk7+3JRGv08my+gkpmtb5dDE+54r2ZjZx0ediFEn1pYBOJSmOdDP9xtFw==}
-=======
-  '@biomejs/biome@2.1.3':
-    resolution: {integrity: sha512-KE/tegvJIxTkl7gJbGWSgun7G6X/n2M6C35COT6ctYrAy7SiPyNvi6JtoQERVK/VRbttZfgGq96j2bFmhmnH4w==}
->>>>>>> c566225 (fix: MCPのテストを削除する)
     engines: {node: '>=14.21.3'}
     hasBin: true
 
@@ -476,31 +446,7 @@ packages:
 
 snapshots:
 
-<<<<<<< HEAD
-  '@ampproject/remapping@2.3.0':
-    dependencies:
-      '@jridgewell/gen-mapping': 0.3.12
-      '@jridgewell/trace-mapping': 0.3.29
-
-  '@babel/helper-string-parser@7.27.1': {}
-
-  '@babel/helper-validator-identifier@7.27.1': {}
-
-  '@babel/parser@7.28.0':
-    dependencies:
-      '@babel/types': 7.28.2
-
-  '@babel/types@7.28.2':
-    dependencies:
-      '@babel/helper-string-parser': 7.27.1
-      '@babel/helper-validator-identifier': 7.27.1
-
-  '@bcoe/v8-coverage@1.0.2': {}
-
   '@biomejs/biome@2.2.6':
-=======
-  '@biomejs/biome@2.1.3':
->>>>>>> c566225 (fix: MCPのテストを削除する)
     optionalDependencies:
       '@biomejs/cli-darwin-arm64': 2.2.6
       '@biomejs/cli-darwin-x64': 2.2.6
