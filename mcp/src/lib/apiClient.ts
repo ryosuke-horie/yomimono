@@ -405,25 +405,6 @@ export async function getUnreadBookmarks() {
 	return bookmarksWithReadStatus;
 }
 /**
- * 既読のブックマークを取得します
- * @returns 既読のブックマークのリスト
- */
-export async function getReadBookmarks() {
-	// New endpoint for all read bookmarks
-	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks/read`);
-	if (!response.ok) {
-		throw new Error(`Failed to fetch read bookmarks: ${response.statusText}`);
-	}
-
-	const data = await response.json();
-	const parsed = BookmarksListResponseSchema.safeParse(data);
-	if (!parsed.success) {
-		throw new Error(`Invalid API response for read bookmarks: ${parsed.error.message}`);
-	}
-	return parsed.data.bookmarks;
-}
-
-/**
  * ブックマークを既読にマークします
  * @param bookmarkId - ブックマークID
  * @returns 処理結果
