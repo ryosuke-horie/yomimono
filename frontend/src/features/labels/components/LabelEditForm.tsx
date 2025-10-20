@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import type { Label } from "../types";
 
 interface Props {
@@ -19,6 +19,7 @@ export function LabelEditForm({
 	error = null,
 }: Props) {
 	const [description, setDescription] = useState(label.description || "");
+	const descriptionFieldId = useId();
 
 	// labelが変更された場合にフォームをリセット
 	useEffect(() => {
@@ -46,13 +47,13 @@ export function LabelEditForm({
 			<form onSubmit={handleSubmit}>
 				<div className="mb-6">
 					<label
-						htmlFor="label-description"
+						htmlFor={descriptionFieldId}
 						className="block text-sm font-medium text-gray-700 mb-1"
 					>
 						説明文
 					</label>
 					<textarea
-						id="label-description"
+						id={descriptionFieldId}
 						value={description}
 						onChange={(e) => setDescription(e.target.value)}
 						className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"

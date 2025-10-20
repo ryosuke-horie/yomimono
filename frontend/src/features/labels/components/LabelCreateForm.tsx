@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 
 interface Props {
 	onSubmit: (name: string, description: string) => void;
@@ -18,6 +18,9 @@ export function LabelCreateForm({
 	const [name, setName] = useState("");
 	const [description, setDescription] = useState("");
 	const [nameError, setNameError] = useState<string | null>(null);
+	const formId = useId();
+	const nameFieldId = `${formId}-name`;
+	const descriptionFieldId = `${formId}-description`;
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -38,14 +41,14 @@ export function LabelCreateForm({
 			<form onSubmit={handleSubmit}>
 				<div className="mb-4">
 					<label
-						htmlFor="label-name"
+						htmlFor={nameFieldId}
 						className="block text-sm font-medium text-gray-700 mb-1"
 					>
 						ラベル名 <span className="text-red-500">*</span>
 					</label>
 					<input
 						type="text"
-						id="label-name"
+						id={nameFieldId}
 						value={name}
 						onChange={(e) => {
 							setName(e.target.value);
@@ -68,13 +71,13 @@ export function LabelCreateForm({
 
 				<div className="mb-6">
 					<label
-						htmlFor="label-description"
+						htmlFor={descriptionFieldId}
 						className="block text-sm font-medium text-gray-700 mb-1"
 					>
 						説明文
 					</label>
 					<textarea
-						id="label-description"
+						id={descriptionFieldId}
 						value={description}
 						onChange={(e) => setDescription(e.target.value)}
 						className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"

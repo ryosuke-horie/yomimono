@@ -340,10 +340,9 @@ describe("LabelDeleteConfirm", () => {
 
 			const dialog = screen.getByRole("dialog");
 			expect(dialog).toHaveAttribute("aria-modal", "true");
-			expect(dialog).toHaveAttribute("aria-labelledby", "modal-headline");
-
 			const heading = screen.getByText("ラベルを削除しますか？");
-			expect(heading).toHaveAttribute("id", "modal-headline");
+			expect(heading).toHaveAttribute("id");
+			expect(dialog).toHaveAttribute("aria-labelledby", heading.id);
 		});
 
 		it("モーダルが開いたときに最初のボタンにフォーカスが当たる", async () => {

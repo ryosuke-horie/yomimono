@@ -14,12 +14,7 @@
     "format:frontend": "cd frontend && pnpm run format",
     "format:extension": "cd extension && pnpm run format",
     "format:mcp": "cd mcp && pnpm run format",
-    "test:e2e": "cd frontend && pnpm run test:e2e",
-    "test:e2e:ui": "cd frontend && pnpm run test:e2e:ui",
-    "test:e2e:debug": "cd frontend && pnpm run test:e2e:debug",
-    "test:e2e:report": "cd frontend && pnpm run test:e2e:report",
-    "dev:full": "concurrently \"cd api && pnpm run dev\" \"cd frontend && pnpm run dev\" --names \"API,Frontend\" --prefix-colors \"cyan,magenta\"",
-    "test:e2e:dev": "pnpm run dev:full & sleep 10 && cd frontend && pnpm run test:e2e; pkill -f \"pnpm run dev\""
+    "dev:full": "concurrently \"cd api && pnpm run dev\" \"cd frontend && pnpm run dev\" --names \"API,Frontend\" --prefix-colors \"cyan,magenta\""
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

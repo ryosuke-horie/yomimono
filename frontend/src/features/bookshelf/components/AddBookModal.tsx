@@ -5,7 +5,7 @@
 
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { useCreateBook } from "../queries/useCreateBook";
 import type { CreateBookInput, UpdateBookInput } from "../types";
@@ -20,6 +20,7 @@ export function AddBookModal({ isOpen, onClose }: AddBookModalProps) {
 	const createBook = useCreateBook();
 	const focusTrapRef = useFocusTrap(isOpen);
 	const previousFocusRef = useRef<HTMLElement | null>(null);
+	const modalTitleId = useId();
 
 	// ESCキーでモーダルを閉じる
 	useEffect(() => {
@@ -66,10 +67,10 @@ export function AddBookModal({ isOpen, onClose }: AddBookModalProps) {
 				ref={focusTrapRef}
 				className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
 				role="dialog"
-				aria-labelledby="modal-title"
+				aria-labelledby={modalTitleId}
 				aria-modal="true"
 			>
-				<h2 id="modal-title" className="text-xl font-bold mb-4">
+				<h2 id={modalTitleId} className="text-xl font-bold mb-4">
 					本を追加
 				</h2>
 				<BookForm

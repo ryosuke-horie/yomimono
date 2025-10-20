@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import type { Label } from "../types";
 
 interface Props {
@@ -19,6 +19,7 @@ export function LabelDeleteConfirm({
 	error = null,
 }: Props) {
 	const dialogRef = useRef<HTMLDivElement>(null);
+	const modalHeadlineId = useId();
 
 	// ESCキーでモーダルを閉じる
 	useEffect(() => {
@@ -82,7 +83,7 @@ export function LabelDeleteConfirm({
 					className="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-lg sm:w-full"
 					role="dialog"
 					aria-modal="true"
-					aria-labelledby="modal-headline"
+					aria-labelledby={modalHeadlineId}
 					onClick={(e) => e.stopPropagation()}
 					onKeyDown={handleDialogKeyDown}
 				>
@@ -107,7 +108,7 @@ export function LabelDeleteConfirm({
 							<div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
 								<h3
 									className="text-lg leading-6 font-medium text-gray-900"
-									id="modal-headline"
+									id={modalHeadlineId}
 								>
 									ラベルを削除しますか？
 								</h3>

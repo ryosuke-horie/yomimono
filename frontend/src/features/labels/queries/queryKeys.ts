@@ -7,9 +7,7 @@ export const labelKeys = {
 	detail: (id: number) => [...labelKeys.details(), id] as const,
 };
 
-// @ts-ignore - Vitest in-source testing
 if (import.meta.vitest) {
-	// @ts-ignore
 	const { test, expect } = import.meta.vitest;
 
 	test("labelKeys.all: 基本キーを返す", () => {

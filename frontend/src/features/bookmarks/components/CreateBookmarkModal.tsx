@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useId } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Modal } from "@/components/Modal";
@@ -22,6 +23,9 @@ export function CreateBookmarkModal({
 	isOpen,
 	onClose,
 }: CreateBookmarkModalProps) {
+	const formId = useId();
+	const titleFieldId = `${formId}-title`;
+	const urlFieldId = `${formId}-url`;
 	const { showToast } = useToast();
 	const {
 		register,
@@ -71,14 +75,14 @@ export function CreateBookmarkModal({
 				{/* タイトル */}
 				<div>
 					<label
-						htmlFor="title"
+						htmlFor={titleFieldId}
 						className="block text-sm font-medium text-gray-700 mb-1"
 					>
 						タイトル
 					</label>
 					<input
 						type="text"
-						id="title"
+						id={titleFieldId}
 						{...register("title")}
 						className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 						placeholder="記事のタイトル"
@@ -91,14 +95,14 @@ export function CreateBookmarkModal({
 				{/* URL */}
 				<div>
 					<label
-						htmlFor="url"
+						htmlFor={urlFieldId}
 						className="block text-sm font-medium text-gray-700 mb-1"
 					>
 						URL
 					</label>
 					<input
 						type="url"
-						id="url"
+						id={urlFieldId}
 						{...register("url")}
 						className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 						placeholder="https://example.com/article"
