@@ -52,7 +52,6 @@ const mockBookmarkRepository: IBookmarkRepository = {
 	findRecentlyRead: vi.fn(),
 	findUnlabeled: vi.fn(),
 	findByLabelName: vi.fn(),
-	findRead: vi.fn(),
 	findByIds: vi.fn(),
 	findUnrated: vi.fn(),
 };

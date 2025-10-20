@@ -416,37 +416,6 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 		}
 	}
 
-	async findRead(): Promise<BookmarkWithLabel[]> {
-		try {
-			const query = this.db
-				.select({
-					bookmark: bookmarks,
-					favorite: favorites,
-					label: labels,
-				})
-				.from(bookmarks)
-				.leftJoin(favorites, eq(bookmarks.id, favorites.bookmarkId))
-				.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
-				.leftJoin(labels, eq(articleLabels.labelId, labels.id))
-				.where(eq(bookmarks.isRead, true))
-				.orderBy(desc(bookmarks.updatedAt));
-
-			const results = await query.all();
-
-			return results.map((row): BookmarkWithLabel => {
-				const bookmark = row.bookmark;
-				return {
-					...bookmark,
-					isFavorite: !!row.favorite,
-					label: row.label || null,
-				};
-			});
-		} catch (error) {
-			console.error("Failed to fetch read bookmarks:", error);
-			throw error;
-		}
-	}
-
 	async findByLabelName(labelName: string): Promise<BookmarkWithLabel[]> {
 		try {
 			const results = await this.db

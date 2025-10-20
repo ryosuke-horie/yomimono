@@ -9,14 +9,13 @@
  * - 並行処理性能の測定
  *
  * テストシナリオ:
- * 1. ベースラインパフォーマンステスト（未読・既読・お気に入り取得）
+ * 1. ベースラインパフォーマンステスト（未読・お気に入り取得）
  * 2. ラベルフィルタリングパフォーマンステスト
  * 3. 集計クエリパフォーマンステスト
  * 4. 並行処理パフォーマンステスト
  * 5. メモリ使用量とリソーステスト
  *
  * パフォーマンス閾値:
- * - /read エンドポイント: 500ms以下
  * - 未読ブックマーク取得: 300ms以下
  * - お気に入り取得: 200ms以下
  * - ラベルフィルタリング: 400ms以下
@@ -68,7 +67,6 @@ const PERFORMANCE_CONFIG = {
 	},
 	PERFORMANCE_THRESHOLDS: {
 		// 想定されるパフォーマンス閾値 (ms)
-		READ_BOOKMARKS_MAX_TIME: 800, // /read エンドポイント
 		UNREAD_BOOKMARKS_MAX_TIME: 800, // 未読ブックマーク取得
 		FAVORITES_MAX_TIME: 500, // お気に入り取得
 		LABEL_FILTER_MAX_TIME: 600, // ラベルフィルタリング
@@ -287,24 +285,6 @@ class BetterSQLiteBookmarkRepository {
 		return this.processBookmarkResults(results);
 	}
 
-	async findRead(): Promise<BookmarkWithLabel[]> {
-		const results = await this.db
-			.select({
-				bookmark: bookmarks,
-				favorite: favorites,
-				label: labels,
-			})
-			.from(bookmarks)
-			.leftJoin(favorites, eq(bookmarks.id, favorites.bookmarkId))
-			.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
-			.leftJoin(labels, eq(articleLabels.labelId, labels.id))
-			.where(eq(bookmarks.isRead, true))
-			.orderBy(desc(bookmarks.updatedAt))
-			.all();
-
-		return this.processBookmarkResults(results);
-	}
-
 	async findFavorites(): Promise<{ bookmarks: BookmarkWithLabel[] }> {
 		const results = await this.db
 			.select({
@@ -403,10 +383,6 @@ class PerformanceBookmarkService {
 
 	async getUnreadBookmarks(): Promise<BookmarkWithLabel[]> {
 		return await this.repository.findUnread();
-	}
-
-	async getReadBookmarks(): Promise<BookmarkWithLabel[]> {
-		return await this.repository.findRead();
 	}
 
 	async getFavoriteBookmarks(): Promise<{ bookmarks: BookmarkWithLabel[] }> {
@@ -537,34 +513,6 @@ describe("ブックマーク機能パフォーマンステスト", () => {
 
 			console.log(
 				`📈 未読ブックマーク取得: ${duration.toFixed(2)}ms (取得件数: ${unreadBookmarks.length}件)`,
-			);
-			console.log(`🔍 実行クエリ数: ${performanceTracker.getQueryCount()}`);
-
-			if (n1Detection.detected) {
-				console.warn("⚠️ N+1クエリ検出:", n1Detection.patterns);
-			}
-		});
-
-		test("大量データでの既読ブックマーク取得パフォーマンス", async () => {
-			performanceTracker.clearLogs();
-			performanceTracker.startTiming("getReadBookmarks");
-
-			const readBookmarks = await bookmarkService.getReadBookmarks();
-			const duration = performanceTracker.endTiming("getReadBookmarks");
-
-			// パフォーマンス検証
-			expect(duration).toBeLessThan(
-				PERFORMANCE_CONFIG.PERFORMANCE_THRESHOLDS.READ_BOOKMARKS_MAX_TIME,
-			);
-			expect(readBookmarks).toBeDefined();
-			expect(Array.isArray(readBookmarks)).toBe(true);
-
-			// N+1クエリ検出
-			const n1Detection = performanceTracker.detectNPlusOneQueries();
-			expect(n1Detection.detected).toBe(false);
-
-			console.log(
-				`📈 既読ブックマーク取得: ${duration.toFixed(2)}ms (取得件数: ${readBookmarks.length}件)`,
 			);
 			console.log(`🔍 実行クエリ数: ${performanceTracker.getQueryCount()}`);
 
@@ -763,10 +711,8 @@ describe("ブックマーク機能パフォーマンステスト", () => {
 			// 大量データを複数回処理
 			for (let i = 0; i < 5; i++) {
 				const bookmarks = await bookmarkService.getUnreadBookmarks();
-				const readBookmarks = await bookmarkService.getReadBookmarks();
 				// 処理後のメモリ解放を確認するため、変数をクリア
 				void bookmarks;
-				void readBookmarks;
 			}
 
 			// ガベージコレクションを強制実行

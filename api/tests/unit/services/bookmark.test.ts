@@ -82,7 +82,6 @@ describe("DefaultBookmarkService", () => {
 		findUnlabeled: mockFindUnlabeled,
 		findByLabelName: mockFindByLabelName,
 		findById: mockFindById,
-		findRead: vi.fn(),
 		findByIds: vi.fn(),
 		findUnrated: vi.fn(),
 	};

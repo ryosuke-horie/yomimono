@@ -284,34 +284,6 @@ export const createBookmarksRouter = (
 		}
 	});
 
-	app.get("/read", async (c) => {
-		try {
-			const readBookmarks = await bookmarkService.getReadBookmarks();
-			const bookmarksWithLabels = readBookmarks.map((bookmark) => ({
-				id: bookmark.id,
-				url: bookmark.url,
-				title: bookmark.title,
-				labels: bookmark.label ? [bookmark.label.name] : [],
-				isRead: bookmark.isRead,
-				isFavorite: bookmark.isFavorite,
-				createdAt: bookmark.createdAt.toISOString(),
-				readAt: bookmark.updatedAt.toISOString(),
-			}));
-			return c.json({ success: true, bookmarks: bookmarksWithLabels });
-		} catch (error) {
-			console.error("Failed to fetch read bookmarks:", error);
-			const errorResponse = createErrorResponse(
-				new InternalServerError("既読ブックマークの取得に失敗しました"),
-			);
-			return c.json(
-				createErrorResponseBody(
-					new InternalServerError("既読ブックマークの取得に失敗しました"),
-				),
-				toContentfulStatusCode(errorResponse.statusCode),
-			);
-		}
-	});
-
 	app.get("/unrated", async (c) => {
 		try {
 			const unratedBookmarks = await bookmarkService.getUnratedBookmarks();

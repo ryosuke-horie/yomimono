@@ -25,7 +25,6 @@ describe("Bookmark Unread Endpoint", () => {
 		getUnlabeledBookmarks: vi.fn(),
 		getBookmarksByLabel: vi.fn(),
 		getUnratedBookmarks: vi.fn(),
-		getReadBookmarks: vi.fn(),
 	};
 	const mockLabelService: ILabelService = {
 		getLabels: vi.fn(),

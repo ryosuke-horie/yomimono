@@ -143,15 +143,6 @@ export class DefaultBookmarkService implements IBookmarkService {
 		}
 	}
 
-	async getReadBookmarks(): Promise<BookmarkWithLabel[]> {
-		try {
-			return await this.repository.findRead();
-		} catch (error) {
-			console.error("Failed to get read bookmarks:", error);
-			throw new InternalServerError("Failed to get read bookmarks");
-		}
-	}
-
 	async getUnratedBookmarks(): Promise<BookmarkWithLabel[]> {
 		try {
 			return await this.repository.findUnrated();
