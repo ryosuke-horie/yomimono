@@ -45,7 +45,6 @@ const mockBookmarkService: IBookmarkService = {
 	getRecentlyReadBookmarks: mockGetRecentlyReadBookmarks,
 	getUnlabeledBookmarks: mockGetUnlabeledBookmarks,
 	getBookmarksByLabel: mockGetBookmarksByLabel,
-	getReadBookmarks: vi.fn(),
 	getUnratedBookmarks: vi.fn(),
 };
 const mockLabelService: ILabelService = {

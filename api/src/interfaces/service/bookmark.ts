@@ -33,12 +33,6 @@ export interface IBookmarkService {
 	getBookmarksByLabel(labelName: string): Promise<BookmarkWithLabel[]>;
 
 	/**
-	 * 既読のブックマークを取得します。
-	 * @returns 既読のブックマーク配列
-	 */
-	getReadBookmarks(): Promise<BookmarkWithLabel[]>;
-
-	/**
 	 * 評価が存在しないブックマークを取得します。
 	 * @returns 未評価のブックマーク配列
 	 */
