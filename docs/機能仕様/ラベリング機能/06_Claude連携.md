@@ -124,49 +124,6 @@ const result = await callTool("assignLabel", {
 });
 ```
 
-### 4. deleteLabel
-指定されたIDのラベルを削除します。
-
-```typescript
-const result = await callTool("deleteLabel", {
-  labelId: 1
-});
-```
-
-#### 引数
-- labelId: 削除するラベルのID（正の整数）
-
-#### 戻り値
-- 成功時:
-  ```json
-  {
-    "content": [
-      {
-        "type": "text",
-        "text": "Successfully deleted label ID 1."
-      }
-    ],
-    "isError": false
-  }
-  ```
-- エラー時:
-  ```json
-  {
-    "content": [
-      {
-        "type": "text",
-        "text": "Failed to delete label: [エラーメッセージ]"
-      }
-    ],
-    "isError": true
-  }
-  ```
-
-#### エラーケース
-1. 不正なラベルID（400 Bad Request）
-2. 存在しないラベル（404 Not Found）
-3. サーバーエラー（500 Internal Server Error）
-
 ## エラー処理
 
 ### 1. API通信エラー

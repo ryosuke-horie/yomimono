@@ -47,12 +47,6 @@ const GetLabelByIdResponseSchema = z.object({
 	label: LabelSchema,
 });
 
-// Schema for the DELETE /api/labels/:id response
-const DeleteLabelResponseSchema = z.object({
-	success: z.literal(true),
-	message: z.string(),
-});
-
 // Schema for the DELETE /api/labels/cleanup response
 const CleanupLabelsResponseSchema = z.object({
 	success: z.literal(true),
@@ -193,36 +187,6 @@ export async function getLabelById(id: number) {
 	}
 
 	return parsed.data.label;
-}
-
-export async function deleteLabel(id: number): Promise<void> {
-	const response = await fetch(`${getApiBaseUrl()}/api/labels/${id}`, {
-		method: "DELETE",
-	});
-
-	let data: unknown;
-	try {
-		data = await response.json();
-	} catch (parseError: unknown) {
-		const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
-		if (!response.ok) {
-			throw new Error(`Failed to delete label ${id}. Status: ${response.status} ${response.statusText}`);
-		}
-		throw new Error(`Unexpected response format when deleting label ${id}: ${errorMessage}`);
-	}
-
-	if (!response.ok) {
-		let errorMessage = `Failed to delete label ${id}`;
-		if (typeof data === "object" && data !== null && "message" in data && typeof data.message === "string") {
-			errorMessage = data.message;
-		}
-		throw new Error(`${errorMessage}: ${response.statusText} (Status: ${response.status})`);
-	}
-
-	const parsed = DeleteLabelResponseSchema.safeParse(data);
-	if (!parsed.success) {
-		throw new Error(`Invalid API response after deleting label. Zod errors: ${parsed.error.message}`);
-	}
 }
 
 /**

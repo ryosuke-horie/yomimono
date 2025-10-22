@@ -142,41 +142,7 @@ server.tool(
 	},
 );
 
-// 5. Tool to delete a label
-server.tool(
-	"deleteLabel",
-	{
-		labelId: z.number().int().positive(),
-	},
-	async ({ labelId }) => {
-		try {
-			await apiClient.deleteLabel(labelId);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `Successfully deleted label ID ${labelId}.`,
-					},
-				],
-				isError: false,
-			};
-		} catch (error: unknown) {
-			const errorMessage = error instanceof Error ? error.message : String(error);
-			console.error(`Error in deleteLabel tool (labelId: ${labelId}):`, errorMessage);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `Failed to delete label: ${errorMessage}`,
-					},
-				],
-				isError: true,
-			};
-		}
-	},
-);
-
-// 6. Tool to assign labels to multiple articles
+// 5. Tool to assign labels to multiple articles
 server.tool(
 	"assignLabelsToMultipleArticles",
 	// Define input arguments schema using Zod
@@ -232,7 +198,7 @@ server.tool(
 	},
 );
 
-// 7. Tool to get unread bookmarks
+// 6. Tool to get unread bookmarks
 server.tool(
 	"getUnreadBookmarks",
 	{}, // No input arguments
@@ -264,7 +230,7 @@ server.tool(
 	},
 );
 
-// 8. Tool to mark bookmark as read
+// 7. Tool to mark bookmark as read
 server.tool(
 	"markBookmarkAsRead",
 	{
