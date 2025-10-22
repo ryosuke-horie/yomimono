@@ -342,12 +342,6 @@ export async function assignLabelsToMultipleArticles(
 	};
 }
 
-// Schema for mark as read response
-const MarkAsReadResponseSchema = z.object({
-	success: z.literal(true),
-	message: z.string(),
-});
-
 /**
  * 未読のブックマークを取得します
  * @returns 未読のブックマークのリスト
@@ -379,28 +373,6 @@ export async function getUnreadBookmarks() {
 	}));
 	return bookmarksWithReadStatus;
 }
-/**
- * ブックマークを既読にマークします
- * @param bookmarkId - ブックマークID
- * @returns 処理結果
- */
-export async function markBookmarkAsRead(bookmarkId: number) {
-	const response = await fetch(`${getApiBaseUrl()}/api/bookmarks/${bookmarkId}/read`, {
-		method: "PATCH",
-	});
-
-	if (!response.ok) {
-		throw new Error(`Failed to mark bookmark ${bookmarkId} as read: ${response.statusText}`);
-	}
-
-	const data = await response.json();
-	const parsed = MarkAsReadResponseSchema.safeParse(data);
-	if (!parsed.success) {
-		throw new Error(`Invalid API response after marking bookmark as read: ${parsed.error.message}`);
-	}
-	return parsed.data;
-}
-
 /**
  * 未使用ラベルをクリーンアップします
  * @returns クリーンアップの結果

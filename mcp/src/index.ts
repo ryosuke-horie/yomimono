@@ -302,40 +302,6 @@ server.tool(
 	},
 );
 
-// 9. Tool to mark bookmark as read
-server.tool(
-	"markBookmarkAsRead",
-	{
-		bookmarkId: z.number().int().positive(),
-	},
-	async ({ bookmarkId }) => {
-		try {
-			const result = await apiClient.markBookmarkAsRead(bookmarkId);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `ブックマークID: ${bookmarkId}を既読にマークしました。\n${JSON.stringify(result, null, 2)}`,
-					},
-				],
-				isError: false,
-			};
-		} catch (error: unknown) {
-			const errorMessage = error instanceof Error ? error.message : String(error);
-			console.error(`Error in markBookmarkAsRead tool (bookmarkId: ${bookmarkId}):`, errorMessage);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `ブックマークの既読マークに失敗しました: ${errorMessage}`,
-					},
-				],
-				isError: true,
-			};
-		}
-	},
-);
-
 // --- End Tool Definition ---
 
 async function main() {
