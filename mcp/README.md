@@ -9,7 +9,6 @@
 - **`getLabels`**: 既存のラベル一覧をAPIから取得します。（引数なし）
 - **`assignLabel`**: 指定された記事IDに指定されたラベル名をAPI経由で割り当てます。（引数: `articleId`, `labelName`, `description`）
 - **`getLabelById`**: 特定のラベルを取得します。（引数: `labelId`）
-- **`deleteLabel`**: ラベルを削除します。（引数: `labelId`）
 - **`updateLabelDescription`**: ラベルの説明を更新します。（引数: `labelId`, `description`）
 - **`assignLabelsToMultipleArticles`**: 複数の記事に一括でラベルを付与します。（引数: `articleIds`, `labelName`, `description`）
 

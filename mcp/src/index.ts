@@ -142,41 +142,7 @@ server.tool(
 	},
 );
 
-// 5. Tool to delete a label
-server.tool(
-	"deleteLabel",
-	{
-		labelId: z.number().int().positive(),
-	},
-	async ({ labelId }) => {
-		try {
-			await apiClient.deleteLabel(labelId);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `Successfully deleted label ID ${labelId}.`,
-					},
-				],
-				isError: false,
-			};
-		} catch (error: unknown) {
-			const errorMessage = error instanceof Error ? error.message : String(error);
-			console.error(`Error in deleteLabel tool (labelId: ${labelId}):`, errorMessage);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `Failed to delete label: ${errorMessage}`,
-					},
-				],
-				isError: true,
-			};
-		}
-	},
-);
-
-// 6. Tool to update a label's description
+// 5. Tool to update a label's description
 server.tool(
 	"updateLabelDescription",
 	{
