@@ -13,7 +13,6 @@
 
 ### ブックマーク管理ツール
 - **`getUnreadBookmarks`**: 未読ブックマークを取得します。（引数なし）
-- **`markBookmarkAsRead`**: 指定ブックマークを既読にします。（引数: `bookmarkId`）
 
 ## Connecting with a Client
 
