@@ -47,12 +47,6 @@ const GetLabelByIdResponseSchema = z.object({
 	label: LabelSchema,
 });
 
-// Schema for the PATCH /api/labels/:id response
-const UpdateLabelDescriptionResponseSchema = z.object({
-	success: z.literal(true),
-	label: LabelSchema,
-});
-
 // Schema for the DELETE /api/labels/:id response
 const DeleteLabelResponseSchema = z.object({
 	success: z.literal(true),
@@ -196,41 +190,6 @@ export async function getLabelById(id: number) {
 	const parsed = GetLabelByIdResponseSchema.safeParse(data);
 	if (!parsed.success) {
 		throw new Error(`Invalid API response for label ${id}: ${parsed.error.message}`);
-	}
-
-	return parsed.data.label;
-}
-
-/**
- * Updates a label's description via the API.
- * @param id - The ID of the label to update.
- * @param description - The new description (or null to remove the description).
- * @returns A promise that resolves to the updated label object.
- */
-export async function updateLabelDescription(id: number, description: string | null) {
-	const response = await fetch(`${getApiBaseUrl()}/api/labels/${id}`, {
-		method: "PATCH",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({ description }),
-	});
-
-	if (!response.ok) {
-		throw new Error(`Failed to update description for label ${id}: ${response.statusText}`);
-	}
-
-	let data: unknown;
-	try {
-		data = await response.json();
-	} catch (parseError: unknown) {
-		const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
-		throw new Error(`Failed to parse response when updating label ${id} description: ${errorMessage}`);
-	}
-
-	const parsed = UpdateLabelDescriptionResponseSchema.safeParse(data);
-	if (!parsed.success) {
-		throw new Error(`Invalid API response after updating label description: ${parsed.error.message}`);
 	}
 
 	return parsed.data.label;
