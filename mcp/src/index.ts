@@ -176,45 +176,7 @@ server.tool(
 	},
 );
 
-// 6. Tool to update a label's description
-server.tool(
-	"updateLabelDescription",
-	{
-		labelId: z.number().int().positive(),
-		description: z.string().nullable(),
-	},
-	async ({ labelId, description }) => {
-		try {
-			const updatedLabel = await apiClient.updateLabelDescription(labelId, description);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `Successfully updated label description: ${JSON.stringify(updatedLabel, null, 2)}`,
-					},
-				],
-				isError: false,
-			};
-		} catch (error: unknown) {
-			const errorMessage = error instanceof Error ? error.message : String(error);
-			console.error(
-				`Error in updateLabelDescription tool (labelId: ${labelId}, description: ${description}):`,
-				errorMessage,
-			);
-			return {
-				content: [
-					{
-						type: "text",
-						text: `Failed to update label description: ${errorMessage}`,
-					},
-				],
-				isError: true,
-			};
-		}
-	},
-);
-
-// 7. Tool to assign labels to multiple articles
+// 6. Tool to assign labels to multiple articles
 server.tool(
 	"assignLabelsToMultipleArticles",
 	// Define input arguments schema using Zod
@@ -270,7 +232,7 @@ server.tool(
 	},
 );
 
-// 8. Tool to get unread bookmarks
+// 7. Tool to get unread bookmarks
 server.tool(
 	"getUnreadBookmarks",
 	{}, // No input arguments
@@ -302,7 +264,7 @@ server.tool(
 	},
 );
 
-// 9. Tool to mark bookmark as read
+// 8. Tool to mark bookmark as read
 server.tool(
 	"markBookmarkAsRead",
 	{
