@@ -6,7 +6,7 @@
 	"private": true,
 	"devDependencies": {
 		"@biomejs/biome": "^2.2.6",
-		"@types/node": "^24.0.8",
+		"@types/node": "^24.9.0",
 		"dotenv": "^17.2.3"
 	},
 	"peerDependencies": {
