@@ -180,7 +180,7 @@ export class LabelService implements ILabelService {
 		// 4. バッチデータ取得
 		const [bookmarkMap, existingArticleIds] = await Promise.all([
 			this.bookmarkRepository.findByIds(articleIds),
-			this.articleLabelRepository.findExistingArticleIds(articleIds),
+			this.articleLabelRepository.findExistingArticleIds(articleIds, label.id),
 		]);
 
 		// 5. 各記事の検証と結果の作成

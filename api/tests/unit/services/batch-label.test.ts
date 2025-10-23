@@ -123,6 +123,9 @@ describe("LabelService - 一括ラベル付け機能", () => {
 					name: "javascript",
 					description: "JavaScript関連記事",
 				});
+				expect(
+					articleLabelRepository.findExistingArticleIds,
+				).toHaveBeenCalledWith([1, 2], mockLabel.id);
 			});
 
 			it("既存のラベルで複数の記事にラベルを付与できる", async () => {
@@ -154,6 +157,9 @@ describe("LabelService - 一括ラベル付け機能", () => {
 				});
 
 				expect(labelRepository.create).not.toHaveBeenCalled();
+				expect(
+					articleLabelRepository.findExistingArticleIds,
+				).toHaveBeenCalledWith([1, 2], mockLabel.id);
 			});
 
 			it("既にラベル付けされている記事はスキップする", async () => {
@@ -187,6 +193,48 @@ describe("LabelService - 一括ラベル付け機能", () => {
 
 				expect(articleLabelRepository.createMany).toHaveBeenCalledWith([
 					{ articleId: 1, labelId: 1 },
+				]);
+				expect(
+					articleLabelRepository.findExistingArticleIds,
+				).toHaveBeenCalledWith([1, 2], mockLabel.id);
+			});
+
+			it("別のラベルが付与されている記事にも対象ラベルを追加できる", async () => {
+				vi.mocked(labelRepository.findByName).mockResolvedValue(mockLabel);
+				vi.mocked(bookmarkRepository.findByIds).mockResolvedValue(
+					new Map([
+						[1, mockBookmark1],
+						[2, mockBookmark2],
+					]),
+				);
+				vi.mocked(
+					articleLabelRepository.findExistingArticleIds,
+				).mockImplementation(async (articleIds, labelId) => {
+					expect(articleIds).toEqual([1, 2]);
+					expect(labelId).toBe(mockLabel.id);
+					// 以前の実装ではここで別ラベルが付与されている記事も返していた
+					// バグ修正後は対象ラベルのみを判定するため常に空集合を返す
+					return new Set();
+				});
+				vi.mocked(articleLabelRepository.createMany).mockResolvedValue([
+					{ id: 1, articleId: 1, labelId: 1, createdAt: new Date() },
+					{ id: 2, articleId: 2, labelId: 1, createdAt: new Date() },
+				]);
+
+				const result = await labelService.assignLabelsToMultipleArticles(
+					[1, 2],
+					"JavaScript",
+				);
+
+				expect(result).toEqual({
+					successful: 2,
+					skipped: 0,
+					errors: [],
+					label: mockLabel,
+				});
+				expect(articleLabelRepository.createMany).toHaveBeenCalledWith([
+					{ articleId: 1, labelId: 1 },
+					{ articleId: 2, labelId: 1 },
 				]);
 			});
 		});

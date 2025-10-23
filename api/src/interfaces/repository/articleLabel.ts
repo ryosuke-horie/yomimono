@@ -27,9 +27,13 @@ export interface IArticleLabelRepository {
 	): Promise<ArticleLabel[]>;
 
 	/**
-	 * 指定された記事IDのリストに対してラベルが付与されているかを一括で確認します。
+	 * 指定された記事IDのリストに対して、特定のラベルが付与されているかを一括で確認します。
 	 * @param articleIds 記事IDの配列
+	 * @param labelId 判定対象のラベルID
 	 * @returns 既にラベルが付与されている記事IDのSet
 	 */
-	findExistingArticleIds(articleIds: number[]): Promise<Set<number>>;
+	findExistingArticleIds(
+		articleIds: number[],
+		labelId: number,
+	): Promise<Set<number>>;
 }
