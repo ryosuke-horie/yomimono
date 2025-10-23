@@ -140,13 +140,13 @@ if (import.meta.vitest) {
 	const { test, expect, describe, beforeEach, afterEach } = import.meta.vitest;
 
 	describe("Configuration Module", () => {
-		// @ts-ignore: process is available in test environment
+		// @ts-expect-error: process is available in test environment
 		const originalEnv =
 			typeof process !== "undefined" ? { ...process.env } : {};
 
 		beforeEach(() => {
 			// テスト環境でのみ環境変数をリセット
-			// @ts-ignore: process is available in test environment
+			// @ts-expect-error: process is available in test environment
 			if (typeof process !== "undefined") {
 				for (const key of Object.keys(process.env)) {
 					if (
@@ -164,7 +164,7 @@ if (import.meta.vitest) {
 
 		afterEach(() => {
 			// テスト環境でのみ環境変数を復元
-			// @ts-ignore: process is available in test environment
+			// @ts-expect-error: process is available in test environment
 			if (typeof process !== "undefined") {
 				process.env = { ...originalEnv };
 			}
@@ -317,7 +317,7 @@ if (import.meta.vitest) {
 
 		describe("process.env 使用時のテスト（Node.js環境のみ）", () => {
 			test("process.envが利用可能な場合の環境変数読み込み", () => {
-				// @ts-ignore: process is available in test environment
+				// @ts-expect-error: process is available in test environment
 				if (typeof process !== "undefined") {
 					process.env.DEFAULT_OFFSET = "10";
 					process.env.DEFAULT_PAGE_SIZE = "50";

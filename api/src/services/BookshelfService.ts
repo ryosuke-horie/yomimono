@@ -321,7 +321,7 @@ if (import.meta.vitest) {
 
 		describe("内部バリデーションメソッド", () => {
 			test("isValidTypeが正しいタイプを判定する", () => {
-				// テスト用ヘルパーメソッドを使用（@ts-ignore不要）
+				// テスト用ヘルパーメソッドを使用（@ts-expect-error不要）
 				expect(service._testHelpers.isValidType("book")).toBe(true);
 				expect(service._testHelpers.isValidType("pdf")).toBe(true);
 				expect(service._testHelpers.isValidType("github")).toBe(true);

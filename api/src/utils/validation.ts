@@ -8,7 +8,7 @@ import { BadRequestError } from "../exceptions";
  * 文字列からIDを検証し、数値として返す
  */
 export function validateId(value: string, fieldName = "ID"): number {
-	const id = Number.parseInt(value);
+	const id = Number.parseInt(value, 10);
 	if (Number.isNaN(id)) {
 		throw new BadRequestError(`Invalid ${fieldName}`);
 	}
@@ -58,7 +58,7 @@ export function validateIdArray(
 	}
 
 	return values.map((value, _index) => {
-		const id = Number.parseInt(String(value));
+		const id = Number.parseInt(String(value), 10);
 		if (Number.isNaN(id)) {
 			// Keep the original error message format for consistency
 			let singularName = fieldName;
