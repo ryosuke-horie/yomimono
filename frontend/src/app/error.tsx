@@ -40,6 +40,8 @@ export default function ErrorPage({
 							className="h-5 w-5 text-red-400"
 							viewBox="0 0 20 20"
 							fill="currentColor"
+							aria-hidden="true"
+							focusable="false"
 						>
 							<path
 								fillRule="evenodd"

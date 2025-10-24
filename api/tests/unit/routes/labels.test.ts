@@ -164,7 +164,7 @@ function createMockLabelsRouter() {
 	// ラベル取得（ID指定）
 	router.get("/:id", async (c) => {
 		try {
-			const id = Number.parseInt(c.req.param("id"));
+			const id = Number.parseInt(c.req.param("id"), 10);
 			if (Number.isNaN(id)) {
 				return c.json({ success: false, message: "Invalid label ID" }, 400);
 			}
@@ -187,7 +187,7 @@ function createMockLabelsRouter() {
 	// ラベル説明文更新
 	router.patch("/:id", async (c) => {
 		try {
-			const id = Number.parseInt(c.req.param("id"));
+			const id = Number.parseInt(c.req.param("id"), 10);
 			if (Number.isNaN(id)) {
 				return c.json({ success: false, message: "Invalid label ID" }, 400);
 			}
@@ -241,7 +241,7 @@ function createMockLabelsRouter() {
 	// ラベル削除
 	router.delete("/:id", async (c) => {
 		try {
-			const id = Number.parseInt(c.req.param("id"));
+			const id = Number.parseInt(c.req.param("id"), 10);
 			if (Number.isNaN(id)) {
 				return c.json({ success: false, message: "Invalid label ID" }, 400);
 			}

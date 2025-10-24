@@ -55,6 +55,8 @@ export function LabelDisplay({
 							viewBox="0 0 20 20"
 							fill="currentColor"
 							className="w-3 h-3 text-blue-600"
+							aria-hidden="true"
+							focusable="false"
 						>
 							<path
 								fillRule="evenodd"

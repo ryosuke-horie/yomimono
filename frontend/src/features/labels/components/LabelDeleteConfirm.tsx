@@ -68,13 +68,15 @@ export function LabelDeleteConfirm({
 	return (
 		<div className="fixed inset-0 z-50 overflow-y-auto">
 			{/* 背景のオーバーレイ - クリックでキャンセル */}
-			<div
+			<button
+				type="button"
 				className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
 				onClick={onCancel}
 				onKeyDown={handleOverlayKeyDown}
-				role="button"
-				tabIndex={0}
-			/>
+				aria-label="ダイアログを閉じる"
+			>
+				<span className="sr-only">ダイアログを閉じます</span>
+			</button>
 
 			<div className="flex items-end sm:items-center justify-center min-h-full p-4 text-center sm:p-0">
 				{/* モーダルコンテンツ */}
@@ -96,6 +98,8 @@ export function LabelDeleteConfirm({
 									fill="none"
 									viewBox="0 0 24 24"
 									stroke="currentColor"
+									aria-hidden="true"
+									focusable="false"
 								>
 									<path
 										strokeLinecap="round"

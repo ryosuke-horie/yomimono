@@ -160,14 +160,14 @@ export default function BookshelfDetailPage() {
 		return (
 			<div className="container mx-auto px-4 py-8">
 				<div className="max-w-2xl mx-auto">
-					<div role="status" aria-live="polite">
-						<span className="sr-only">データを読み込み中です</span>
-						<div className="animate-pulse">
-							<div className="h-32 bg-gray-200 rounded mb-4" />
-							<div className="h-8 bg-gray-200 rounded mb-4" />
-							<div className="h-4 bg-gray-200 rounded w-1/2" />
-						</div>
-					</div>
+						<output role="status" aria-live="polite" className="block">
+							<span className="sr-only">データを読み込み中です</span>
+							<div className="animate-pulse">
+								<div className="h-32 bg-gray-200 rounded mb-4" />
+								<div className="h-8 bg-gray-200 rounded mb-4" />
+								<div className="h-4 bg-gray-200 rounded w-1/2" />
+							</div>
+						</output>
 				</div>
 			</div>
 		);

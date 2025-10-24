@@ -30,14 +30,6 @@
 		"enabled": true,
 		"rules": {
 			"recommended": true,
-			"a11y": {
-				"noSvgWithoutTitle": "off",
-				"useSemanticElements": "off"
-			},
-			"suspicious": {
-				"noArrayIndexKey": "off",
-				"noConfusingVoidType": "off"
-			},
 			"style": {
 				"noParameterAssign": "error",
 				"useAsConstAssertion": "error",

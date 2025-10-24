@@ -11,6 +11,11 @@ interface FavoritesApiResponse {
 	bookmarks: BookmarkWithLabel[];
 }
 
+const FAVORITES_SKELETON_KEYS = Array.from(
+	{ length: 6 },
+	(_, index) => `favorites-skeleton-${index}`,
+);
+
 // お気に入りブックマーク一覧を取得する非同期関数
 const fetchFavoriteBookmarks = async (): Promise<FavoritesApiResponse> => {
 	const response = await fetch(`${API_BASE_URL}/api/bookmarks/favorites`);
@@ -51,9 +56,9 @@ export default function FavoritesPage() {
 			{isLoading ? (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{/* スケルトンローディング表示 */}
-					{[...Array(6)].map((_, i) => (
+					{FAVORITES_SKELETON_KEYS.map((skeletonKey) => (
 						<div
-							key={i}
+							key={skeletonKey}
 							className="border rounded-lg p-4 h-[150px] bg-gray-100 animate-pulse"
 						/>
 					))}

@@ -32,6 +32,11 @@ const fetchBookmarks = async (
 	return data;
 };
 
+const HOMEPAGE_SKELETON_KEYS = Array.from(
+	{ length: 6 },
+	(_, index) => `home-skeleton-${index}`,
+);
+
 export default function HomePage() {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -113,9 +118,9 @@ export default function HomePage() {
 			{isLoadingBookmarks ? (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{/* スケルトンローディング表示 (簡易版) */}
-					{[...Array(6)].map((_, i) => (
+					{HOMEPAGE_SKELETON_KEYS.map((skeletonKey) => (
 						<div
-							key={i}
+							key={skeletonKey}
 							className="border rounded-lg p-4 h-[150px] bg-gray-100 animate-pulse"
 						/>
 					))}

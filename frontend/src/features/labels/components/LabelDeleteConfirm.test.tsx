@@ -160,14 +160,12 @@ describe("LabelDeleteConfirm", () => {
 				/>,
 			);
 
-			// オーバーレイを取得（背景の暗い部分） - DOMツリーから直接取得
-			const overlay = document.querySelector('[role="button"]');
-			expect(overlay).toBeInTheDocument();
-
-			if (overlay) {
+				// オーバーレイボタンを取得
+				const overlay = screen.getByRole("button", {
+					name: "ダイアログを閉じる",
+				});
 				await user.click(overlay);
 				expect(mockOnCancel).toHaveBeenCalled();
-			}
 		});
 	});
 
@@ -274,13 +272,11 @@ describe("LabelDeleteConfirm", () => {
 				/>,
 			);
 
-			const overlay = document.querySelector('[role="button"]');
-			expect(overlay).toBeInTheDocument();
-
-			if (overlay) {
+				const overlay = screen.getByRole("button", {
+					name: "ダイアログを閉じる",
+				});
 				fireEvent.keyDown(overlay, { key: "Enter" });
 				expect(mockOnCancel).toHaveBeenCalled();
-			}
 		});
 
 		it("オーバーレイでSpaceキーを押すとonCancelが呼ばれる", async () => {
@@ -294,13 +290,11 @@ describe("LabelDeleteConfirm", () => {
 				/>,
 			);
 
-			const overlay = document.querySelector('[role="button"]');
-			expect(overlay).toBeInTheDocument();
-
-			if (overlay) {
+				const overlay = screen.getByRole("button", {
+					name: "ダイアログを閉じる",
+				});
 				fireEvent.keyDown(overlay, { key: " " });
 				expect(mockOnCancel).toHaveBeenCalled();
-			}
 		});
 
 		it("ダイアログ内でEnterやSpaceキーを押してもイベントが伝播しない", () => {
