@@ -83,8 +83,9 @@ describe("バッチラベル付け関連のリポジトリメソッド", () => {
 			repository = new ArticleLabelRepository(mockDb as any);
 		});
 
-		it("既にラベル付けされている記事IDのSetを返す", async () => {
+		it("指定したラベルが付与済みの記事IDのSetを返す", async () => {
 			const articleIds = [1, 2, 3, 4];
+			const labelId = 99;
 			const existingLabels = [{ articleId: 1 }, { articleId: 3 }];
 
 			// Mock Drizzle calls
@@ -95,9 +96,13 @@ describe("バッチラベル付け関連のリポジトリメソッド", () => {
 			mockedDb.where.mockReturnThis();
 			mockedDb.all.mockResolvedValue(existingLabels);
 
-			const result = await repository.findExistingArticleIds(articleIds);
+			const result = await repository.findExistingArticleIds(
+				articleIds,
+				labelId,
+			);
 
 			expect(result).toEqual(new Set([1, 3]));
+			expect(mockedDb.where).toHaveBeenCalled();
 		});
 	});
 
