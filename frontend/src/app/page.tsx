@@ -1,9 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import { BookmarksList } from "@/features/bookmarks/components/BookmarksList";
-import { CreateBookmarkModal } from "@/features/bookmarks/components/CreateBookmarkModal";
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
 import { LabelFilter } from "@/features/labels/components/LabelFilter";
 import { useLabels } from "@/features/labels/hooks/useLabels";
@@ -33,7 +31,6 @@ const fetchBookmarks = async (
 };
 
 export default function HomePage() {
-	const [isModalOpen, setIsModalOpen] = useState(false);
 
 	// ラベル関連のフック
 	const {
@@ -79,8 +76,8 @@ export default function HomePage() {
 
 	return (
 		<main className="container mx-auto px-4 py-8">
-			{/* 未読数と既読数を表示 + 追加ボタン */}
-			<div className="flex justify-between items-center mb-4">
+			{/* 未読数と既読数を表示 */}
+			<div className="mb-4">
 				{!isLoadingBookmarks &&
 					totalUnread !== undefined &&
 					todayReadCount !== undefined && (
@@ -89,13 +86,6 @@ export default function HomePage() {
 							<span className="ml-4">本日既読: {todayReadCount}件</span>
 						</div>
 					)}
-				<button
-					type="button"
-					onClick={() => setIsModalOpen(true)}
-					className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-				>
-					記事を追加
-				</button>
 			</div>
 
 			{/* ラベルフィルター */}
@@ -127,11 +117,6 @@ export default function HomePage() {
 				/>
 			)}
 
-			{/* 記事追加モーダル */}
-			<CreateBookmarkModal
-				isOpen={isModalOpen}
-				onClose={() => setIsModalOpen(false)}
-			/>
 		</main>
 	);
 }
