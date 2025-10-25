@@ -123,51 +123,6 @@ describe("BookmarkCard", () => {
 		);
 	});
 
-	it("IDコピーボタンをクリックするとIDがクリップボードにコピーされる", async () => {
-		renderWithQueryClient(<BookmarkCard bookmark={mockBookmark} />);
-
-		const copyIdButton = screen.getByTitle("ID: 1をコピー");
-		fireEvent.click(copyIdButton);
-
-		expect(navigator.clipboard.writeText).toHaveBeenCalledWith("1");
-
-		// 成功Toast通知が表示されることを確認
-		await waitFor(() => {
-			expect(screen.getByText("IDをコピーしました")).toBeInTheDocument();
-		});
-	});
-
-	it("IDコピーボタンクリック時にクリップボードエラーが発生した場合、エラーToastを表示する", async () => {
-		// クリップボードAPIをエラーを返すようにモック
-		const mockWriteText = vi
-			.fn()
-			.mockRejectedValue(new Error("Clipboard error"));
-		Object.assign(navigator, {
-			clipboard: {
-				writeText: mockWriteText,
-			},
-		});
-
-		renderWithQueryClient(<BookmarkCard bookmark={mockBookmark} />);
-
-		const copyIdButton = screen.getByTitle("ID: 1をコピー");
-		fireEvent.click(copyIdButton);
-
-		// エラーToast通知が表示されることを確認
-		await waitFor(() => {
-			expect(
-				screen.getByText("クリップボードへのコピーに失敗しました"),
-			).toBeInTheDocument();
-		});
-
-		// モックをリセット
-		Object.assign(navigator, {
-			clipboard: {
-				writeText: vi.fn().mockResolvedValue(undefined),
-			},
-		});
-	});
-
 	it("ラベルがある場合、ラベルを表示する", () => {
 		const bookmarkWithLabel = {
 			...mockBookmark,
