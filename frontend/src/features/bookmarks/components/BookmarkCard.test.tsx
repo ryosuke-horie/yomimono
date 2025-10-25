@@ -16,9 +16,11 @@ vi.mock("../queries/useToggleFavoriteBookmark", () => ({
 	}),
 }));
 
+const markAsReadMock = vi.fn();
+
 vi.mock("../queries/useMarkBookmarkAsRead", () => ({
 	useMarkBookmarkAsRead: () => ({
-		mutate: vi.fn(),
+		mutate: markAsReadMock,
 		isPending: false,
 	}),
 }));
@@ -68,6 +70,7 @@ const renderWithQueryClient = (component: React.ReactElement) => {
 describe("BookmarkCard", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		markAsReadMock.mockClear();
 	});
 
 	it("基本的なブックマーク情報を表示する", () => {
@@ -85,10 +88,10 @@ describe("BookmarkCard", () => {
 		expect(screen.getByText("タイトルなし")).toBeInTheDocument();
 	});
 
-	it("未読の場合、既読にするボタンを表示する", () => {
+	it("未読の場合、既読ボタンを表示しない", () => {
 		renderWithQueryClient(<BookmarkCard bookmark={mockBookmark} />);
 
-		expect(screen.getByTitle("既読にする")).toBeInTheDocument();
+		expect(screen.queryByTitle("既読にする")).not.toBeInTheDocument();
 	});
 
 	it("既読の場合、未読に戻すボタンを表示する", () => {
@@ -96,6 +99,15 @@ describe("BookmarkCard", () => {
 		renderWithQueryClient(<BookmarkCard bookmark={readBookmark} />);
 
 		expect(screen.getByTitle("未読に戻す")).toBeInTheDocument();
+	});
+
+	it("リンクをクリックすると未読のブックマークを既読にする", () => {
+		renderWithQueryClient(<BookmarkCard bookmark={mockBookmark} />);
+
+		const link = screen.getByRole("link", { name: "テスト記事" });
+		fireEvent.click(link);
+
+		expect(markAsReadMock).toHaveBeenCalledWith(1);
 	});
 
 	it("お気に入りでない場合、お気に入りに追加ボタンを表示する", () => {
