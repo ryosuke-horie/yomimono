@@ -19,10 +19,6 @@
 		"enabled": true,
 		"rules": {
 			"recommended": true,
-			"a11y": {
-				"noSvgWithoutTitle": "off",
-				"useSemanticElements": "off"
-			},
 			"suspicious": {
 				"noArrayIndexKey": "error",
 				"noConfusingVoidType": "error"
