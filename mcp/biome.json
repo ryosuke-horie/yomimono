@@ -15,16 +15,7 @@
 		"lineWidth": 120
 	},
 	"assist": { "actions": { "source": { "organizeImports": "on" } } },
-	"linter": {
-		"enabled": true,
-		"rules": {
-			"recommended": true,
-			"suspicious": {
-				"noArrayIndexKey": "error",
-				"noConfusingVoidType": "error"
-			}
-		}
-	},
+	"linter": { "enabled": true, "rules": { "recommended": true } },
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "double"
