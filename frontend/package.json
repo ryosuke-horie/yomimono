@@ -8,6 +8,7 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "npx @biomejs/biome check",
+		"typecheck": "tsc --noEmit",
 		"format": "npx @biomejs/biome check --write",
 		"test": "vitest",
 		"test:run": "vitest run",

@@ -16,15 +16,12 @@ describe("ErrorPage", () => {
 	const mockError = new Error("テストエラー");
 	const mockReset = vi.fn();
 
-	// 開発環境としてテストを実行するため、環境変数を設定
-	const originalEnv = process.env.NODE_ENV;
-
 	beforeAll(() => {
-		process.env.NODE_ENV = "development";
+		vi.stubEnv("NODE_ENV", "development");
 	});
 
 	afterAll(() => {
-		process.env.NODE_ENV = originalEnv;
+		vi.unstubAllEnvs();
 	});
 
 	beforeEach(() => {
