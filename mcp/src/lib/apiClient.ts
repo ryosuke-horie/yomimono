@@ -240,8 +240,8 @@ export async function assignLabelsToMultipleArticles(
 		throw new Error(`Failed to parse response for batch label assignment: ${errorMessage}`);
 	}
 
-	// デバッグ用：レスポンスをログ出力
-	console.log("Batch label assignment response:", JSON.stringify(data, null, 2));
+	// デバッグ用：レスポンスをstderrに出力
+	console.error("Batch label assignment response:", JSON.stringify(data, null, 2));
 
 	if (!response.ok) {
 		let errorMessage = `Failed to batch assign label "${labelName}"`;

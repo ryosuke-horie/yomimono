@@ -162,7 +162,7 @@ server.tool(
 				throw new Error("labelName must be a non-empty string");
 			}
 
-			console.log("Calling assignLabelsToMultipleArticles with:", {
+			console.error("Calling assignLabelsToMultipleArticles with:", {
 				articleIds,
 				labelName,
 				description,
