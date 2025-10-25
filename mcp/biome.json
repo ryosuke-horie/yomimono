@@ -24,8 +24,8 @@
 				"useSemanticElements": "off"
 			},
 			"suspicious": {
-				"noArrayIndexKey": "off",
-				"noConfusingVoidType": "off"
+				"noArrayIndexKey": "error",
+				"noConfusingVoidType": "error"
 			},
 			"style": {
 				"noParameterAssign": "error",
