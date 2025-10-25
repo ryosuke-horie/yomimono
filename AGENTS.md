@@ -6,12 +6,11 @@
 - アセット: `frontend/public`、拡張の画像は`extension/images`。
 
 ## 開発・ビルド・テスト
-- 依存関係: `pnpm i`（`only-allow`でpnpm固定）。
-- 同時起動: ルートで`pnpm run dev:full`（API/FEを並行起動）。
+- 依存関係: 各ディレクトリで `pnpm install`（`only-allow`でpnpm固定）。
 - API: `cd api && pnpm run dev`（Wranglerローカル）/ `pnpm run deploy`。
 - フロント: `cd frontend && pnpm run dev|build|start`、プレビュー`pnpm run preview`。
-- Lint/Format: ルートまたは各パッケージで`pnpm run lint|format`（Biome使用）。
-- テスト: API `pnpm -C api run test`、FE 単体 `pnpm -C frontend run test:run`。
+- Lint/Format: 各パッケージ個別に `pnpm run lint|format`（Biome使用）。
+- テスト: API `cd api && pnpm run test`、FE 単体 `cd frontend && pnpm run test:run`。
 
 ## コーディング規約・命名
 - フォーマッタ: Biome（タブインデント、ダブルクォート、import整列）。
@@ -22,7 +21,7 @@
 ## テスト方針
 - フレームワーク: Vitest（API/FE）。
 - カバレッジ: APIはlines 76%/funcs・branches 80%、FEはglobal 80%（各`vitest.config.ts`参照）。
-- 実行例: `pnpm -C frontend run test:coverage`、`pnpm -C api run test`。
+- 実行例: `cd frontend && pnpm run test:coverage`、`cd api && pnpm run test`。
 
 ## コミット／PR
 - メッセージ: 絵文字＋日本語の要約（例: `🐛 fix: null IDを正しく扱う`）。`closes #123`等でIssue紐付け。ブランチは`issue-123`。
