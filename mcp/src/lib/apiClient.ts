@@ -155,8 +155,22 @@ export async function assignLabelToArticle(articleId: number, labelName: string,
 	});
 
 	if (!response.ok) {
-		// Consider more specific error handling based on status code if needed
-		throw new Error(`Failed to assign label "${labelName}" to article ${articleId}: ${response.statusText}`);
+		let errorMessage = response.statusText;
+		try {
+			const data: unknown = await response.json();
+			if (
+				typeof data === "object" &&
+				data !== null &&
+				"message" in data &&
+				typeof (data as { message: unknown }).message === "string"
+			) {
+				errorMessage = (data as { message: string }).message;
+			}
+		} catch (parseError: unknown) {
+			const parseMessage = parseError instanceof Error ? parseError.message : String(parseError);
+			errorMessage = `${errorMessage} (failed to parse error body: ${parseMessage})`;
+		}
+		throw new Error(`Failed to assign label "${labelName}" to article ${articleId}: ${errorMessage}`);
 	}
 	// Assuming the API returns no content or confirmation on success
 	// Check for specific success status codes if applicable (e.g., 200 OK, 204 No Content)
@@ -226,8 +240,8 @@ export async function assignLabelsToMultipleArticles(
 		throw new Error(`Failed to parse response for batch label assignment: ${errorMessage}`);
 	}
 
-	// デバッグ用：レスポンスをログ出力
-	console.log("Batch label assignment response:", JSON.stringify(data, null, 2));
+	// デバッグ用：レスポンスをstderrに出力
+	console.error("Batch label assignment response:", JSON.stringify(data, null, 2));
 
 	if (!response.ok) {
 		let errorMessage = `Failed to batch assign label "${labelName}"`;

@@ -4,8 +4,8 @@ import * as dotenv from "dotenv";
 import { z } from "zod";
 import * as apiClient from "./lib/apiClient.js";
 
-// Configure dotenv to load environment variables
-dotenv.config();
+// Configure dotenv to load environment variables quietly (no stdout noise)
+dotenv.config({ quiet: true });
 
 // Create an MCP server instance
 const server = new McpServer({
@@ -162,7 +162,7 @@ server.tool(
 				throw new Error("labelName must be a non-empty string");
 			}
 
-			console.log("Calling assignLabelsToMultipleArticles with:", {
+			console.error("Calling assignLabelsToMultipleArticles with:", {
 				articleIds,
 				labelName,
 				description,
