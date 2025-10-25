@@ -3,7 +3,7 @@
 	"scripts": {
 		"preinstall": "npx only-allow pnpm",
 		"dev": "NODE_ENV=development wrangler dev --port 8787 --env development",
-		"deploy": "NODE_ENV=production wrangler deploy --minify",
+		"deploy": "NODE_ENV=production wrangler deploy --minify --env \"\"",
 		"lint": "npx @biomejs/biome check",
 		"format": "npx @biomejs/biome check --write",
 		"test": "vitest run",
