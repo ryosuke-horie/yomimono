@@ -6,81 +6,88 @@
 
 [document README](./docs/README.md)
 
-## 開発環境について
-
-### フロントエンド
-
-- ルートに`.env`を用意する(sampleのコピーでOK)
-- 開発時はAPIを`npm run dev`で立ち上げて利用する想定
-
 ## プロジェクト概要
 「effective-yomimono」は、ウェブ上の読みたい記事やコンテンツを効率的に管理するためのツールです。技術記事をタブで開いて並べておくことが多い開発者の習慣に着目し、Chrome拡張機能でブックマークを簡単に収集し、APIを通じてデータを保存、フロントエンドで整理・閲覧できます。
 
 ## セットアップと実行方法
 
-### APIの実行
+### 前提
+- 依存関係のインストールやスクリプト実行は、各パッケージディレクトリに移動して `pnpm` を利用してください。
+- ルートには `.env` を配置し、必要に応じて各パッケージの `.env.example` をコピーして利用します。
+
+### API
 ```bash
 cd api
-npm install
-npm run dev  # 開発サーバー起動
+pnpm install
+pnpm run dev  # 開発サーバー起動
 ```
 
-### フロントエンドの実行
+### フロントエンド
 ```bash
 cd frontend
-npm install
-npm run dev  # 開発サーバー起動（http://localhost:3000）
+pnpm install
+pnpm run dev  # 開発サーバー起動（http://localhost:3000）
 ```
 
-### Chrome拡張機能のインストール
+### Chrome拡張機能
+```bash
+cd extension
+pnpm install
+pnpm run build  # dist配下にパッケージング
+```
+
+Chromeへの読み込み手順:
 1. Chromeブラウザで `chrome://extensions` を開く
 2. 右上の「デベロッパーモード」を有効にする
 3. 「パッケージ化されていない拡張機能を読み込む」をクリック
-4. `extension` ディレクトリを選択
+4. `extension/dist` ディレクトリを選択（開発中は `extension` 直下でも可）
 
 ### デプロイ
 ```bash
-# APIのデプロイ
+# API
 cd api
-npm run deploy
+pnpm run deploy
 
-# フロントエンドのデプロイ
+# フロントエンド
 cd frontend
-npm run deploy
+pnpm run deploy
 ```
 
 ## 開発ツール
 
-### Lintとフォーマット
-
-各ディレクトリでlintとformatを実行できます：
-
+### Lint / Format
+各ディレクトリで Biome を実行します。
 ```bash
-# APIのlint
-cd api
-npm run lint
+cd api && pnpm run lint
+cd api && pnpm run format
 
-# フロントエンドのlint
-cd frontend
-npm run lint
+cd frontend && pnpm run lint
+cd frontend && pnpm run format
+
+cd extension && pnpm run lint
+cd extension && pnpm run format
+
+cd mcp && pnpm run lint
+cd mcp && pnpm run format
 ```
 
-ルートディレクトリから一括でlintを実行することも可能です：
-
+### テスト
 ```bash
-# すべてのプロジェクトのlint実行
-npm run lint
+# API
+cd api
+pnpm run test
 
-# すべてのプロジェクトのformat実行
-npm run format
+# フロントエンド
+cd frontend
+pnpm run test:run
 ```
 
 ## データベースマイグレーション
 ```bash
 cd api
 # マイグレーションファイル生成
-npx drizzle-kit generate
+pnpm run db:generate
 
 # マイグレーション適用
-npx drizzle-kit migrate
+pnpm run migrate:development
 ```

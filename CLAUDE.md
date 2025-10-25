@@ -88,17 +88,16 @@ export function distance(a: Point, b: Point): number {
 ```
 
 ## よく利用するコマンド
-- API: `cd api && pnpm run dev` - APIの開発サーバーを起動
-- フロントエンド: `cd frontend && pnpm run dev` - フロントエンドの開発サーバーを起動
-- ビルド: `cd frontend && pnpm run build` - フロントエンドを本番用にビルド
-- リント: `pnpm run lint` - それぞれのディレクトリでリンターを実行
-- フォーマット: `pnpm run format` - それぞれのディレクトリでコードをフォーマット
-- テスト: `cd api && pnpm run test` - すべてのテストを実行
+- API開発: `cd api && pnpm run dev` - APIの開発サーバーを起動
+- フロント開発: `cd frontend && pnpm run dev` - フロントエンドの開発サーバーを起動
+- フロントビルド: `cd frontend && pnpm run build` - フロントエンドを本番用にビルド
+- リント/フォーマット: `cd <package> && pnpm run lint|format` - 各ディレクトリで実行（`<package>` は `api` / `frontend` / `extension` / `mcp` を指定）
+- テスト: `cd api && pnpm run test` / `cd frontend && pnpm run test:run` - 各パッケージのテストを実行
 - 単一テスト: `cd api && pnpm vitest run tests/unit/path/to/test.ts` - 特定のテストを実行
-- テストカバレッジ: `cd api && pnpm test -- --coverage` - カバレッジレポート生成（9割以上必要）
+- テストカバレッジ: `cd api && pnpm run test -- --coverage` - カバレッジレポート生成（9割以上必要）
 - DB開発: `cd api && pnpm run migrate:development` - 開発環境用DBマイグレーション
 - DB本番: `cd api && pnpm run migrate:production` - 本番環境用DBマイグレーション
-- DB新規作成: `cd api && pnpm drizzle-kit generate` - マイグレーションファイル生成
+- DB新規作成: `cd api && pnpm run db:generate` - マイグレーションファイル生成
 
 ## アーキテクチャ情報
 - **API**: レイヤードアーキテクチャ採用
