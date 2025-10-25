@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/useToast";
 import { useCreateBookmark } from "../queries/useCreateBookmark";
 import { getBookmarkErrorMessage, scrollToTop } from "../utils/error-handler";
 
-const bookmarkSchema = z.object({
+const bookmarkSchema = z.strictObject({
 	title: z.string().min(1, "タイトルは必須です"),
 	url: z.string().url("有効なURLを入力してください"),
 });
