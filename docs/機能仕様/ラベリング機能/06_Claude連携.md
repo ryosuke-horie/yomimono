@@ -9,14 +9,14 @@
 ```mermaid
 sequenceDiagram
     User->>Claude: ラベリング指示
-    Claude->>API: GET /articles/unlabeled
-    API-->>Claude: 未ラベル記事一覧
+    Claude->>API: GET /api/bookmarks/unlabeled
+    API-->>Claude: 未ラベルブックマーク一覧
     Claude->>API: GET /labels
     API-->>Claude: 既存ラベル一覧
 
     loop 各記事
         Claude->>Claude: ラベル判断
-        Claude->>API: PUT /articles/{id}/label
+        Claude->>API: PUT /api/bookmarks/{id}/label
         API-->>Claude: 結果
     end
 
@@ -32,9 +32,11 @@ sequenceDiagram
 以下のAPIを利用して、未ラベル記事に対して適切なラベルを付与してください。
 
 使用可能なAPI:
-1. GET /api/articles/unlabeled - 未ラベル記事の取得
+1. GET /api/bookmarks/unlabeled - 未ラベルブックマークの取得
 2. GET /api/labels - 既存ラベル一覧の取得
-3. PUT /api/articles/{id}/label - ラベルの付与
+3. PUT /api/bookmarks/{id}/label - ラベルの付与
+4. PUT /api/bookmarks/batch-label - 複数ブックマークの一括ラベル付与
+5. GET /api/bookmarks - 未読ブックマークの取得
 
 ラベリングのルール:
 - 記事のタイトルから技術的なトピックを判断
@@ -71,8 +73,8 @@ URL: {url}
 ### 1. 未ラベル記事の取得
 
 ```typescript
-const response = await fetch("/api/articles/unlabeled");
-const { articles } = await response.json();
+const response = await fetch("/api/bookmarks/unlabeled");
+const { bookmarks } = await response.json();
 ```
 
 ### 2. 既存ラベルの取得
@@ -85,7 +87,7 @@ const { labels } = await response.json();
 ### 3. ラベルの付与
 
 ```typescript
-const response = await fetch(`/api/articles/${articleId}/label`, {
+const response = await fetch(`/api/bookmarks/${articleId}/label`, {
   method: "PUT",
   headers: {
     "Content-Type": "application/json",
@@ -96,10 +98,32 @@ const response = await fetch(`/api/articles/${articleId}/label`, {
 });
 ```
 
+### 4. 複数ブックマークへの一括ラベル付与
+
+```typescript
+const response = await fetch("/api/bookmarks/batch-label", {
+  method: "PUT",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    articleIds: [1, 2, 3],
+    labelName: "typescript",
+  }),
+});
+```
+
+### 5. 未読ブックマークの取得
+
+```typescript
+const response = await fetch("/api/bookmarks");
+const { bookmarks } = await response.json();
+```
+
 ## MCPツール一覧
 
 ### 1. getUnlabeledArticles
-未ラベルの記事一覧を取得します。
+未ラベルのブックマーク一覧を取得します。
 
 ```typescript
 // 引数なし
@@ -107,7 +131,7 @@ const result = await callTool("getUnlabeledArticles");
 ```
 
 ### 2. getLabels
-既存のラベル一覧を取得します。
+既存ラベル一覧を取得します。
 
 ```typescript
 // 引数なし
@@ -115,13 +139,40 @@ const result = await callTool("getLabels");
 ```
 
 ### 3. assignLabel
-記事にラベルを付与します。
+1件のブックマークにラベルを付与します。
 
 ```typescript
 const result = await callTool("assignLabel", {
   articleId: 1,
   labelName: "typescript"
 });
+```
+
+### 4. assignLabelsToMultipleArticles
+複数のブックマークへ一括でラベルを付与します。
+
+```typescript
+const result = await callTool("assignLabelsToMultipleArticles", {
+  articleIds: [1, 2, 3],
+  labelName: "typescript",
+  description: "TypeScript関連の記事"
+});
+```
+
+### 5. getLabelById
+ラベルIDを指定して詳細情報を取得します。
+
+```typescript
+const result = await callTool("getLabelById", {
+  labelId: 10
+});
+```
+
+### 6. getUnreadBookmarks
+未読ブックマークを取得します。
+
+```typescript
+const result = await callTool("getUnreadBookmarks");
 ```
 
 ## エラー処理
