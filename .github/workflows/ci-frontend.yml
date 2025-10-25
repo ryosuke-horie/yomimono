@@ -44,6 +44,10 @@ jobs:
         working-directory: ./frontend
         run: pnpm run lint
 
+      - name: Run type check
+        working-directory: ./frontend
+        run: pnpm run typecheck
+
       - name: Run unit tests
         working-directory: ./frontend
         run: pnpm run test:run
