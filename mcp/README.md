@@ -2,52 +2,64 @@
 
 ## 概要
 
-このサーバーは以下のツールを公開します：
+ラベリング用MCPサーバーが公開しているツールは以下の通りです。
 
 ### ラベル管理ツール
-- **`getUnlabeledArticles`**: ラベル付けされていない記事をAPIから取得します。（引数なし）
-- **`getLabels`**: 既存のラベル一覧をAPIから取得します。（引数なし）
-- **`assignLabel`**: 指定された記事IDに指定されたラベル名をAPI経由で割り当てます。（引数: `articleId`, `labelName`, `description`）
-- **`getLabelById`**: 特定のラベルを取得します。（引数: `labelId`）
-- **`assignLabelsToMultipleArticles`**: 複数の記事に一括でラベルを付与します。（引数: `articleIds`, `labelName`, `description`）
+- `getUnlabeledArticles`: 未ラベルのブックマークを取得（引数なし）
+- `getLabels`: 既存ラベル一覧を取得（引数なし）
+- `assignLabel`: 指定ブックマークにラベルを1件付与（引数: `articleId`, `labelName`, `description?`）
+- `assignLabelsToMultipleArticles`: 複数ブックマークへラベルを一括付与（引数: `articleIds`, `labelName`, `description?`）
+- `getLabelById`: ラベルIDを指定して詳細を取得（引数: `labelId`）
 
 ### ブックマーク管理ツール
-- **`getUnreadBookmarks`**: 未読ブックマークを取得します。（引数なし）
+- `getUnreadBookmarks`: 未読ブックマーク一覧を取得（引数なし）
 
-## Connecting with a Client
+## 利用方法
 
-### ローカル開発 / MCP Inspector
-[MCP Inspector](https://github.com/modelcontextprotocol/inspector) のようなMCPクライアントを使用して、ローカルで実行中のサーバー（`npm run src/index.ts` で起動）に接続し、`autoLabelArticles` ツールと対話できます。
+### 前提
+- パッケージ管理は`pnpm`のみサポート（`npx only-allow pnpm`を利用）。
+- `API_BASE_URL` 環境変数にバックエンドAPIのベースURLを設定してください。
 
-### Claude Desktop 連携
-このサーバーをClaude Desktopと連携させるには：
-
-1.  **サーバーのビルド**: TypeScriptコードをJavaScriptにコンパイルします。
+### ローカル開発（MCP Inspector等）
+1. 依存関係をインストールします。
     ```bash
     cd mcp
-    npm run build
+    pnpm install
     ```
-    これにより、コンパイルされたコード（例：`build/index.js`）を含む `build` ディレクトリが作成されます。
-
-2.  **Claude Desktopの設定**: Claude Desktopの設定ファイル（通常、macOSでは `~/Library/Application Support/Claude/claude_desktop_config.json` にあります）を編集します。`mcpServers` オブジェクト内に以下のエントリを追加します。
-
-    ```json
-    "effective-yomimono-mcp": {
-      "command": "node",
-      "args": ["/プロジェクトへの絶対パス/effective-yomimono/mcp/build/index.js"],
-      "env": {
-        "API_BASE_URL": "https://effective-yomimono-api.ryosuke-horie37.workers.dev"
-      },
-      "disabled": false,
-      "autoApprove": []
-    }
+2. TypeScriptをビルドします。
+    ```bash
+    pnpm run build
     ```
-    - `/プロジェクトへの絶対パス/effective-yomimono` を実際のプロジェクトディレクトリへの絶対パスに置き換えてください。
-    - `API_BASE_URL` がデプロイ済みのバックエンドAPIエンドポイントと一致していることを確認してください。
+3. ビルド済みサーバーを起動し、標準入出力で待ち受けます。
+    ```bash
+    node build/index.js
+    ```
+4. [MCP Inspector](https://github.com/modelcontextprotocol/inspector) などのクライアントから接続し、必要なツール（例: `assignLabelsToMultipleArticles`）を呼び出します。
 
-3.  **Claude Desktopの再起動**: 変更を有効にするためにClaude Desktopを再起動します。サーバーがClaude内で利用可能になるはずです。
+### Claude Desktop 連携
+Claude Desktopで利用する場合は設定ファイル（macOS例: `~/Library/Application Support/Claude/claude_desktop_config.json`）に以下のエントリを追加します。
 
-## 開発
+```json
+"effective-yomimono-mcp": {
+  "command": "node",
+  "args": ["/絶対パス/effective-yomimono/mcp/build/index.js"],
+  "env": {
+    "API_BASE_URL": "https://effective-yomimono-api.ryosuke-horie37.workers.dev"
+  },
+  "disabled": false,
+  "autoApprove": []
+}
+```
 
-- **ビルド**: `npm run build` （TypeScriptを `build/` ディレクトリ内のJavaScriptにコンパイルします）
-- **Lint/フォーマット**: Biomeを使用。`npm run biome check .` または `npm run biome format --write .` を実行。
+- `/絶対パス/effective-yomimono` はローカルの実パスに置き換えてください。
+- `API_BASE_URL` は利用したい環境（ローカル/ステージング/本番）に合わせて変更します。
+- 設定後にClaude Desktopを再起動するとサーバーが利用可能になります。
+
+## 開発タスク
+
+- ビルド: `pnpm run build`
+- Lint: `pnpm run lint`
+- フォーマット: `pnpm run format`
+- 型チェック: `pnpm run typecheck`
+
+必要に応じて `pnpm run build -- --watch` を使用するとTypeScriptの再ビルドを監視できます。

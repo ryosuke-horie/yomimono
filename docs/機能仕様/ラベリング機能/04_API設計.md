@@ -2,9 +2,52 @@
 
 ## エンドポイント一覧
 
-### 1. 未ラベル記事一覧取得
+### 1. 未読ブックマーク一覧取得
 ```
-GET /api/articles/unlabeled
+GET /api/bookmarks
+```
+
+#### リクエスト
+- クエリパラメータ（任意）
+  - `label`: ラベル名を指定すると該当ブックマークのみ取得
+- ヘッダー
+  ```
+  Accept: application/json
+  ```
+
+#### レスポンス
+- 成功時 (200 OK)
+  ```json
+  {
+    "success": true,
+    "bookmarks": [
+      {
+        "id": 1,
+        "url": "https://example.com",
+        "title": "サンプルタイトル",
+        "labels": ["typescript"],
+        "isRead": false,
+        "isFavorite": false,
+        "createdAt": "2024-04-04T12:00:00Z",
+        "updatedAt": "2024-04-04T12:00:00Z"
+      }
+    ],
+    "totalUnread": 42,
+    "todayReadCount": 3
+  }
+  ```
+- エラー時
+  - 500: サーバーエラー
+    ```json
+    {
+      "success": false,
+      "message": "Failed to fetch bookmarks"
+    }
+    ```
+
+### 2. 未ラベルブックマーク一覧取得
+```
+GET /api/bookmarks/unlabeled
 ```
 
 #### リクエスト
@@ -18,7 +61,7 @@ GET /api/articles/unlabeled
   ```json
   {
     "success": true,
-    "articles": [
+    "bookmarks": [
       {
         "id": 1,
         "url": "https://example.com",
@@ -34,58 +77,23 @@ GET /api/articles/unlabeled
     ```json
     {
       "success": false,
-      "message": "Failed to fetch unlabeled articles"
+      "message": "Failed to fetch unlabeled bookmarks"
     }
     ```
 
-### 2. ラベル一覧取得
+### 3. 単一ブックマークへのラベル付与
 ```
-GET /api/labels
-```
-
-#### リクエスト
-- ヘッダー
-  ```
-  Accept: application/json
-  ```
-
-#### レスポンス
-- 成功時 (200 OK)
-  ```json
-  {
-    "success": true,
-    "labels": [
-      {
-        "id": 1,
-        "name": "typescript",
-        "articleCount": 5,
-        "createdAt": "2024-04-04T12:00:00Z",
-        "updatedAt": "2024-04-04T12:00:00Z"
-      }
-    ]
-  }
-  ```
-- エラー時
-  - 500: サーバーエラー
-    ```json
-    {
-      "success": false,
-      "message": "Failed to fetch labels"
-    }
-    ```
-
-### 3. ラベル付与
-```
-PUT /api/articles/:id/label
+PUT /api/bookmarks/:id/label
 ```
 
 #### リクエスト
-- パラメータ
-  - `id`: ラベルを付与する記事のID (数値)
+- パスパラメータ
+  - `id`: ラベル付与対象のブックマークID (数値)
 - ボディ
   ```json
   {
-    "labelName": "typescript"  // 既存のラベル名または新規ラベル名
+    "labelName": "typescript",
+    "description": "TypeScript関連記事"
   }
   ```
 - ヘッダー
@@ -100,46 +108,54 @@ PUT /api/articles/:id/label
   {
     "success": true,
     "label": {
-      "id": 1,
+      "id": 10,
       "name": "typescript",
+      "description": "TypeScript関連記事",
       "createdAt": "2024-04-04T12:00:00Z",
       "updatedAt": "2024-04-04T12:00:00Z"
     }
   }
   ```
 - エラー時
-  - 400: 不正なリクエスト
+  - 400: パラメータ不正
     ```json
     {
       "success": false,
       "message": "Invalid request body"
     }
     ```
-  - 404: 記事が存在しない
+  - 404: ブックマーク未存在
     ```json
     {
       "success": false,
-      "message": "Article not found"
+      "message": "Bookmark not found"
     }
     ```
-  - 409: 既にラベル付与済み
+  - 409: すでにラベル付与済み
     ```json
     {
       "success": false,
-      "message": "Article is already labeled"
+      "message": "Bookmark is already labeled"
     }
     ```
 
-### 4. ラベル削除
+### 4. 複数ブックマークへの一括ラベル付与
 ```
-DELETE /api/labels/:id
+PUT /api/bookmarks/batch-label
 ```
 
 #### リクエスト
-- パラメータ
-  - `id`: 削除対象のラベルID (数値)
+- ボディ
+  ```json
+  {
+    "articleIds": [1, 2, 3],
+    "labelName": "typescript",
+    "description": "TypeScript関連記事"
+  }
+  ```
 - ヘッダー
   ```
+  Content-Type: application/json
   Accept: application/json
   ```
 
@@ -148,59 +164,52 @@ DELETE /api/labels/:id
   ```json
   {
     "success": true,
-    "message": "Label deleted successfully"
+    "successful": 2,
+    "skipped": 1,
+    "errors": [
+      {
+        "articleId": 3,
+        "error": "Bookmark is already labeled"
+      }
+    ],
+    "label": {
+      "id": 10,
+      "name": "typescript",
+      "description": "TypeScript関連記事"
+    }
   }
   ```
 - エラー時
-  - 400: 不正なリクエスト
+  - 400: パラメータ不正
     ```json
     {
       "success": false,
-      "message": "Invalid label ID"
-    }
-    ```
-  - 404: ラベルが存在しない
-    ```json
-    {
-      "success": false,
-      "message": "Label not found"
+      "message": "articleIds must be a non-empty array"
     }
     ```
   - 500: サーバーエラー
     ```json
     {
       "success": false,
-      "message": "Failed to delete label"
+      "message": "Failed to batch assign labels"
     }
     ```
 
-### 5. ラベルによる記事フィルタリング
+### 5. ラベル一覧取得
 ```
-GET /api/articles?label=:labelName
+GET /api/labels
 ```
-
-#### リクエスト
-- クエリパラメータ
-  - `label`: フィルタリングするラベル名（URL encoded）
-- ヘッダー
-  ```
-  Accept: application/json
-  ```
 
 #### レスポンス
 - 成功時 (200 OK)
   ```json
   {
     "success": true,
-    "articles": [
+    "labels": [
       {
-        "id": 1,
-        "url": "https://example.com",
-        "title": "サンプルタイトル",
-        "label": {
-          "id": 1,
-          "name": "typescript"
-        },
+        "id": 10,
+        "name": "typescript",
+        "description": "TypeScript関連記事",
         "createdAt": "2024-04-04T12:00:00Z",
         "updatedAt": "2024-04-04T12:00:00Z"
       }
@@ -208,122 +217,71 @@ GET /api/articles?label=:labelName
   }
   ```
 - エラー時
-  - 400: 不正なラベル名
+  - 500: サーバーエラー
     ```json
     {
       "success": false,
-      "message": "Invalid label name"
+      "message": "Failed to get labels"
     }
     ```
 
-## 実装詳細
+### 6. ラベル詳細取得
+```
+GET /api/labels/:id
+```
 
-### データの整合性
-- ラベル削除時の挙動
-  - `labels`テーブルからレコードを削除
-  - 外部キー制約（`onDelete: "cascade"`）により、`article_labels`テーブルの関連レコードも自動削除
-
-### 1. ルーティング実装（Hono）
-```typescript
-// 未ラベル記事一覧取得
-app.get("/unlabeled", async (c) => {
-  const result = await articleService.getUnlabeledArticles();
-  return c.json({ success: true, articles: result });
-});
-
-// ラベル一覧取得
-app.get("/labels", async (c) => {
-  const result = await labelService.getLabels();
-  return c.json({ success: true, labels: result });
-});
-
-// ラベル付与
-app.put("/:id/label", async (c) => {
-  const id = Number.parseInt(c.req.param("id"));
-  if (Number.isNaN(id)) {
-    return c.json({ success: false, message: "Invalid article ID" }, 400);
-  }
-
-  const body = await c.req.json();
-  if (!body.labelName || typeof body.labelName !== "string") {
-    return c.json({ success: false, message: "Invalid request body" }, 400);
-  }
-
-  const result = await labelService.assignLabel(id, body.labelName);
-  return c.json({ success: true, label: result });
-});
-
-// ラベルによる記事フィルタリング
-app.get("/", async (c) => {
-  const labelName = c.req.query("label");
-  if (!labelName) {
-    return c.json({ success: false, message: "Label name is required" }, 400);
-  }
-
-  const result = await articleService.getArticlesByLabel(labelName);
-  return c.json({ success: true, articles: result });
-});
-
-// ラベル削除
-app.delete("/labels/:id", async (c) => {
-  const id = Number.parseInt(c.req.param("id"));
-  if (Number.isNaN(id)) {
-    return c.json({ success: false, message: "Invalid label ID" }, 400);
-  }
-
-  try {
-    await labelService.deleteLabel(id);
-    return c.json({ success: true, message: "Label deleted successfully" });
-  } catch (error) {
-    if (error instanceof Error && error.message.includes("not found")) {
-      return c.json({ success: false, message: "Label not found" }, 404);
+#### レスポンス
+- 成功時 (200 OK)
+  ```json
+  {
+    "success": true,
+    "label": {
+      "id": 10,
+      "name": "typescript",
+      "description": "TypeScript関連記事",
+      "createdAt": "2024-04-04T12:00:00Z",
+      "updatedAt": "2024-04-04T12:00:00Z"
     }
-    console.error("Failed to delete label:", error);
-    return c.json({ success: false, message: "Failed to delete label" }, 500);
   }
-});
+  ```
+- エラー時
+  - 404: 指定IDのラベルが存在しない
+    ```json
+    {
+      "success": false,
+      "message": "Label not found"
+    }
+    ```
+
+### 7. 未使用ラベルのクリーンアップ
+```
+DELETE /api/labels/cleanup
 ```
 
-### 2. エラーハンドリング
+#### レスポンス
+- 成功時 (200 OK)
+  ```json
+  {
+    "success": true,
+    "message": "Successfully cleaned up 3 unused labels",
+    "deletedCount": 3,
+    "deletedLabels": [
+      { "id": 21, "name": "old-label" }
+    ]
+  }
+  ```
+- エラー時
+  - 500: サーバーエラー
+    ```json
+    {
+      "success": false,
+      "message": "Failed to cleanup unused labels"
+    }
+    ```
 
-#### バリデーション
-- リクエストボディの型チェック
-  - labelName: 必須、文字列型
-- パラメータの検証
-  - 記事ID: 数値型
-  - ラベル名: 文字列型、空文字でない
+## 実装メモ
 
-#### エラーレスポンス
-- 400: リクエスト形式不正
-- 404: リソースが存在しない
-- 409: 重複操作
-- 500: サーバーエラー
-
-### 3. データ整形処理
-
-#### ラベル名の正規化
-```typescript
-function normalizeLabel(name: string): string {
-  return name
-    .trim()                    // 前後の空白を除去
-    .toLowerCase()             // 小文字に統一
-    .replace(/[Ａ-Ｚａ-ｚ]/g,    // 全角英数を半角に変換
-      (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
-}
-```
-
-#### レスポンスデータの整形
-- 日時はISO 8601形式（UTC）で返却
-- 不要なデータを除外
-- 必要に応じて関連データを含める
-
-### 4. セキュリティ対策
-
-#### リクエストの検証
-- Content-TypeとAcceptヘッダーのバリデーション
-- パラメータの型チェックと値の検証
-- 文字列の長さ制限とサニタイズ
-
-#### エラー情報の制御
-- スタックトレースは非公開
-- エラーメッセージは適切な粒度で開示
+- エンドポイントはすべてJSONレスポンスを返却し、`success`フラグで成否を判定する。
+- ラベル名・説明文はサービス層で正規化・バリデーションされる。
+- `articleIds` は正の整数配列であることを必須とし、空配列は400エラーを返す。
+- 未読ブックマーク取得時は `totalUnread` と `todayReadCount` を併せて返すため、クライアント側でダッシュボード表示に利用できる。
