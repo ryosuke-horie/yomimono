@@ -31,7 +31,6 @@ const fetchBookmarks = async (
 };
 
 export default function HomePage() {
-
 	// ラベル関連のフック
 	const {
 		labels,
@@ -116,7 +115,6 @@ export default function HomePage() {
 					onLabelClick={setSelectedLabelName} // ラベルクリック時のハンドラを渡す
 				/>
 			)}
-
 		</main>
 	);
 }
