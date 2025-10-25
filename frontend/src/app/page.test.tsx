@@ -2,7 +2,7 @@
  * メインページのテスト
  */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ToastProvider } from "@/providers/ToastProvider";
 import Page from "./page";
@@ -83,8 +83,6 @@ describe("メインページ", () => {
 		const wrapper = createWrapper();
 		render(<Page />, { wrapper });
 
-		expect(screen.getByText("記事を追加")).toBeInTheDocument();
-
 		// ローディング状態の確認
 		expect(screen.getByText("ラベルを読み込み中...")).toBeInTheDocument();
 
@@ -94,27 +92,7 @@ describe("メインページ", () => {
 		});
 
 		expect(screen.getByText("本日既読: 3件")).toBeInTheDocument();
-	});
-
-	it("記事を追加ボタンクリック時にモーダルが開く", async () => {
-		const wrapper = createWrapper();
-		render(<Page />, { wrapper });
-
-		// データが読み込まれるまで待機
-		await waitFor(() => {
-			expect(screen.getByText("記事を追加")).toBeInTheDocument();
-		});
-
-		const addButton = screen.getByText("記事を追加");
-		fireEvent.click(addButton);
-
-		// モーダルが開いていることを確認（フォーム要素で判定）
-		await waitFor(() => {
-			expect(screen.getByPlaceholderText("記事のタイトル")).toBeInTheDocument();
-			expect(
-				screen.getByPlaceholderText("https://example.com/article"),
-			).toBeInTheDocument();
-		});
+		expect(screen.queryByText("記事を追加")).not.toBeInTheDocument();
 	});
 
 	it("ラベルエラー時に適切なエラーメッセージを表示する", async () => {
@@ -208,7 +186,7 @@ describe("メインページ", () => {
 		render(<Page />, { wrapper });
 
 		await waitFor(() => {
-			expect(screen.getByText("記事を追加")).toBeInTheDocument();
+			expect(screen.getByText("テストラベル")).toBeInTheDocument();
 		});
 
 		// 統計情報が表示されないことを確認
