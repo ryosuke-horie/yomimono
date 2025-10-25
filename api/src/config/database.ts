@@ -39,8 +39,10 @@ export function getDatabaseConfig(nodeEnv?: string): DatabaseConfig {
  * 現在の環境に基づくデータベース設定を取得する
  * @returns 現在の環境のデータベース設定
  */
-export function getCurrentDatabaseConfig(): DatabaseConfig {
-	return getDatabaseConfig(process.env.NODE_ENV);
+export function getCurrentDatabaseConfig(
+	nodeEnv: string | undefined = process.env.NODE_ENV,
+): DatabaseConfig {
+	return getDatabaseConfig(nodeEnv);
 }
 
 if (import.meta.vitest) {
@@ -90,20 +92,11 @@ if (import.meta.vitest) {
 
 	describe("getCurrentDatabaseConfig", () => {
 		test("現在の環境変数に基づいて設定を返す", () => {
-			const originalEnv = process.env.NODE_ENV;
+			const productionConfig = getCurrentDatabaseConfig("production");
+			expect(productionConfig.environment).toBe("production");
 
-			// 本番環境をテスト
-			process.env.NODE_ENV = "production";
-			let config = getCurrentDatabaseConfig();
-			expect(config.environment).toBe("production");
-
-			// 開発環境をテスト
-			process.env.NODE_ENV = "development";
-			config = getCurrentDatabaseConfig();
-			expect(config.environment).toBe("development");
-
-			// 環境変数をリストア
-			process.env.NODE_ENV = originalEnv;
+			const developmentConfig = getCurrentDatabaseConfig("development");
+			expect(developmentConfig.environment).toBe("development");
 		});
 	});
 }

@@ -40,6 +40,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: ./api
           packageManager: pnpm
+          command: "deploy --minify --env \"\""
 
       - name: Deploy Frontend
         run: pnpm run deploy

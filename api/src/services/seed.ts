@@ -4,7 +4,11 @@
  */
 import { count, desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
-import { getCurrentDatabaseConfig } from "../config/database";
+import type { DatabaseConfig } from "../config/database";
+import {
+	getCurrentDatabaseConfig,
+	getDatabaseConfig,
+} from "../config/database";
 import { articleLabels, bookmarks, favorites, labels } from "../db/schema";
 import { InternalServerError } from "../exceptions";
 import type {
@@ -20,7 +24,10 @@ import {
 } from "../scripts/seed";
 
 export class SeedService implements ISeedService {
-	constructor(private readonly database: D1Database) {}
+	constructor(
+		private readonly database: D1Database,
+		private readonly resolveConfig: () => DatabaseConfig = getCurrentDatabaseConfig,
+	) {}
 
 	/**
 	 * シードデータを生成・挿入する
@@ -191,7 +198,7 @@ export class SeedService implements ISeedService {
 	 */
 	async validateEnvironment(forceRun = false): Promise<boolean> {
 		try {
-			const config = getCurrentDatabaseConfig();
+			const config = this.resolveConfig();
 
 			if (config.environment === "production" && !forceRun) {
 				throw new Error(
@@ -234,29 +241,22 @@ if (import.meta.vitest) {
 			});
 
 			test("本番環境でforceRun=falseの場合はエラーが発生する", async () => {
-				// NODE_ENVを一時的に変更
-				const originalEnv = process.env.NODE_ENV;
-				process.env.NODE_ENV = "production";
+				const productionService = new SeedService(mockDatabase, () =>
+					getDatabaseConfig("production"),
+				);
 
-				try {
-					await expect(seedService.validateEnvironment(false)).rejects.toThrow(
-						"本番環境でのシードデータ操作は禁止されています",
-					);
-				} finally {
-					process.env.NODE_ENV = originalEnv;
-				}
+				await expect(
+					productionService.validateEnvironment(false),
+				).rejects.toThrow("本番環境でのシードデータ操作は禁止されています");
 			});
 
 			test("本番環境でforceRun=trueの場合は正常に完了する", async () => {
-				const originalEnv = process.env.NODE_ENV;
-				process.env.NODE_ENV = "production";
+				const productionService = new SeedService(mockDatabase, () =>
+					getDatabaseConfig("production"),
+				);
 
-				try {
-					const result = await seedService.validateEnvironment(true);
-					expect(result).toBe(true);
-				} finally {
-					process.env.NODE_ENV = originalEnv;
-				}
+				const result = await productionService.validateEnvironment(true);
+				expect(result).toBe(true);
 			});
 		});
 
