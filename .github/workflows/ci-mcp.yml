@@ -45,3 +45,7 @@ jobs:
       - name: Run type check
         working-directory: ./mcp
         run: pnpm run typecheck
+
+      - name: Run tests
+        working-directory: ./mcp
+        run: pnpm run test
