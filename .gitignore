@@ -40,6 +40,4 @@ Thumbs.db
 # Database backups
 **/db_backup_*.sql
 
-**/.claude/settings.local.json
-
 **/CLAUDE.local.md
