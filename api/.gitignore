@@ -37,6 +37,9 @@ coverage/
 # 本番から取得するデータSQL
 data.sql
 
+# バックアップSQL
+backup_*.sql
+
 # SQLiteデータベースファイル
 sqlite.db
 *.db
