@@ -7,7 +7,7 @@ import { registerTools } from "./tools.js";
 dotenv.config({ quiet: true });
 
 // MCPサーバーインスタンスを生成
-export const server = new McpServer({
+const server = new McpServer({
 	name: "EffectiveYomimonoLabeler", // サーバー識別用の名前
 	version: "0.7.0", // レーティング機能削除後のバージョン
 });

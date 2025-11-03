@@ -20,8 +20,6 @@ const ArticleSchema = z.object({
 	updatedAt: z.string().or(z.instanceof(Date)),
 });
 
-export type BookmarkWithLabel = z.infer<typeof ArticleSchema>;
-
 const UnlabeledArticlesResponseSchema = z.object({
 	success: z.literal(true),
 	bookmarks: z.array(
@@ -57,19 +55,6 @@ const LabelsResponseSchema = z.object({
 const GetLabelByIdResponseSchema = z.object({
 	success: z.literal(true),
 	label: LabelSchema,
-});
-
-// Schema for the DELETE /api/labels/cleanup response
-const CleanupLabelsResponseSchema = z.object({
-	success: z.literal(true),
-	message: z.string(),
-	deletedCount: z.number(),
-	deletedLabels: z.array(
-		z.object({
-			id: z.number(),
-			name: z.string(),
-		}),
-	),
 });
 
 const BatchResultSchema = z.object({
@@ -274,25 +259,4 @@ export async function getUnreadBookmarks() {
 		readAt: null,
 		updatedAt: typeof bookmark.updatedAt === "string" ? bookmark.updatedAt : bookmark.updatedAt.toISOString(),
 	}));
-}
-
-export async function cleanupUnusedLabels(): Promise<{
-	deletedCount: number;
-	deletedLabels: Array<{ id: number; name: string }>;
-	message: string;
-}> {
-	const data = await requestJson(
-		"/api/labels/cleanup",
-		{
-			method: "DELETE",
-		},
-		CleanupLabelsResponseSchema,
-		"Failed to cleanup unused labels",
-	);
-
-	return {
-		deletedCount: data.deletedCount,
-		deletedLabels: data.deletedLabels,
-		message: data.message,
-	};
 }

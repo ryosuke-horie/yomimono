@@ -13,7 +13,9 @@ import * as apiClient from "./lib/apiClient.js";
 import {
 	handleAssignLabelsToMultipleArticlesTool,
 	handleAssignLabelTool,
+	handleGetLabelByIdTool,
 	handleGetLabelsTool,
+	handleGetUnlabeledArticlesTool,
 	handleGetUnreadBookmarksTool,
 } from "./tools.js";
 
@@ -27,6 +29,28 @@ describe("tool handlers", () => {
 
 	afterAll(() => {
 		consoleErrorSpy.mockRestore();
+	});
+
+	it("handleGetUnlabeledArticlesTool: 未ラベル記事一覧をJSONとして返却する", async () => {
+		const articles = [
+			{
+				id: 1,
+				title: "記事1",
+				url: "https://example.com/1",
+				isRead: false,
+				createdAt: "2024-01-01T00:00:00.000Z",
+				updatedAt: "2024-01-02T00:00:00.000Z",
+			},
+		];
+		mockedApiClient.getUnlabeledArticles.mockResolvedValueOnce(articles);
+
+		const result = await handleGetUnlabeledArticlesTool();
+
+		expect(mockedApiClient.getUnlabeledArticles).toHaveBeenCalled();
+		expect(result).toEqual({
+			content: [{ type: "text", text: JSON.stringify(articles, null, 2) }],
+			isError: false,
+		});
 	});
 
 	it("handleGetLabelsTool: ラベル一覧をJSONとして返却する", async () => {
@@ -72,6 +96,25 @@ describe("tool handlers", () => {
 			isError: true,
 		});
 		expect(consoleErrorSpy).toHaveBeenCalled();
+	});
+
+	it("handleGetLabelByIdTool: ラベル詳細をJSONとして返却する", async () => {
+		const label = {
+			id: 99,
+			name: "Personal",
+			description: "Private readings",
+			createdAt: "2024-01-01T00:00:00.000Z",
+			updatedAt: "2024-01-02T00:00:00.000Z",
+		};
+		mockedApiClient.getLabelById.mockResolvedValueOnce(label);
+
+		const result = await handleGetLabelByIdTool({ labelId: 99 });
+
+		expect(mockedApiClient.getLabelById).toHaveBeenCalledWith(99);
+		expect(result).toEqual({
+			content: [{ type: "text", text: `Label details: ${JSON.stringify(label, null, 2)}` }],
+			isError: false,
+		});
 	});
 
 	it("handleAssignLabelsToMultipleArticlesTool: 入力検証エラーを返す", async () => {

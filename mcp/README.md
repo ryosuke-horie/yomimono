@@ -61,5 +61,8 @@ Claude Desktopで利用する場合は設定ファイル（macOS例: `~/Library/
 - Lint: `pnpm run lint`
 - フォーマット: `pnpm run format`
 - 型チェック: `pnpm run typecheck`
+- デッドコード検出: `pnpm run knip`
+
+`pnpm run knip` を実行すると未使用のファイル・エクスポート・依存関係がレポートされます。削除前に内容を確認し、実運用で利用されていないことを確かめた上で反映してください。
 
 必要に応じて `pnpm run build -- --watch` を使用するとTypeScriptの再ビルドを監視できます。
