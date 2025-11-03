@@ -47,7 +47,8 @@
 				{
 					"binding": "DB",
 					"database_name": "yomimono-db-dev",
-					"database_id": "local-dev-db"
+					"database_id": "local-dev-db",
+					"migrations_dir": "drizzle"
 				}
 			]
 		}
