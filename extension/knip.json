@@ -1,0 +1,7 @@
+{
+	"$schema": "https://unpkg.com/knip@5/schema.json",
+	"entry": ["popup/popup.js"],
+	"project": ["popup/**/*.js"],
+	"ignore": ["dist/**"],
+	"ignoreBinaries": ["only-allow"]
+}

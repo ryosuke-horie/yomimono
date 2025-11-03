@@ -8,12 +8,14 @@
 		"lint": "npx @biomejs/biome check",
 		"format": "npx @biomejs/biome check --write",
 		"typecheck": "echo 'No TypeScript files to check'",
+		"knip": "knip",
 		"build": "mkdir -p dist && cp -r manifest.json background.js popup images dist/"
 	},
 	"private": true,
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.2",
 		"@types/node": "^24.9.2",
+		"knip": "^5.67.1",
 		"typescript": "^5.9.3"
 	}
 }
