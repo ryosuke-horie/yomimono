@@ -4,7 +4,7 @@
  */
 "use client";
 
-import { createContext, useCallback, useState } from "react";
+import { createContext, useCallback, useRef, useState } from "react";
 import { ToastContainer } from "@/components/Toast";
 import type {
 	ToastContextValue,
@@ -19,10 +19,12 @@ export const ToastContext = createContext<ToastContextValue | undefined>(
 
 export function ToastProvider({ children }: ToastProviderProps) {
 	const [toasts, setToasts] = useState<ToastMessage[]>([]);
+	const toastIdCounter = useRef(0);
 
 	const showToast = useCallback(
 		({ type, message, duration = 3000 }: ToastOptions) => {
-			const id = Date.now().toString();
+			toastIdCounter.current += 1;
+			const id = `${Date.now()}-${toastIdCounter.current}`;
 			const newToast: ToastMessage = {
 				id,
 				type,

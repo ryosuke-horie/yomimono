@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vitest";
 import type { ToastMessage } from "@/types/toast";
@@ -87,7 +87,9 @@ describe("Toast", () => {
 		await userEvent.click(closeButton);
 
 		// アニメーション完了後のonCloseが呼ばれる
-		await vi.advanceTimersByTimeAsync(ANIMATION_DURATION);
+		await act(async () => {
+			await vi.advanceTimersByTimeAsync(ANIMATION_DURATION);
+		});
 
 		await waitFor(() => {
 			expect(mockOnClose).toHaveBeenCalledWith("4");
@@ -109,9 +111,13 @@ describe("Toast", () => {
 		render(<Toast toast={toast} onClose={mockOnClose} />);
 
 		// duration後にアニメーション開始
-		await vi.advanceTimersByTimeAsync(3000);
+		await act(async () => {
+			await vi.advanceTimersByTimeAsync(3000);
+		});
 		// アニメーション完了後のonClose実行
-		await vi.advanceTimersByTimeAsync(ANIMATION_DURATION);
+		await act(async () => {
+			await vi.advanceTimersByTimeAsync(ANIMATION_DURATION);
+		});
 
 		await waitFor(() => {
 			expect(mockOnClose).toHaveBeenCalledWith("5");
@@ -133,9 +139,13 @@ describe("Toast", () => {
 		render(<Toast toast={toast} onClose={mockOnClose} />);
 
 		// duration後にアニメーション開始
-		await vi.advanceTimersByTimeAsync(4000);
+		await act(async () => {
+			await vi.advanceTimersByTimeAsync(4000);
+		});
 		// アニメーション完了後のonClose実行
-		await vi.advanceTimersByTimeAsync(ANIMATION_DURATION);
+		await act(async () => {
+			await vi.advanceTimersByTimeAsync(ANIMATION_DURATION);
+		});
 
 		await waitFor(() => {
 			expect(mockOnClose).toHaveBeenCalledWith("5-warning");
@@ -157,11 +167,15 @@ describe("Toast", () => {
 		const { unmount } = render(<Toast toast={toast} onClose={mockOnClose} />);
 
 		// 2秒後にアンマウント
-		vi.advanceTimersByTime(2000);
+		act(() => {
+			vi.advanceTimersByTime(2000);
+		});
 		unmount();
 
 		// 残りの3秒+アニメーション時間経過させる
-		vi.advanceTimersByTime(3000 + ANIMATION_DURATION);
+		act(() => {
+			vi.advanceTimersByTime(3000 + ANIMATION_DURATION);
+		});
 
 		// onCloseが呼ばれていないことを確認
 		expect(mockOnClose).not.toHaveBeenCalled();
