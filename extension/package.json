@@ -3,17 +3,20 @@
 	"version": "1.0.0",
 	"main": "background.js",
 	"scripts": {
-		"preinstall": "npx only-allow pnpm",
+		"preinstall": "pnpm dlx only-allow pnpm",
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"lint": "npx @biomejs/biome check",
-		"format": "npx @biomejs/biome check --write",
+		"lint": "pnpm exec biome check",
+		"format": "pnpm exec biome check --write",
 		"typecheck": "echo 'No TypeScript files to check'",
+		"knip": "pnpm exec knip",
 		"build": "mkdir -p dist && cp -r manifest.json background.js popup images dist/"
 	},
 	"private": true,
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.2",
 		"@types/node": "^24.9.2",
+		"knip": "^5.67.1",
+		"only-allow": "^1.2.1",
 		"typescript": "^5.9.3"
 	}
 }

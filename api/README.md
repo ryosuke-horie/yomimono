@@ -107,3 +107,12 @@ npm run deploy
 本番DBのデータコピーをローカルに流す
 `data.sql`で`__drizzle_migrations`の記述を削除する。
 `npx wrangler d1 execute yomimono-db --local --file=data.sql`
+
+## デッドコード検出
+
+Knipを導入しており、未使用のファイルやシンボルを検出できます。定期的に実行し、安全に削除できるかを確認してください。
+
+```bash
+pnpm install
+pnpm run knip
+```
