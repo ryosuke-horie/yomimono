@@ -54,9 +54,11 @@ better-sqlite3やesbuildなどネイティブ依存を含むため、`pnpm.onlyB
 | コマンド | 説明 | 備考 |
 | --- | --- | --- |
 | `pnpm run seed` / `seed:development` | ローカルD1に初期データを投入 | `NODE_ENV=development`、同義コマンド |
-| `pnpm run seed:test` | Vitestで利用する軽量データセットを投入 | `tsx -e`で即時実行 |
-| `pnpm run seed:custom` | 任意件数（50件/8ラベル/40%お気に入り）のデータ投入例 | パラメータをコード内で変更可能 |
-| `pnpm run seed:clear` | シードデータをクリア | Local DBのリセットに使用 |
+| `pnpm run seed:test` | 5件/3ラベル/20%お気に入りの軽量データを投入 | `SEED_PRESET=test` |
+| `pnpm run seed:custom` | 50件/8ラベル/40%お気に入りの大規模データを投入 | `SEED_PRESET=custom` |
+| `pnpm run seed:clear` | シードデータをクリア | `SEED_PRESET=clear` |
+
+各コマンドは共通の`src/scripts/seed-runner.ts`を使用しており、`SEED_OPTIONS='{"bookmarkCount":10}'`のようにJSON文字列を渡すことで任意値を上書きできます。
 
 ## テスト実行
 

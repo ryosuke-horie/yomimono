@@ -16,11 +16,11 @@
 		"db:studio": "drizzle-kit studio",
 		"db:studio:dev": "NODE_ENV=development drizzle-kit studio",
 		"db:studio:prod": "NODE_ENV=production drizzle-kit studio",
-		"seed": "NODE_ENV=development npx tsx src/scripts/seed.ts",
-		"seed:development": "NODE_ENV=development npx tsx src/scripts/seed.ts",
-		"seed:test": "NODE_ENV=development npx tsx -e \"(async () => { const m = await import('./src/scripts/seed.ts'); await m.runSeedData({bookmarkCount: 5, labelCount: 3, favoriteRatio: 0.2}); })()\"",
-		"seed:custom": "NODE_ENV=development npx tsx -e \"(async () => { const m = await import('./src/scripts/seed.ts'); await m.runSeedData({bookmarkCount: 50, labelCount: 8, favoriteRatio: 0.4}); })()\"",
-		"seed:clear": "NODE_ENV=development npx tsx -e \"(async () => { const m = await import('./src/scripts/seed.ts'); await m.clearDatabase(); })()\""
+		"seed": "NODE_ENV=development pnpm exec tsx src/scripts/seed-runner.ts",
+		"seed:development": "NODE_ENV=development SEED_PRESET=development pnpm exec tsx src/scripts/seed-runner.ts",
+		"seed:test": "NODE_ENV=development SEED_PRESET=test pnpm exec tsx src/scripts/seed-runner.ts",
+		"seed:custom": "NODE_ENV=development SEED_PRESET=custom pnpm exec tsx src/scripts/seed-runner.ts",
+		"seed:clear": "NODE_ENV=development SEED_PRESET=clear pnpm exec tsx src/scripts/seed-runner.ts"
 	},
 	"dependencies": {
 		"dotenv": "^17.2.3",
