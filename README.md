@@ -71,7 +71,7 @@ cd mcp && pnpm run format
 ```bash
 # API
 cd api
-pnpm run test
+pnpm run test  # Vitestはwatch無効化済みで単発実行
 
 # フロントエンド
 cd frontend

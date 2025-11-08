@@ -9,6 +9,8 @@ export default defineConfig({
 	test: {
 		globals: true,
 		environment: "node",
+		// CI/ローカルともに単発実行を強制
+		watch: false,
 		setupFiles: ["./tests/setup.ts"],
 		// in-source testingを有効化
 		includeSource: ["src/**/*.ts"],
