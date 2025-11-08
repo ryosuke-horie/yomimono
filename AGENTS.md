@@ -10,7 +10,7 @@
 - API: `cd api && pnpm run dev`（Wranglerローカル）/ `pnpm run deploy`。
 - フロント: `cd frontend && pnpm run dev|build|start`、プレビュー`pnpm run preview`。
 - Lint/Format: 各パッケージ個別に `pnpm run lint|format`（Biome使用）。
-- テスト: API `cd api && pnpm run test`、FE 単体 `cd frontend && pnpm run test:run`。
+- テスト: API `cd api && pnpm run test`、FE 単体 `cd frontend && pnpm run test`。
 
 ## コーディング規約・命名
 - フォーマッタ: Biome（タブインデント、ダブルクォート、import整列）。

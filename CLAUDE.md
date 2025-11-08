@@ -92,7 +92,7 @@ export function distance(a: Point, b: Point): number {
 - フロント開発: `cd frontend && pnpm run dev` - フロントエンドの開発サーバーを起動
 - フロントビルド: `cd frontend && pnpm run build` - フロントエンドを本番用にビルド
 - リント/フォーマット: `cd <package> && pnpm run lint|format` - 各ディレクトリで実行（`<package>` は `api` / `frontend` / `extension` / `mcp` を指定）
-- テスト: `cd api && pnpm run test` / `cd frontend && pnpm run test:run` - 各パッケージのテストを実行
+- テスト: `cd api && pnpm run test` / `cd frontend && pnpm run test` - 各パッケージのテストを実行
 - 単一テスト: `cd api && pnpm vitest run tests/unit/path/to/test.ts` - 特定のテストを実行
 - テストカバレッジ: `cd api && pnpm run test -- --coverage` - カバレッジレポート生成（9割以上必要）
 - DB開発: `cd api && pnpm run migrate:development` - 開発環境用DBマイグレーション

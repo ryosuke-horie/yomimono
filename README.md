@@ -75,8 +75,10 @@ pnpm run test  # Vitestはwatch無効化済みで単発実行
 
 # フロントエンド
 cd frontend
-pnpm run test:run
+pnpm run test
 ```
+
+Vitestは設定でwatchモードを無効化しているため、`pnpm run test`は常にワンショットで完了します。
 
 ## データベースマイグレーション
 ```bash
