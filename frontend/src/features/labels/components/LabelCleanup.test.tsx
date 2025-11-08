@@ -98,6 +98,4 @@ describe("LabelCleanup", () => {
 
 		expect(mockOnCleanup).toHaveBeenCalledTimes(1);
 	});
-
-	// 未使用ラベル一覧 UI は削除済み
 });
