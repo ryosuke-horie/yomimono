@@ -49,30 +49,6 @@ export function LabelCleanup({
 						※「未使用ラベルを削除」ボタンを押すと確認なしで即時に削除が実行されます。
 					</p>
 
-					{/* 未使用ラベルの一覧表示 */}
-					<div className="mb-4">
-						<details className="text-sm">
-							<summary className="cursor-pointer text-yellow-700 hover:text-yellow-800 font-medium">
-								未使用ラベル一覧を表示 ({unusedLabels.length}個)
-							</summary>
-							<div className="mt-2 pl-4">
-								<ul className="space-y-1">
-									{unusedLabels.map((label) => (
-										<li key={label.id} className="text-yellow-600">
-											• {label.name}
-											{label.description && (
-												<span className="text-xs text-yellow-500 ml-2">
-													({label.description.substring(0, 50)}
-													{label.description.length > 50 ? "..." : ""})
-												</span>
-											)}
-										</li>
-									))}
-								</ul>
-							</div>
-						</details>
-					</div>
-
 					{/* エラー表示 */}
 					{error && (
 						<div className="mb-3 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700">
