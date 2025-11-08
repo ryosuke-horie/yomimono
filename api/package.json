@@ -2,26 +2,16 @@
 	"name": "effective-yomimono-api",
 	"scripts": {
 		"preinstall": "npx only-allow pnpm",
-		"dev": "NODE_ENV=development wrangler dev --port 8787 --env development",
+		"dev": "NODE_ENV=development wrangler dev --port 8787 --env development --local",
 		"deploy": "NODE_ENV=production wrangler deploy --minify --env=\"\"",
 		"lint": "biome check",
 		"format": "biome check --write",
 		"knip": "knip",
 		"test": "vitest run",
-		"test:seed": "vitest run src/scripts/seed.ts",
-		"migrate:production": "NODE_ENV=production drizzle-kit migrate",
-		"migrate:development": "NODE_ENV=development drizzle-kit migrate",
-		"migrate:dev:local": "wrangler d1 migrations apply yomimono-db-dev --local",
+		"migrate:dev:local": "wrangler d1 migrations apply yomimono-db-dev --local --env development",
 		"migrate:prod:remote": "wrangler d1 migrations apply yomimono-db --remote",
 		"db:generate": "drizzle-kit generate",
-		"db:studio": "drizzle-kit studio",
-		"db:studio:dev": "NODE_ENV=development drizzle-kit studio",
-		"db:studio:prod": "NODE_ENV=production drizzle-kit studio",
-		"seed": "NODE_ENV=development npx tsx src/scripts/seed.ts",
-		"seed:development": "NODE_ENV=development npx tsx src/scripts/seed.ts",
-		"seed:test": "NODE_ENV=development npx tsx -e \"(async () => { const m = await import('./src/scripts/seed.ts'); await m.runSeedData({bookmarkCount: 5, labelCount: 3, favoriteRatio: 0.2}); })()\"",
-		"seed:custom": "NODE_ENV=development npx tsx -e \"(async () => { const m = await import('./src/scripts/seed.ts'); await m.runSeedData({bookmarkCount: 50, labelCount: 8, favoriteRatio: 0.4}); })()\"",
-		"seed:clear": "NODE_ENV=development npx tsx -e \"(async () => { const m = await import('./src/scripts/seed.ts'); await m.clearDatabase(); })()\""
+		"seed": "NODE_ENV=development SEED_PRESET=clear pnpm exec tsx src/scripts/seed-runner.ts && NODE_ENV=development pnpm exec tsx src/scripts/seed-runner.ts"
 	},
 	"dependencies": {
 		"dotenv": "^17.2.3",
@@ -46,5 +36,13 @@
 	},
 	"overrides": {
 		"esbuild": "^0.25.5"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"better-sqlite3",
+			"esbuild",
+			"sharp",
+			"workerd"
+		]
 	}
 }

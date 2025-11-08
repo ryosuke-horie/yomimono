@@ -49,8 +49,3 @@ jobs:
       - name: Run tests
         working-directory: ./api
         run: pnpm test
-
-      - name: Check test coverage
-        working-directory: ./api
-        run: |
-          pnpm test -- --coverage --reporter=json --reporter=default

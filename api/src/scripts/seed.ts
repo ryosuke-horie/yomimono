@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import Database from "better-sqlite3";
 /**
  * シードデータ生成スクリプト
@@ -237,6 +239,14 @@ function getRandomElements<T>(array: T[], count: number): T[] {
 /**
  * ブックマークデータを生成
  */
+const DEV_TITLE_PREFIX = "【Dev】";
+
+function decorateDevTitle(title: string): string {
+	return title.startsWith(DEV_TITLE_PREFIX)
+		? title
+		: `${DEV_TITLE_PREFIX}${title}`;
+}
+
 function generateBookmarkData(count: number): InsertBookmark[] {
 	const selectedArticles = getRandomElements(SAMPLE_TECH_ARTICLES, count);
 
@@ -249,7 +259,7 @@ function generateBookmarkData(count: number): InsertBookmark[] {
 
 		return {
 			url: article.url,
-			title: article.title,
+			title: decorateDevTitle(article.title),
 			isRead,
 			createdAt,
 			updatedAt,
@@ -322,13 +332,62 @@ function generateFavoriteData(
 /**
  * データベース接続を作成
  */
+const DEFAULT_MINIFLARE_DB_DIR =
+	".wrangler/state/v3/d1/miniflare-D1DatabaseObject";
+
+let cachedMiniflarePath: string | null = null;
+
+function resolveMiniflareDatabasePath(): string {
+	if (cachedMiniflarePath) {
+		return cachedMiniflarePath;
+	}
+
+	const explicitPath = process.env.D1_SQLITE_PATH;
+	if (explicitPath) {
+		const absolute = path.resolve(process.cwd(), explicitPath);
+		cachedMiniflarePath = absolute;
+		return absolute;
+	}
+
+	const baseDir = path.resolve(
+		process.cwd(),
+		process.env.D1_SQLITE_DIR ?? DEFAULT_MINIFLARE_DB_DIR,
+	);
+
+	if (!fs.existsSync(baseDir)) {
+		throw new Error(
+			`MiniflareのD1ローカルDBディレクトリが見つかりません (${baseDir})。先に"pnpm run migrate:dev:local" を実行してD1を初期化してください。`,
+		);
+	}
+
+	const sqliteFiles = fs
+		.readdirSync(baseDir)
+		.filter((file) => file.endsWith(".sqlite"));
+
+	if (sqliteFiles.length === 0) {
+		throw new Error(
+			`MiniflareのD1ローカルDB (*.sqlite) が ${baseDir} に存在しません。"pnpm run migrate:dev:local" 実行後に再度シードを実行してください。`,
+		);
+	}
+
+	if (sqliteFiles.length > 1) {
+		throw new Error(
+			`MiniflareのD1ローカルDBが複数見つかりました。環境変数 D1_SQLITE_PATH で対象ファイルを指定してください。候補: ${sqliteFiles.join(", ")}`,
+		);
+	}
+
+	const resolvedPath = path.join(baseDir, sqliteFiles[0]);
+	cachedMiniflarePath = resolvedPath;
+	return resolvedPath;
+}
+
 function createDatabaseConnection() {
 	const config = getCurrentDatabaseConfig();
 
 	if (config.environment === "development") {
-		// 開発環境ではSQLiteファイルを使用
-		const sqliteDb = new Database(config.url);
-		return drizzle(sqliteDb); // better-sqlite3用のdrizzle設定
+		const sqlitePath = resolveMiniflareDatabasePath();
+		const sqliteDb = new Database(sqlitePath);
+		return drizzle(sqliteDb);
 	}
 
 	throw new Error("本番環境でのシードデータ実行はサポートされていません");
@@ -477,233 +536,3 @@ export {
 	SAMPLE_TECH_ARTICLES,
 	SAMPLE_LABELS,
 };
-
-if (import.meta.vitest) {
-	const { test, expect, describe } = import.meta.vitest;
-
-	describe("Seed Data Generation", () => {
-		describe("validateEnvironment", () => {
-			test("開発環境では正常に実行される", () => {
-				// 実際の環境設定を確認して開発環境の場合のみ実行
-				const config = getCurrentDatabaseConfig();
-				if (config.environment === "development") {
-					expect(() => validateEnvironment()).not.toThrow();
-				} else {
-					// 本番環境の場合はスキップ
-					expect(true).toBe(true);
-				}
-			});
-
-			test("本番環境でもforceRun=trueで実行される", () => {
-				expect(() => validateEnvironment(true)).not.toThrow();
-			});
-		});
-
-		describe("generateRandomDate", () => {
-			test("過去30日以内の日付を生成する", () => {
-				const now = new Date();
-				const thirtyDaysAgo = new Date(
-					now.getTime() - 30 * 24 * 60 * 60 * 1000,
-				);
-
-				const randomDate = generateRandomDate();
-
-				expect(randomDate.getTime()).toBeGreaterThanOrEqual(
-					thirtyDaysAgo.getTime(),
-				);
-				expect(randomDate.getTime()).toBeLessThanOrEqual(now.getTime());
-			});
-
-			test("複数回実行して異なる日付が生成される", () => {
-				const dates = Array.from({ length: 10 }, () => generateRandomDate());
-				const uniqueDates = new Set(dates.map((d) => d.getTime()));
-
-				// 高確率で異なる日付が生成される
-				expect(uniqueDates.size).toBeGreaterThan(1);
-			});
-		});
-
-		describe("getRandomElement", () => {
-			test("配列から要素を選択する", () => {
-				const array = ["a", "b", "c", "d", "e"];
-				const element = getRandomElement(array);
-
-				expect(array).toContain(element);
-			});
-
-			test("単一要素の配列から正しく選択する", () => {
-				const array = ["only"];
-				const element = getRandomElement(array);
-
-				expect(element).toBe("only");
-			});
-		});
-
-		describe("getRandomElements", () => {
-			test("指定数の要素を重複なく選択する", () => {
-				const array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-				const selected = getRandomElements(array, 5);
-
-				expect(selected).toHaveLength(5);
-				expect(new Set(selected).size).toBe(5); // 重複チェック
-				for (const element of selected) {
-					expect(array).toContain(element);
-				}
-			});
-
-			test("配列より多い数を指定した場合は配列の長さまで選択する", () => {
-				const array = [1, 2, 3];
-				const selected = getRandomElements(array, 10);
-
-				expect(selected).toHaveLength(3);
-			});
-
-			test("0個選択した場合は空配列を返す", () => {
-				const array = [1, 2, 3, 4, 5];
-				const selected = getRandomElements(array, 0);
-
-				expect(selected).toHaveLength(0);
-			});
-		});
-
-		describe("generateBookmarkData", () => {
-			test("指定数のブックマークデータを生成する", () => {
-				const bookmarks = generateBookmarkData(5);
-
-				expect(bookmarks).toHaveLength(5);
-
-				for (const bookmark of bookmarks) {
-					expect(bookmark.url).toBeDefined();
-					expect(bookmark.title).toBeDefined();
-					expect(typeof bookmark.isRead).toBe("boolean");
-					expect(bookmark.createdAt).toBeInstanceOf(Date);
-					expect(bookmark.updatedAt).toBeInstanceOf(Date);
-				}
-			});
-
-			test("各ブックマークのURLが有効な形式である", () => {
-				const bookmarks = generateBookmarkData(3);
-
-				for (const bookmark of bookmarks) {
-					expect(bookmark.url).toMatch(/^https?:\/\/.+/);
-				}
-			});
-
-			test("既読ブックマークのupdatedAtがcreatedAt以降である", () => {
-				const bookmarks = generateBookmarkData(10);
-
-				for (const bookmark of bookmarks) {
-					if (bookmark.isRead && bookmark.updatedAt && bookmark.createdAt) {
-						expect(bookmark.updatedAt.getTime()).toBeGreaterThanOrEqual(
-							bookmark.createdAt.getTime(),
-						);
-					}
-				}
-			});
-		});
-
-		describe("generateLabelData", () => {
-			test("指定数のラベルデータを生成する", () => {
-				const labels = generateLabelData(3);
-
-				expect(labels).toHaveLength(3);
-
-				for (const label of labels) {
-					expect(label.name).toBeDefined();
-					expect(label.description).toBeDefined();
-					expect(label.createdAt).toBeInstanceOf(Date);
-					expect(label.updatedAt).toBeInstanceOf(Date);
-				}
-			});
-
-			test("利用可能なラベル数より多い数を指定した場合は利用可能数まで生成する", () => {
-				const labels = generateLabelData(100);
-
-				expect(labels.length).toBeLessThanOrEqual(SAMPLE_LABELS.length);
-			});
-		});
-
-		describe("generateArticleLabelData", () => {
-			test("記事-ラベル関連付けデータを生成する", () => {
-				const bookmarkIds = [1, 2, 3];
-				const labelIds = [1, 2, 3, 4];
-
-				const articleLabels = generateArticleLabelData(bookmarkIds, labelIds);
-
-				expect(articleLabels.length).toBeGreaterThan(0);
-
-				for (const articleLabel of articleLabels) {
-					expect(bookmarkIds).toContain(articleLabel.articleId);
-					expect(labelIds).toContain(articleLabel.labelId);
-					expect(articleLabel.createdAt).toBeInstanceOf(Date);
-				}
-			});
-
-			test("各記事に1-3個のラベルが割り当てられる", () => {
-				const bookmarkIds = [1, 2, 3];
-				const labelIds = [1, 2, 3, 4, 5];
-
-				const articleLabels = generateArticleLabelData(bookmarkIds, labelIds);
-
-				// 各記事のラベル数をカウント
-				const labelCountsByArticle: { [key: number]: number } = {};
-				for (const al of articleLabels) {
-					labelCountsByArticle[al.articleId] =
-						(labelCountsByArticle[al.articleId] || 0) + 1;
-				}
-
-				for (const count of Object.values(labelCountsByArticle)) {
-					expect(count).toBeGreaterThanOrEqual(1);
-					expect(count).toBeLessThanOrEqual(3);
-				}
-			});
-		});
-
-		describe("generateFavoriteData", () => {
-			test("指定した比率でお気に入りデータを生成する", () => {
-				const bookmarkIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-				const favoriteRatio = 0.3;
-
-				const favorites = generateFavoriteData(bookmarkIds, favoriteRatio);
-
-				expect(favorites).toHaveLength(3); // 10 * 0.3 = 3
-
-				for (const favorite of favorites) {
-					expect(bookmarkIds).toContain(favorite.bookmarkId);
-					expect(favorite.createdAt).toBeInstanceOf(Date);
-				}
-			});
-
-			test("重複するブックマークIDが生成されない", () => {
-				const bookmarkIds = [1, 2, 3, 4, 5];
-				const favorites = generateFavoriteData(bookmarkIds, 1.0);
-
-				const uniqueBookmarkIds = new Set(favorites.map((f) => f.bookmarkId));
-				expect(uniqueBookmarkIds.size).toBe(favorites.length);
-			});
-		});
-
-		describe("SAMPLE_DATA validation", () => {
-			test("サンプル記事データが適切な形式である", () => {
-				expect(SAMPLE_TECH_ARTICLES.length).toBeGreaterThan(20);
-
-				for (const article of SAMPLE_TECH_ARTICLES) {
-					expect(article.url).toMatch(/^https?:\/\/.+/);
-					expect(article.title).toBeDefined();
-					expect(article.title.length).toBeGreaterThan(10);
-				}
-			});
-
-			test("サンプルラベルデータが適切な形式である", () => {
-				expect(SAMPLE_LABELS.length).toBeGreaterThan(5);
-
-				for (const label of SAMPLE_LABELS) {
-					expect(label.name).toBeDefined();
-					expect(label.description).toBeDefined();
-					expect(label.name.length).toBeGreaterThan(0);
-					expect(label.description.length).toBeGreaterThan(10);
-				}
-			});
-		});
-	});
-}

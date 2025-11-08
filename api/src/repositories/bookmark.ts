@@ -51,15 +51,31 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 			.leftJoin(labels, eq(articleLabels.labelId, labels.id));
 
 		const results = await (where ? query.where(where) : query).all();
+		const bookmarkMap = new Map<number, BookmarkWithLabel>();
 
-		return results.map((row): BookmarkWithLabel => {
+		for (const row of results) {
 			const bookmark = row.bookmark;
-			return {
-				...bookmark,
-				isFavorite: !!row.favorite,
-				label: row.label || null,
-			};
-		});
+			const label = row.label || null;
+			const isFavorite = !!row.favorite;
+			const existing = bookmarkMap.get(bookmark.id);
+
+			if (!existing) {
+				bookmarkMap.set(bookmark.id, {
+					...bookmark,
+					isFavorite,
+					label,
+				});
+				continue;
+			}
+
+			bookmarkMap.set(bookmark.id, {
+				...existing,
+				isFavorite: existing.isFavorite || isFavorite,
+				label: existing.label ?? label,
+			});
+		}
+
+		return Array.from(bookmarkMap.values());
 	}
 
 	async findByUrls(urls: string[]): Promise<BookmarkWithLabel[]> {
@@ -379,15 +395,28 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 				.orderBy(desc(bookmarks.updatedAt));
 
 			const results = await query.all();
+			const bookmarkMap = new Map<number, BookmarkWithLabel>();
 
-			return results.map((row): BookmarkWithLabel => {
+			for (const row of results) {
 				const bookmark = row.bookmark;
-				return {
-					...bookmark,
-					isFavorite: !!row.favorite,
-					label: row.label || null,
-				};
-			});
+				const label = row.label || null;
+				const existing = bookmarkMap.get(bookmark.id);
+
+				if (!existing) {
+					bookmarkMap.set(bookmark.id, {
+						...bookmark,
+						isFavorite: !!row.favorite,
+						label,
+					});
+				} else if (!existing.label && label) {
+					bookmarkMap.set(bookmark.id, {
+						...existing,
+						label,
+					});
+				}
+			}
+
+			return Array.from(bookmarkMap.values());
 		} catch (error) {
 			console.error("Failed to fetch recently read bookmarks:", error);
 			throw error;
