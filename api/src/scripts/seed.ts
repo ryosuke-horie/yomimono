@@ -239,6 +239,14 @@ function getRandomElements<T>(array: T[], count: number): T[] {
 /**
  * ブックマークデータを生成
  */
+const DEV_TITLE_PREFIX = "【Dev】";
+
+function decorateDevTitle(title: string): string {
+	return title.startsWith(DEV_TITLE_PREFIX)
+		? title
+		: `${DEV_TITLE_PREFIX}${title}`;
+}
+
 function generateBookmarkData(count: number): InsertBookmark[] {
 	const selectedArticles = getRandomElements(SAMPLE_TECH_ARTICLES, count);
 
@@ -251,7 +259,7 @@ function generateBookmarkData(count: number): InsertBookmark[] {
 
 		return {
 			url: article.url,
-			title: article.title,
+			title: decorateDevTitle(article.title),
 			isRead,
 			createdAt,
 			updatedAt,
@@ -650,6 +658,11 @@ if (import.meta.vitest) {
 						);
 					}
 				}
+			});
+
+			test("生成されたタイトルに【Dev】プレフィックスが付与される", () => {
+				const [bookmark] = generateBookmarkData(1);
+				expect(bookmark.title.startsWith(DEV_TITLE_PREFIX)).toBe(true);
 			});
 		});
 
