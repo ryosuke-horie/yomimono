@@ -19,10 +19,7 @@ pnpm run deploy
 
 #### 本番環境へのマイグレーション
 
-1. 安全なマイグレーションスクリプトを使用する（推奨）：
-   ```bash
-   ./scripts/safe-migrate.sh production
-   ```
+1. `pnpm run migrate:prod:remote` を実行して、本番 D1 にマイグレーションを適用します。
 
 
 
@@ -35,7 +32,7 @@ pnpm run deploy
 ### 3. デプロイ後の確認
 
 1. **CIデプロイ結果の確認**: `main` へのマージ後、CIが実行した `pnpm run deploy` の成否を確認します。
-2. **本番マイグレーション**: CIではマイグレーションを走らせないため、ローカルから `pnpm run migrate:prod:remote`（または `./scripts/safe-migrate.sh production`）を実行して本番 D1 を更新します。
+2. **本番マイグレーション**: CIではマイグレーションを走らせないため、ローカルから `pnpm run migrate:prod:remote` を実行して本番 D1 を更新します。
 3. **検証**: `./scripts/validate-migration.sh production` などを使って整合性を確認し、必要に応じてアプリのヘルスチェックを行います。
 
 > **補足**: CIによる自動デプロイではマイグレーションを実行しません。マイグレーションが必要な変更は、CIデプロイ後にローカルから `pnpm run deploy`→`pnpm run migrate:prod:remote` を実行して本番反映を完了させてください。
@@ -46,4 +43,3 @@ pnpm run deploy
 
 - 開発環境でのマイグレーションは `pnpm run migrate:dev:local`（package.json 定義）を使用します。詳細は開発ドキュメントを参照してください。
 - 本番 D1 への適用は `pnpm run migrate:prod:remote` が基本です。
-- 追加でバックアップ取得や整合性チェックを自動化したい場合は `./scripts/safe-migrate.sh production` を利用できます。このスクリプトは `pnpm run migrate:prod:remote` を内部で呼び出す前にバックアップや状態確認を行う安全弁です。
