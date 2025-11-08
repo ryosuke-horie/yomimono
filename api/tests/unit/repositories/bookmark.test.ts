@@ -299,6 +299,21 @@ describe("ブックマークリポジトリ", () => {
 			expect(mockDbClient.all).toHaveBeenCalledOnce();
 		});
 
+		it("同じブックマークIDが複数レコードに含まれても重複を排除すること", async () => {
+			const duplicatedRow = {
+				bookmark: mockBookmark3,
+				favorite: null,
+				label: mockLabel1,
+			};
+			mockDbClient.all.mockResolvedValue([mockQueryResult3, duplicatedRow]);
+			const result = await repository.findRecentlyRead();
+			expect(result).toHaveLength(1);
+			expect(result[0]).toEqual({
+				...expectedResult3,
+				label: mockLabel1,
+			});
+		});
+
 		it("DBクエリ失敗時にエラーをスローすること", async () => {
 			const mockError = new Error("Database error");
 			mockDbClient.all.mockRejectedValue(mockError);
