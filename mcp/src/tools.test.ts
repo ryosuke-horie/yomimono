@@ -54,7 +54,16 @@ describe("tool handlers", () => {
 
 	it("handleGetUnlabeledArticlesTool: 未ラベル記事をJSONとして返す", async () => {
 		const articles = [
-			{ id: 1, title: "title", url: "https://example.com", isRead: false, createdAt: "", updatedAt: "" },
+			{
+				id: 1,
+				title: "title",
+				url: "https://example.com",
+				isRead: false,
+				createdAt: "",
+				updatedAt: "",
+				label: null,
+				isFavorite: false,
+			},
 		];
 		mockedApiClient.getUnlabeledArticles.mockResolvedValueOnce(articles);
 
