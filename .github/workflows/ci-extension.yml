@@ -42,6 +42,10 @@ jobs:
         working-directory: ./extension
         run: pnpm run lint
 
+      - name: Run Knip
+        working-directory: ./extension
+        run: pnpm run knip
+
       - name: Build extension
         working-directory: ./extension
         run: pnpm run build

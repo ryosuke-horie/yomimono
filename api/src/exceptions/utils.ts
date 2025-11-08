@@ -24,7 +24,7 @@ export function toContentfulStatusCode(
 /**
  * エラーが運用上のエラー（想定内のエラー）かどうかを判定
  */
-export function isOperationalError(error: unknown): boolean {
+function isOperationalError(error: unknown): boolean {
 	if (error instanceof BaseError) {
 		return error.isOperational;
 	}
@@ -90,7 +90,7 @@ export function createErrorResponseBody(error: unknown): {
 /**
  * エラーメッセージを安全に取得
  */
-export function getErrorMessage(error: unknown): string {
+function getErrorMessage(error: unknown): string {
 	if (error instanceof Error) {
 		return error.message;
 	}
@@ -103,7 +103,7 @@ export function getErrorMessage(error: unknown): string {
 /**
  * HTTPExceptionをカスタムエラーに変換
  */
-export function fromHttpException(exception: HTTPException): BaseError {
+function fromHttpException(exception: HTTPException): BaseError {
 	const message = exception.message || "HTTP Error";
 	const statusCode = exception.status;
 
