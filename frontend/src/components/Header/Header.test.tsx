@@ -102,4 +102,23 @@ describe("Header", () => {
 			"/labels",
 		);
 	});
+
+	test("デスクトップ表示のスナップショット", () => {
+		vi.mocked(usePathname).mockReturnValue("/");
+
+		const { container } = render(<Header />);
+
+		expect(container).toMatchSnapshot();
+	});
+
+	test("モバイルメニュー展開時のスナップショット", () => {
+		vi.mocked(usePathname).mockReturnValue("/");
+
+		const { container } = render(<Header />);
+		const toggleButton = screen.getByRole("button");
+
+		fireEvent.click(toggleButton);
+
+		expect(container).toMatchSnapshot();
+	});
 });
