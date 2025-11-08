@@ -23,17 +23,12 @@ pnpm run deploy
 
 
 
-#### マイグレーション後の検証
-
-```bash
-./scripts/validate-migration.sh production
-```
 
 ### 3. デプロイ後の確認
 
 1. **CIデプロイ結果の確認**: `main` へのマージ後、CIが実行した `pnpm run deploy` の成否を確認します。
 2. **本番マイグレーション**: CIではマイグレーションを走らせないため、ローカルから `pnpm run migrate:prod:remote` を実行して本番 D1 を更新します。
-3. **検証**: `./scripts/validate-migration.sh production` などを使って整合性を確認し、必要に応じてアプリのヘルスチェックを行います。
+3. **検証**: 本番反映後は必要に応じてAPIのヘルスチェックやD1の状態確認を実施してください（例: `wrangler d1 execute yomimono-db --remote --command "SELECT COUNT(*) FROM bookmarks"`）。
 
 > **補足**: CIによる自動デプロイではマイグレーションを実行しません。マイグレーションが必要な変更は、CIデプロイ後にローカルから `pnpm run deploy`→`pnpm run migrate:prod:remote` を実行して本番反映を完了させてください。
 
