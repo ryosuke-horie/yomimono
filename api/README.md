@@ -42,38 +42,23 @@ pnpm run deploy
 
 ## Drizzleのマイグレーション
 
-### 安全なマイグレーション手順
+### マイグレーション手順
 
-#### 自動化スクリプトを使用する場合（推奨）
+推奨フローは `./scripts/safe-migrate.sh <environment>` を利用する方法です。
 
-開発環境：
-```bash
-./scripts/safe-migrate.sh development
-```
+- 開発環境: `./scripts/safe-migrate.sh development`
+- 本番環境: `./scripts/safe-migrate.sh production`
 
-本番環境：
-```bash
-./scripts/safe-migrate.sh production
-```
-
-このスクリプトは以下を自動で実行します：
+スクリプトは以下をまとめて実行します:
 1. データベースのバックアップ
 2. マイグレーション状態の確認
 3. マイグレーションの実行
-4. データ整合性のチェック
-5. 必要に応じてテストの実行
+4. データ整合性チェック
+5. 必要に応じたテスト
 
-#### 手動で実行する場合
+本番 D1 に直接適用する場合は `pnpm run migrate:prod:remote` も使用できます。
 
-マイグレーションファイル生成
-`npx drizzle-kit generate`
-
-マイグレーション適用
-
-本番用(Cloudflare D1 への適用)
-`pnpm run migrate:prod:remote`
-
-#### マイグレーション検証
+### マイグレーション検証
 
 マイグレーション後の検証：
 ```bash
@@ -81,7 +66,7 @@ pnpm run deploy
 ./scripts/validate-migration.sh production   # 本番環境
 ```
 
-#### 詳細ドキュメント
+### 詳細ドキュメント
 
 詳細な手順とベストプラクティスについては、[D1マイグレーションガイド](../docs/調査_設計等/D1マイグレーションガイド.md)を参照してください。
 
