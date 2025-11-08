@@ -1,0 +1,18 @@
+{
+	"$schema": "https://unpkg.com/knip@^5/schema.json",
+	"entry": [
+		"src/app/**/*.tsx"
+	],
+	"project": [
+		"src/**/*.{ts,tsx}",
+		"types/**/*.ts"
+	],
+	"ignore": [
+		"action_logs.zip",
+		"next.config.ci.mjs",
+		"open-next.config.ts",
+		"src/test-utils.tsx"
+	],
+	"ignoreDependencies": ["tailwindcss"],
+	"ignoreBinaries": ["only-allow"]
+}
