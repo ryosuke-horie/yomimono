@@ -20,6 +20,8 @@ pnpm run dev
 
 better-sqlite3やesbuildなどネイティブ依存を含むため、`pnpm.onlyBuiltDependencies`の設定により`pnpm install`時に自動ビルドされます。環境差分でバイナリが壊れた場合は`pnpm rebuild`を実行して再生成してください。
 
+> MiniflareのローカルD1（`.wrangler/state/v3/d1`）をSeed/起動に共用します。初回は `pnpm run migrate:dev:local` を実行してテーブルを作成しておいてください。
+
 ## package.json スクリプト一覧
 
 ### 開発・ビルド
@@ -57,7 +59,7 @@ better-sqlite3やesbuildなどネイティブ依存を含むため、`pnpm.onlyB
 | `pnpm run seed:test` | 5件/3ラベル/20%お気に入りの軽量データを投入 | `SEED_PRESET=test` |
 | `pnpm run seed:clear` | シードデータをクリア | `SEED_PRESET=clear` |
 
-各コマンドは共通の`src/scripts/seed-runner.ts`を使用しており、`SEED_OPTIONS='{"bookmarkCount":10}'`のようにJSON文字列を渡すことで任意値を上書きできます。
+各コマンドは共通の`src/scripts/seed-runner.ts`を使用しており、`SEED_OPTIONS='{"bookmarkCount":10}'`のようにJSON文字列を渡すことで任意値を上書きできます。MiniflareのD1ファイルを直接操作するため、複数DBが存在する場合は `D1_SQLITE_PATH=/absolute/path/to.sqlite pnpm run seed` のようにファイルパスを明示してください。
 
 ## テスト実行
 

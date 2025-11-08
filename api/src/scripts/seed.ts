@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import Database from "better-sqlite3";
 /**
  * シードデータ生成スクリプト
@@ -322,13 +324,62 @@ function generateFavoriteData(
 /**
  * データベース接続を作成
  */
+const DEFAULT_MINIFLARE_DB_DIR =
+	".wrangler/state/v3/d1/miniflare-D1DatabaseObject";
+
+let cachedMiniflarePath: string | null = null;
+
+function resolveMiniflareDatabasePath(): string {
+	if (cachedMiniflarePath) {
+		return cachedMiniflarePath;
+	}
+
+	const explicitPath = process.env.D1_SQLITE_PATH;
+	if (explicitPath) {
+		const absolute = path.resolve(process.cwd(), explicitPath);
+		cachedMiniflarePath = absolute;
+		return absolute;
+	}
+
+	const baseDir = path.resolve(
+		process.cwd(),
+		process.env.D1_SQLITE_DIR ?? DEFAULT_MINIFLARE_DB_DIR,
+	);
+
+	if (!fs.existsSync(baseDir)) {
+		throw new Error(
+			`MiniflareのD1ローカルDBディレクトリが見つかりません (${baseDir})。先に"pnpm run migrate:dev:local" を実行してD1を初期化してください。`,
+		);
+	}
+
+	const sqliteFiles = fs
+		.readdirSync(baseDir)
+		.filter((file) => file.endsWith(".sqlite"));
+
+	if (sqliteFiles.length === 0) {
+		throw new Error(
+			`MiniflareのD1ローカルDB (*.sqlite) が ${baseDir} に存在しません。"pnpm run migrate:dev:local" 実行後に再度シードを実行してください。`,
+		);
+	}
+
+	if (sqliteFiles.length > 1) {
+		throw new Error(
+			`MiniflareのD1ローカルDBが複数見つかりました。環境変数 D1_SQLITE_PATH で対象ファイルを指定してください。候補: ${sqliteFiles.join(", ")}`,
+		);
+	}
+
+	const resolvedPath = path.join(baseDir, sqliteFiles[0]);
+	cachedMiniflarePath = resolvedPath;
+	return resolvedPath;
+}
+
 function createDatabaseConnection() {
 	const config = getCurrentDatabaseConfig();
 
 	if (config.environment === "development") {
-		// 開発環境ではSQLiteファイルを使用
-		const sqliteDb = new Database(config.url);
-		return drizzle(sqliteDb); // better-sqlite3用のdrizzle設定
+		const sqlitePath = resolveMiniflareDatabasePath();
+		const sqliteDb = new Database(sqlitePath);
+		return drizzle(sqliteDb);
 	}
 
 	throw new Error("本番環境でのシードデータ実行はサポートされていません");

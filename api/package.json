@@ -10,7 +10,7 @@
 		"test": "vitest run",
 		"migrate:production": "NODE_ENV=production drizzle-kit migrate",
 		"migrate:development": "NODE_ENV=development drizzle-kit migrate",
-		"migrate:dev:local": "wrangler d1 migrations apply yomimono-db-dev --local",
+		"migrate:dev:local": "wrangler d1 migrations apply yomimono-db-dev --local --env development",
 		"migrate:prod:remote": "wrangler d1 migrations apply yomimono-db --remote",
 		"db:generate": "drizzle-kit generate",
 		"db:studio": "drizzle-kit studio",
