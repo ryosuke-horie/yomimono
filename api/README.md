@@ -16,6 +16,15 @@ npm install
 npm run dev
 ```
 
+## テスト実行
+
+Vitestはwatchモードを無効化しており、常に単発での実行になります。
+
+```bash
+pnpm install
+pnpm run test
+```
+
 ## デプロイ手順
 
 ### 1. APIのデプロイ
