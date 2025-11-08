@@ -38,7 +38,9 @@
 	body {
 		color: var(--foreground);
 		background: var(--background);
-		font-family: Arial, Helvetica, sans-serif;
+		/* Mac/Chrome向けシステムフォントで統一 */
+		font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+			"Hiragino Sans", "Yu Gothic", sans-serif;
 	}
 }
 
