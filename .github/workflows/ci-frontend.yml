@@ -50,7 +50,7 @@ jobs:
 
       - name: Run unit tests
         working-directory: ./frontend
-        run: pnpm run test:run
+        run: pnpm run test
 
       - name: Build application
         working-directory: ./frontend
