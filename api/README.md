@@ -36,7 +36,6 @@ better-sqlite3やesbuildなどネイティブ依存を含むため、`pnpm.onlyB
 | `pnpm run lint` | Biomeで静的解析を行います | 変更は加えません |
 | `pnpm run format` | Biomeでフォーマットを適用します | 自動修正が発生するためコミット前に実行 |
 | `pnpm run test` | Vitestの単発実行 | `import.meta.vitest`のケースも含む |
-| `pnpm run test:seed` | `src/scripts/seed.ts`専用のVitest実行 | シード処理の回帰確認用 |
 | `pnpm run knip` | 未使用コード検出 | 依存掃除のトリアージに使用 |
 
 ### マイグレーションとDBユーティリティ
