@@ -68,17 +68,6 @@ pnpm run deploy
 ./scripts/validate-migration.sh production   # 本番環境
 ```
 
-### 詳細ドキュメント
-
-詳細な手順とベストプラクティスについては、[D1マイグレーションガイド](../docs/調査_設計等/D1マイグレーションガイド.md)を参照してください。
-
-本番DBのデータのコピーを取得する
-`npx wrangler d1 export yomimono-db --remote --output=./data.sql --no-schema`
-
-本番DBのデータコピーをローカルに流す
-`data.sql`で`__drizzle_migrations`の記述を削除する。
-`npx wrangler d1 execute yomimono-db --local --file=data.sql`
-
 ## デッドコード検出
 
 Knipを導入しており、未使用のファイルやシンボルを検出できます。定期的に実行し、安全に削除できるかを確認してください。
