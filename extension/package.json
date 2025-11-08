@@ -6,7 +6,6 @@
 		"preinstall": "npx only-allow pnpm",
 		"lint": "npx @biomejs/biome check",
 		"format": "npx @biomejs/biome check --write",
-		"typecheck": "echo 'No TypeScript files to check'",
 		"knip": "knip",
 		"build": "mkdir -p dist && cp -r manifest.json background.js popup images dist/"
 	},

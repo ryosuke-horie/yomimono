@@ -42,10 +42,6 @@ jobs:
         working-directory: ./extension
         run: pnpm run lint
 
-      - name: Run type check
-        working-directory: ./extension
-        run: pnpm run typecheck
-
       - name: Build extension
         working-directory: ./extension
         run: pnpm run build
