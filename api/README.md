@@ -47,11 +47,6 @@ better-sqlite3やesbuildなどネイティブ依存を含むため、`pnpm.onlyB
 | `pnpm run migrate:dev:local` | Wrangler D1で`yomimono-db-dev`ローカルに適用 | Miniflare上のローカルDB |
 | `pnpm run migrate:prod:remote` | CloudflareリモートD1へ適用 | `wrangler d1 migrations apply yomimono-db --remote` |
 | `pnpm run db:generate` | Drizzleスキーマからマイグレーションを生成 | `drizzle-kit generate` |
-
-### シードスクリプト
-
-| コマンド | 説明 | 備考 |
-| --- | --- | --- |
 | `pnpm run seed` | ローカルD1をクリアした上で初期データを投入 | `NODE_ENV=development`、コマンド内でクリア→投入を実施 |
 
 各コマンドは共通の`src/scripts/seed-runner.ts`を使用しており、`SEED_OPTIONS='{"bookmarkCount":10}'`のようにJSON文字列を渡すことで任意値を上書きできます。`pnpm run seed`は内部でクリア→投入を実行します。MiniflareのD1ファイルを直接操作するため、複数DBが存在する場合は `D1_SQLITE_PATH=/absolute/path/to.sqlite pnpm run seed` のようにファイルパスを明示してください。データクリアのみ実施したい場合は `NODE_ENV=development SEED_PRESET=clear pnpm exec tsx src/scripts/seed-runner.ts` を直接叩いてください。

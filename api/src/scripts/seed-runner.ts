@@ -36,9 +36,7 @@ async function main(): Promise<void> {
 		return;
 	}
 
-	console.log(
-		`シードプリセット: custom (${JSON.stringify(extraOptions)})`,
-	);
+	console.log(`シードプリセット: custom (${JSON.stringify(extraOptions)})`);
 	await runSeedData(extraOptions);
 }
 
