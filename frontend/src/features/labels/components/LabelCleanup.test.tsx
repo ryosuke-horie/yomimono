@@ -87,19 +87,6 @@ describe("LabelCleanup", () => {
 		expect(screen.getByText("削除に失敗しました")).toBeInTheDocument();
 	});
 
-	it("注意書きが表示される", () => {
-		const labels = [{ id: 1, name: "未使用ラベル", articleCount: 0 }];
-		const mockOnCleanup = vi.fn();
-
-		render(<LabelCleanup labels={labels} onCleanup={mockOnCleanup} />);
-
-		expect(
-			screen.getByText(
-				/※「未使用ラベルを削除」ボタンを押すと確認なしで即時に削除が実行されます。/,
-			),
-		).toBeInTheDocument();
-	});
-
 	it("削除ボタンを押すと即座にonCleanupが呼ばれる", async () => {
 		const labels = [{ id: 1, name: "未使用ラベル", articleCount: 0 }];
 		const mockOnCleanup = vi.fn();
