@@ -87,62 +87,32 @@ describe("LabelCleanup", () => {
 		expect(screen.getByText("削除に失敗しました")).toBeInTheDocument();
 	});
 
-	it("削除ボタンをクリックすると確認ダイアログが表示される", async () => {
+	it("注意書きが表示される", () => {
 		const labels = [{ id: 1, name: "未使用ラベル", articleCount: 0 }];
 		const mockOnCleanup = vi.fn();
-		const user = userEvent.setup();
 
 		render(<LabelCleanup labels={labels} onCleanup={mockOnCleanup} />);
 
-		const deleteButton = screen.getByRole("button", {
-			name: "未使用ラベルを削除",
-		});
-		await user.click(deleteButton);
-
-		expect(screen.getByText("未使用ラベルの一括削除")).toBeInTheDocument();
 		expect(
-			screen.getByText(/1個の未使用ラベルを削除してもよろしいですか？/),
+			screen.getByText(
+				/※「未使用ラベルを削除」ボタンを押すと確認なしで即時に削除が実行されます。/,
+			),
 		).toBeInTheDocument();
 	});
 
-	it("確認ダイアログで削除を実行するとonCleanupが呼ばれる", async () => {
+	it("削除ボタンを押すと即座にonCleanupが呼ばれる", async () => {
 		const labels = [{ id: 1, name: "未使用ラベル", articleCount: 0 }];
 		const mockOnCleanup = vi.fn();
 		const user = userEvent.setup();
 
 		render(<LabelCleanup labels={labels} onCleanup={mockOnCleanup} />);
 
-		// 削除ボタンをクリック
 		const deleteButton = screen.getByRole("button", {
 			name: "未使用ラベルを削除",
 		});
 		await user.click(deleteButton);
-
-		// 確認ダイアログで削除を実行
-		const confirmButton = screen.getByRole("button", { name: "削除する" });
-		await user.click(confirmButton);
 
 		expect(mockOnCleanup).toHaveBeenCalledTimes(1);
-	});
-
-	it("確認ダイアログでキャンセルするとonCleanupが呼ばれない", async () => {
-		const labels = [{ id: 1, name: "未使用ラベル", articleCount: 0 }];
-		const mockOnCleanup = vi.fn();
-		const user = userEvent.setup();
-
-		render(<LabelCleanup labels={labels} onCleanup={mockOnCleanup} />);
-
-		// 削除ボタンをクリック
-		const deleteButton = screen.getByRole("button", {
-			name: "未使用ラベルを削除",
-		});
-		await user.click(deleteButton);
-
-		// 確認ダイアログでキャンセル
-		const cancelButton = screen.getByRole("button", { name: "キャンセル" });
-		await user.click(cancelButton);
-
-		expect(mockOnCleanup).not.toHaveBeenCalled();
 	});
 
 	it("未使用ラベル一覧の詳細を展開して表示できる", async () => {
@@ -187,26 +157,5 @@ describe("LabelCleanup", () => {
 		// 最初の50文字 + "..." が表示される
 		const truncatedText = `${longDescription.substring(0, 50)}...`;
 		expect(screen.getByText(`(${truncatedText})`)).toBeInTheDocument();
-	});
-
-	it("複数の未使用ラベルの場合、確認メッセージが複数形になる", async () => {
-		const labels = [
-			{ id: 1, name: "未使用ラベル1", articleCount: 0 },
-			{ id: 2, name: "未使用ラベル2", articleCount: 0 },
-			{ id: 3, name: "未使用ラベル3", articleCount: 0 },
-		];
-		const mockOnCleanup = vi.fn();
-		const user = userEvent.setup();
-
-		render(<LabelCleanup labels={labels} onCleanup={mockOnCleanup} />);
-
-		const deleteButton = screen.getByRole("button", {
-			name: "未使用ラベルを削除",
-		});
-		await user.click(deleteButton);
-
-		expect(
-			screen.getByText(/3個の未使用ラベルを削除してもよろしいですか？/),
-		).toBeInTheDocument();
 	});
 });

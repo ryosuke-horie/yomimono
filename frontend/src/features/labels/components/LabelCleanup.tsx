@@ -4,9 +4,7 @@
  */
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/Button";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
 import type { Label } from "../types";
 
 interface LabelCleanupProps {
@@ -22,19 +20,13 @@ export function LabelCleanup({
 	isLoading = false,
 	error,
 }: LabelCleanupProps) {
-	const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-
 	// 未使用ラベル（記事数が0のラベル）をフィルタリング
 	const unusedLabels = labels.filter(
 		(label) => (label.articleCount ?? 0) === 0,
 	);
 
-	const openConfirm = () => setIsConfirmOpen(true);
-	const closeConfirm = () => setIsConfirmOpen(false);
-
-	const handleConfirm = () => {
+	const handleCleanup = () => {
 		onCleanup();
-		closeConfirm();
 	};
 
 	// 未使用ラベルがない場合は何も表示しない
@@ -52,6 +44,9 @@ export function LabelCleanup({
 					<p className="text-sm text-yellow-700 mb-3">
 						{unusedLabels.length}
 						個の未使用ラベルが見つかりました。これらのラベルは記事に関連付けられていないため、削除することができます。
+					</p>
+					<p className="text-sm text-yellow-800 mb-3">
+						※「未使用ラベルを削除」ボタンを押すと確認なしで即時に削除が実行されます。
 					</p>
 
 					{/* 未使用ラベルの一覧表示 */}
@@ -89,7 +84,7 @@ export function LabelCleanup({
 				<div className="ml-4">
 					<Button
 						type="button"
-						onClick={openConfirm}
+						onClick={handleCleanup}
 						variant="danger"
 						size="sm"
 						disabled={isLoading}
@@ -99,18 +94,6 @@ export function LabelCleanup({
 					</Button>
 				</div>
 			</div>
-
-			{/* 確認ダイアログ */}
-			<ConfirmDialog
-				isOpen={isConfirmOpen}
-				onClose={closeConfirm}
-				onConfirm={handleConfirm}
-				title="未使用ラベルの一括削除"
-				message={`${unusedLabels.length}個の未使用ラベルを削除してもよろしいですか？この操作は取り消すことができません。`}
-				confirmText="削除する"
-				cancelText="キャンセル"
-				isLoading={isLoading}
-			/>
 		</div>
 	);
 }
