@@ -46,19 +46,9 @@ pnpm run deploy
 
 ### マイグレーション手順
 
-推奨フローは `./scripts/safe-migrate.sh <environment>` を利用する方法です。
-
-- 開発環境: `./scripts/safe-migrate.sh development`
-- 本番環境: `./scripts/safe-migrate.sh production`
-
-スクリプトは以下をまとめて実行します:
-1. データベースのバックアップ
-2. マイグレーション状態の確認
-3. マイグレーションの実行
-4. データ整合性チェック
-5. 必要に応じたテスト
-
-本番 D1 に直接適用する場合は `pnpm run migrate:prod:remote` も使用できます。
+- 開発環境でのマイグレーションは `pnpm run migrate:dev:local`（package.json 定義）を使用します。詳細は開発ドキュメントを参照してください。
+- 本番 D1 への適用は `pnpm run migrate:prod:remote` が基本です。
+- 追加でバックアップ取得や整合性チェックを自動化したい場合は `./scripts/safe-migrate.sh production` を利用できます。このスクリプトは `pnpm run migrate:prod:remote` を内部で呼び出す前にバックアップや状態確認を行う安全弁です。
 
 ### マイグレーション検証
 
