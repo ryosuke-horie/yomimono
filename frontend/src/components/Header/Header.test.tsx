@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { usePathname } from "next/navigation";
 import { describe, expect, test, vi } from "vitest";
-import { Header } from "./Header";
+import { Header } from ".";
 
 // Next.jsのナビゲーションをモック
 vi.mock("next/navigation", () => ({
