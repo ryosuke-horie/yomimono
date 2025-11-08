@@ -11,7 +11,6 @@
 		"migrate:dev:local": "wrangler d1 migrations apply yomimono-db-dev --local --env development",
 		"migrate:prod:remote": "wrangler d1 migrations apply yomimono-db --remote",
 		"db:generate": "drizzle-kit generate",
-		"db:studio": "drizzle-kit studio",
 		"seed": "NODE_ENV=development SEED_PRESET=clear pnpm exec tsx src/scripts/seed-runner.ts && NODE_ENV=development pnpm exec tsx src/scripts/seed-runner.ts",
 		"seed:test": "NODE_ENV=development SEED_PRESET=test pnpm exec tsx src/scripts/seed-runner.ts"
 	},
