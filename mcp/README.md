@@ -61,5 +61,6 @@ Claude Desktopで利用する場合は設定ファイル（macOS例: `~/Library/
 - Lint: `pnpm run lint`
 - フォーマット: `pnpm run format`
 - 型チェック: `pnpm run typecheck`
+- テスト: `pnpm run test`（watchモードは無効化されているため、毎回ワンショット実行されます）
 
 必要に応じて `pnpm run build -- --watch` を使用するとTypeScriptの再ビルドを監視できます。
