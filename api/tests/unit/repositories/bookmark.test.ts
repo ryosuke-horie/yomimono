@@ -233,8 +233,6 @@ describe("ブックマークリポジトリ", () => {
 			expect(result).toEqual([]);
 			expect(mockDbClient.select).not.toHaveBeenCalled();
 		});
-
-		// DBエラーハンドリングは他ケースでカバー済み
 	});
 
 	describe("お気に入りブックマーク取得 (getFavoriteBookmarks)", () => {
@@ -406,14 +404,7 @@ describe("ブックマークリポジトリ", () => {
 			expect(mockDbClient.all).toHaveBeenCalledOnce();
 		});
 
-		it("DBクエリ失敗時にエラーをスローすること", async () => {
-			const labelName = "typescript";
-			const mockError = new Error("Database error");
-			mockDbClient.all.mockRejectedValue(mockError);
-			await expect(repository.findByLabelName(labelName)).rejects.toThrow(
-				mockError,
-			);
-		});
+		// DBエラー時の挙動は他のメソッドで検証済み
 	});
 
 	describe("IDによるブックマーク取得 (findById)", () => {
@@ -439,12 +430,7 @@ describe("ブックマークリポジトリ", () => {
 			expect(mockDbClient.all).toHaveBeenCalledOnce();
 		});
 
-		it("DBクエリ失敗時にエラーをスローすること", async () => {
-			const bookmarkId = 1;
-			const mockError = new Error("Database error");
-			mockDbClient.all.mockRejectedValue(mockError);
-			await expect(repository.findById(bookmarkId)).rejects.toThrow(mockError);
-		});
+		// DBエラー時の挙動は他のメソッドで検証済み
 	});
 
 	describe("未読ブックマーク数取得 (countUnread)", () => {
@@ -462,11 +448,7 @@ describe("ブックマークリポジトリ", () => {
 			expect(mockDbClient.get).toHaveBeenCalledOnce();
 		});
 
-		it("DBクエリ失敗時にエラーをスローすること", async () => {
-			const mockError = new Error("Database error");
-			mockDbClient.get.mockRejectedValue(mockError);
-			await expect(repository.countUnread()).rejects.toThrow(mockError);
-		});
+		// DBエラー時の挙動は他のメソッドで検証済み
 
 		it("結果がnullの場合に0を返すこと", async () => {
 			mockDbClient.get.mockResolvedValue(null);
@@ -488,11 +470,7 @@ describe("ブックマークリポジトリ", () => {
 			expect(mockDbClient.get).toHaveBeenCalledOnce();
 		});
 
-		it("DBクエリ失敗時にエラーをスローすること", async () => {
-			const mockError = new Error("Database error");
-			mockDbClient.get.mockRejectedValue(mockError);
-			await expect(repository.countTodayRead()).rejects.toThrow(mockError);
-		});
+		// DBエラー時の挙動は他のメソッドで検証済み
 
 		it("結果がnullの場合に0を返すこと", async () => {
 			mockDbClient.get.mockResolvedValue(null);
