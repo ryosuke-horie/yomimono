@@ -42,6 +42,10 @@ jobs:
         working-directory: ./mcp
         run: pnpm run lint
 
+      - name: Run Knip
+        working-directory: ./mcp
+        run: pnpm run knip
+
       - name: Run type check
         working-directory: ./mcp
         run: pnpm run typecheck

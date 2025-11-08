@@ -60,7 +60,13 @@ Claude Desktopで利用する場合は設定ファイル（macOS例: `~/Library/
 - ビルド: `pnpm run build`
 - Lint: `pnpm run lint`
 - フォーマット: `pnpm run format`
+- 未使用コード検出: `pnpm run knip`
 - 型チェック: `pnpm run typecheck`
 - テスト: `pnpm run test`（watchモードは無効化されているため、毎回ワンショット実行されます）
 
 必要に応じて `pnpm run build -- --watch` を使用するとTypeScriptの再ビルドを監視できます。
+
+### Knipによる未使用コード検出
+
+- `pnpm run knip` で未使用の依存関係・ファイル・エクスポートを検出します。
+- MCPサーバーのエントリ（`src/index.ts`）とソース一式（`src/**/*.ts`）を解析対象にし、ビルド成果物（`build/**`）や `only-allow` バイナリは除外しています。設定は `knip.json` を参照してください。

@@ -13,7 +13,9 @@ import * as apiClient from "./lib/apiClient.js";
 import {
 	handleAssignLabelsToMultipleArticlesTool,
 	handleAssignLabelTool,
+	handleGetLabelByIdTool,
 	handleGetLabelsTool,
+	handleGetUnlabeledArticlesTool,
 	handleGetUnreadBookmarksTool,
 } from "./tools.js";
 
@@ -50,6 +52,30 @@ describe("tool handlers", () => {
 		});
 	});
 
+	it("handleGetUnlabeledArticlesTool: 未ラベル記事をJSONとして返す", async () => {
+		const articles = [
+			{
+				id: 1,
+				title: "title",
+				url: "https://example.com",
+				isRead: false,
+				createdAt: "",
+				updatedAt: "",
+				label: null,
+				isFavorite: false,
+			},
+		];
+		mockedApiClient.getUnlabeledArticles.mockResolvedValueOnce(articles);
+
+		const result = await handleGetUnlabeledArticlesTool();
+
+		expect(mockedApiClient.getUnlabeledArticles).toHaveBeenCalled();
+		expect(result).toEqual({
+			content: [{ type: "text", text: JSON.stringify(articles, null, 2) }],
+			isError: false,
+		});
+	});
+
 	it("handleAssignLabelTool: 成功時は完了メッセージを返す", async () => {
 		mockedApiClient.assignLabelToArticle.mockResolvedValueOnce(undefined);
 
@@ -72,6 +98,19 @@ describe("tool handlers", () => {
 			isError: true,
 		});
 		expect(consoleErrorSpy).toHaveBeenCalled();
+	});
+
+	it("handleGetLabelByIdTool: ラベル詳細をJSONとして返却する", async () => {
+		const label = { id: 1, name: "Tech", description: null };
+		mockedApiClient.getLabelById.mockResolvedValueOnce(label);
+
+		const result = await handleGetLabelByIdTool({ labelId: 1 });
+
+		expect(mockedApiClient.getLabelById).toHaveBeenCalledWith(1);
+		expect(result).toEqual({
+			content: [{ type: "text", text: `Label details: ${JSON.stringify(label, null, 2)}` }],
+			isError: false,
+		});
 	});
 
 	it("handleAssignLabelsToMultipleArticlesTool: 入力検証エラーを返す", async () => {
