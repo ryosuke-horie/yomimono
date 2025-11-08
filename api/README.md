@@ -55,11 +55,10 @@ better-sqlite3やesbuildなどネイティブ依存を含むため、`pnpm.onlyB
 
 | コマンド | 説明 | 備考 |
 | --- | --- | --- |
-| `pnpm run seed` | ローカルD1をクリアした上で初期データを投入 | `NODE_ENV=development`、内部で`seed:clear`を実行 |
+| `pnpm run seed` | ローカルD1をクリアした上で初期データを投入 | `NODE_ENV=development`、コマンド内でクリア→投入を実施 |
 | `pnpm run seed:test` | 5件/3ラベル/20%お気に入りの軽量データを投入 | `SEED_PRESET=test` |
-| `pnpm run seed:clear` | シードデータをクリア | `SEED_PRESET=clear` |
 
-各コマンドは共通の`src/scripts/seed-runner.ts`を使用しており、`SEED_OPTIONS='{"bookmarkCount":10}'`のようにJSON文字列を渡すことで任意値を上書きできます。`pnpm run seed`は常に`seed:clear`を実行してからデータ投入を行います。MiniflareのD1ファイルを直接操作するため、複数DBが存在する場合は `D1_SQLITE_PATH=/absolute/path/to.sqlite pnpm run seed` のようにファイルパスを明示してください。
+各コマンドは共通の`src/scripts/seed-runner.ts`を使用しており、`SEED_OPTIONS='{"bookmarkCount":10}'`のようにJSON文字列を渡すことで任意値を上書きできます。`pnpm run seed`は内部でクリア→投入を実行します。MiniflareのD1ファイルを直接操作するため、複数DBが存在する場合は `D1_SQLITE_PATH=/absolute/path/to.sqlite pnpm run seed` のようにファイルパスを明示してください。データクリアのみ実施したい場合は `NODE_ENV=development SEED_PRESET=clear pnpm exec tsx src/scripts/seed-runner.ts` を直接叩いてください。
 
 ## テスト実行
 
