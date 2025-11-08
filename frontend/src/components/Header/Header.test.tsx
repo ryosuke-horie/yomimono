@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { usePathname } from "next/navigation";
 import { describe, expect, test, vi } from "vitest";
-import { Header } from "./Header";
+import { Header } from ".";
 
 // Next.jsのナビゲーションをモック
 vi.mock("next/navigation", () => ({
@@ -101,5 +101,24 @@ describe("Header", () => {
 			"href",
 			"/labels",
 		);
+	});
+
+	test("デスクトップ表示のスナップショット", () => {
+		vi.mocked(usePathname).mockReturnValue("/");
+
+		const { container } = render(<Header />);
+
+		expect(container).toMatchSnapshot();
+	});
+
+	test("モバイルメニュー展開時のスナップショット", () => {
+		vi.mocked(usePathname).mockReturnValue("/");
+
+		const { container } = render(<Header />);
+		const toggleButton = screen.getByRole("button");
+
+		fireEvent.click(toggleButton);
+
+		expect(container).toMatchSnapshot();
 	});
 });
