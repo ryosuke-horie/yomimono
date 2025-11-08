@@ -44,7 +44,6 @@ better-sqlite3やesbuildなどネイティブ依存を含むため、`pnpm.onlyB
 
 | コマンド | 説明 | 備考 |
 | --- | --- | --- |
-| `pnpm run migrate:production` | 本番DBに対するDrizzleマイグレーション | `NODE_ENV=production` |
 | `pnpm run migrate:dev:local` | Wrangler D1で`yomimono-db-dev`ローカルに適用 | Miniflare上のローカルDB |
 | `pnpm run migrate:prod:remote` | CloudflareリモートD1へ適用 | `wrangler d1 migrations apply yomimono-db --remote` |
 | `pnpm run db:generate` | Drizzleスキーマからマイグレーションを生成 | `drizzle-kit generate` |
@@ -88,10 +87,7 @@ pnpm run deploy
    ./scripts/safe-migrate.sh production
    ```
 
-2. または手動で実行：
-   ```bash
-   pnpm run migrate:production
-   ```
+
 
 #### マイグレーション後の検証
 
