@@ -2,7 +2,7 @@
 	"name": "effective-yomimono-api",
 	"scripts": {
 		"preinstall": "npx only-allow pnpm",
-		"dev": "NODE_ENV=development wrangler dev --port 8787 --env development",
+		"dev": "NODE_ENV=development wrangler dev --port 8787 --env development --local",
 		"deploy": "NODE_ENV=production wrangler deploy --minify --env=\"\"",
 		"lint": "biome check",
 		"format": "biome check --write",

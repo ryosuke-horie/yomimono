@@ -28,7 +28,7 @@ better-sqlite3やesbuildなどネイティブ依存を含むため、`pnpm.onlyB
 
 | コマンド | 説明 | 備考 |
 | --- | --- | --- |
-| `pnpm run dev` | `wrangler dev --env development`を介してCloudflare Workersをローカル実行します | Port 8787/Miniflare、`NODE_ENV=development` |
+| `pnpm run dev` | `wrangler dev --env development --local`を介してCloudflare Workersをローカル実行します | Port 8787/Miniflare、`NODE_ENV=development` |
 | `pnpm run deploy` | `wrangler deploy --minify`で本番デプロイを実行します | `NODE_ENV=production`/Cloudflareの既定環境を対象 |
 
 ### テスト・品質
