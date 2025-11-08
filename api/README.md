@@ -32,11 +32,11 @@ pnpm run deploy
 ./scripts/validate-migration.sh production
 ```
 
-### 3. デプロイプロセス
+### 3. デプロイ後の確認
 
-1. **PRのマージ**: `main`ブランチへのマージ時にCIが自動でAPIをデプロイします
-2. **手動マイグレーション**: デプロイ完了後、DBマイグレーションを手動で実行してください
-3. **検証**: マイグレーション検証スクリプトを実行してデータの整合性を確認します
+1. **CIデプロイ結果の確認**: `main` へのマージ後、CIが実行した `pnpm run deploy` の成否を確認します。
+2. **本番マイグレーション**: CIではマイグレーションを走らせないため、ローカルから `pnpm run migrate:prod:remote`（または `./scripts/safe-migrate.sh production`）を実行して本番 D1 を更新します。
+3. **検証**: `./scripts/validate-migration.sh production` などを使って整合性を確認し、必要に応じてアプリのヘルスチェックを行います。
 
 > **補足**: CIによる自動デプロイではマイグレーションを実行しません。マイグレーションが必要な変更は、CIデプロイ後にローカルから `pnpm run deploy`→`pnpm run migrate:prod:remote` を実行して本番反映を完了させてください。
 
