@@ -23,6 +23,7 @@ pnpm run dev  # 開発サーバー起動
 cd frontend
 pnpm install
 pnpm run dev  # 開発サーバー起動（http://localhost:3000）
+pnpm run knip # 未使用依存/ファイル検出
 ```
 
 ### Chrome拡張機能

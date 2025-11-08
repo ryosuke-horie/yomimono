@@ -5,7 +5,7 @@
 /**
  * APIエラーレスポンスの型定義
  */
-export interface ApiError extends Error {
+interface ApiError extends Error {
 	status?: number;
 	code?: string;
 }

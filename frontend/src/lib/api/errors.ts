@@ -32,8 +32,7 @@ export const API_ERROR_CODES = {
 	UNKNOWN: "UNKNOWN",
 } as const;
 
-export type ApiErrorCode =
-	(typeof API_ERROR_CODES)[keyof typeof API_ERROR_CODES];
+type ApiErrorCode = (typeof API_ERROR_CODES)[keyof typeof API_ERROR_CODES];
 
 /**
  * エラーメッセージのマッピング
@@ -55,7 +54,7 @@ const ERROR_MESSAGES: Record<ApiErrorCode, string> = {
 /**
  * HTTPステータスコードからエラーコードを取得
  */
-export function getErrorCodeFromStatus(status: number): ApiErrorCode {
+function getErrorCodeFromStatus(status: number): ApiErrorCode {
 	if (status === 401) return API_ERROR_CODES.UNAUTHORIZED;
 	if (status === 403) return API_ERROR_CODES.FORBIDDEN;
 	if (status === 404) return API_ERROR_CODES.NOT_FOUND;
