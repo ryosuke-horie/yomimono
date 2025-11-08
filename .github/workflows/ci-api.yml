@@ -42,6 +42,10 @@ jobs:
         working-directory: ./api
         run: pnpm run lint
 
+      - name: Run Knip
+        working-directory: ./api
+        run: pnpm run knip
+
       - name: Run tests
         working-directory: ./api
         run: pnpm test
