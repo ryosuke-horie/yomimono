@@ -1,20 +1,63 @@
 # APIのデプロイ手順
 
+> **pnpm必須**: `only-allow`でpnpm以外のパッケージマネージャーを拒否しています。以下のコマンドはすべて`pnpm`を前提にしています。
+
 ## 開発環境と本番環境の分離
 
 このプロジェクトでは、開発環境と本番環境のデータベース接続を明確に分離しています。
 
-- **開発環境（`npm run dev`）**: Miniflareの提供するローカルDBを使用します
-- **本番環境（`npm run deploy`）**: Cloudflare D1の本番データベースを使用します
+- **開発環境（`pnpm run dev`）**: Miniflareの提供するローカルDBを使用します
+- **本番環境（`pnpm run deploy`）**: Cloudflare D1の本番データベースを使用します
 
 これにより、開発時に誤って本番データベースを変更してしまうことを防止します。
 
 ## 開発環境
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
+
+better-sqlite3やesbuildなどネイティブ依存を含むため、`pnpm.onlyBuiltDependencies`の設定により`pnpm install`時に自動ビルドされます。環境差分でバイナリが壊れた場合は`pnpm rebuild`を実行して再生成してください。
+
+## package.json スクリプト一覧
+
+### 開発・ビルド
+
+| コマンド | 説明 | 備考 |
+| --- | --- | --- |
+| `pnpm run dev` | `wrangler dev --env development`を介してCloudflare Workersをローカル実行します | Port 8787/Miniflare、`NODE_ENV=development` |
+| `pnpm run deploy` | `wrangler deploy --minify`で本番デプロイを実行します | `NODE_ENV=production`/Cloudflareの既定環境を対象 |
+
+### テスト・品質
+
+| コマンド | 説明 | 備考 |
+| --- | --- | --- |
+| `pnpm run lint` | Biomeで静的解析を行います | 変更は加えません |
+| `pnpm run format` | Biomeでフォーマットを適用します | 自動修正が発生するためコミット前に実行 |
+| `pnpm run test` | Vitestの単発実行 | `import.meta.vitest`のケースも含む |
+| `pnpm run test:seed` | `src/scripts/seed.ts`専用のVitest実行 | シード処理の回帰確認用 |
+| `pnpm run knip` | 未使用コード検出 | 依存掃除のトリアージに使用 |
+
+### マイグレーションとDBユーティリティ
+
+| コマンド | 説明 | 備考 |
+| --- | --- | --- |
+| `pnpm run migrate:development` | `drizzle-kit migrate`を開発環境向けに実行 | `NODE_ENV=development` |
+| `pnpm run migrate:production` | 本番DBに対するDrizzleマイグレーション | `NODE_ENV=production` |
+| `pnpm run migrate:dev:local` | Wrangler D1で`yomimono-db-dev`ローカルに適用 | Miniflare上のローカルDB |
+| `pnpm run migrate:prod:remote` | CloudflareリモートD1へ適用 | `wrangler d1 migrations apply yomimono-db --remote` |
+| `pnpm run db:generate` | Drizzleスキーマからマイグレーションを生成 | `drizzle-kit generate` |
+| `pnpm run db:studio` | Drizzle Studioを起動（環境自動判定） | 環境固定版は`db:studio:dev`/`db:studio:prod` |
+
+### シードスクリプト
+
+| コマンド | 説明 | 備考 |
+| --- | --- | --- |
+| `pnpm run seed` / `seed:development` | ローカルD1に初期データを投入 | `NODE_ENV=development`、同義コマンド |
+| `pnpm run seed:test` | Vitestで利用する軽量データセットを投入 | `tsx -e`で即時実行 |
+| `pnpm run seed:custom` | 任意件数（50件/8ラベル/40%お気に入り）のデータ投入例 | パラメータをコード内で変更可能 |
+| `pnpm run seed:clear` | シードデータをクリア | Local DBのリセットに使用 |
 
 ## テスト実行
 
@@ -30,7 +73,7 @@ pnpm run test
 ### 1. APIのデプロイ
 
 ```bash
-npm run deploy
+pnpm run deploy
 ```
 
 ### 2. データベースマイグレーション
@@ -47,7 +90,7 @@ npm run deploy
 
 2. または手動で実行：
    ```bash
-   npm run migrate:production
+   pnpm run migrate:production
    ```
 
 #### マイグレーション後の検証
@@ -93,10 +136,10 @@ npm run deploy
 マイグレーション適用
 
 開発用(wranglerを利用してローカルにマイグレーション)
-`npm run migrate:development`
+`pnpm run migrate:development`
 
 本番用(drizzleを利用して本番にマイグレーション)
-`npm run migrate:production`
+`pnpm run migrate:production`
 
 ### マイグレーション検証
 
