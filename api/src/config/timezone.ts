@@ -5,14 +5,14 @@
 /**
  * タイムゾーン環境変数のインターフェース
  */
-export interface TimezoneEnv {
+interface TimezoneEnv {
 	DEFAULT_TIMEZONE?: string;
 }
 
 /**
  * タイムゾーン設定を作成する関数
  */
-export function createTimezoneConfig(env: TimezoneEnv = {}) {
+function createTimezoneConfig(env: TimezoneEnv = {}) {
 	return {
 		default: env.DEFAULT_TIMEZONE || "Asia/Tokyo",
 		format: {

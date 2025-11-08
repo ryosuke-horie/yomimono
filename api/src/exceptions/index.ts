@@ -5,23 +5,12 @@
 
 // 基底クラス
 export { BaseError, HttpError } from "./base";
-// ビジネスエラー
-export {
-	DatabaseError,
-	DuplicateResourceError,
-	ExternalServiceError,
-	RateLimitError,
-	TimeoutError,
-} from "./business";
 // HTTPエラー
 export {
 	BadRequestError,
 	ConflictError,
-	ForbiddenError,
 	InternalServerError,
 	NotFoundError,
-	ServiceUnavailableError,
-	UnauthorizedError,
 	ValidationError,
 } from "./http";
 
@@ -29,14 +18,13 @@ export {
 export {
 	createErrorResponse,
 	createErrorResponseBody,
-	isOperationalError,
 	toContentfulStatusCode,
 } from "./utils";
 
 if (import.meta.vitest) {
 	const { test, expect } = import.meta.vitest;
 
-	test("すべての例外クラスがエクスポートされている", async () => {
+	test("公開している例外クラスがエクスポートされている", async () => {
 		const exports = await import("./index");
 
 		// 基底クラス
@@ -45,11 +33,9 @@ if (import.meta.vitest) {
 
 		// HTTPエラー
 		expect(exports.BadRequestError).toBeDefined();
+		expect(exports.ConflictError).toBeDefined();
 		expect(exports.NotFoundError).toBeDefined();
 		expect(exports.ValidationError).toBeDefined();
 		expect(exports.InternalServerError).toBeDefined();
-
-		// ビジネスエラー
-		expect(exports.DatabaseError).toBeDefined();
 	});
 }

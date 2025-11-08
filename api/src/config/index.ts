@@ -6,7 +6,7 @@
 /**
  * 環境変数インターフェース
  */
-export interface ConfigEnv {
+interface ConfigEnv {
 	DEFAULT_OFFSET?: string;
 	DEFAULT_PAGE_SIZE?: string;
 	MAX_PAGE_SIZE?: string;
@@ -22,7 +22,7 @@ export interface ConfigEnv {
 /**
  * 設定値の型定義
  */
-export interface Config {
+interface Config {
 	pagination: {
 		defaultOffset: number;
 		defaultPageSize: number;
@@ -46,7 +46,7 @@ export interface Config {
 /**
  * 環境変数から設定オブジェクトを作成する関数
  */
-export function createConfig(env: ConfigEnv = {}): Config {
+function createConfig(env: ConfigEnv = {}): Config {
 	return {
 		pagination: {
 			defaultOffset: Number(env.DEFAULT_OFFSET) || 0,
@@ -69,40 +69,12 @@ export function createConfig(env: ConfigEnv = {}): Config {
 	};
 }
 
-/**
- * デフォルト設定（環境変数なしの場合）
- */
-export const DEFAULT_CONFIG = createConfig();
-
-/**
- * ページネーション関連の設定（後方互換性のため）
- */
-export const PAGINATION_CONFIG = DEFAULT_CONFIG.pagination;
-
-/**
- * 処理制限に関する設定（後方互換性のため）
- */
-export const LIMITS_CONFIG = DEFAULT_CONFIG.limits;
-
-/**
- * 時間関連の設定（後方互換性のため）
- */
-export const TIME_CONFIG = DEFAULT_CONFIG.time;
-
-/**
- * タイムアウト設定（後方互換性のため）
- */
-export const TIMEOUT_CONFIG = DEFAULT_CONFIG.timeout;
-
-/**
- * すべての設定を統合したオブジェクト（後方互換性のため）
- */
-export const CONFIG = DEFAULT_CONFIG;
+const DEFAULT_CONFIG = createConfig();
 
 /**
  * 設定値の検証
  */
-export function validateConfig(config: Config = DEFAULT_CONFIG): void {
+function validateConfig(config: Config = DEFAULT_CONFIG): void {
 	// ページネーション設定の検証
 	if (config.pagination.defaultPageSize > config.pagination.maxPageSize) {
 		throw new Error("DEFAULT_PAGE_SIZE cannot be greater than MAX_PAGE_SIZE");
@@ -135,6 +107,13 @@ export function validateConfig(config: Config = DEFAULT_CONFIG): void {
 		throw new Error("REQUEST_TIMEOUT must be greater than 0");
 	}
 }
+
+validateConfig(DEFAULT_CONFIG);
+
+/**
+ * すべての設定を統合したオブジェクト
+ */
+export const CONFIG = DEFAULT_CONFIG;
 
 if (import.meta.vitest) {
 	const { test, expect, describe, beforeEach, afterEach } = import.meta.vitest;

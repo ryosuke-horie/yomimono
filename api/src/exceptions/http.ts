@@ -18,7 +18,7 @@ export class BadRequestError extends HttpError {
  * 401 Unauthorized
  * 認証が必要なリソースへのアクセス時に認証情報が無効または不足している場合
  */
-export class UnauthorizedError extends HttpError {
+class UnauthorizedError extends HttpError {
 	constructor(message = "Unauthorized") {
 		super(message, 401);
 	}
@@ -28,7 +28,7 @@ export class UnauthorizedError extends HttpError {
  * 403 Forbidden
  * 認証は成功したが、リソースへのアクセス権限がない場合
  */
-export class ForbiddenError extends HttpError {
+class ForbiddenError extends HttpError {
 	constructor(message = "Forbidden") {
 		super(message, 403);
 	}
@@ -78,7 +78,7 @@ export class InternalServerError extends HttpError {
  * 503 Service Unavailable
  * サービスが一時的に利用できない場合
  */
-export class ServiceUnavailableError extends HttpError {
+class ServiceUnavailableError extends HttpError {
 	constructor(message = "Service Unavailable") {
 		super(message, 503);
 	}
