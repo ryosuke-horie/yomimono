@@ -2,63 +2,9 @@
 
 > **pnpm必須**: `only-allow`でpnpm以外のパッケージマネージャーを拒否しています。以下のコマンドはすべて`pnpm`を前提にしています。
 
-## 開発環境と本番環境の分離
+## 開発向けドキュメント
 
-このプロジェクトでは、開発環境と本番環境のデータベース接続を明確に分離しています。
-
-- **開発環境（`pnpm run dev`）**: Miniflareの提供するローカルDBを使用します
-- **本番環境（`pnpm run deploy`）**: Cloudflare D1の本番データベースを使用します
-
-これにより、開発時に誤って本番データベースを変更してしまうことを防止します。
-
-## 開発環境
-
-```bash
-pnpm install
-pnpm run dev
-```
-
-better-sqlite3やesbuildなどネイティブ依存を含むため、`pnpm.onlyBuiltDependencies`の設定により`pnpm install`時に自動ビルドされます。環境差分でバイナリが壊れた場合は`pnpm rebuild`を実行して再生成してください。
-
-> MiniflareのローカルD1（`.wrangler/state/v3/d1`）をSeed/起動に共用します。初回は `pnpm run migrate:dev:local` を実行してテーブルを作成しておいてください。
-
-## package.json スクリプト一覧
-
-### 開発・ビルド
-
-| コマンド | 説明 | 備考 |
-| --- | --- | --- |
-| `pnpm run dev` | `wrangler dev --env development --local`を介してCloudflare Workersをローカル実行します | Port 8787/Miniflare、`NODE_ENV=development` |
-| `pnpm run deploy` | `wrangler deploy --minify`で本番デプロイを実行します | `NODE_ENV=production`/Cloudflareの既定環境を対象 |
-
-### テスト・品質
-
-| コマンド | 説明 | 備考 |
-| --- | --- | --- |
-| `pnpm run lint` | Biomeで静的解析を行います | 変更は加えません |
-| `pnpm run format` | Biomeでフォーマットを適用します | 自動修正が発生するためコミット前に実行 |
-| `pnpm run test` | Vitestの単発実行 | `import.meta.vitest`のケースも含む |
-| `pnpm run knip` | 未使用コード検出 | 依存掃除のトリアージに使用 |
-
-### マイグレーションとDBユーティリティ
-
-| コマンド | 説明 | 備考 |
-| --- | --- | --- |
-| `pnpm run migrate:dev:local` | Wrangler D1で`yomimono-db-dev`ローカルに適用 | Miniflare上のローカルDB |
-| `pnpm run migrate:prod:remote` | CloudflareリモートD1へ適用 | `wrangler d1 migrations apply yomimono-db --remote` |
-| `pnpm run db:generate` | Drizzleスキーマからマイグレーションを生成 | `drizzle-kit generate` |
-| `pnpm run seed` | ローカルD1をクリアした上で初期データを投入 | `NODE_ENV=development`、コマンド内でクリア→投入を実施 |
-
-`pnpm run seed`は`src/scripts/seed-runner.ts`を用いて常にクリア→投入を実行します。データクリアのみ実施したい場合は `NODE_ENV=development SEED_PRESET=clear pnpm exec tsx src/scripts/seed-runner.ts` を直接叩いてください。
-
-## テスト実行
-
-Vitestはwatchモードを無効化しており、常に単発での実行になります。
-
-```bash
-pnpm install
-pnpm run test
-```
+ローカルセットアップやシード、テスト、スクリプト一覧など開発環境での操作は [docs/design/001_開発環境の仕様.md](../docs/design/001_開発環境の仕様.md) に集約しています。そちらを参照してください。
 
 ## デプロイ手順
 
@@ -124,11 +70,8 @@ pnpm run deploy
 
 マイグレーション適用
 
-開発用(wranglerを利用してローカルにマイグレーション)
-`pnpm run migrate:development`
-
-本番用(drizzleを利用して本番にマイグレーション)
-`pnpm run migrate:production`
+本番用(Cloudflare D1 への適用)
+`pnpm run migrate:prod:remote`
 
 ### マイグレーション検証
 
