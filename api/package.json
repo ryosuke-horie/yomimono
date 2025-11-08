@@ -18,7 +18,6 @@
 		"db:studio:prod": "NODE_ENV=production drizzle-kit studio",
 		"seed": "NODE_ENV=development pnpm exec tsx src/scripts/seed-runner.ts",
 		"seed:test": "NODE_ENV=development SEED_PRESET=test pnpm exec tsx src/scripts/seed-runner.ts",
-		"seed:custom": "NODE_ENV=development SEED_PRESET=custom pnpm exec tsx src/scripts/seed-runner.ts",
 		"seed:clear": "NODE_ENV=development SEED_PRESET=clear pnpm exec tsx src/scripts/seed-runner.ts"
 	},
 	"dependencies": {

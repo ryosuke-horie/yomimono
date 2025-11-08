@@ -55,7 +55,6 @@ better-sqlite3やesbuildなどネイティブ依存を含むため、`pnpm.onlyB
 | --- | --- | --- |
 | `pnpm run seed` | ローカルD1に初期データを投入 | `NODE_ENV=development` |
 | `pnpm run seed:test` | 5件/3ラベル/20%お気に入りの軽量データを投入 | `SEED_PRESET=test` |
-| `pnpm run seed:custom` | 50件/8ラベル/40%お気に入りの大規模データを投入 | `SEED_PRESET=custom` |
 | `pnpm run seed:clear` | シードデータをクリア | `SEED_PRESET=clear` |
 
 各コマンドは共通の`src/scripts/seed-runner.ts`を使用しており、`SEED_OPTIONS='{"bookmarkCount":10}'`のようにJSON文字列を渡すことで任意値を上書きできます。
