@@ -1,7 +1,5 @@
 # APIのデプロイ手順
 
-> **pnpm必須**: `only-allow`でpnpm以外のパッケージマネージャーを拒否しています。以下のコマンドはすべて`pnpm`を前提にしています。
-
 ## 開発向けドキュメント
 
 ローカルセットアップやシード、テスト、スクリプト一覧など開発環境での操作は [docs/design/001_開発環境の仕様.md](../docs/design/001_開発環境の仕様.md) に集約しています。そちらを参照してください。
@@ -49,20 +47,3 @@ pnpm run deploy
 - 開発環境でのマイグレーションは `pnpm run migrate:dev:local`（package.json 定義）を使用します。詳細は開発ドキュメントを参照してください。
 - 本番 D1 への適用は `pnpm run migrate:prod:remote` が基本です。
 - 追加でバックアップ取得や整合性チェックを自動化したい場合は `./scripts/safe-migrate.sh production` を利用できます。このスクリプトは `pnpm run migrate:prod:remote` を内部で呼び出す前にバックアップや状態確認を行う安全弁です。
-
-### マイグレーション検証
-
-マイグレーション後の検証：
-```bash
-./scripts/validate-migration.sh development  # 開発環境
-./scripts/validate-migration.sh production   # 本番環境
-```
-
-## デッドコード検出
-
-Knipを導入しており、未使用のファイルやシンボルを検出できます。定期的に実行し、安全に削除できるかを確認してください。
-
-```bash
-pnpm install
-pnpm run knip
-```
