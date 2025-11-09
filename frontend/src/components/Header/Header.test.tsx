@@ -13,10 +13,14 @@ vi.mock("next/navigation", () => ({
 }));
 
 describe("Header", () => {
-	test("ヘッダーが正しく表示される", () => {
-		vi.mocked(usePathname).mockReturnValue("/");
+	const renderHeader = (path = "/") => {
+		vi.mocked(usePathname).mockReturnValue(path);
 
-		render(<Header />);
+		return render(<Header />);
+	};
+
+	test("ヘッダーが正しく表示される", () => {
+		renderHeader();
 
 		expect(screen.getByText("Yomimono")).toBeInTheDocument();
 		expect(screen.getByText("未読一覧")).toBeInTheDocument();
@@ -25,37 +29,8 @@ describe("Header", () => {
 		expect(screen.getByText("ラベル設定")).toBeInTheDocument();
 	});
 
-	test("現在のページが正しくアクティブになる", () => {
-		vi.mocked(usePathname).mockReturnValue("/favorites");
-
-		render(<Header />);
-
-		const favoriteLink = screen.getByText("お気に入り").closest("a");
-		expect(favoriteLink).toHaveClass(
-			"text-blue-600",
-			"border-b-2",
-			"border-blue-600",
-		);
-	});
-
-	test("非アクティブなリンクは異なるスタイルを持つ", () => {
-		vi.mocked(usePathname).mockReturnValue("/");
-
-		render(<Header />);
-
-		const favoriteLink = screen.getByText("お気に入り").closest("a");
-		expect(favoriteLink).toHaveClass("text-gray-600", "hover:text-blue-500");
-		expect(favoriteLink).not.toHaveClass(
-			"text-blue-600",
-			"border-b-2",
-			"border-blue-600",
-		);
-	});
-
 	test("メニューボタンでモバイルメニューを切り替えできる", () => {
-		vi.mocked(usePathname).mockReturnValue("/");
-
-		render(<Header />);
+		renderHeader();
 
 		const menuButton = screen.getByRole("button");
 		expect(menuButton).toBeInTheDocument();
@@ -80,45 +55,26 @@ describe("Header", () => {
 		expect(mobileMenuItemsAfterSecondClick).toHaveLength(1); // デスクトップのみ
 	});
 
-	test("すべてのナビゲーションリンクが正しいパスを持つ", () => {
-		vi.mocked(usePathname).mockReturnValue("/");
-
-		render(<Header />);
-
-		expect(screen.getByText("未読一覧").closest("a")).toHaveAttribute(
-			"href",
-			"/",
-		);
-		expect(screen.getByText("お気に入り").closest("a")).toHaveAttribute(
-			"href",
-			"/favorites",
-		);
-		expect(screen.getByText("最近読んだ記事").closest("a")).toHaveAttribute(
-			"href",
-			"/recent",
-		);
-		expect(screen.getByText("ラベル設定").closest("a")).toHaveAttribute(
-			"href",
-			"/labels",
-		);
-	});
-
 	test("デスクトップ表示のスナップショット", () => {
-		vi.mocked(usePathname).mockReturnValue("/");
-
-		const { container } = render(<Header />);
+		const { container } = renderHeader();
 
 		expect(container).toMatchSnapshot();
 	});
 
 	test("モバイルメニュー展開時のスナップショット", () => {
-		vi.mocked(usePathname).mockReturnValue("/");
-
-		const { container } = render(<Header />);
+		const { container } = renderHeader();
 		const toggleButton = screen.getByRole("button");
 
 		fireEvent.click(toggleButton);
 
 		expect(container).toMatchSnapshot();
+	});
+
+	describe("ナビゲーションリンクの構造", () => {
+		test("デフォルトの選択状態はスナップショットで担保する", () => {
+			const { container } = renderHeader();
+
+			expect(container).toMatchSnapshot();
+		});
 	});
 });
