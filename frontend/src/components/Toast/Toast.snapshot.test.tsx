@@ -36,11 +36,9 @@ describe("Toast snapshot", () => {
 		];
 
 		const { container } = render(
-			<>
-				{toasts.map((toast) => (
-					<Toast key={toast.id} toast={toast} onClose={vi.fn()} />
-				))}
-			</>,
+			toasts.map((toast) => (
+				<Toast key={toast.id} toast={toast} onClose={vi.fn()} />
+			)),
 		);
 
 		expect(container).toMatchSnapshot();
