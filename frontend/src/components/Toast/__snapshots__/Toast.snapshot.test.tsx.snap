@@ -1,0 +1,286 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Toast snapshot > success toastの基本レイアウトをスナップショット検証する 1`] = `
+<div>
+  <div
+    aria-live="polite"
+    class="flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg animate-toast-slide-in bg-green-500 text-white"
+    role="alert"
+  >
+    <svg
+      class="w-5 h-5"
+      fill="none"
+      height="1em"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      viewBox="0 0 24 24"
+      width="1em"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M22 11.08V12a10 10 0 1 1-5.93-9.14"
+      />
+      <polyline
+        points="22 4 12 14.01 9 11.01"
+      />
+    </svg>
+    <span
+      class="flex-1"
+    >
+      保存が完了しました
+    </span>
+    <button
+      aria-label="閉じる"
+      class="hover:opacity-80 transition-opacity"
+      type="button"
+    >
+      <svg
+        class="w-5 h-5"
+        fill="none"
+        height="1em"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="1em"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <line
+          x1="18"
+          x2="6"
+          y1="6"
+          y2="18"
+        />
+        <line
+          x1="6"
+          x2="18"
+          y1="6"
+          y2="18"
+        />
+      </svg>
+    </button>
+  </div>
+</div>
+`;
+
+exports[`Toast snapshot > 各タイプのトーストをまとめてスナップショットで検証する 1`] = `
+<div>
+  <div
+    aria-live="polite"
+    class="flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg animate-toast-slide-in bg-red-500 text-white"
+    role="alert"
+  >
+    <svg
+      class="w-5 h-5"
+      fill="none"
+      height="1em"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      viewBox="0 0 24 24"
+      width="1em"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="10"
+      />
+      <line
+        x1="12"
+        x2="12"
+        y1="8"
+        y2="12"
+      />
+      <line
+        x1="12"
+        x2="12.01"
+        y1="16"
+        y2="16"
+      />
+    </svg>
+    <span
+      class="flex-1"
+    >
+      送信に失敗しました
+    </span>
+    <button
+      aria-label="閉じる"
+      class="hover:opacity-80 transition-opacity"
+      type="button"
+    >
+      <svg
+        class="w-5 h-5"
+        fill="none"
+        height="1em"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="1em"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <line
+          x1="18"
+          x2="6"
+          y1="6"
+          y2="18"
+        />
+        <line
+          x1="6"
+          x2="18"
+          y1="6"
+          y2="18"
+        />
+      </svg>
+    </button>
+  </div>
+  <div
+    aria-live="polite"
+    class="flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg animate-toast-slide-in bg-yellow-500 text-gray-800"
+    role="alert"
+  >
+    <svg
+      class="w-5 h-5"
+      fill="none"
+      height="1em"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      viewBox="0 0 24 24"
+      width="1em"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+      />
+      <line
+        x1="12"
+        x2="12"
+        y1="9"
+        y2="13"
+      />
+      <line
+        x1="12"
+        x2="12.01"
+        y1="17"
+        y2="17"
+      />
+    </svg>
+    <span
+      class="flex-1"
+    >
+      注意が必要です
+    </span>
+    <button
+      aria-label="閉じる"
+      class="hover:opacity-80 transition-opacity"
+      type="button"
+    >
+      <svg
+        class="w-5 h-5"
+        fill="none"
+        height="1em"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="1em"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <line
+          x1="18"
+          x2="6"
+          y1="6"
+          y2="18"
+        />
+        <line
+          x1="6"
+          x2="18"
+          y1="6"
+          y2="18"
+        />
+      </svg>
+    </button>
+  </div>
+  <div
+    aria-live="polite"
+    class="flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg animate-toast-slide-in bg-blue-500 text-white"
+    role="alert"
+  >
+    <svg
+      class="w-5 h-5"
+      fill="none"
+      height="1em"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      viewBox="0 0 24 24"
+      width="1em"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="10"
+      />
+      <line
+        x1="12"
+        x2="12"
+        y1="16"
+        y2="12"
+      />
+      <line
+        x1="12"
+        x2="12.01"
+        y1="8"
+        y2="8"
+      />
+    </svg>
+    <span
+      class="flex-1"
+    >
+      追加の情報があります
+    </span>
+    <button
+      aria-label="閉じる"
+      class="hover:opacity-80 transition-opacity"
+      type="button"
+    >
+      <svg
+        class="w-5 h-5"
+        fill="none"
+        height="1em"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="1em"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <line
+          x1="18"
+          x2="6"
+          y1="6"
+          y2="18"
+        />
+        <line
+          x1="6"
+          x2="18"
+          y1="6"
+          y2="18"
+        />
+      </svg>
+    </button>
+  </div>
+</div>
+`;
