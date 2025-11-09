@@ -105,5 +105,4 @@ describe("BookmarksList", () => {
 
 		expect(onLabelClick).toHaveBeenCalledWith("テスト");
 	});
-
 });
