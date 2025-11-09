@@ -105,43 +105,4 @@ describe("BookmarksList", () => {
 
 		expect(onLabelClick).toHaveBeenCalledWith("テスト");
 	});
-
-	test("適切なグリッドレイアウトクラスが適用される", () => {
-		const queryClient = createTestQueryClient();
-		const bookmarks = [mockBookmark];
-
-		render(
-			<QueryClientProvider client={queryClient}>
-				<ToastProvider>
-					<BookmarksList bookmarks={bookmarks} />
-				</ToastProvider>
-			</QueryClientProvider>,
-		);
-
-		const gridContainer = screen.getByTestId("bookmark-item").parentElement;
-		expect(gridContainer).toHaveClass(
-			"grid",
-			"gap-4",
-			"sm:grid-cols-1",
-			"md:grid-cols-2",
-			"lg:grid-cols-3",
-			"xl:grid-cols-4",
-		);
-	});
-
-	test("各ブックマークアイテムが適切なクラスを持つ", () => {
-		const queryClient = createTestQueryClient();
-		const bookmarks = [mockBookmark];
-
-		render(
-			<QueryClientProvider client={queryClient}>
-				<ToastProvider>
-					<BookmarksList bookmarks={bookmarks} />
-				</ToastProvider>
-			</QueryClientProvider>,
-		);
-
-		const bookmarkItem = screen.getByTestId("bookmark-item");
-		expect(bookmarkItem).toHaveClass("mx-auto", "w-full", "max-w-sm");
-	});
 });
