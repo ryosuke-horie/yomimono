@@ -73,12 +73,8 @@ describe("Header", () => {
 	describe("ナビゲーションリンクの構造", () => {
 		test("デフォルトの選択状態はスナップショットで担保する", () => {
 			const { container } = renderHeader();
-			const nav = container.querySelector("nav");
-			if (!nav) {
-				throw new Error("ナビゲーションが見つかりません");
-			}
 
-			expect(nav).toMatchSnapshot();
+			expect(container).toMatchSnapshot();
 		});
 	});
 });
