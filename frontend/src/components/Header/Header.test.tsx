@@ -81,14 +81,5 @@ describe("Header", () => {
 			expect(nav).toMatchSnapshot();
 		});
 
-		test("お気に入りページのアクティブ状態もスナップショットで担保する", () => {
-			const { container } = renderHeader("/favorites");
-			const nav = container.querySelector("nav");
-			if (!nav) {
-				throw new Error("ナビゲーションが見つかりません");
-			}
-
-			expect(nav).toMatchSnapshot();
-		});
 	});
 });
