@@ -80,6 +80,5 @@ describe("Header", () => {
 
 			expect(nav).toMatchSnapshot();
 		});
-
 	});
 });
