@@ -78,36 +78,7 @@ describe("Header", () => {
 				throw new Error("ナビゲーションが見つかりません");
 			}
 
-			expect(nav).toMatchInlineSnapshot(`
-<nav
-  class="hidden md:flex space-x-8"
->
-  <a
-    class="inline-flex items-center px-1 pt-1 text-blue-600 border-b-2 border-blue-600"
-    href="/"
-  >
-    未読一覧
-  </a>
-  <a
-    class="inline-flex items-center px-1 pt-1 text-gray-600 hover:text-blue-500"
-    href="/favorites"
-  >
-    お気に入り
-  </a>
-  <a
-    class="inline-flex items-center px-1 pt-1 text-gray-600 hover:text-blue-500"
-    href="/recent"
-  >
-    最近読んだ記事
-  </a>
-  <a
-    class="inline-flex items-center px-1 pt-1 text-gray-600 hover:text-blue-500"
-    href="/labels"
-  >
-    ラベル設定
-  </a>
-</nav>
-			`);
+			expect(nav).toMatchSnapshot();
 		});
 
 		test("お気に入りページのアクティブ状態もスナップショットで担保する", () => {
@@ -117,36 +88,7 @@ describe("Header", () => {
 				throw new Error("ナビゲーションが見つかりません");
 			}
 
-			expect(nav).toMatchInlineSnapshot(`
-<nav
-  class="hidden md:flex space-x-8"
->
-  <a
-    class="inline-flex items-center px-1 pt-1 text-gray-600 hover:text-blue-500"
-    href="/"
-  >
-    未読一覧
-  </a>
-  <a
-    class="inline-flex items-center px-1 pt-1 text-blue-600 border-b-2 border-blue-600"
-    href="/favorites"
-  >
-    お気に入り
-  </a>
-  <a
-    class="inline-flex items-center px-1 pt-1 text-gray-600 hover:text-blue-500"
-    href="/recent"
-  >
-    最近読んだ記事
-  </a>
-  <a
-    class="inline-flex items-center px-1 pt-1 text-gray-600 hover:text-blue-500"
-    href="/labels"
-  >
-    ラベル設定
-  </a>
-</nav>
-			`);
+			expect(nav).toMatchSnapshot();
 		});
 	});
 });
