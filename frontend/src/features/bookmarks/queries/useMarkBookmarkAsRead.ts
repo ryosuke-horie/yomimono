@@ -116,17 +116,6 @@ export const useMarkBookmarkAsRead = (options?: QueryToastOptions) => {
 				bookmarkToUpdate,
 			};
 		},
-		// 成功時の処理
-		onSuccess: () => {
-			// Toastで成功を通知
-			if (options?.showToast) {
-				options.showToast({
-					type: "success",
-					message: "既読にしました",
-					duration: 2000,
-				});
-			}
-		},
 		// エラー発生時の処理
 		onError: (_err, _bookmarkId, context) => {
 			// Toastでエラーを通知
