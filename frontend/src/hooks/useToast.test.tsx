@@ -9,7 +9,7 @@ describe("useToast", () => {
 
 		expect(() => {
 			renderHook(() => useToast());
-		}).toThrow("useToast must be used within a ToastProvider");
+		}).toThrow("useToastは必ずToastProvider内で使用してください");
 
 		consoleSpy.mockRestore();
 	});
