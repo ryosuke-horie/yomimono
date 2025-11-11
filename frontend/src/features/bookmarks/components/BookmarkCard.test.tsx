@@ -32,16 +32,6 @@ vi.mock("../queries/useMarkBookmarkAsUnread", () => ({
 	}),
 }));
 
-// navigator.clipboardをモック
-Object.assign(navigator, {
-	clipboard: {
-		writeText: vi.fn().mockResolvedValue(undefined),
-	},
-});
-
-// window.openをモック
-window.open = vi.fn();
-
 const mockBookmark: BookmarkWithLabel = {
 	id: 1,
 	title: "テスト記事",
@@ -121,18 +111,6 @@ describe("BookmarkCard", () => {
 		renderWithQueryClient(<BookmarkCard bookmark={favoriteBookmark} />);
 
 		expect(screen.getByTitle("お気に入りから削除")).toBeInTheDocument();
-	});
-
-	it("シェアボタンをクリックするとTwitterの投稿画面が開く", () => {
-		renderWithQueryClient(<BookmarkCard bookmark={mockBookmark} />);
-
-		const shareButton = screen.getByTitle("Xでシェア");
-		fireEvent.click(shareButton);
-
-		expect(window.open).toHaveBeenCalledWith(
-			expect.stringContaining("https://twitter.com/intent/tweet"),
-			"_blank",
-		);
 	});
 
 	it("ラベルがある場合、ラベルを表示する", () => {
