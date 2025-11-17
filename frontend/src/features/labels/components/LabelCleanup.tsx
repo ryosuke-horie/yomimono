@@ -1,7 +1,3 @@
-/**
- * 未使用ラベルクリーンアップ機能コンポーネント
- * 使用されていないラベルの一括削除を行う
- */
 "use client";
 
 import { Button } from "@/components/Button";
@@ -20,7 +16,6 @@ export function LabelCleanup({
 	isLoading = false,
 	error,
 }: LabelCleanupProps) {
-	// 未使用ラベル（記事数が0のラベル）をフィルタリング
 	const unusedLabels = labels.filter(
 		(label) => (label.articleCount ?? 0) === 0,
 	);
@@ -29,7 +24,6 @@ export function LabelCleanup({
 		onCleanup();
 	};
 
-	// 未使用ラベルがない場合は何も表示しない
 	if (unusedLabels.length === 0) {
 		return null;
 	}
@@ -49,7 +43,6 @@ export function LabelCleanup({
 						※「未使用ラベルを削除」ボタンを押すと確認なしで即時に削除が実行されます。
 					</p>
 
-					{/* エラー表示 */}
 					{error && (
 						<div className="mb-3 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700">
 							{error.message}
