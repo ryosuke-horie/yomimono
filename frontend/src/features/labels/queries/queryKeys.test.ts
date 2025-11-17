@@ -1,6 +1,3 @@
-/**
- * labelKeysの生成ロジックのテスト
- */
 import { describe, expect, it } from "vitest";
 
 import { labelKeys } from "./queryKeys";
