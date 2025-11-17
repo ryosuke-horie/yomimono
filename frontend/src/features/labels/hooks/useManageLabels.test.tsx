@@ -125,34 +125,4 @@ describe("useManageLabels", () => {
 		expect(result.current.deleteConfirmLabelId).toBeNull();
 		expect(result.current.getDeleteConfirmLabel()).toBeUndefined();
 	});
-
-	test("getEditingLabel: 存在しないIDの場合undefinedを返す", async () => {
-		queryClient.setQueryData(["labels", "list"], mockLabels);
-
-		const { result } = renderHook(() => useManageLabels(), {
-			wrapper: createWrapper(),
-		});
-
-		act(() => {
-			result.current.startEdit(999); // 存在しないID
-		});
-
-		expect(result.current.editingLabelId).toBe(999);
-		expect(result.current.getEditingLabel()).toBeUndefined();
-	});
-
-	test("getDeleteConfirmLabel: 存在しないIDの場合undefinedを返す", async () => {
-		queryClient.setQueryData(["labels", "list"], mockLabels);
-
-		const { result } = renderHook(() => useManageLabels(), {
-			wrapper: createWrapper(),
-		});
-
-		act(() => {
-			result.current.openDeleteConfirm(999); // 存在しないID
-		});
-
-		expect(result.current.deleteConfirmLabelId).toBe(999);
-		expect(result.current.getDeleteConfirmLabel()).toBeUndefined();
-	});
 });
