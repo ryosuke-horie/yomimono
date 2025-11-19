@@ -4,7 +4,8 @@ function tryLoadBetterSqlite3(): boolean {
 	try {
 		// requireを使うことでバインディングのロードに失敗した際に即座に検知する
 		// eslint-disable-next-line @typescript-eslint/no-var-requires
-		const Database = require("better-sqlite3") as typeof import("better-sqlite3");
+		const Database =
+			require("better-sqlite3") as typeof import("better-sqlite3");
 		const db = new Database(":memory:");
 		db.pragma("journal_mode = WAL");
 		db.close();
@@ -34,7 +35,9 @@ function ensureBetterSqlite3Binding() {
 		);
 	}
 
-	console.log("再ビルド後、better-sqlite3のバインディングが正常に読み込まれました");
+	console.log(
+		"再ビルド後、better-sqlite3のバインディングが正常に読み込まれました",
+	);
 }
 
 ensureBetterSqlite3Binding();
