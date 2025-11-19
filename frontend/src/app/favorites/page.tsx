@@ -3,15 +3,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { BookmarksList } from "@/features/bookmarks/components/BookmarksList";
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
+import { LabelFilter } from "@/features/labels/components/LabelFilter";
+import { useLabels } from "@/features/labels/hooks/useLabels";
 import { API_BASE_URL } from "@/lib/api/config";
 
-// APIレスポンスの型定義
 interface FavoritesApiResponse {
 	success: boolean;
 	bookmarks: BookmarkWithLabel[];
 }
 
-// お気に入りブックマーク一覧を取得する非同期関数
 const fetchFavoriteBookmarks = async (): Promise<FavoritesApiResponse> => {
 	const response = await fetch(`${API_BASE_URL}/api/bookmarks/favorites`);
 	if (!response.ok) {
@@ -22,25 +22,41 @@ const fetchFavoriteBookmarks = async (): Promise<FavoritesApiResponse> => {
 };
 
 export default function FavoritesPage() {
-	// お気に入りブックマーク取得
+	const {
+		labels,
+		selectedLabelName,
+		setSelectedLabelName,
+		isLoading: isLoadingLabels,
+		error: errorLabels,
+	} = useLabels();
+
 	const {
 		data: responseData,
-		isLoading,
-		error,
+		isLoading: isLoadingBookmarks,
+		error: errorBookmarks,
 	} = useQuery<FavoritesApiResponse, Error>({
-		queryKey: ["bookmarks", "favorites"], // クエリキーを設定
+		queryKey: ["bookmarks", "favorites"],
 		queryFn: fetchFavoriteBookmarks,
-		staleTime: 1 * 60 * 1000, // 1分間キャッシュを有効にする
+		staleTime: 1 * 60 * 1000,
 	});
 
-	// 取得したデータからブックマークリストを抽出
-	const bookmarks = responseData?.bookmarks ?? [];
+	const allBookmarks = responseData?.bookmarks ?? [];
 
-	// エラーハンドリング
-	if (error) {
+	const bookmarks = selectedLabelName
+		? allBookmarks.filter((b) => b.label?.name === selectedLabelName)
+		: allBookmarks;
+
+	if (errorLabels) {
 		return (
 			<main className="container mx-auto px-4 py-8 text-red-500">
-				お気に入りブックマークの読み込みに失敗しました: {error.message}
+				ラベルの読み込みに失敗しました: {errorLabels.message}
+			</main>
+		);
+	}
+	if (errorBookmarks) {
+		return (
+			<main className="container mx-auto px-4 py-8 text-red-500">
+				お気に入りブックマークの読み込みに失敗しました: {errorBookmarks.message}
 			</main>
 		);
 	}
@@ -48,9 +64,19 @@ export default function FavoritesPage() {
 	return (
 		<main className="container mx-auto px-4 py-8">
 			<h1 className="text-2xl font-bold mb-6">お気に入り</h1>
-			{isLoading ? (
+
+			{isLoadingLabels ? (
+				<div className="mb-4 text-gray-500">ラベルを読み込み中...</div>
+			) : (
+				<LabelFilter
+					labels={labels}
+					selectedLabelName={selectedLabelName}
+					onLabelSelect={setSelectedLabelName}
+				/>
+			)}
+
+			{isLoadingBookmarks ? (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					{/* スケルトンローディング表示 */}
 					{[...Array(6)].map((_, i) => (
 						<div
 							key={i}
@@ -59,8 +85,10 @@ export default function FavoritesPage() {
 					))}
 				</div>
 			) : (
-				<BookmarksList bookmarks={bookmarks} />
-				/* ラベルクリック時のフィルタリングはホームページのみのため onLabelClick は渡さない */
+				<BookmarksList
+					bookmarks={bookmarks}
+					onLabelClick={setSelectedLabelName}
+				/>
 			)}
 		</main>
 	);
