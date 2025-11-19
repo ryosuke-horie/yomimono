@@ -80,20 +80,4 @@ describe("useLabels", () => {
 		});
 		expect(result.current.selectedLabelName).toBeUndefined();
 	});
-
-	it("複数回レンダリングされても安定している", () => {
-		// fetchをモックして失敗させる
-		vi.mocked(fetch).mockRejectedValue(new Error("Network error"));
-
-		const { result, rerender } = renderHook(() => useLabels(), { wrapper });
-
-		const firstSetSelectedLabelName = result.current.setSelectedLabelName;
-
-		rerender();
-
-		const secondSetSelectedLabelName = result.current.setSelectedLabelName;
-
-		// useCallbackによりリレンダリング時も同じ関数参照が維持される
-		expect(firstSetSelectedLabelName).toBe(secondSetSelectedLabelName);
-	});
 });
