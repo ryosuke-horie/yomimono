@@ -113,6 +113,12 @@ npm test
    ```
    → `NODE_ENV=test`でテストを実行: `NODE_ENV=test npm test`
 
+4. **better-sqlite3のバインディングが見つからない/リンクエラーになる**
+   ```
+   Error: Could not locate the bindings file. Tried: ...better-sqlite3.node
+   ```
+   → `pnpm run ensure:better-sqlite3` でネイティブバインディングを再ビルド（`pnpm run seed` 実行時にも自動で実行されます）
+
 ## 実装詳細
 
 ### アーキテクチャ
