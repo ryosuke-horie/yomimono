@@ -1,4 +1,4 @@
-# Effective Yomimono MCP Server
+# Yomimono MCP Server
 
 ## 概要
 
@@ -40,9 +40,9 @@
 Claude Desktopで利用する場合は設定ファイル（macOS例: `~/Library/Application Support/Claude/claude_desktop_config.json`）に以下のエントリを追加します。
 
 ```json
-"effective-yomimono-mcp": {
+"yomimono-mcp": {
   "command": "node",
-  "args": ["/絶対パス/effective-yomimono/mcp/build/index.js"],
+  "args": ["/絶対パス/yomimono/mcp/build/index.js"],
   "env": {
     "API_BASE_URL": "https://effective-yomimono-api.ryosuke-horie37.workers.dev"
   },
@@ -51,7 +51,7 @@ Claude Desktopで利用する場合は設定ファイル（macOS例: `~/Library/
 }
 ```
 
-- `/絶対パス/effective-yomimono` はローカルの実パスに置き換えてください。
+- `/絶対パス/yomimono` はローカルの実パスに置き換えてください。
 - `API_BASE_URL` は利用したい環境（ローカル/ステージング/本番）に合わせて変更します。
 - 設定後にClaude Desktopを再起動するとサーバーが利用可能になります。
 
