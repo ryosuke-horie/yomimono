@@ -25,7 +25,6 @@ export function LabelCreateForm({
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 
-		// バリデーション
 		if (!name.trim()) {
 			setNameError("ラベル名を入力してください");
 			return;
@@ -52,7 +51,7 @@ export function LabelCreateForm({
 						value={name}
 						onChange={(e) => {
 							setName(e.target.value);
-							setNameError(null); // エラーをクリア
+							setNameError(null);
 						}}
 						className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
 							nameError ? "border-red-500" : "border-gray-300"
@@ -90,7 +89,6 @@ export function LabelCreateForm({
 					</p>
 				</div>
 
-				{/* エラーメッセージ */}
 				{error && (
 					<div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md">
 						{error.message}
