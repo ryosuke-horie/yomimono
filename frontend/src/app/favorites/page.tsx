@@ -85,10 +85,7 @@ export default function FavoritesPage() {
 					))}
 				</div>
 			) : (
-				<BookmarksList
-					bookmarks={bookmarks}
-					onLabelClick={setSelectedLabelName}
-				/>
+				<BookmarksList bookmarks={bookmarks} availableLabels={labels} />
 			)}
 		</main>
 	);

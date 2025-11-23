@@ -268,4 +268,45 @@ describe("ブックマークAPI", () => {
 			);
 		});
 	});
+
+	describe("assignLabelToBookmark", () => {
+		it("正常にラベルを付け替える", async () => {
+			const mockResponse = {
+				success: true,
+				label: { id: 2, name: "新しいラベル" },
+			};
+
+			mockFetch.mockResolvedValueOnce({
+				ok: true,
+				text: () => Promise.resolve(JSON.stringify(mockResponse)),
+			});
+
+			const result = await api.assignLabelToBookmark(1, "新しいラベル");
+
+			expect(mockFetch).toHaveBeenCalledWith(
+				expect.stringContaining("/api/bookmarks/1/label"),
+				{
+					method: "PUT",
+					headers: {
+						Accept: "application/json",
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ labelName: "新しいラベル" }),
+				},
+			);
+			expect(result).toEqual({ id: 2, name: "新しいラベル" });
+		});
+
+		it("APIが失敗した場合にエラーを投げる", async () => {
+			mockFetch.mockResolvedValueOnce({
+				ok: false,
+				status: 500,
+				text: () => Promise.resolve("server error"),
+			});
+
+			await expect(
+				api.assignLabelToBookmark(1, "テストラベル"),
+			).rejects.toThrow("Failed to assign label: 500");
+		});
+	});
 });

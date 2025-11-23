@@ -112,7 +112,7 @@ export default function HomePage() {
 			) : (
 				<BookmarksList
 					bookmarks={bookmarksToDisplay} // 正しい変数を渡す
-					onLabelClick={setSelectedLabelName} // ラベルクリック時のハンドラを渡す
+					availableLabels={labels}
 				/>
 			)}
 		</main>

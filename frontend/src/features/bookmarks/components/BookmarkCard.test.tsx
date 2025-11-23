@@ -32,6 +32,15 @@ vi.mock("../queries/useMarkBookmarkAsUnread", () => ({
 	}),
 }));
 
+const assignLabelMock = vi.fn();
+
+vi.mock("../queries/useAssignLabelToBookmark", () => ({
+	useAssignLabelToBookmark: () => ({
+		mutate: assignLabelMock,
+		isPending: false,
+	}),
+}));
+
 const mockBookmark: BookmarkWithLabel = {
 	id: 1,
 	title: "テスト記事",
@@ -61,6 +70,7 @@ describe("BookmarkCard", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		markAsReadMock.mockClear();
+		assignLabelMock.mockClear();
 	});
 
 	it("基本的なブックマーク情報を表示する", () => {
@@ -123,19 +133,28 @@ describe("BookmarkCard", () => {
 		expect(screen.getByText("テストラベル")).toBeInTheDocument();
 	});
 
-	it("onLabelClickが提供された場合、ラベルクリックが処理される", () => {
-		const onLabelClick = vi.fn();
+	it("ラベルクリックで登録済みラベルの選択肢を表示し、別ラベルを選べる", () => {
 		const bookmarkWithLabel = {
 			...mockBookmark,
 			label: { id: 1, name: "テストラベル" },
 		};
+		const labels = [
+			{ id: 1, name: "テストラベル" },
+			{ id: 2, name: "別ラベル" },
+		];
 		renderWithQueryClient(
-			<BookmarkCard bookmark={bookmarkWithLabel} onLabelClick={onLabelClick} />,
+			<BookmarkCard bookmark={bookmarkWithLabel} availableLabels={labels} />,
 		);
 
 		const labelElement = screen.getByText("テストラベル");
 		fireEvent.click(labelElement);
 
-		expect(onLabelClick).toHaveBeenCalledWith("テストラベル");
+		const otherLabelButton = screen.getByRole("button", { name: "別ラベル" });
+		fireEvent.click(otherLabelButton);
+
+		expect(assignLabelMock).toHaveBeenCalledWith({
+			bookmarkId: 1,
+			labelName: "別ラベル",
+		});
 	});
 });

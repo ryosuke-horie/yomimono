@@ -1,4 +1,5 @@
 import type { Bookmark, BookmarkWithLabel } from "@/features/bookmarks/types";
+import type { Label } from "@/features/labels/types";
 import { API_BASE_URL } from "@/lib/api/config";
 import { ApiError, createApiError } from "@/lib/api/errors";
 import type { ApiBookmarkResponse, ApiResponse } from "@/types/api";
@@ -168,5 +169,56 @@ export const createBookmark = async (data: {
 			errorData.message || "Failed to create bookmark",
 			errorData,
 		);
+	}
+};
+
+export const assignLabelToBookmark = async (
+	bookmarkId: number,
+	labelName: string,
+): Promise<Label> => {
+	const url = `${API_BASE_URL}/api/bookmarks/${bookmarkId}/label`;
+
+	const response = await fetch(url, {
+		method: "PUT",
+		headers: {
+			Accept: "application/json",
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({ labelName }),
+	});
+
+	const responseText = await response.text();
+
+	if (!response.ok) {
+		throw createApiError(
+			response,
+			`Failed to assign label: ${response.status}`,
+			responseText,
+		);
+	}
+
+	try {
+		const data = JSON.parse(responseText) as ApiResponse<Label> & {
+			label?: Label;
+		};
+
+		if (!data.success || !data.label) {
+			throw new ApiError(
+				data.message || "Failed to assign label",
+				"API_ERROR",
+				data,
+			);
+		}
+
+		return data.label;
+	} catch (error) {
+		if (error instanceof ApiError) {
+			throw error;
+		}
+
+		throw new ApiError("Invalid response format", "PARSE_ERROR", {
+			originalError: error,
+			responseText,
+		});
 	}
 };
