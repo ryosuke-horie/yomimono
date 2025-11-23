@@ -1,18 +1,20 @@
 "use client";
 
+import { BookmarkLabelSelector } from "@/features/bookmarks/components/BookmarkLabelSelector";
+import { useAssignLabelToBookmark } from "@/features/bookmarks/queries/useAssignLabelToBookmark";
 import { useMarkBookmarkAsRead } from "@/features/bookmarks/queries/useMarkBookmarkAsRead";
 import { useMarkBookmarkAsUnread } from "@/features/bookmarks/queries/useMarkBookmarkAsUnread";
 import { useToggleFavoriteBookmark } from "@/features/bookmarks/queries/useToggleFavoriteBookmark";
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
-import { LabelDisplay } from "@/features/labels/components/LabelDisplay";
+import type { Label } from "@/features/labels/types";
 import { useToast } from "@/hooks/useToast";
 
 interface Props {
 	bookmark: BookmarkWithLabel;
-	onLabelClick?: (labelName: string) => void;
+	availableLabels?: Label[];
 }
 
-export function BookmarkCard({ bookmark, onLabelClick }: Props) {
+export function BookmarkCard({ bookmark, availableLabels }: Props) {
 	const { id, title, url, createdAt, isRead, isFavorite, label } = bookmark;
 	const formattedDate = new Date(createdAt).toLocaleDateString("ja-JP");
 
@@ -22,6 +24,8 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 	const { mutate: markAsReadMutate } = useMarkBookmarkAsRead({ showToast });
 	const { mutate: markAsUnreadMutate, isPending: isMarkingAsUnread } =
 		useMarkBookmarkAsUnread({ showToast });
+	const { mutate: assignLabelMutate, isPending: isAssigningLabel } =
+		useAssignLabelToBookmark();
 
 	const handleFavoriteToggle = () => {
 		toggleFavorite({ id, isCurrentlyFavorite: isFavorite });
@@ -39,6 +43,17 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 		}
 	};
 
+	const handleLabelSelect = (nextLabel: Label) => {
+		if (!label || label.name === nextLabel.name) {
+			return;
+		}
+		assignLabelMutate({
+			bookmarkId: id,
+			labelName: nextLabel.name,
+			optimisticLabel: nextLabel,
+		});
+	};
+
 	return (
 		<article
 			className={`relative p-4 pb-16 border rounded-lg hover:shadow-md transition-shadow flex flex-col h-[200px] ${
@@ -51,7 +66,12 @@ export function BookmarkCard({ bookmark, onLabelClick }: Props) {
 					className="absolute bottom-2 left-2 z-10"
 					data-testid="label-container"
 				>
-					<LabelDisplay label={label} onClick={onLabelClick} />
+					<BookmarkLabelSelector
+						label={label}
+						availableLabels={availableLabels ?? []}
+						onSelect={handleLabelSelect}
+						isUpdating={isAssigningLabel}
+					/>
 				</div>
 			)}
 

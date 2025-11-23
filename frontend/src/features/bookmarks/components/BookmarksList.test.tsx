@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, test, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, test } from "vitest";
 import { ToastProvider } from "@/providers/ToastProvider";
 import { BookmarksList } from "./BookmarksList";
 
@@ -87,22 +87,18 @@ describe("BookmarksList", () => {
 		expect(screen.getByText("Third Bookmark")).toBeInTheDocument();
 	});
 
-	test("onLabelClickが提供された場合にBookmarkCardに渡される", () => {
+	test("ラベル情報を持つブックマークも表示できる", () => {
 		const queryClient = createTestQueryClient();
-		const onLabelClick = vi.fn();
 		const bookmarks = [mockBookmark];
 
 		render(
 			<QueryClientProvider client={queryClient}>
 				<ToastProvider>
-					<BookmarksList bookmarks={bookmarks} onLabelClick={onLabelClick} />
+					<BookmarksList bookmarks={bookmarks} />
 				</ToastProvider>
 			</QueryClientProvider>,
 		);
 
-		const labelElement = screen.getByText("テスト");
-		fireEvent.click(labelElement);
-
-		expect(onLabelClick).toHaveBeenCalledWith("テスト");
+		expect(screen.getByText("テスト")).toBeInTheDocument();
 	});
 });

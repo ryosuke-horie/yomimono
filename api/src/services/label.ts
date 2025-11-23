@@ -77,10 +77,15 @@ export class LabelService implements ILabelService {
 		// 5. 同じラベルが既に付与されていないか確認
 		const existingArticleLabel =
 			await this.articleLabelRepository.findByArticleId(articleId);
-		if (existingArticleLabel && existingArticleLabel.labelId === label.id) {
-			throw new ConflictError(
-				`Label "${normalizedName}" is already assigned to article ${articleId}`,
-			);
+
+		if (existingArticleLabel) {
+			if (existingArticleLabel.labelId === label.id) {
+				throw new ConflictError(
+					`Label "${normalizedName}" is already assigned to article ${articleId}`,
+				);
+			}
+			// 既存の紐付けを削除して差し替える
+			await this.articleLabelRepository.deleteByArticleId(articleId);
 		}
 
 		// 6. 記事とラベルを紐付け

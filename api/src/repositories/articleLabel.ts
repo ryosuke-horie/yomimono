@@ -72,4 +72,11 @@ export class ArticleLabelRepository implements IArticleLabelRepository {
 
 		return new Set(existingLabels.map((label) => label.articleId));
 	}
+
+	async deleteByArticleId(articleId: number): Promise<void> {
+		await this.db
+			.delete(articleLabels)
+			.where(eq(articleLabels.articleId, articleId))
+			.run();
+	}
 }

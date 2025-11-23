@@ -36,4 +36,10 @@ export interface IArticleLabelRepository {
 		articleIds: number[],
 		labelId: number,
 	): Promise<Set<number>>;
+
+	/**
+	 * 記事に紐づくラベルの紐付けを削除します。
+	 * @param articleId 記事ID
+	 */
+	deleteByArticleId(articleId: number): Promise<void>;
 }
