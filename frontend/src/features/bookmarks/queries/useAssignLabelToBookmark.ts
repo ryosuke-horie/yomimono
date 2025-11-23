@@ -113,33 +113,17 @@ export const useAssignLabelToBookmark = (options?: QueryToastOptions) => {
 				queryKey: bookmarkKeys.all,
 			});
 
-			if (optimisticLabel) {
-				previousEntries.forEach(([queryKey, data]) => {
-					const nextData = updateCacheData(
-						data,
-						bookmarkId,
-						optimisticLabel,
-					);
-					if (nextData !== data) {
-						queryClient.setQueryData(queryKey, nextData);
-					}
-				});
-			} else {
-				const fallbackLabel: Label = {
+			const nextLabel =
+				optimisticLabel ??
+				({
 					id: -1,
 					name: labelName,
-				};
-				previousEntries.forEach(([queryKey, data]) => {
-					const nextData = updateCacheData(
-						data,
-						bookmarkId,
-						fallbackLabel,
-					);
-					if (nextData !== data) {
-						queryClient.setQueryData(queryKey, nextData);
-					}
-				});
-			}
+				} satisfies Label);
+
+			queryClient.setQueriesData(
+				{ queryKey: bookmarkKeys.all },
+				(oldData) => updateCacheData(oldData, bookmarkId, nextLabel),
+			);
 
 			return { previousEntries };
 		},
@@ -157,20 +141,11 @@ export const useAssignLabelToBookmark = (options?: QueryToastOptions) => {
 			}
 		},
 		onSuccess: (updatedLabel, variables) => {
-			const cacheEntries = queryClient.getQueriesData({
-				queryKey: bookmarkKeys.all,
-			});
-
-			cacheEntries.forEach(([queryKey, data]) => {
-				const nextData = updateCacheData(
-					data,
-					variables.bookmarkId,
-					updatedLabel,
-				);
-				if (nextData !== data) {
-					queryClient.setQueryData(queryKey, nextData);
-				}
-			});
+			queryClient.setQueriesData(
+				{ queryKey: bookmarkKeys.all },
+				(oldData) =>
+					updateCacheData(oldData, variables.bookmarkId, updatedLabel),
+			);
 
 			if (options?.showToast) {
 				options.showToast({
