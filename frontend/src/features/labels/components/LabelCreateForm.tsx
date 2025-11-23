@@ -63,9 +63,6 @@ export function LabelCreateForm({
 					{nameError && (
 						<p className="mt-1 text-sm text-red-600">{nameError}</p>
 					)}
-					<p className="mt-1 text-xs text-gray-500">
-						ラベル名は自動的に正規化されます（小文字化、前後の空白除去等）
-					</p>
 				</div>
 
 				<div className="mb-6">
@@ -84,9 +81,6 @@ export function LabelCreateForm({
 						placeholder="このラベルの説明（MCPの自動ラベリングの参考になります）"
 						disabled={isSubmitting}
 					/>
-					<p className="mt-1 text-xs text-gray-500">
-						このラベルがどのような記事に適用されるべきかを説明してください。これはMCPが自動ラベリングを行う際の判断基準になります。
-					</p>
 				</div>
 
 				{error && (
