@@ -5,13 +5,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import * as api from "../queries/api";
 import type { Label } from "../types";
 import { useManageLabels } from "./useManageLabels";
 
 // API関数のモック
 vi.mock("../queries/api", () => ({
-	fetchLabels: vi.fn(),
+	// React Queryの警告を防ぐため、デフォルトの戻り値を設定
+	fetchLabels: vi.fn().mockResolvedValue([]),
 	createLabel: vi.fn(),
 	updateLabelDescription: vi.fn(),
 	deleteLabel: vi.fn(),
@@ -35,8 +35,6 @@ describe("useManageLabels", () => {
 			},
 		});
 		vi.clearAllMocks();
-		// fetchLabelsモックのデフォルト戻り値を設定（警告を防ぐため）
-		vi.mocked(api.fetchLabels).mockResolvedValue([]);
 	});
 
 	function createWrapper() {
