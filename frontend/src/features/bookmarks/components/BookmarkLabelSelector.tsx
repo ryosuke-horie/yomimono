@@ -5,7 +5,7 @@ import type { Label } from "@/features/labels/types";
 interface Props {
 	label: Label;
 	availableLabels: Label[];
-	onSelect: (labelName: string) => void;
+	onSelect: (label: Label) => void;
 	disabled?: boolean;
 	isUpdating?: boolean;
 }
@@ -44,8 +44,8 @@ export function BookmarkLabelSelector({
 		setIsOpen((prev) => !prev);
 	};
 
-	const handleSelect = (labelName: string) => {
-		onSelect(labelName);
+	const handleSelect = (nextLabel: Label) => {
+		onSelect(nextLabel);
 		setIsOpen(false);
 	};
 
@@ -77,7 +77,7 @@ export function BookmarkLabelSelector({
 								<button
 									key={candidate.id}
 									type="button"
-									onClick={() => handleSelect(candidate.name)}
+									onClick={() => handleSelect(candidate)}
 									disabled={isUpdating}
 									className={`flex w-full items-center justify-between rounded px-3 py-2 text-left text-sm transition ${
 										isActive ? "bg-blue-50 text-blue-700" : "hover:bg-gray-100"

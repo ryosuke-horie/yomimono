@@ -9,6 +9,7 @@ import { bookmarkKeys } from "./queryKeys";
 interface Variables {
 	bookmarkId: number;
 	labelName: string;
+	optimisticLabel?: Label;
 }
 
 const isBookmarkWithLabel = (item: unknown): item is BookmarkWithLabel => {
@@ -105,6 +106,56 @@ export const useAssignLabelToBookmark = (options?: QueryToastOptions) => {
 	return useMutation({
 		mutationFn: ({ bookmarkId, labelName }: Variables) =>
 			assignLabelToBookmark(bookmarkId, labelName),
+		onMutate: async ({ bookmarkId, optimisticLabel, labelName }) => {
+			await queryClient.cancelQueries({ queryKey: bookmarkKeys.all });
+
+			const previousEntries = queryClient.getQueriesData({
+				queryKey: bookmarkKeys.all,
+			});
+
+			if (optimisticLabel) {
+				previousEntries.forEach(([queryKey, data]) => {
+					const nextData = updateCacheData(
+						data,
+						bookmarkId,
+						optimisticLabel,
+					);
+					if (nextData !== data) {
+						queryClient.setQueryData(queryKey, nextData);
+					}
+				});
+			} else {
+				const fallbackLabel: Label = {
+					id: -1,
+					name: labelName,
+				};
+				previousEntries.forEach(([queryKey, data]) => {
+					const nextData = updateCacheData(
+						data,
+						bookmarkId,
+						fallbackLabel,
+					);
+					if (nextData !== data) {
+						queryClient.setQueryData(queryKey, nextData);
+					}
+				});
+			}
+
+			return { previousEntries };
+		},
+		onError: (_error, _variables, context) => {
+			if (!context?.previousEntries) return;
+			context.previousEntries.forEach(([queryKey, data]) => {
+				queryClient.setQueryData(queryKey, data);
+			});
+			if (options?.showToast) {
+				options.showToast({
+					type: "error",
+					message: "ラベルの更新に失敗しました",
+					duration: 3000,
+				});
+			}
+		},
 		onSuccess: (updatedLabel, variables) => {
 			const cacheEntries = queryClient.getQueriesData({
 				queryKey: bookmarkKeys.all,
@@ -126,15 +177,6 @@ export const useAssignLabelToBookmark = (options?: QueryToastOptions) => {
 					type: "success",
 					message: "ラベルを更新しました",
 					duration: 2000,
-				});
-			}
-		},
-		onError: () => {
-			if (options?.showToast) {
-				options.showToast({
-					type: "error",
-					message: "ラベルの更新に失敗しました",
-					duration: 3000,
 				});
 			}
 		},

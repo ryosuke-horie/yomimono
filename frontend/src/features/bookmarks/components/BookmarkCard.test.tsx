@@ -155,6 +155,7 @@ describe("BookmarkCard", () => {
 		expect(assignLabelMock).toHaveBeenCalledWith({
 			bookmarkId: 1,
 			labelName: "別ラベル",
+			optimisticLabel: { id: 2, name: "別ラベル" },
 		});
 	});
 });

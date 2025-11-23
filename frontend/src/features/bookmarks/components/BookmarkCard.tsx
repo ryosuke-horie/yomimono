@@ -43,11 +43,15 @@ export function BookmarkCard({ bookmark, availableLabels }: Props) {
 		}
 	};
 
-	const handleLabelSelect = (labelName: string) => {
-		if (!label || label.name === labelName) {
+	const handleLabelSelect = (nextLabel: Label) => {
+		if (!label || label.name === nextLabel.name) {
 			return;
 		}
-		assignLabelMutate({ bookmarkId: id, labelName });
+		assignLabelMutate({
+			bookmarkId: id,
+			labelName: nextLabel.name,
+			optimisticLabel: nextLabel,
+		});
 	};
 
 	return (
