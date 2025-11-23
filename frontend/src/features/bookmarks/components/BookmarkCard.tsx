@@ -25,7 +25,7 @@ export function BookmarkCard({ bookmark, availableLabels }: Props) {
 	const { mutate: markAsUnreadMutate, isPending: isMarkingAsUnread } =
 		useMarkBookmarkAsUnread({ showToast });
 	const { mutate: assignLabelMutate, isPending: isAssigningLabel } =
-		useAssignLabelToBookmark({ showToast });
+		useAssignLabelToBookmark();
 
 	const handleFavoriteToggle = () => {
 		toggleFavorite({ id, isCurrentlyFavorite: isFavorite });
