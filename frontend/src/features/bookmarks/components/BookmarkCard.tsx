@@ -66,12 +66,12 @@ export function BookmarkCard({ bookmark, availableLabels }: Props) {
 					className="absolute bottom-2 left-2 z-10"
 					data-testid="label-container"
 				>
-			<BookmarkLabelSelector
-				label={label}
-				availableLabels={availableLabels ?? []}
-				onSelect={handleLabelSelect}
-				isUpdating={isAssigningLabel}
-			/>
+					<BookmarkLabelSelector
+						label={label}
+						availableLabels={availableLabels ?? []}
+						onSelect={handleLabelSelect}
+						isUpdating={isAssigningLabel}
+					/>
 				</div>
 			)}
 

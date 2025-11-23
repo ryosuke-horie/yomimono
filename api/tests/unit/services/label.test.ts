@@ -17,6 +17,7 @@ const mockDeleteById = vi.fn();
 const mockDeleteMany = vi.fn();
 const mockFindByArticleId = vi.fn();
 const mockCreateArticleLabel = vi.fn();
+const mockDeleteArticleLabel = vi.fn();
 const mockFindBookmarkById = vi.fn();
 
 const mockLabelRepository: ILabelRepository = {
@@ -34,6 +35,7 @@ const mockArticleLabelRepository: IArticleLabelRepository = {
 	create: mockCreateArticleLabel,
 	createMany: vi.fn(),
 	findExistingArticleIds: vi.fn(),
+	deleteByArticleId: mockDeleteArticleLabel,
 };
 
 const mockBookmarkRepository: IBookmarkRepository = {

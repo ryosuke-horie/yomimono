@@ -120,9 +120,8 @@ export const useAssignLabelToBookmark = (options?: QueryToastOptions) => {
 					name: labelName,
 				} satisfies Label);
 
-			queryClient.setQueriesData(
-				{ queryKey: bookmarkKeys.all },
-				(oldData) => updateCacheData(oldData, bookmarkId, nextLabel),
+			queryClient.setQueriesData({ queryKey: bookmarkKeys.all }, (oldData) =>
+				updateCacheData(oldData, bookmarkId, nextLabel),
 			);
 
 			return { previousEntries };
@@ -141,10 +140,8 @@ export const useAssignLabelToBookmark = (options?: QueryToastOptions) => {
 			}
 		},
 		onSuccess: (updatedLabel, variables) => {
-			queryClient.setQueriesData(
-				{ queryKey: bookmarkKeys.all },
-				(oldData) =>
-					updateCacheData(oldData, variables.bookmarkId, updatedLabel),
+			queryClient.setQueriesData({ queryKey: bookmarkKeys.all }, (oldData) =>
+				updateCacheData(oldData, variables.bookmarkId, updatedLabel),
 			);
 
 			if (options?.showToast) {
