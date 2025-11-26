@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { BookmarkWithLabel, Label } from "../../../src/db/schema";
-import type { IArticleLabelRepository } from "../../../src/interfaces/repository/articleLabel";
-import type { IBookmarkRepository } from "../../../src/interfaces/repository/bookmark";
-import type { ILabelRepository } from "../../../src/interfaces/repository/label";
-import { LabelService } from "../../../src/services/label";
+import type { BookmarkWithLabel, Label } from "../db/schema";
+import type { IArticleLabelRepository } from "../interfaces/repository/articleLabel";
+import type { IBookmarkRepository } from "../interfaces/repository/bookmark";
+import type { ILabelRepository } from "../interfaces/repository/label";
+import { LabelService } from "./label";
 
 describe("LabelService - 一括ラベル付け機能", () => {
 	let labelService: LabelService;

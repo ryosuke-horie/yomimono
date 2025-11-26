@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { IBookmarkRepository } from "../../../src/interfaces/repository/bookmark";
-import { DefaultBookmarkService } from "../../../src/services/bookmark";
+import type { IBookmarkRepository } from "../interfaces/repository/bookmark";
+import { DefaultBookmarkService } from "./bookmark";
 
 describe("markBookmarkAsUnread", () => {
 	let service: DefaultBookmarkService;

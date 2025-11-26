@@ -5,8 +5,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type {
 	BookmarkWithLabel,
 	IBookmarkRepository,
-} from "../../../src/interfaces/repository/bookmark";
-import { DefaultBookmarkService } from "../../../src/services/bookmark";
+} from "../interfaces/repository/bookmark";
+import { DefaultBookmarkService } from "./bookmark";
 
 // モックデータ
 const mockUnratedBookmarks: BookmarkWithLabel[] = [
