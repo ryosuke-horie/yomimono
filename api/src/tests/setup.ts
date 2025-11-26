@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import { mockFetch } from "./test-utils";
+import { mockFetch } from "../../tests/test-utils";
 
 vi.stubGlobal("fetch", mockFetch);
 
