@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Bookmark, Label } from "../../../src/db/schema";
+import type { Bookmark, Label } from "../db/schema";
 import type {
 	BookmarkWithLabel,
 	IBookmarkRepository,
-} from "../../../src/interfaces/repository/bookmark";
-import type { IBookmarkService } from "../../../src/interfaces/service/bookmark";
-import { DefaultBookmarkService } from "../../../src/services/bookmark";
+} from "../interfaces/repository/bookmark";
+import type { IBookmarkService } from "../interfaces/service/bookmark";
+import { DefaultBookmarkService } from "./bookmark";
 
 describe("DefaultBookmarkService", () => {
 	let service: IBookmarkService;
