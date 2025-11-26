@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ArticleLabelRepository } from "../../../src/repositories/articleLabel";
-import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
+import { ArticleLabelRepository } from "./articleLabel";
+import { DrizzleBookmarkRepository } from "./bookmark";
 
 // Mock Drizzle modules
 vi.mock("drizzle-orm/d1", () => ({

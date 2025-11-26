@@ -5,8 +5,8 @@
 
 import { desc, inArray } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { articleLabels, bookmarks } from "../../../src/db/schema";
-import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
+import { articleLabels, bookmarks } from "../db/schema";
+import { DrizzleBookmarkRepository } from "./bookmark";
 
 // モックDBクライアント
 const mockDbClient = {

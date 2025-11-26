@@ -7,9 +7,9 @@ import {
 	favorites,
 	type Label,
 	labels,
-} from "../../../src/db/schema";
-import type { BookmarkWithLabel } from "../../../src/interfaces/repository/bookmark";
-import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
+} from "../db/schema";
+import type { BookmarkWithLabel } from "../interfaces/repository/bookmark";
+import { DrizzleBookmarkRepository } from "./bookmark";
 
 const mockDbClient = {
 	select: vi.fn().mockReturnThis(),

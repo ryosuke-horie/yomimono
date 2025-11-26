@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ArticleLabel } from "../../../src/db/schema";
-import { ArticleLabelRepository } from "../../../src/repositories/articleLabel";
+import type { ArticleLabel } from "../db/schema";
+import { ArticleLabelRepository } from "./articleLabel";
 
 const mockDb = {
 	select: vi.fn().mockReturnThis(),

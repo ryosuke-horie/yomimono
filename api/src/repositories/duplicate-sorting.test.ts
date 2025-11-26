@@ -7,7 +7,7 @@
  * - この違いによりソート順序が異なって見える可能性がある
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
+import { DrizzleBookmarkRepository } from "./bookmark";
 
 const mockDbClient = {
 	select: vi.fn().mockReturnThis(),
