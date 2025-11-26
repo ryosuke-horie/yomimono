@@ -5,7 +5,7 @@
  * ソート順序を維持することを確認します。
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
+import { DrizzleBookmarkRepository } from "./bookmark";
 
 const mockDbClient = {
 	select: vi.fn().mockReturnThis(),

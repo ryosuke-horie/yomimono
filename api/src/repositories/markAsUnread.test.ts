@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { bookmarks } from "../../../src/db/schema";
-import { DrizzleBookmarkRepository } from "../../../src/repositories/bookmark";
+import { bookmarks } from "../db/schema";
+import { DrizzleBookmarkRepository } from "./bookmark";
 
 const mockDbClient = {
 	select: vi.fn().mockReturnThis(),
