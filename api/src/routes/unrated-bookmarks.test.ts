@@ -3,10 +3,10 @@
  */
 import { Hono } from "hono";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { BookmarkWithLabel } from "../../../src/interfaces/repository/bookmark";
-import type { IBookmarkService } from "../../../src/interfaces/service/bookmark";
-import type { ILabelService } from "../../../src/interfaces/service/label";
-import { createBookmarksRouter } from "../../../src/routes/bookmarks";
+import type { BookmarkWithLabel } from "../interfaces/repository/bookmark";
+import type { IBookmarkService } from "../interfaces/service/bookmark";
+import type { ILabelService } from "../interfaces/service/label";
+import { createBookmarksRouter } from "./bookmarks";
 
 // モックサービス
 const mockBookmarkService: IBookmarkService = {

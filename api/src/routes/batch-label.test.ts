@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Label } from "../../../src/db/schema";
-import type { IBookmarkService } from "../../../src/interfaces/service/bookmark";
-import type { ILabelService } from "../../../src/interfaces/service/label";
-import { createBookmarksRouter } from "../../../src/routes/bookmarks";
+import type { Label } from "../db/schema";
+import type { IBookmarkService } from "../interfaces/service/bookmark";
+import type { ILabelService } from "../interfaces/service/label";
+import { createBookmarksRouter } from "./bookmarks";
 
 // テスト用の型定義
 interface BatchLabelSuccessResponse {
@@ -18,11 +18,11 @@ interface ErrorResponse {
 	message: string;
 }
 
-vi.mock("../../../src/services/bookmark", () => ({
+vi.mock("../services/bookmark", () => ({
 	BookmarkService: vi.fn(),
 }));
 
-vi.mock("../../../src/services/label", () => ({
+vi.mock("../services/label", () => ({
 	LabelService: vi.fn(),
 }));
 

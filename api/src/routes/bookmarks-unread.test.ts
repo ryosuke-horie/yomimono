@@ -1,10 +1,10 @@
 import { Hono } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { NotFoundError } from "../../../src/exceptions";
-import type { Env } from "../../../src/index";
-import type { IBookmarkService } from "../../../src/interfaces/service/bookmark";
-import type { ILabelService } from "../../../src/interfaces/service/label";
-import { createBookmarksRouter } from "../../../src/routes/bookmarks";
+import { NotFoundError } from "../exceptions";
+import type { Env } from "../index";
+import type { IBookmarkService } from "../interfaces/service/bookmark";
+import type { ILabelService } from "../interfaces/service/label";
+import { createBookmarksRouter } from "./bookmarks";
 
 describe("Bookmark Unread Endpoint", () => {
 	let app: Hono<{ Bindings: Env }>;
