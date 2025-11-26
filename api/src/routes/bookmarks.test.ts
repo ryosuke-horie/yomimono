@@ -1,12 +1,12 @@
 import { Hono } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Bookmark, Label } from "../../../src/db/schema";
-import { NotFoundError } from "../../../src/exceptions";
-import type { Env } from "../../../src/index";
-import type { BookmarkWithLabel } from "../../../src/interfaces/repository/bookmark";
-import type { IBookmarkService } from "../../../src/interfaces/service/bookmark";
-import type { ILabelService } from "../../../src/interfaces/service/label";
-import { createBookmarksRouter } from "../../../src/routes/bookmarks";
+import type { Bookmark, Label } from "../db/schema";
+import { NotFoundError } from "../exceptions";
+import type { Env } from "../index";
+import type { BookmarkWithLabel } from "../interfaces/repository/bookmark";
+import type { IBookmarkService } from "../interfaces/service/bookmark";
+import type { ILabelService } from "../interfaces/service/label";
+import { createBookmarksRouter } from "./bookmarks";
 
 // interface PaginationResponse {
 // 	success: boolean;

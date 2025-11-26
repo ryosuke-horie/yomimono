@@ -1,13 +1,13 @@
 import { Hono } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Label } from "../../../src/db/schema";
+import type { Label } from "../db/schema";
 import {
 	createErrorResponse,
 	createErrorResponseBody,
 	toContentfulStatusCode,
-} from "../../../src/exceptions";
-import type { Env } from "../../../src/index";
-import type { ILabelService } from "../../../src/interfaces/service/label";
+} from "../exceptions";
+import type { Env } from "../index";
+import type { ILabelService } from "../interfaces/service/label";
 
 // 日付文字列とDateオブジェクトを比較するためのヘルパー関数
 function compareObjectsIgnoringDateFormat(
