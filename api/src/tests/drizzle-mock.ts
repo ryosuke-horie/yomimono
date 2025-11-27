@@ -1,7 +1,5 @@
 import { vi } from "vitest";
 
-export type DrizzleClientMock = ReturnType<typeof createDrizzleClientMock>;
-
 export const createDrizzleClientMock = () => ({
 	select: vi.fn().mockReturnThis(),
 	from: vi.fn().mockReturnThis(),
@@ -24,6 +22,8 @@ export const createDrizzleClientMock = () => ({
 	get: vi.fn(),
 	all: vi.fn(),
 });
+
+type DrizzleClientMock = ReturnType<typeof createDrizzleClientMock>;
 
 export const createDrizzleD1ModuleMock = (mockDb: DrizzleClientMock) => ({
 	drizzle: vi.fn(() => mockDb),

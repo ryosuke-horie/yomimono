@@ -6,7 +6,7 @@
 	],
 	"project": [
 		"src/**/*.ts",
-		"tests/**/*.ts"
+		"src/tests/**/*.ts"
 	],
 	"ignore": [
 		"drizzle/**/*",
