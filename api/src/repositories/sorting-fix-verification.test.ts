@@ -9,7 +9,7 @@ import { articleLabels, bookmarks } from "../db/schema";
 import {
 	createDrizzleClientMock,
 	createDrizzleD1ModuleMock,
-} from "./test-utils/drizzle-mock";
+} from "../tests/drizzle-mock";
 import { DrizzleBookmarkRepository } from "./bookmark";
 
 // モックDBクライアント

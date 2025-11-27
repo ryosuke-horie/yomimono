@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	createDrizzleClientMock,
 	createDrizzleD1ModuleMock,
-} from "./test-utils/drizzle-mock";
+} from "../tests/drizzle-mock";
 import { ArticleLabelRepository } from "./articleLabel";
 import { DrizzleBookmarkRepository } from "./bookmark";
 

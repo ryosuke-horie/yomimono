@@ -117,6 +117,7 @@ export function distance(a: Point, b: Point): number {
 - **コミットメッセージ**: 絵文字プレフィックス + 日本語の説明（.github/copilot-instructions.mdを参照）
 - **エラー処理**: try/catchブロックで明示的にエラーを処理
 - **テスト記述**: テスト内容は日本語で記述し、理解しやすくする
+- **Drizzleモック**: APIのテストでDrizzleをモックする場合は`api/src/tests/drizzle-mock.ts`の共通ファクトリ（`src/tests/setup.ts`の隣）を必ずインポートして使い回す
 
 ## 依存関係管理
 - **Dependabot**: `.github/dependabot.yml`で設定

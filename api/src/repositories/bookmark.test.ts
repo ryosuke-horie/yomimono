@@ -11,7 +11,7 @@ import {
 import {
 	createDrizzleClientMock,
 	createDrizzleD1ModuleMock,
-} from "./test-utils/drizzle-mock";
+} from "../tests/drizzle-mock";
 import type { BookmarkWithLabel } from "../interfaces/repository/bookmark";
 import { DrizzleBookmarkRepository } from "./bookmark";
 

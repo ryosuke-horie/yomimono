@@ -3,7 +3,7 @@ import type { Label } from "../db/schema";
 import {
 	createDrizzleClientMock,
 	createDrizzleD1ModuleMock,
-} from "./test-utils/drizzle-mock";
+} from "../tests/drizzle-mock";
 import { LabelRepository } from "./label";
 
 const mockDb = createDrizzleClientMock();

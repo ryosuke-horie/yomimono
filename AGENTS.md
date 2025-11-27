@@ -17,6 +17,7 @@
 - 言語: TypeScript（API/FE/MCP）、拡張はJS中心。
 - 命名: 変数/関数camelCase、ReactコンポーネントPascalCase、ファイル`kebab-case.ts[x]`。
 - TSDocコメントを先頭に、可能なら実装と同一ファイルにVitest（`import.meta.vitest`）でTDDを推奨。
+- Drizzleモック: APIのDrizzleは`api/src/tests/drizzle-mock.ts`の共通モックファクトリを使用し、Drizzleをモックするテストではこのファクトリをインポートして使い回す。
 
 ## テスト方針
 - フレームワーク: Vitest（API/FE）。
