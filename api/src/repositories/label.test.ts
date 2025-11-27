@@ -1,16 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Label } from "../db/schema";
-import {
-	createDrizzleClientMock,
-	createDrizzleD1ModuleMock,
-} from "../tests/drizzle-mock";
 import { LabelRepository } from "./label";
 
-const { mockDb } = vi.hoisted(() => ({
-	mockDb: createDrizzleClientMock(),
-}));
+const { mockDb, drizzleModuleMock } = vi.hoisted(() => {
+	const drizzleMock = require("../tests/drizzle-mock") as typeof import("../tests/drizzle-mock");
+	const mockDb = drizzleMock.createDrizzleClientMock();
+	return {
+		mockDb,
+		drizzleModuleMock: drizzleMock.createDrizzleD1ModuleMock(mockDb),
+	};
+});
 
-vi.mock("drizzle-orm/d1", () => createDrizzleD1ModuleMock(mockDb));
+vi.mock("drizzle-orm/d1", () => drizzleModuleMock);
 
 describe("LabelRepository", () => {
 	let labelRepository: LabelRepository;

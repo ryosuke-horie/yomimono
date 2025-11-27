@@ -1,17 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-	createDrizzleClientMock,
-	createDrizzleD1ModuleMock,
-} from "../tests/drizzle-mock";
 import { ArticleLabelRepository } from "./articleLabel";
 import { DrizzleBookmarkRepository } from "./bookmark";
 
-const { drizzleClientMock } = vi.hoisted(() => ({
-	drizzleClientMock: createDrizzleClientMock(),
-}));
+const { drizzleClientMock, drizzleModuleMock } = vi.hoisted(() => {
+	const drizzleMock = require("../tests/drizzle-mock") as typeof import("../tests/drizzle-mock");
+	const drizzleClientMock = drizzleMock.createDrizzleClientMock();
+	return {
+		drizzleClientMock,
+		drizzleModuleMock: drizzleMock.createDrizzleD1ModuleMock(drizzleClientMock),
+	};
+});
 
 // Mock Drizzle modules
-vi.mock("drizzle-orm/d1", () => createDrizzleD1ModuleMock(drizzleClientMock));
+vi.mock("drizzle-orm/d1", () => drizzleModuleMock);
 
 vi.mock("drizzle-orm", () => ({
 	eq: vi.fn(),

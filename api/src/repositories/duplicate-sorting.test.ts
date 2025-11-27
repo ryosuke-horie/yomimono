@@ -7,17 +7,18 @@
  * - この違いによりソート順序が異なって見える可能性がある
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-	createDrizzleClientMock,
-	createDrizzleD1ModuleMock,
-} from "../tests/drizzle-mock";
 import { DrizzleBookmarkRepository } from "./bookmark";
 
-const { mockDbClient } = vi.hoisted(() => ({
-	mockDbClient: createDrizzleClientMock(),
-}));
+const { mockDbClient, drizzleModuleMock } = vi.hoisted(() => {
+	const drizzleMock = require("../tests/drizzle-mock") as typeof import("../tests/drizzle-mock");
+	const mockDbClient = drizzleMock.createDrizzleClientMock();
+	return {
+		mockDbClient,
+		drizzleModuleMock: drizzleMock.createDrizzleD1ModuleMock(mockDbClient),
+	};
+});
 
-vi.mock("drizzle-orm/d1", () => createDrizzleD1ModuleMock(mockDbClient));
+vi.mock("drizzle-orm/d1", () => drizzleModuleMock);
 
 describe("JOIN重複によるソートの問題", () => {
 	let bookmarkRepo: DrizzleBookmarkRepository;

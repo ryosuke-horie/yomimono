@@ -6,19 +6,20 @@
 import { desc, inArray } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { articleLabels, bookmarks } from "../db/schema";
-import {
-	createDrizzleClientMock,
-	createDrizzleD1ModuleMock,
-} from "../tests/drizzle-mock";
 import { DrizzleBookmarkRepository } from "./bookmark";
 
 // モックDBクライアント
-const { mockDbClient } = vi.hoisted(() => ({
-	mockDbClient: createDrizzleClientMock(),
-}));
+const { mockDbClient, drizzleModuleMock } = vi.hoisted(() => {
+	const drizzleMock = require("../tests/drizzle-mock") as typeof import("../tests/drizzle-mock");
+	const mockDbClient = drizzleMock.createDrizzleClientMock();
+	return {
+		mockDbClient,
+		drizzleModuleMock: drizzleMock.createDrizzleD1ModuleMock(mockDbClient),
+	};
+});
 
 // Drizzle関数のモック
-vi.mock("drizzle-orm/d1", () => createDrizzleD1ModuleMock(mockDbClient));
+vi.mock("drizzle-orm/d1", () => drizzleModuleMock);
 
 describe("ソート順序修正の検証", () => {
 	let repository: DrizzleBookmarkRepository;

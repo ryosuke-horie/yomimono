@@ -9,17 +9,18 @@ import {
 	labels,
 } from "../db/schema";
 import type { BookmarkWithLabel } from "../interfaces/repository/bookmark";
-import {
-	createDrizzleClientMock,
-	createDrizzleD1ModuleMock,
-} from "../tests/drizzle-mock";
 import { DrizzleBookmarkRepository } from "./bookmark";
 
-const { mockDbClient } = vi.hoisted(() => ({
-	mockDbClient: createDrizzleClientMock(),
-}));
+const { mockDbClient, drizzleModuleMock } = vi.hoisted(() => {
+	const drizzleMock = require("../tests/drizzle-mock") as typeof import("../tests/drizzle-mock");
+	const mockDbClient = drizzleMock.createDrizzleClientMock();
+	return {
+		mockDbClient,
+		drizzleModuleMock: drizzleMock.createDrizzleD1ModuleMock(mockDbClient),
+	};
+});
 
-vi.mock("drizzle-orm/d1", () => createDrizzleD1ModuleMock(mockDbClient));
+vi.mock("drizzle-orm/d1", () => drizzleModuleMock);
 
 describe("ブックマークリポジトリ", () => {
 	let repository: DrizzleBookmarkRepository;
