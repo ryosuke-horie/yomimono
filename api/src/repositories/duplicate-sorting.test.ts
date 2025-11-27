@@ -13,7 +13,9 @@ import {
 } from "../tests/drizzle-mock";
 import { DrizzleBookmarkRepository } from "./bookmark";
 
-const mockDbClient = createDrizzleClientMock();
+const { mockDbClient } = vi.hoisted(() => ({
+	mockDbClient: createDrizzleClientMock(),
+}));
 
 vi.mock("drizzle-orm/d1", () => createDrizzleD1ModuleMock(mockDbClient));
 

@@ -6,7 +6,9 @@ import {
 import { ArticleLabelRepository } from "./articleLabel";
 import { DrizzleBookmarkRepository } from "./bookmark";
 
-const drizzleClientMock = createDrizzleClientMock();
+const { drizzleClientMock } = vi.hoisted(() => ({
+	drizzleClientMock: createDrizzleClientMock(),
+}));
 
 // Mock Drizzle modules
 vi.mock("drizzle-orm/d1", () => createDrizzleD1ModuleMock(drizzleClientMock));
