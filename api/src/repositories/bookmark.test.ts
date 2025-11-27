@@ -8,11 +8,11 @@ import {
 	type Label,
 	labels,
 } from "../db/schema";
+import type { BookmarkWithLabel } from "../interfaces/repository/bookmark";
 import {
 	createDrizzleClientMock,
 	createDrizzleD1ModuleMock,
 } from "../tests/drizzle-mock";
-import type { BookmarkWithLabel } from "../interfaces/repository/bookmark";
 import { DrizzleBookmarkRepository } from "./bookmark";
 
 const mockDbClient = createDrizzleClientMock();
