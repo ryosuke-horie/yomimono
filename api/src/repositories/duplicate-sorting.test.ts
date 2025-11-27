@@ -7,32 +7,15 @@
  * - この違いによりソート順序が異なって見える可能性がある
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	createDrizzleClientMock,
+	createDrizzleD1ModuleMock,
+} from "./test-utils/drizzle-mock";
 import { DrizzleBookmarkRepository } from "./bookmark";
 
-const mockDbClient = {
-	select: vi.fn().mockReturnThis(),
-	from: vi.fn().mockReturnThis(),
-	where: vi.fn().mockReturnThis(),
-	set: vi.fn().mockReturnThis(),
-	values: vi.fn().mockReturnThis(),
-	run: vi.fn().mockResolvedValue({ meta: { changes: 1 } }),
-	get: vi.fn(),
-	all: vi.fn(),
-	delete: vi.fn().mockReturnThis(),
-	innerJoin: vi.fn().mockReturnThis(),
-	leftJoin: vi.fn().mockReturnThis(),
-	limit: vi.fn().mockReturnThis(),
-	offset: vi.fn().mockReturnThis(),
-	orderBy: vi.fn().mockReturnThis(),
-	update: vi.fn().mockReturnThis(),
-	insert: vi.fn().mockReturnThis(),
-	returning: vi.fn().mockReturnThis(),
-	groupBy: vi.fn().mockReturnThis(),
-};
+const mockDbClient = createDrizzleClientMock();
 
-vi.mock("drizzle-orm/d1", () => ({
-	drizzle: vi.fn(() => mockDbClient),
-}));
+vi.mock("drizzle-orm/d1", () => createDrizzleD1ModuleMock(mockDbClient));
 
 describe("JOIN重複によるソートの問題", () => {
 	let bookmarkRepo: DrizzleBookmarkRepository;

@@ -1,27 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Label } from "../db/schema";
+import {
+	createDrizzleClientMock,
+	createDrizzleD1ModuleMock,
+} from "./test-utils/drizzle-mock";
 import { LabelRepository } from "./label";
 
-const mockDb = {
-	select: vi.fn().mockReturnThis(),
-	from: vi.fn().mockReturnThis(),
-	where: vi.fn().mockReturnThis(),
-	leftJoin: vi.fn().mockReturnThis(),
-	groupBy: vi.fn().mockReturnThis(),
-	orderBy: vi.fn().mockReturnThis(),
-	all: vi.fn(),
-	get: vi.fn(),
-	insert: vi.fn().mockReturnThis(),
-	update: vi.fn().mockReturnThis(),
-	set: vi.fn().mockReturnThis(),
-	values: vi.fn().mockReturnThis(),
-	returning: vi.fn().mockReturnThis(),
-	delete: vi.fn().mockReturnThis(),
-};
+const mockDb = createDrizzleClientMock();
 
-vi.mock("drizzle-orm/d1", () => ({
-	drizzle: vi.fn(() => mockDb),
-}));
+vi.mock("drizzle-orm/d1", () => createDrizzleD1ModuleMock(mockDb));
 
 describe("LabelRepository", () => {
 	let labelRepository: LabelRepository;

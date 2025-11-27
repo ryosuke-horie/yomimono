@@ -1,21 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	createDrizzleClientMock,
+	createDrizzleD1ModuleMock,
+} from "./test-utils/drizzle-mock";
 import { ArticleLabelRepository } from "./articleLabel";
 import { DrizzleBookmarkRepository } from "./bookmark";
 
+const drizzleClientMock = createDrizzleClientMock();
+
 // Mock Drizzle modules
-vi.mock("drizzle-orm/d1", () => ({
-	drizzle: vi.fn(() => ({
-		select: vi.fn().mockReturnThis(),
-		from: vi.fn().mockReturnThis(),
-		where: vi.fn().mockReturnThis(),
-		leftJoin: vi.fn().mockReturnThis(),
-		insert: vi.fn().mockReturnThis(),
-		values: vi.fn().mockReturnThis(),
-		returning: vi.fn().mockReturnThis(),
-		all: vi.fn(),
-		get: vi.fn(),
-	})),
-}));
+vi.mock("drizzle-orm/d1", () => createDrizzleD1ModuleMock(drizzleClientMock));
 
 vi.mock("drizzle-orm", () => ({
 	eq: vi.fn(),
