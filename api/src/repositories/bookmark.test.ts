@@ -9,31 +9,13 @@ import {
 	labels,
 } from "../db/schema";
 import type { BookmarkWithLabel } from "../interfaces/repository/bookmark";
+import { createDrizzleMock, resetDrizzleMock } from "../tests/drizzle.mock";
 import { DrizzleBookmarkRepository } from "./bookmark";
 
-const mockDbClient = {
-	select: vi.fn().mockReturnThis(),
-	from: vi.fn().mockReturnThis(),
-	where: vi.fn().mockReturnThis(),
-	set: vi.fn().mockReturnThis(),
-	values: vi.fn().mockReturnThis(),
-	run: vi.fn().mockResolvedValue({ meta: { changes: 1 } }),
-	get: vi.fn(),
-	all: vi.fn(),
-	delete: vi.fn().mockReturnThis(),
-	innerJoin: vi.fn().mockReturnThis(),
-	leftJoin: vi.fn().mockReturnThis(),
-	limit: vi.fn().mockReturnThis(),
-	offset: vi.fn().mockReturnThis(),
-	orderBy: vi.fn().mockReturnThis(),
-	update: vi.fn().mockReturnThis(),
-	insert: vi.fn().mockReturnThis(),
-	returning: vi.fn().mockReturnThis(),
-	groupBy: vi.fn().mockReturnThis(),
-};
+const { client: mockDbClient, drizzleMock } = createDrizzleMock();
 
 vi.mock("drizzle-orm/d1", () => ({
-	drizzle: vi.fn(() => mockDbClient),
+	drizzle: drizzleMock,
 }));
 
 describe("ブックマークリポジトリ", () => {
@@ -112,20 +94,7 @@ describe("ブックマークリポジトリ", () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-
-		// モックのリセット
-		mockDbClient.select.mockReturnThis();
-		mockDbClient.from.mockReturnThis();
-		mockDbClient.where.mockReturnThis();
-		mockDbClient.set.mockReturnThis();
-		mockDbClient.values.mockReturnThis();
-		mockDbClient.run.mockResolvedValue({ meta: { changes: 1 } });
-		mockDbClient.delete.mockReturnThis();
-		mockDbClient.innerJoin.mockReturnThis();
-		mockDbClient.leftJoin.mockReturnThis();
-		mockDbClient.orderBy.mockReturnThis();
-		mockDbClient.update.mockReturnThis();
-		mockDbClient.insert.mockReturnThis();
+		resetDrizzleMock(mockDbClient);
 
 		repository = new DrizzleBookmarkRepository({} as D1Database);
 	});

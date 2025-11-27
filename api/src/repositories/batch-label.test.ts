@@ -1,20 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createDrizzleMock, resetDrizzleMock } from "../tests/drizzle.mock";
 import { ArticleLabelRepository } from "./articleLabel";
 import { DrizzleBookmarkRepository } from "./bookmark";
 
+const { client: mockDbClient, drizzleMock } = createDrizzleMock();
+
 // Mock Drizzle modules
 vi.mock("drizzle-orm/d1", () => ({
-	drizzle: vi.fn(() => ({
-		select: vi.fn().mockReturnThis(),
-		from: vi.fn().mockReturnThis(),
-		where: vi.fn().mockReturnThis(),
-		leftJoin: vi.fn().mockReturnThis(),
-		insert: vi.fn().mockReturnThis(),
-		values: vi.fn().mockReturnThis(),
-		returning: vi.fn().mockReturnThis(),
-		all: vi.fn(),
-		get: vi.fn(),
-	})),
+	drizzle: drizzleMock,
 }));
 
 vi.mock("drizzle-orm", () => ({
@@ -32,6 +25,8 @@ describe("バッチラベル付け関連のリポジトリメソッド", () => {
 		let mockDb: unknown;
 
 		beforeEach(() => {
+			vi.clearAllMocks();
+			resetDrizzleMock(mockDbClient);
 			mockDb = {
 				prepare: vi.fn().mockReturnThis(),
 				bind: vi.fn().mockReturnThis(),
@@ -73,6 +68,8 @@ describe("バッチラベル付け関連のリポジトリメソッド", () => {
 		let mockDb: unknown;
 
 		beforeEach(() => {
+			vi.clearAllMocks();
+			resetDrizzleMock(mockDbClient);
 			mockDb = {
 				prepare: vi.fn().mockReturnThis(),
 				bind: vi.fn().mockReturnThis(),
@@ -111,6 +108,8 @@ describe("バッチラベル付け関連のリポジトリメソッド", () => {
 		let mockDb: unknown;
 
 		beforeEach(() => {
+			vi.clearAllMocks();
+			resetDrizzleMock(mockDbClient);
 			mockDb = {
 				prepare: vi.fn().mockReturnThis(),
 				bind: vi.fn().mockReturnThis(),

@@ -6,23 +6,15 @@
 import { desc, inArray } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { articleLabels, bookmarks } from "../db/schema";
+import { createDrizzleMock, resetDrizzleMock } from "../tests/drizzle.mock";
 import { DrizzleBookmarkRepository } from "./bookmark";
 
 // モックDBクライアント
-const mockDbClient = {
-	select: vi.fn().mockReturnThis(),
-	from: vi.fn().mockReturnThis(),
-	where: vi.fn().mockReturnThis(),
-	leftJoin: vi.fn().mockReturnThis(),
-	innerJoin: vi.fn().mockReturnThis(),
-	orderBy: vi.fn().mockReturnThis(),
-	all: vi.fn(),
-	get: vi.fn(),
-};
+const { client: mockDbClient, drizzleMock } = createDrizzleMock();
 
 // Drizzle関数のモック
 vi.mock("drizzle-orm/d1", () => ({
-	drizzle: vi.fn(() => mockDbClient),
+	drizzle: drizzleMock,
 }));
 
 describe("ソート順序修正の検証", () => {
@@ -56,6 +48,7 @@ describe("ソート順序修正の検証", () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		resetDrizzleMock(mockDbClient);
 		repository = new DrizzleBookmarkRepository({} as D1Database);
 	});
 

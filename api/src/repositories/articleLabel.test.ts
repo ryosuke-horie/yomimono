@@ -1,19 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ArticleLabel } from "../db/schema";
+import { createDrizzleMock, resetDrizzleMock } from "../tests/drizzle.mock";
 import { ArticleLabelRepository } from "./articleLabel";
 
-const mockDb = {
-	select: vi.fn().mockReturnThis(),
-	from: vi.fn().mockReturnThis(),
-	where: vi.fn().mockReturnThis(),
-	get: vi.fn(),
-	insert: vi.fn().mockReturnThis(),
-	values: vi.fn().mockReturnThis(),
-	returning: vi.fn().mockReturnThis(),
-};
+const { client: mockDbClient, drizzleMock } = createDrizzleMock();
 
 vi.mock("drizzle-orm/d1", () => ({
-	drizzle: vi.fn(() => mockDb),
+	drizzle: drizzleMock,
 }));
 
 describe("ArticleLabelRepository", () => {
@@ -21,6 +14,7 @@ describe("ArticleLabelRepository", () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		resetDrizzleMock(mockDbClient);
 		articleLabelRepository = new ArticleLabelRepository({} as D1Database);
 	});
 
@@ -32,24 +26,24 @@ describe("ArticleLabelRepository", () => {
 				labelId: 5,
 				createdAt: new Date(),
 			};
-			mockDb.get.mockResolvedValue(mockArticleLabel);
+			mockDbClient.get.mockResolvedValue(mockArticleLabel);
 
 			const result = await articleLabelRepository.findByArticleId(10);
 
 			expect(result).toEqual(mockArticleLabel);
-			expect(mockDb.select).toHaveBeenCalled();
-			expect(mockDb.from).toHaveBeenCalledWith(expect.anything());
-			expect(mockDb.where).toHaveBeenCalledWith(expect.anything());
-			expect(mockDb.get).toHaveBeenCalledOnce();
+			expect(mockDbClient.select).toHaveBeenCalled();
+			expect(mockDbClient.from).toHaveBeenCalledWith(expect.anything());
+			expect(mockDbClient.where).toHaveBeenCalledWith(expect.anything());
+			expect(mockDbClient.get).toHaveBeenCalledOnce();
 		});
 
 		it("指定された記事IDに紐づく記事ラベルが存在しない場合、undefinedを返すこと", async () => {
-			mockDb.get.mockResolvedValue(undefined);
+			mockDbClient.get.mockResolvedValue(undefined);
 
 			const result = await articleLabelRepository.findByArticleId(99);
 
 			expect(result).toBeUndefined();
-			expect(mockDb.get).toHaveBeenCalledOnce();
+			expect(mockDbClient.get).toHaveBeenCalledOnce();
 		});
 	});
 
@@ -61,17 +55,17 @@ describe("ArticleLabelRepository", () => {
 				...newArticleLabelData,
 				createdAt: new Date(),
 			};
-			mockDb.get.mockResolvedValue(createdArticleLabel);
+			mockDbClient.get.mockResolvedValue(createdArticleLabel);
 
 			const result = await articleLabelRepository.create(newArticleLabelData);
 
 			expect(result).toEqual(createdArticleLabel);
-			expect(mockDb.insert).toHaveBeenCalledWith(expect.anything());
-			expect(mockDb.values).toHaveBeenCalledWith(
+			expect(mockDbClient.insert).toHaveBeenCalledWith(expect.anything());
+			expect(mockDbClient.values).toHaveBeenCalledWith(
 				expect.objectContaining(newArticleLabelData),
 			);
-			expect(mockDb.returning).toHaveBeenCalled();
-			expect(mockDb.get).toHaveBeenCalledOnce();
+			expect(mockDbClient.returning).toHaveBeenCalled();
+			expect(mockDbClient.get).toHaveBeenCalledOnce();
 		});
 	});
 });
