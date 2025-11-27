@@ -26,27 +26,7 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true,
-			"a11y": {
-				"noSvgWithoutTitle": "off",
-				"useSemanticElements": "off"
-			},
-			"suspicious": {
-				"noArrayIndexKey": "off",
-				"noConfusingVoidType": "off"
-			},
-			"style": {
-				"noParameterAssign": "error",
-				"useAsConstAssertion": "error",
-				"useDefaultParameterLast": "error",
-				"useEnumInitializers": "error",
-				"useSelfClosingElements": "error",
-				"useSingleVarDeclarator": "error",
-				"noUnusedTemplateLiteral": "error",
-				"useNumberNamespace": "error",
-				"noInferrableTypes": "error",
-				"noUselessElse": "error"
-			}
+			"recommended": true
 		}
 	},
 	"javascript": {
