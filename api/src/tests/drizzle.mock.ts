@@ -4,7 +4,7 @@ type DrizzleMockFunction = ReturnType<typeof vi.fn>;
 
 const createChainableMock = (): DrizzleMockFunction => vi.fn().mockReturnThis();
 
-export type DrizzleClientMock = {
+type DrizzleClientMock = {
 	select: DrizzleMockFunction;
 	from: DrizzleMockFunction;
 	where: DrizzleMockFunction;
