@@ -7,18 +7,6 @@
 	"vars": {
 		"ENVIRONMENT": "production"
 	},
-	// "kv_namespaces": [
-	//   {
-	//     "binding": "MY_KV_NAMESPACE",
-	//     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	//   }
-	// ],
-	// "r2_buckets": [
-	//   {
-	//     "binding": "MY_BUCKET",
-	//     "bucket_name": "my-bucket"
-	//   }
-	// ],
 	"d1_databases": [
 		{
 			"binding": "DB",
@@ -27,9 +15,6 @@
 			"migrations_dir": "drizzle"
 		}
 	],
-	// "ai": {
-	//   "binding": "AI"
-	// },
 	"observability": {
 		"enabled": true,
 		"head_sampling_rate": 1
@@ -39,7 +24,6 @@
 			"vars": {
 				"ENVIRONMENT": "development"
 			},
-			// 開発環境用のローカルD1データベース設定
 			"d1_databases": [
 				{
 					"binding": "DB",
