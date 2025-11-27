@@ -11,7 +11,7 @@ export default defineConfig({
 		environment: "node",
 		// CI/ローカルともに単発実行を強制
 		watch: false,
-		setupFiles: ["./tests/setup.ts"],
+		setupFiles: ["./src/tests/setup.ts"],
 		// in-source testingを有効化
 		includeSource: ["src/**/*.ts"],
 		// typecheck mode for better TypeScript support
