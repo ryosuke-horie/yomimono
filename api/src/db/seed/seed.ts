@@ -7,7 +7,7 @@ import Database from "better-sqlite3";
  * 現実的なテック記事のブックマーク、ラベル、お気に入りデータを生成する
  */
 import { drizzle } from "drizzle-orm/better-sqlite3";
-import { getCurrentDatabaseConfig } from "../config/database";
+import { getCurrentDatabaseConfig } from "../../config/database";
 import {
 	articleLabels,
 	bookmarks,
@@ -17,7 +17,7 @@ import {
 	type InsertFavorite,
 	type InsertLabel,
 	labels,
-} from "../db/schema";
+} from "../schema";
 
 // 環境チェック用の型定義
 interface SeedDataOptions {
@@ -197,7 +197,7 @@ const SAMPLE_LABELS = [
 /**
  * 環境チェック: 本番環境での実行を防ぐ
  */
-function validateEnvironment(forceRun = false): void {
+export function validateEnvironment(forceRun = false): void {
 	const config = getCurrentDatabaseConfig();
 
 	if (config.environment === "production" && !forceRun) {
@@ -219,13 +219,6 @@ function generateRandomDate(): Date {
 		thirtyDaysAgo.getTime() +
 		Math.random() * (now.getTime() - thirtyDaysAgo.getTime());
 	return new Date(randomTime);
-}
-
-/**
- * 配列からランダムに要素を選択
- */
-function getRandomElement<T>(array: T[]): T {
-	return array[Math.floor(Math.random() * array.length)];
 }
 
 /**
@@ -522,17 +515,3 @@ if (
 			process.exit(1);
 		});
 }
-
-// テスト用のexport
-export {
-	validateEnvironment,
-	generateRandomDate,
-	getRandomElement,
-	getRandomElements,
-	generateBookmarkData,
-	generateLabelData,
-	generateArticleLabelData,
-	generateFavoriteData,
-	SAMPLE_TECH_ARTICLES,
-	SAMPLE_LABELS,
-};

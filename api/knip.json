@@ -2,11 +2,11 @@
 	"$schema": "https://unpkg.com/knip@^5/schema.json",
 	"entry": [
 		"src/index.ts",
-		"src/scripts/**/*.ts"
+		"src/scripts/**/*.ts",
+		"src/db/seed/**/*.ts"
 	],
 	"project": [
-		"src/**/*.ts",
-		"tests/**/*.ts"
+		"src/**/*.ts"
 	],
 	"ignore": [
 		"drizzle/**/*",

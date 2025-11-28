@@ -13,7 +13,7 @@
 		"migrate:prod:remote": "wrangler d1 migrations apply yomimono-db --remote",
 		"db:generate": "drizzle-kit generate",
 		"ensure:better-sqlite3": "pnpm exec tsx src/scripts/ensure-better-sqlite3.ts",
-		"seed": "pnpm run ensure:better-sqlite3 && pnpm run d1:reset:local && pnpm run migrate:dev:local && NODE_ENV=development SEED_PRESET=clear pnpm exec tsx src/scripts/seed-runner.ts && NODE_ENV=development pnpm exec tsx src/scripts/seed-runner.ts"
+		"seed": "pnpm run ensure:better-sqlite3 && pnpm run d1:reset:local && pnpm run migrate:dev:local && NODE_ENV=development SEED_PRESET=clear pnpm exec tsx src/db/seed/seed-runner.ts && NODE_ENV=development pnpm exec tsx src/db/seed/seed-runner.ts"
 	},
 	"dependencies": {
 		"dotenv": "^17.2.3",

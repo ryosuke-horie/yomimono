@@ -10,6 +10,11 @@ import {
 	getDatabaseConfig,
 } from "../config/database";
 import { articleLabels, bookmarks, favorites, labels } from "../db/schema";
+import {
+	clearDatabase,
+	runSeedData,
+	validateEnvironment as validateSeedEnvironment,
+} from "../db/seed/seed";
 import { InternalServerError } from "../exceptions";
 import type {
 	DatabaseStatus,
@@ -17,11 +22,6 @@ import type {
 	SeedDataOptions,
 	SeedDataResult,
 } from "../interfaces/service/seed";
-import {
-	clearDatabase,
-	runSeedData,
-	validateEnvironment as validateSeedEnvironment,
-} from "../scripts/seed";
 
 export class SeedService implements ISeedService {
 	constructor(
