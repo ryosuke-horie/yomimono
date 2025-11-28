@@ -24,10 +24,10 @@ npm run seed
 
 ```bash
 # Node.jsで直接実行
-NODE_ENV=development npx tsx src/scripts/seed.ts
+NODE_ENV=development npx tsx src/db/seed/seed.ts
 
 # または単純にファイルを実行
-cd src/scripts && node seed.ts
+cd src/db/seed && node seed.ts
 ```
 
 ## セーフティ機能
@@ -79,7 +79,7 @@ const options = {
 
 ```bash
 # シードスクリプトのテストを実行
-NODE_ENV=test npx vitest run src/scripts/seed.ts
+NODE_ENV=test npx vitest run src/db/seed/seed.ts
 
 # すべてのテストを実行
 npm test

@@ -7,7 +7,7 @@ import Database from "better-sqlite3";
  * 現実的なテック記事のブックマーク、ラベル、お気に入りデータを生成する
  */
 import { drizzle } from "drizzle-orm/better-sqlite3";
-import { getCurrentDatabaseConfig } from "../config/database";
+import { getCurrentDatabaseConfig } from "../../config/database";
 import {
 	articleLabels,
 	bookmarks,
@@ -17,7 +17,7 @@ import {
 	type InsertFavorite,
 	type InsertLabel,
 	labels,
-} from "../db/schema";
+} from "../schema";
 
 // 環境チェック用の型定義
 interface SeedDataOptions {
