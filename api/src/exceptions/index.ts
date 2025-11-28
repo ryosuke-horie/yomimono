@@ -3,8 +3,6 @@
  * アプリケーション全体で使用される例外をまとめてエクスポート
  */
 
-// 基底クラス
-export { BaseError, HttpError } from "./base";
 // HTTPエラー
 export {
 	BadRequestError,
