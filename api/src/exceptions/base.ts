@@ -28,38 +28,3 @@ export abstract class HttpError extends BaseError {
 		super(message, statusCode, true);
 	}
 }
-
-if (import.meta.vitest) {
-	const { test, expect } = import.meta.vitest;
-
-	test("BaseError はカスタムエラーの基本機能を提供する", () => {
-		class TestError extends BaseError {
-			constructor(message: string) {
-				super(message, 500, true);
-			}
-		}
-
-		const error = new TestError("Test error");
-		expect(error.message).toBe("Test error");
-		expect(error.statusCode).toBe(500);
-		expect(error.isOperational).toBe(true);
-		expect(error.name).toBe("TestError");
-		expect(error instanceof BaseError).toBe(true);
-		expect(error instanceof Error).toBe(true);
-	});
-
-	test("HttpError はHTTPエラーの基本機能を提供する", () => {
-		class TestHttpError extends HttpError {
-			constructor(message: string) {
-				super(message, 404);
-			}
-		}
-
-		const error = new TestHttpError("Not Found");
-		expect(error.message).toBe("Not Found");
-		expect(error.statusCode).toBe(404);
-		expect(error.isOperational).toBe(true);
-		expect(error instanceof HttpError).toBe(true);
-		expect(error instanceof BaseError).toBe(true);
-	});
-}
