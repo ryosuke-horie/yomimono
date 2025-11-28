@@ -8,7 +8,7 @@ import {
 	toContentfulStatusCode,
 } from "./index";
 
-test("バレル経由で例外クラスとユーティリティを組み合わせてレスポンスを構築できる", () => {
+test("index経由のエクスポートだけで例外クラスとユーティリティを組み合わせてレスポンスを構築できる", () => {
 	const badRequest = new BadRequestError("Invalid payload");
 	const errorResponse = createErrorResponse(badRequest);
 
@@ -27,7 +27,7 @@ test("バレル経由で例外クラスとユーティリティを組み合わ�
 	});
 });
 
-test("toContentfulStatusCode はバレル経由のエクスポートでも意図通り動作する", () => {
+test("toContentfulStatusCode は index 経由のエクスポートでも意図通り動作する", () => {
 	expect(toContentfulStatusCode(201)).toBe(201);
 	expect(toContentfulStatusCode(404)).toBe(404);
 	expect(toContentfulStatusCode(99)).toBe(500);
