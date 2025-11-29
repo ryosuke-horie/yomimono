@@ -46,7 +46,7 @@ interface Config {
 /**
  * 環境変数から設定オブジェクトを作成する関数
  */
-function createConfig(env: ConfigEnv = {}): Config {
+export function createConfig(env: ConfigEnv = {}): Config {
 	return {
 		pagination: {
 			defaultOffset: Number(env.DEFAULT_OFFSET) || 0,
@@ -74,7 +74,7 @@ const DEFAULT_CONFIG = createConfig();
 /**
  * 設定値の検証
  */
-function validateConfig(config: Config = DEFAULT_CONFIG): void {
+export function validateConfig(config: Config = DEFAULT_CONFIG): void {
 	// ページネーション設定の検証
 	if (config.pagination.defaultPageSize > config.pagination.maxPageSize) {
 		throw new Error("DEFAULT_PAGE_SIZE cannot be greater than MAX_PAGE_SIZE");
