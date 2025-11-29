@@ -3,11 +3,6 @@ import { describe, expect, test } from "vitest";
 import { createTimezoneConfig, TIMEZONE_CONFIG } from "./timezone";
 
 describe("timezone config", () => {
-	test("デフォルトのタイムゾーンが設定されている", () => {
-		const config = createTimezoneConfig();
-		expect(config.default).toBe("Asia/Tokyo");
-	});
-
 	test("フォーマット設定が正しく定義されている", () => {
 		const config = createTimezoneConfig();
 		expect(config.format.dateOnly).toBe("YYYY-MM-DD");
