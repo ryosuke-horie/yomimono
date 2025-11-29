@@ -19,7 +19,6 @@ describe("markBookmarkAsUnread", () => {
 		getFavoriteBookmarks: vi.fn(),
 		isFavorite: vi.fn(),
 		findRecentlyRead: vi.fn(),
-		findRead: vi.fn(),
 		findUnlabeled: vi.fn(),
 		findByLabelName: vi.fn(),
 		findById: vi.fn(),

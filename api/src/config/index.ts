@@ -116,36 +116,44 @@ validateConfig(DEFAULT_CONFIG);
 export const CONFIG = DEFAULT_CONFIG;
 
 if (import.meta.vitest) {
+	const getProcessEnv = () =>
+		(
+			globalThis as {
+				process?: { env: Record<string, string | undefined> };
+			}
+		).process?.env;
 	const { test, expect, describe, beforeEach, afterEach } = import.meta.vitest;
 
 	describe("Configuration Module", () => {
-		// @ts-expect-error: process is available in test environment
-		const originalEnv =
-			typeof process !== "undefined" ? { ...process.env } : {};
+		const originalEnv = getProcessEnv() ? { ...getProcessEnv()! } : undefined;
 
 		beforeEach(() => {
 			// テスト環境でのみ環境変数をリセット
-			// @ts-expect-error: process is available in test environment
-			if (typeof process !== "undefined") {
-				for (const key of Object.keys(process.env)) {
-					if (
-						key.includes("DEFAULT_") ||
-						key.includes("MAX_") ||
-						key.includes("RECENT_") ||
-						key.includes("JST_") ||
-						key.includes("TIMEOUT")
-					) {
-						delete process.env[key];
-					}
+			const env = getProcessEnv();
+			if (!env) {
+				return;
+			}
+			for (const key of Object.keys(env)) {
+				if (
+					key.includes("DEFAULT_") ||
+					key.includes("MAX_") ||
+					key.includes("RECENT_") ||
+					key.includes("JST_") ||
+					key.includes("TIMEOUT")
+				) {
+					delete env[key];
 				}
 			}
 		});
 
 		afterEach(() => {
 			// テスト環境でのみ環境変数を復元
-			// @ts-expect-error: process is available in test environment
-			if (typeof process !== "undefined") {
-				process.env = { ...originalEnv };
+			const env = getProcessEnv();
+			if (env && originalEnv) {
+				for (const key of Object.keys(env)) {
+					delete env[key];
+				}
+				Object.assign(env, originalEnv);
 			}
 		});
 
@@ -296,13 +304,13 @@ if (import.meta.vitest) {
 
 		describe("process.env 使用時のテスト（Node.js環境のみ）", () => {
 			test("process.envが利用可能な場合の環境変数読み込み", () => {
-				// @ts-expect-error: process is available in test environment
-				if (typeof process !== "undefined") {
-					process.env.DEFAULT_OFFSET = "10";
-					process.env.DEFAULT_PAGE_SIZE = "50";
-					process.env.MAX_FAVORITES_LIMIT = "2000";
+				const env = getProcessEnv();
+				if (env) {
+					env.DEFAULT_OFFSET = "10";
+					env.DEFAULT_PAGE_SIZE = "50";
+					env.MAX_FAVORITES_LIMIT = "2000";
 
-					const config = createConfig(process.env as ConfigEnv);
+					const config = createConfig(env as ConfigEnv);
 
 					expect(config.pagination.defaultOffset).toBe(10);
 					expect(config.pagination.defaultPageSize).toBe(50);
