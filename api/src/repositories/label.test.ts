@@ -1,33 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	resetDrizzleClientMock,
+	setupDrizzleClientMock,
+} from "../../tests/drizzle.mock";
 import type { Label } from "../db/schema";
 import { LabelRepository } from "./label";
 
-const mockDb = {
-	select: vi.fn().mockReturnThis(),
-	from: vi.fn().mockReturnThis(),
-	where: vi.fn().mockReturnThis(),
-	leftJoin: vi.fn().mockReturnThis(),
-	groupBy: vi.fn().mockReturnThis(),
-	orderBy: vi.fn().mockReturnThis(),
-	all: vi.fn(),
-	get: vi.fn(),
-	insert: vi.fn().mockReturnThis(),
-	update: vi.fn().mockReturnThis(),
-	set: vi.fn().mockReturnThis(),
-	values: vi.fn().mockReturnThis(),
-	returning: vi.fn().mockReturnThis(),
-	delete: vi.fn().mockReturnThis(),
-};
-
-vi.mock("drizzle-orm/d1", () => ({
-	drizzle: vi.fn(() => mockDb),
-}));
+const { mockDb } = setupDrizzleClientMock();
 
 describe("LabelRepository", () => {
 	let labelRepository: LabelRepository;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		resetDrizzleClientMock(mockDb);
 		labelRepository = new LabelRepository({} as D1Database);
 	});
 

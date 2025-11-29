@@ -1,26 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	resetDrizzleClientMock,
+	setupDrizzleClientMock,
+} from "../../tests/drizzle.mock";
 import type { ArticleLabel } from "../db/schema";
 import { ArticleLabelRepository } from "./articleLabel";
 
-const mockDb = {
-	select: vi.fn().mockReturnThis(),
-	from: vi.fn().mockReturnThis(),
-	where: vi.fn().mockReturnThis(),
-	get: vi.fn(),
-	insert: vi.fn().mockReturnThis(),
-	values: vi.fn().mockReturnThis(),
-	returning: vi.fn().mockReturnThis(),
-};
-
-vi.mock("drizzle-orm/d1", () => ({
-	drizzle: vi.fn(() => mockDb),
-}));
+const { mockDb } = setupDrizzleClientMock();
 
 describe("ArticleLabelRepository", () => {
 	let articleLabelRepository: ArticleLabelRepository;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		resetDrizzleClientMock(mockDb);
 		articleLabelRepository = new ArticleLabelRepository({} as D1Database);
 	});
 
