@@ -16,6 +16,6 @@ export function createTimezoneConfig() {
 }
 
 /**
- * デフォルトのタイムゾーン設定（後方互換性のため）
+ * デフォルトのタイムゾーン設定
  */
 export const TIMEZONE_CONFIG = createTimezoneConfig();
