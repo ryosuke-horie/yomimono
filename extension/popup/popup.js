@@ -1,10 +1,20 @@
 document.addEventListener("DOMContentLoaded", async () => {
+	const FRONTEND_URL = "https://effective-yomimono.ryosuke-horie37.workers.dev";
 	const tabList = document.getElementById("tabList");
 	const selectAllButton = document.getElementById("selectAllButton");
 	const deselectAllButton = document.getElementById("deselectAllButton");
 	const collectButton = document.getElementById("collectButton");
 	const statusElement = document.getElementById("status");
 	const resultElement = document.getElementById("result");
+	const frontendLinkElement = document.getElementById("frontendLink");
+	const openFrontendButton = document.getElementById("openFrontendButton");
+
+	frontendLinkElement.href = FRONTEND_URL;
+	frontendLinkElement.textContent = FRONTEND_URL;
+
+	openFrontendButton.addEventListener("click", () => {
+		chrome.tabs.create({ url: FRONTEND_URL });
+	});
 
 	function updateStatus(message, isError = false) {
 		statusElement.textContent = message;

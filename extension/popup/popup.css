@@ -11,6 +11,44 @@ body {
 	gap: 16px;
 }
 
+.frontend-link-container {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 12px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	background-color: #f9f9f9;
+}
+
+.frontend-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.frontend-label {
+	margin: 0;
+	font-weight: 600;
+	color: #333;
+}
+
+.frontend-link {
+	color: #1976d2;
+	text-decoration: none;
+	word-break: break-all;
+}
+
+.frontend-link:hover {
+	text-decoration: underline;
+}
+
+.frontend-button {
+	flex: 0 0 auto;
+	padding: 6px 12px;
+}
+
 h1 {
 	font-size: 18px;
 	margin: 0;
