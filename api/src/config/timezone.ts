@@ -3,18 +3,11 @@
  */
 
 /**
- * タイムゾーン環境変数のインターフェース
- */
-interface TimezoneEnv {
-	DEFAULT_TIMEZONE?: string;
-}
-
-/**
  * タイムゾーン設定を作成する関数
  */
-export function createTimezoneConfig(env: TimezoneEnv = {}) {
+export function createTimezoneConfig() {
 	return {
-		default: env.DEFAULT_TIMEZONE || "Asia/Tokyo",
+		default: "Asia/Tokyo",
 		format: {
 			dateOnly: "YYYY-MM-DD",
 			datetime: "YYYY-MM-DD HH:mm:ss",
