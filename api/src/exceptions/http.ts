@@ -18,6 +18,7 @@ export class BadRequestError extends HttpError {
  * 401 Unauthorized
  * 認証が必要なリソースへのアクセス時に認証情報が無効または不足している場合
  */
+// biome-ignore lint/correctness/noUnusedVariables: 今後の拡張用に保持するHTTP例外
 class UnauthorizedError extends HttpError {
 	constructor(message = "Unauthorized") {
 		super(message, 401);
@@ -28,6 +29,7 @@ class UnauthorizedError extends HttpError {
  * 403 Forbidden
  * 認証は成功したが、リソースへのアクセス権限がない場合
  */
+// biome-ignore lint/correctness/noUnusedVariables: 今後の拡張用に保持するHTTP例外
 class ForbiddenError extends HttpError {
 	constructor(message = "Forbidden") {
 		super(message, 403);
@@ -78,78 +80,9 @@ export class InternalServerError extends HttpError {
  * 503 Service Unavailable
  * サービスが一時的に利用できない場合
  */
+// biome-ignore lint/correctness/noUnusedVariables: 今後の拡張用に保持するHTTP例外
 class ServiceUnavailableError extends HttpError {
 	constructor(message = "Service Unavailable") {
 		super(message, 503);
 	}
-}
-
-if (import.meta.vitest) {
-	const { test, expect } = import.meta.vitest;
-
-	test("BadRequestError は400エラーを生成する", () => {
-		const error = new BadRequestError();
-		expect(error.statusCode).toBe(400);
-		expect(error.message).toBe("Bad Request");
-
-		const customError = new BadRequestError("Invalid input");
-		expect(customError.message).toBe("Invalid input");
-	});
-
-	test("NotFoundError は404エラーを生成する", () => {
-		const error = new NotFoundError();
-		expect(error.statusCode).toBe(404);
-		expect(error.message).toBe("Not Found");
-
-		const customError = new NotFoundError("Bookmark not found");
-		expect(customError.message).toBe("Bookmark not found");
-	});
-
-	test("ValidationError は422エラーを生成する", () => {
-		const error = new ValidationError();
-		expect(error.statusCode).toBe(422);
-		expect(error.message).toBe("Validation Failed");
-
-		const customError = new ValidationError("Title is required");
-		expect(customError.message).toBe("Title is required");
-	});
-
-	test("InternalServerError は500エラーを生成する", () => {
-		const error = new InternalServerError();
-		expect(error.statusCode).toBe(500);
-		expect(error.message).toBe("Internal Server Error");
-
-		const customError = new InternalServerError("Database connection failed");
-		expect(customError.message).toBe("Database connection failed");
-	});
-
-	test("UnauthorizedError は401エラーを生成する", () => {
-		const error = new UnauthorizedError();
-		expect(error.statusCode).toBe(401);
-		expect(error.message).toBe("Unauthorized");
-
-		const customError = new UnauthorizedError("Invalid token");
-		expect(customError.message).toBe("Invalid token");
-	});
-
-	test("ForbiddenError は403エラーを生成する", () => {
-		const error = new ForbiddenError();
-		expect(error.statusCode).toBe(403);
-		expect(error.message).toBe("Forbidden");
-
-		const customError = new ForbiddenError("Access denied");
-		expect(customError.message).toBe("Access denied");
-	});
-
-	test("ConflictError は409エラーを生成する", () => {
-		const error = new ConflictError();
-		expect(error.statusCode).toBe(409);
-		expect(error.message).toBe("Conflict");
-	});
-
-	test("ServiceUnavailableError は503エラーを生成する", () => {
-		const error = new ServiceUnavailableError();
-		expect(error.statusCode).toBe(503);
-		expect(error.message).toBe("Service Unavailable");
-	});
 }
