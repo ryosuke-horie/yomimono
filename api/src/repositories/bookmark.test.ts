@@ -1,6 +1,10 @@
 import { desc, eq, inArray } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+	resetDrizzleClientMock,
+	setupDrizzleClientMock,
+} from "../../tests/drizzle.mock";
+import {
 	articleLabels,
 	type Bookmark,
 	bookmarks,
@@ -11,30 +15,7 @@ import {
 import type { BookmarkWithLabel } from "../interfaces/repository/bookmark";
 import { DrizzleBookmarkRepository } from "./bookmark";
 
-const mockDbClient = {
-	select: vi.fn().mockReturnThis(),
-	from: vi.fn().mockReturnThis(),
-	where: vi.fn().mockReturnThis(),
-	set: vi.fn().mockReturnThis(),
-	values: vi.fn().mockReturnThis(),
-	run: vi.fn().mockResolvedValue({ meta: { changes: 1 } }),
-	get: vi.fn(),
-	all: vi.fn(),
-	delete: vi.fn().mockReturnThis(),
-	innerJoin: vi.fn().mockReturnThis(),
-	leftJoin: vi.fn().mockReturnThis(),
-	limit: vi.fn().mockReturnThis(),
-	offset: vi.fn().mockReturnThis(),
-	orderBy: vi.fn().mockReturnThis(),
-	update: vi.fn().mockReturnThis(),
-	insert: vi.fn().mockReturnThis(),
-	returning: vi.fn().mockReturnThis(),
-	groupBy: vi.fn().mockReturnThis(),
-};
-
-vi.mock("drizzle-orm/d1", () => ({
-	drizzle: vi.fn(() => mockDbClient),
-}));
+const { mockDb: mockDbClient } = setupDrizzleClientMock();
 
 describe("ブックマークリポジトリ", () => {
 	let repository: DrizzleBookmarkRepository;
@@ -112,20 +93,7 @@ describe("ブックマークリポジトリ", () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-
-		// モックのリセット
-		mockDbClient.select.mockReturnThis();
-		mockDbClient.from.mockReturnThis();
-		mockDbClient.where.mockReturnThis();
-		mockDbClient.set.mockReturnThis();
-		mockDbClient.values.mockReturnThis();
-		mockDbClient.run.mockResolvedValue({ meta: { changes: 1 } });
-		mockDbClient.delete.mockReturnThis();
-		mockDbClient.innerJoin.mockReturnThis();
-		mockDbClient.leftJoin.mockReturnThis();
-		mockDbClient.orderBy.mockReturnThis();
-		mockDbClient.update.mockReturnThis();
-		mockDbClient.insert.mockReturnThis();
+		resetDrizzleClientMock(mockDbClient);
 
 		repository = new DrizzleBookmarkRepository({} as D1Database);
 	});

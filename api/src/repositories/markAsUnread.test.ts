@@ -1,28 +1,20 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	resetDrizzleClientMock,
+	setupDrizzleClientMock,
+} from "../../tests/drizzle.mock";
 import { bookmarks } from "../db/schema";
 import { DrizzleBookmarkRepository } from "./bookmark";
 
-const mockDbClient = {
-	select: vi.fn().mockReturnThis(),
-	from: vi.fn().mockReturnThis(),
-	where: vi.fn().mockReturnThis(),
-	set: vi.fn().mockReturnThis(),
-	values: vi.fn().mockReturnThis(),
-	run: vi.fn().mockResolvedValue({ meta: { changes: 1 } }),
-	get: vi.fn(),
-	update: vi.fn().mockReturnThis(),
-};
-
-vi.mock("drizzle-orm/d1", () => ({
-	drizzle: vi.fn(() => mockDbClient),
-}));
+const { mockDb: mockDbClient } = setupDrizzleClientMock();
 
 describe("markAsUnread メソッド", () => {
 	let repository: DrizzleBookmarkRepository;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		resetDrizzleClientMock(mockDbClient);
 		repository = new DrizzleBookmarkRepository({} as D1Database);
 	});
 
