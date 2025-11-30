@@ -17,7 +17,7 @@ export interface DatabaseConfig {
  * @param nodeEnv NODE_ENV環境変数の値
  * @returns データベース設定オブジェクト
  */
-export function getDatabaseConfig(nodeEnv?: string): DatabaseConfig {
+function getDatabaseConfig(nodeEnv?: string): DatabaseConfig {
 	const isProduction = nodeEnv === "production";
 
 	if (isProduction) {
