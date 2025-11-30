@@ -99,6 +99,21 @@ describe("ブックマークリポジトリ", () => {
 	});
 
 	describe("未読ブックマークの取得 (findUnread)", () => {
+		const mockFindUnreadQueries = (
+			bookmarksResult: Array<{
+				bookmark: Bookmark;
+				favorite: { id: number; bookmarkId: number; createdAt: Date } | null;
+			}>,
+			labelsResult: Array<{
+				articleId: number;
+				label: Label;
+			}> = [],
+		) => {
+			mockDbClient.all
+				.mockResolvedValueOnce(bookmarksResult)
+				.mockResolvedValueOnce(labelsResult);
+		};
+
 		it("未読ブックマークをラベル・お気に入り情報付きで全て取得できること", async () => {
 			// 1回目のクエリ（ブックマーク + お気に入り）
 			const bookmarksResult = [
@@ -176,6 +191,127 @@ describe("ブックマークリポジトリ", () => {
 				desc(bookmarks.createdAt),
 			);
 			expect(mockDbClient.all).toHaveBeenCalledTimes(2); // 2回のクエリ
+		});
+
+		describe("回帰シナリオ", () => {
+			const olderBookmark: Bookmark = {
+				id: 1,
+				url: "https://example.com/older",
+				title: "古い記事",
+				isRead: false,
+				createdAt: new Date("2023-01-01T10:00:00Z"),
+				updatedAt: new Date("2023-01-01T10:00:00Z"),
+			};
+
+			const newerBookmark: Bookmark = {
+				id: 2,
+				url: "https://example.com/newer",
+				title: "新しい記事",
+				isRead: false,
+				createdAt: new Date("2023-01-02T10:00:00Z"),
+				updatedAt: new Date("2023-01-02T10:00:00Z"),
+			};
+
+			const frontendLabel: Label = {
+				id: 1,
+				name: "frontend",
+				description: "Frontend tech",
+				createdAt: new Date("2024-01-01T09:00:00Z"),
+				updatedAt: new Date("2024-01-01T09:00:00Z"),
+			};
+
+			const reactLabel: Label = {
+				id: 2,
+				name: "react",
+				description: "React framework",
+				createdAt: new Date("2024-01-01T09:00:00Z"),
+				updatedAt: new Date("2024-01-01T09:00:00Z"),
+			};
+
+			const backendLabel: Label = {
+				id: 3,
+				name: "backend",
+				description: "Backend tech",
+				createdAt: new Date("2024-01-01T09:00:00Z"),
+				updatedAt: new Date("2024-01-01T09:00:00Z"),
+			};
+
+			it("複数ラベル付きでも重複なく作成日時の降順で返す", async () => {
+				mockFindUnreadQueries(
+					[
+						{ bookmark: newerBookmark, favorite: null },
+						{ bookmark: olderBookmark, favorite: null },
+					],
+					[
+						{ articleId: newerBookmark.id, label: reactLabel },
+						{ articleId: olderBookmark.id, label: frontendLabel },
+						// 同じ記事の複数ラベルは最初のものだけを採用
+						{ articleId: olderBookmark.id, label: backendLabel },
+					],
+				);
+
+				const result = await repository.findUnread();
+
+				expect(result.map((bookmark) => bookmark.id)).toEqual([
+					newerBookmark.id,
+					olderBookmark.id,
+				]);
+				expect(result[0].label?.name).toBe("react");
+				expect(result[1].label?.name).toBe("frontend");
+				expect(mockDbClient.orderBy).toHaveBeenCalledWith(
+					desc(bookmarks.createdAt),
+				);
+			});
+
+			it("ラベルが無い場合はnullのまま降順で返す", async () => {
+				mockFindUnreadQueries(
+					[
+						{ bookmark: newerBookmark, favorite: null },
+						{ bookmark: olderBookmark, favorite: null },
+					],
+					[],
+				);
+
+				const result = await repository.findUnread();
+				expect(result).toHaveLength(2);
+				expect(result[0].label).toBeNull();
+				expect(result[1].label).toBeNull();
+				expect(result.map((bookmark) => bookmark.id)).toEqual([
+					newerBookmark.id,
+					olderBookmark.id,
+				]);
+			});
+
+			it("未読ブックマークが存在しない場合は空配列を返し2回目のクエリを実行しない", async () => {
+				mockDbClient.all.mockResolvedValueOnce([]);
+
+				const result = await repository.findUnread();
+
+				expect(result).toEqual([]);
+				expect(mockDbClient.all).toHaveBeenCalledTimes(1);
+			});
+
+			it("お気に入りフラグを正しく設定する", async () => {
+				mockFindUnreadQueries(
+					[
+						{
+							bookmark: olderBookmark,
+							favorite: {
+								id: 1,
+								bookmarkId: olderBookmark.id,
+								createdAt: new Date("2024-01-01T09:00:00Z"),
+							},
+						},
+					],
+					[{ articleId: olderBookmark.id, label: frontendLabel }],
+				);
+
+				const result = await repository.findUnread();
+
+				expect(result).toHaveLength(1);
+				expect(result[0].isFavorite).toBe(true);
+				expect(result[0].label?.name).toBe("frontend");
+			});
 		});
 
 		// DBエラーハンドリングは他ケースでカバー済み
@@ -370,6 +506,40 @@ describe("ブックマークリポジトリ", () => {
 				desc(bookmarks.createdAt),
 			);
 			expect(mockDbClient.all).toHaveBeenCalledOnce();
+		});
+
+		it("findUnread()と同じソート順序が適用されること", async () => {
+			mockDbClient.all
+				.mockResolvedValueOnce([
+					{ bookmark: mockBookmark2, favorite: null },
+					{ bookmark: mockBookmark1, favorite: null },
+				])
+				.mockResolvedValueOnce([
+					{ articleId: mockBookmark2.id, label: mockLabel1 },
+					{ articleId: mockBookmark1.id, label: mockLabel1 },
+				]);
+
+			await repository.findUnread();
+
+			mockDbClient.all.mockResolvedValueOnce([
+				{
+					bookmark: mockBookmark2,
+					favorite: null,
+					label: mockLabel1,
+				},
+				{
+					bookmark: mockBookmark1,
+					favorite: null,
+					label: mockLabel1,
+				},
+			]);
+
+			await repository.findByLabelName("typescript");
+
+			expect(mockDbClient.orderBy).toHaveBeenCalledWith(
+				desc(bookmarks.createdAt),
+			);
+			expect(mockDbClient.orderBy).toHaveBeenCalledTimes(2);
 		});
 
 		// DBエラー時の挙動は他のメソッドで検証済み
