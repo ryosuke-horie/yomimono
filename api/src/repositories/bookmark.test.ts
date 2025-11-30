@@ -1,4 +1,4 @@
-import { desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	resetDrizzleClientMock,
@@ -261,6 +261,49 @@ describe("ブックマークリポジトリ", () => {
 			expect(mockDbClient.all).toHaveBeenCalledTimes(1);
 		});
 
+		it("findByLabelNameでも同じ作成日時降順ソートを維持すること", async () => {
+			const labelName = reactLabel.name;
+			const bookmarksResult = [
+				{ bookmark: newerUnreadBookmark, favorite: favoriteEntry },
+				{ bookmark: olderUnreadBookmark, favorite: null },
+			];
+			const labelsResult = [
+				{ articleId: newerUnreadBookmark.id, label: reactLabel },
+				{ articleId: olderUnreadBookmark.id, label: frontendLabel },
+			];
+
+			mockFindUnreadQueries(bookmarksResult, labelsResult);
+			mockDbClient.all.mockResolvedValueOnce([
+				{
+					bookmark: newerUnreadBookmark,
+					favorite: favoriteEntry,
+					label: reactLabel,
+				},
+				{
+					bookmark: olderUnreadBookmark,
+					favorite: null,
+					label: frontendLabel,
+				},
+			]);
+
+			const unreadResult = await repository.findUnread();
+			const byLabelResult = await repository.findByLabelName(labelName);
+
+			expect(unreadResult.map((bookmark) => bookmark.id)).toEqual([
+				newerUnreadBookmark.id,
+				olderUnreadBookmark.id,
+			]);
+			expect(byLabelResult.map((bookmark) => bookmark.id)).toEqual([
+				newerUnreadBookmark.id,
+				olderUnreadBookmark.id,
+			]);
+			expect(mockDbClient.orderBy.mock.calls).toEqual([
+				[desc(bookmarks.createdAt)],
+				[desc(bookmarks.createdAt)],
+			]);
+			expect(mockDbClient.all).toHaveBeenCalledTimes(3);
+		});
+
 		// DBエラーハンドリングは他ケースでカバー済み
 	});
 
@@ -413,7 +456,7 @@ describe("ブックマークリポジトリ", () => {
 				expect.anything(),
 			); // Only one leftJoin here
 			expect(mockDbClient.where).toHaveBeenCalledWith(
-				expect.anything(), // andを使用した複数条件に対応
+				and(eq(labels.name, labelName), eq(bookmarks.isRead, false)),
 			);
 			expect(mockDbClient.all).toHaveBeenCalledOnce();
 		});
