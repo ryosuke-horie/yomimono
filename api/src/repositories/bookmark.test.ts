@@ -99,74 +99,114 @@ describe("ブックマークリポジトリ", () => {
 	});
 
 	describe("未読ブックマークの取得 (findUnread)", () => {
+		const newerUnreadBookmark: Bookmark = {
+			id: 2,
+			url: "https://example.com/newer",
+			title: "新しい記事",
+			isRead: false,
+			createdAt: new Date("2024-01-02T10:00:00Z"),
+			updatedAt: new Date("2024-01-02T10:00:00Z"),
+		};
+		const olderUnreadBookmark: Bookmark = {
+			id: 1,
+			url: "https://example.com/older",
+			title: "古い記事",
+			isRead: false,
+			createdAt: new Date("2024-01-01T10:00:00Z"),
+			updatedAt: new Date("2024-01-01T10:00:00Z"),
+		};
+		const frontendLabel: Label = {
+			id: 1,
+			name: "frontend",
+			description: "Frontend tech",
+			createdAt: new Date("2024-01-01T09:00:00Z"),
+			updatedAt: new Date("2024-01-01T09:00:00Z"),
+		};
+		const reactLabel: Label = {
+			id: 2,
+			name: "react",
+			description: "React framework",
+			createdAt: new Date("2024-01-01T09:00:00Z"),
+			updatedAt: new Date("2024-01-01T09:00:00Z"),
+		};
+		const favoriteEntry = {
+			id: 99,
+			bookmarkId: newerUnreadBookmark.id,
+			createdAt: new Date("2024-01-03T10:00:00Z"),
+		};
+
+		const mockFindUnreadQueries = (
+			bookmarksResult: Array<{
+				bookmark: Bookmark;
+				favorite: { id: number; bookmarkId: number; createdAt: Date } | null;
+			}>,
+			labelsResult?: Array<{ articleId: number; label: Label }>,
+		) => {
+			mockDbClient.all.mockResolvedValueOnce(bookmarksResult);
+			if (labelsResult !== undefined) {
+				mockDbClient.all.mockResolvedValueOnce(labelsResult);
+			}
+		};
+
 		it("未読ブックマークをラベル・お気に入り情報付きで全て取得できること", async () => {
-			// 1回目のクエリ（ブックマーク + お気に入り）
 			const bookmarksResult = [
-				{
-					bookmark: mockBookmark1,
-					favorite: { id: 1, bookmarkId: 1, createdAt: new Date() },
-				},
-				{ bookmark: mockBookmark2, favorite: null },
+				{ bookmark: newerUnreadBookmark, favorite: favoriteEntry },
+				{ bookmark: olderUnreadBookmark, favorite: null },
 			];
-			// 2回目のクエリ（ラベル）
 			const labelsResult = [
-				{ articleId: 1, label: mockLabel1 },
-				{ articleId: 2, label: mockLabel2 },
+				{ articleId: newerUnreadBookmark.id, label: reactLabel },
+				{ articleId: olderUnreadBookmark.id, label: frontendLabel },
 			];
 
-			// より確実なモック設定: 呼び出し回数をカウントしてレスポンスを決定
-			let callCount = 0;
-			mockDbClient.all.mockImplementation(async () => {
-				callCount++;
-				if (callCount === 1) {
-					return bookmarksResult;
-				}
-				if (callCount === 2) {
-					return labelsResult;
-				}
-				return [];
-			});
+			mockFindUnreadQueries(bookmarksResult, labelsResult);
 
 			const result = await repository.findUnread();
-			expect(result).toEqual([expectedResult1, expectedResult2]);
+			expect(result).toEqual([
+				{ ...newerUnreadBookmark, isFavorite: true, label: reactLabel },
+				{ ...olderUnreadBookmark, isFavorite: false, label: frontendLabel },
+			]);
 			expect(mockDbClient.select).toHaveBeenCalled();
 			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
 			expect(mockDbClient.where).toHaveBeenCalledWith(
 				eq(bookmarks.isRead, false),
 			);
+			expect(mockDbClient.orderBy).toHaveBeenCalledWith(
+				desc(bookmarks.createdAt),
+			);
+			expect(mockDbClient.where).toHaveBeenCalledWith(
+				inArray(articleLabels.articleId, [
+					newerUnreadBookmark.id,
+					olderUnreadBookmark.id,
+				]),
+			);
 			expect(mockDbClient.all).toHaveBeenCalledTimes(2); // 2回のクエリ
 		});
 
 		it("未読ブックマークを作成日時の降順でソートして取得できること", async () => {
-			// 1回目のクエリ（ブックマーク + お気に入り）- ソート済み
 			const bookmarksResult = [
-				{ bookmark: mockBookmark2, favorite: null },
+				{ bookmark: newerUnreadBookmark, favorite: null },
+				{ bookmark: olderUnreadBookmark, favorite: null },
+			];
+			const labelsResult = [
+				{ articleId: olderUnreadBookmark.id, label: frontendLabel },
+				{ articleId: newerUnreadBookmark.id, label: reactLabel },
 				{
-					bookmark: mockBookmark1,
-					favorite: { id: 1, bookmarkId: 1, createdAt: new Date() },
+					articleId: olderUnreadBookmark.id,
+					label: {
+						...reactLabel,
+						id: 3,
+						name: "react-duplicate",
+					},
 				},
 			];
-			// 2回目のクエリ（ラベル）
-			const labelsResult = [
-				{ articleId: 1, label: mockLabel1 },
-				{ articleId: 2, label: mockLabel2 },
-			];
 
-			// より確実なモック設定: 呼び出し回数をカウントしてレスポンスを決定
-			let callCount = 0;
-			mockDbClient.all.mockImplementation(async () => {
-				callCount++;
-				if (callCount === 1) {
-					return bookmarksResult;
-				}
-				if (callCount === 2) {
-					return labelsResult;
-				}
-				return [];
-			});
+			mockFindUnreadQueries(bookmarksResult, labelsResult);
 
 			const result = await repository.findUnread();
-			expect(result).toEqual([expectedResult2, expectedResult1]);
+			expect(result).toEqual([
+				{ ...newerUnreadBookmark, isFavorite: false, label: reactLabel },
+				{ ...olderUnreadBookmark, isFavorite: false, label: frontendLabel },
+			]);
 			expect(mockDbClient.select).toHaveBeenCalled();
 			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
 			expect(mockDbClient.where).toHaveBeenCalledWith(
@@ -176,6 +216,49 @@ describe("ブックマークリポジトリ", () => {
 				desc(bookmarks.createdAt),
 			);
 			expect(mockDbClient.all).toHaveBeenCalledTimes(2); // 2回のクエリ
+		});
+
+		it("同じブックマークが複数ラベルを持っても重複せず最初のラベルのみ返すこと", async () => {
+			const bookmarksResult = [
+				{ bookmark: newerUnreadBookmark, favorite: null },
+			];
+			const labelsResult = [
+				{ articleId: newerUnreadBookmark.id, label: frontendLabel },
+				{ articleId: newerUnreadBookmark.id, label: reactLabel },
+			];
+
+			mockFindUnreadQueries(bookmarksResult, labelsResult);
+
+			const result = await repository.findUnread();
+
+			expect(result).toHaveLength(1);
+			expect(result[0]).toEqual({
+				...newerUnreadBookmark,
+				isFavorite: false,
+				label: frontendLabel,
+			});
+		});
+
+		it("ラベルがない未読ブックマークでもlabelがnullで返すこと", async () => {
+			mockFindUnreadQueries(
+				[{ bookmark: olderUnreadBookmark, favorite: null }],
+				[],
+			);
+
+			const result = await repository.findUnread();
+
+			expect(result).toHaveLength(1);
+			expect(result[0].label).toBeNull();
+			expect(result[0].isFavorite).toBe(false);
+		});
+
+		it("未読ブックマークが存在しない場合は空配列を返し追加クエリを実行しないこと", async () => {
+			mockFindUnreadQueries([]);
+
+			const result = await repository.findUnread();
+
+			expect(result).toEqual([]);
+			expect(mockDbClient.all).toHaveBeenCalledTimes(1);
 		});
 
 		// DBエラーハンドリングは他ケースでカバー済み
