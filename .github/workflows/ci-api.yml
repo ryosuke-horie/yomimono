@@ -38,6 +38,12 @@ jobs:
         run: |
           pnpm install
 
+      - name: Generate OpenAPI spec
+        working-directory: ./api
+        run: |
+          pnpm run generate
+          git diff --exit-code openapi.yaml
+
       - name: Run linter
         working-directory: ./api
         run: pnpm run lint

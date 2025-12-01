@@ -32,7 +32,7 @@ importers:
         version: 24.10.0
       '@vitest/coverage-v8':
         specifier: 4.0.6
-        version: 4.0.6(vitest@4.0.6(@types/node@24.10.0)(happy-dom@20.0.10)(jiti@2.6.1)(tsx@4.20.6))
+        version: 4.0.6(vitest@4.0.6(@types/node@24.10.0)(happy-dom@20.0.10)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.2))
       better-sqlite3:
         specifier: ^12.4.1
         version: 12.4.1
@@ -48,6 +48,9 @@ importers:
       only-allow:
         specifier: ^1.2.1
         version: 1.2.1
+      openapi3-ts:
+        specifier: ^4.5.0
+        version: 4.5.0
       tsx:
         specifier: ^4.20.6
         version: 4.20.6
@@ -56,10 +59,13 @@ importers:
         version: 5.9.3
       vitest:
         specifier: 4.0.6
-        version: 4.0.6(@types/node@24.10.0)(happy-dom@20.0.10)(jiti@2.6.1)(tsx@4.20.6)
+        version: 4.0.6(@types/node@24.10.0)(happy-dom@20.0.10)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.2)
       wrangler:
         specifier: ^4.45.3
         version: 4.45.3(@cloudflare/workers-types@4.20251014.0)
+      yaml:
+        specifier: ^2.8.2
+        version: 2.8.2
 
 packages:
 
@@ -1662,6 +1668,9 @@ packages:
     resolution: {integrity: sha512-M7CJbmv7UCopc0neRKdzfoGWaVZC+xC1925GitKH9EAqYFzX9//25Q7oX4+jw0tiCCj+t5l6VZh8UPH23NZkMA==}
     hasBin: true
 
+  openapi3-ts@4.5.0:
+    resolution: {integrity: sha512-jaL+HgTq2Gj5jRcfdutgRGLosCy/hT8sQf6VOy+P+g36cZOjI1iukdPnijC+4CmeRzg/jEllJUboEic2FhxhtQ==}
+
   oxc-resolver@11.13.0:
     resolution: {integrity: sha512-Pp9ULXeB0KDclQrSRVUUF0NwXCoADtzMBd2kKsk2pHeQoDlZHl9NwVzeCIYFdfKrc7LQxtGoVec3eX2tZHS0Bw==}
 
@@ -1968,6 +1977,11 @@ packages:
         optional: true
       utf-8-validate:
         optional: true
+
+  yaml@2.8.2:
+    resolution: {integrity: sha512-mplynKqc1C2hTVYxd0PU2xQAc22TI1vShAYGksCCfxbn/dFwnHTNi1bvYsBTkhdUNtGIf5xNOg938rrSSYvS9A==}
+    engines: {node: '>= 14.6'}
+    hasBin: true
 
   youch-core@0.3.3:
     resolution: {integrity: sha512-ho7XuGjLaJ2hWHoK8yFnsUGy2Y5uDpqSTq1FkHLK4/oqKtyUU1AFbOOxY4IpC9f0fTLjwYbslUz0Po5BpD1wrA==}
@@ -2668,7 +2682,7 @@ snapshots:
 
   '@types/whatwg-mimetype@3.0.2': {}
 
-  '@vitest/coverage-v8@4.0.6(vitest@4.0.6(@types/node@24.10.0)(happy-dom@20.0.10)(jiti@2.6.1)(tsx@4.20.6))':
+  '@vitest/coverage-v8@4.0.6(vitest@4.0.6(@types/node@24.10.0)(happy-dom@20.0.10)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.2))':
     dependencies:
       '@bcoe/v8-coverage': 1.0.2
       '@vitest/utils': 4.0.6
@@ -2681,7 +2695,7 @@ snapshots:
       magicast: 0.3.5
       std-env: 3.10.0
       tinyrainbow: 3.0.3
-      vitest: 4.0.6(@types/node@24.10.0)(happy-dom@20.0.10)(jiti@2.6.1)(tsx@4.20.6)
+      vitest: 4.0.6(@types/node@24.10.0)(happy-dom@20.0.10)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -2694,13 +2708,13 @@ snapshots:
       chai: 6.2.0
       tinyrainbow: 3.0.3
 
-  '@vitest/mocker@4.0.6(vite@7.1.12(@types/node@24.10.0)(jiti@2.6.1)(tsx@4.20.6))':
+  '@vitest/mocker@4.0.6(vite@7.1.12(@types/node@24.10.0)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.2))':
     dependencies:
       '@vitest/spy': 4.0.6
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 7.1.12(@types/node@24.10.0)(jiti@2.6.1)(tsx@4.20.6)
+      vite: 7.1.12(@types/node@24.10.0)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.2)
 
   '@vitest/pretty-format@4.0.6':
     dependencies:
@@ -3153,6 +3167,10 @@ snapshots:
     dependencies:
       which-pm-runs: 1.1.0
 
+  openapi3-ts@4.5.0:
+    dependencies:
+      yaml: 2.8.2
+
   oxc-resolver@11.13.0:
     optionalDependencies:
       '@oxc-resolver/binding-android-arm-eabi': 11.13.0
@@ -3401,7 +3419,7 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  vite@7.1.12(@types/node@24.10.0)(jiti@2.6.1)(tsx@4.20.6):
+  vite@7.1.12(@types/node@24.10.0)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.2):
     dependencies:
       esbuild: 0.25.12
       fdir: 6.5.0(picomatch@4.0.3)
@@ -3414,11 +3432,12 @@ snapshots:
       fsevents: 2.3.3
       jiti: 2.6.1
       tsx: 4.20.6
+      yaml: 2.8.2
 
-  vitest@4.0.6(@types/node@24.10.0)(happy-dom@20.0.10)(jiti@2.6.1)(tsx@4.20.6):
+  vitest@4.0.6(@types/node@24.10.0)(happy-dom@20.0.10)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.2):
     dependencies:
       '@vitest/expect': 4.0.6
-      '@vitest/mocker': 4.0.6(vite@7.1.12(@types/node@24.10.0)(jiti@2.6.1)(tsx@4.20.6))
+      '@vitest/mocker': 4.0.6(vite@7.1.12(@types/node@24.10.0)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.2))
       '@vitest/pretty-format': 4.0.6
       '@vitest/runner': 4.0.6
       '@vitest/snapshot': 4.0.6
@@ -3435,7 +3454,7 @@ snapshots:
       tinyexec: 0.3.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.0.3
-      vite: 7.1.12(@types/node@24.10.0)(jiti@2.6.1)(tsx@4.20.6)
+      vite: 7.1.12(@types/node@24.10.0)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.2)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 24.10.0
@@ -3493,6 +3512,8 @@ snapshots:
   wrappy@1.0.2: {}
 
   ws@8.18.0: {}
+
+  yaml@2.8.2: {}
 
   youch-core@0.3.3:
     dependencies:

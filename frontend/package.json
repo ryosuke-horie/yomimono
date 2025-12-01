@@ -16,7 +16,8 @@
 		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
 		"deploy:setup": "bash ./setup-deploy.sh",
 		"deploy": "pnpm run deploy:setup && opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-		"cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+		"cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+		"orval": "orval --config orval.config.ts"
 	},
 	"dependencies": {
 		"@tanstack/react-query": "^5.90.6",
@@ -42,6 +43,7 @@
 		"@vitest/ui": "^4.0.6",
 		"jsdom": "^27.1.0",
 		"knip": "^5.68.0",
+		"orval": "^7.17.0",
 		"postcss": "^8",
 		"postcss-load-config": "^6.0.1",
 		"tailwindcss": "^4.1.16",
