@@ -79,3 +79,6 @@ vi.mock("next/image", () => ({
 		return createElement("img", { ...props, alt: props.alt });
 	},
 }));
+
+// server-only はBFF用のサーバー専用モジュールのためテストでは空モックにする
+vi.mock("server-only", () => ({}));
