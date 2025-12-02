@@ -1,18 +1,13 @@
-import { desc } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/d1";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
-import { bookmarks } from "./db/schema";
 import { ArticleLabelRepository } from "./repositories/articleLabel";
 import { DrizzleBookmarkRepository } from "./repositories/bookmark";
 import { LabelRepository } from "./repositories/label";
 import { createBookmarksRouter } from "./routes/bookmarks";
 import { createLabelsRouter } from "./routes/labels";
-import { createSeedRouter } from "./routes/seed";
 import { DefaultBookmarkService } from "./services/bookmark";
 import { LabelService } from "./services/label";
-import { SeedService } from "./services/seed";
 
 export interface Env {
 	DB: D1Database;
@@ -63,72 +58,12 @@ export const createApp = (env: Env) => {
 		articleLabelRepository,
 		bookmarkRepository,
 	);
-	const seedService = new SeedService(db);
 
 	// ルーターのマウント
 	const bookmarksRouter = createBookmarksRouter(bookmarkService, labelService);
 	const labelsRouter = createLabelsRouter(labelService);
-	const seedRouter = createSeedRouter(seedService);
 	app.route("/api/bookmarks", bookmarksRouter);
 	app.route("/api/labels", labelsRouter);
-	app.route("/api/dev/seed", seedRouter);
-
-	// テストエンドポイント
-	app.get("/api/dev/test", (c) => {
-		return c.json({ message: "API is working!" });
-	});
-
-	// データベース接続テスト
-	app.get("/api/dev/db-test", async (c) => {
-		try {
-			const drizzleDb = drizzle(c.env.DB);
-			const result = await drizzleDb.select().from(bookmarks).limit(1);
-			return c.json({
-				message: "DB connection successful",
-				bookmarkCount: result.length,
-			});
-		} catch (error) {
-			return c.json(
-				{
-					message: "DB connection failed",
-					error: error instanceof Error ? error.message : String(error),
-				},
-				500,
-			);
-		}
-	});
-
-	// 最新ブックマーク確認エンドポイント
-	app.get("/api/dev/recent-bookmarks", async (c) => {
-		try {
-			const drizzleDb = drizzle(c.env.DB);
-			const recentBookmarks = await drizzleDb
-				.select()
-				.from(bookmarks)
-				.orderBy(desc(bookmarks.createdAt))
-				.limit(10);
-
-			return c.json({
-				success: true,
-				count: recentBookmarks.length,
-				bookmarks: recentBookmarks.map((b) => ({
-					id: b.id,
-					title: b.title,
-					url: b.url,
-					isRead: b.isRead,
-					createdAt: b.createdAt,
-				})),
-			});
-		} catch (error) {
-			return c.json(
-				{
-					success: false,
-					error: error instanceof Error ? error.message : String(error),
-				},
-				500,
-			);
-		}
-	});
 
 	return app;
 };
