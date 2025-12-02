@@ -3,7 +3,7 @@
  * 環境変数に基づいて適切なデータベース設定を返す
  */
 
-export interface DatabaseConfig {
+interface DatabaseConfig {
 	/** データベースURL */
 	url: string;
 	/** 環境名 */

@@ -31,7 +31,7 @@ const labelSchema: SchemaObject = {
 	},
 };
 
-export const openApiDocument: OpenAPIObject = {
+const openApiDocument: OpenAPIObject = {
 	openapi: "3.1.0",
 	info: {
 		title: "Yomimono API",
