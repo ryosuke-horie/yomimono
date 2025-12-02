@@ -8,6 +8,7 @@
 		"format": "biome check --write",
 		"knip": "knip",
 		"test": "vitest run",
+		"generate": "pnpm exec tsx src/scripts/generate-openapi.ts",
 		"d1:reset:local": "pnpm exec tsx src/scripts/reset-miniflare-d1.ts",
 		"migrate:dev:local": "wrangler d1 migrations apply yomimono-db-dev --local --env development",
 		"migrate:prod:remote": "wrangler d1 migrations apply yomimono-db --remote",
@@ -31,10 +32,12 @@
 		"happy-dom": "^20.0.10",
 		"knip": "^5.67.1",
 		"only-allow": "^1.2.1",
+		"openapi3-ts": "^4.5.0",
 		"tsx": "^4.20.6",
 		"typescript": "^5.9.3",
 		"vitest": "4.0.6",
-		"wrangler": "^4.45.3"
+		"wrangler": "^4.45.3",
+		"yaml": "^2.8.2"
 	},
 	"overrides": {
 		"esbuild": "^0.25.5"

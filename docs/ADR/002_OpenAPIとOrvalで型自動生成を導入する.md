@@ -10,7 +10,7 @@ API仕様を第三者や将来のMCPサーバ実装へ共有する手段も不�
 # 決定
 
 HonoベースのAPIからOpenAPI仕様を出力し、その仕様をOrvalで加工してフロントエンドおよびBFF用の型・クライアントコードを自動生成する。
-OpenAPIファイルは`api/openapi.yaml`を基準とし、`pnpm run openapi:gen`で更新、`pnpm run orval`で各パッケージに型を反映する運用を確立する。
+OpenAPI定義は`api/src/openapi/spec.ts`を唯一のソースとし、`cd api && pnpm run generate`で`api/openapi.yaml`を生成する。`cd frontend && pnpm run orval`でブラウザ向け/BFF向け/API向けの型・クライアントを一括生成する運用を確立する。
 
 # 影響
 

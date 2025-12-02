@@ -12,6 +12,7 @@
 			"!**/.wrangler",
 			"!**/coverage",
 			"!**/node_modules",
+			"!**/src/generated",
 			"!**/*.json",
 			"!**/*.mjs",
 			"!**/drizzle.config.ts",

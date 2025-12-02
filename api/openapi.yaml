@@ -1,0 +1,725 @@
+# THIS FILE IS GENERATED FROM src/openapi/spec.ts. DO NOT EDIT DIRECTLY.
+components:
+  responses:
+    Error:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+      description: エラーが発生した場合のレスポンス
+  schemas:
+    AssignLabelRequest:
+      properties:
+        labelName:
+          description: 付与するラベル名
+          type: string
+      required:
+        - labelName
+      type: object
+    AssignLabelResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessResponse"
+        - properties:
+            label:
+              $ref: "#/components/schemas/Label"
+          required:
+            - label
+          type: object
+    BatchLabelRequest:
+      properties:
+        articleIds:
+          items:
+            format: int64
+            type: integer
+          minItems: 1
+          type: array
+        description:
+          nullable: true
+          type: string
+        labelName:
+          type: string
+      required:
+        - articleIds
+        - labelName
+      type: object
+    BatchLabelResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessResponse"
+        - properties:
+            errors:
+              items:
+                properties:
+                  articleId:
+                    format: int64
+                    type: integer
+                  error:
+                    type: string
+                required:
+                  - articleId
+                  - error
+                type: object
+              type: array
+            label:
+              $ref: "#/components/schemas/Label"
+            skipped:
+              format: int32
+              type: integer
+            successful:
+              format: int32
+              type: integer
+          required:
+            - successful
+            - skipped
+            - errors
+            - label
+          type: object
+    Bookmark:
+      properties:
+        createdAt: &a1
+          description: ISO 8601 形式の日時
+          format: date-time
+          type: string
+        id: &a2
+          example: 1
+          format: int64
+          type: integer
+        isRead: &a5
+          type: boolean
+        title: &a4
+          nullable: true
+          type: string
+        updatedAt: *a1
+        url: &a3
+          format: uri
+          type: string
+      required:
+        - id
+        - url
+        - isRead
+        - createdAt
+        - updatedAt
+      type: object
+    BookmarkListResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessResponse"
+        - properties:
+            bookmarks:
+              items:
+                $ref: "#/components/schemas/BookmarkWithLabel"
+              type: array
+            todayReadCount:
+              format: int64
+              type: integer
+            totalUnread:
+              format: int64
+              type: integer
+          required:
+            - bookmarks
+          type: object
+    BookmarkWithLabel:
+      properties:
+        createdAt: *a1
+        id: *a2
+        isFavorite:
+          type: boolean
+        isRead: *a5
+        label:
+          allOf:
+            - $ref: "#/components/schemas/Label"
+          nullable: true
+        title: *a4
+        updatedAt: *a1
+        url: *a3
+      required:
+        - id
+        - url
+        - isRead
+        - createdAt
+        - updatedAt
+        - isFavorite
+      type: object
+    BulkBookmarksRequest:
+      properties:
+        bookmarks:
+          items:
+            properties:
+              title:
+                type: string
+              url:
+                format: uri
+                type: string
+            required:
+              - url
+              - title
+            type: object
+          minItems: 1
+          type: array
+      required:
+        - bookmarks
+      type: object
+    CreateLabelRequest:
+      properties:
+        description:
+          nullable: true
+          type: string
+        name:
+          type: string
+      required:
+        - name
+      type: object
+    ErrorResponse:
+      properties:
+        message:
+          type: string
+        success:
+          enum:
+            - false
+          type: boolean
+      required:
+        - success
+        - message
+      type: object
+    FavoriteBookmarksResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessResponse"
+        - properties:
+            bookmarks:
+              items:
+                $ref: "#/components/schemas/BookmarkWithLabel"
+              type: array
+            total:
+              format: int64
+              type: integer
+          required:
+            - bookmarks
+          type: object
+    Label:
+      properties:
+        createdAt: *a1
+        description:
+          nullable: true
+          type: string
+        id:
+          example: 1
+          format: int64
+          type: integer
+        name:
+          description: 正規化済みのラベル名
+          type: string
+        updatedAt: *a1
+      required:
+        - id
+        - name
+        - createdAt
+        - updatedAt
+      type: object
+    LabelCleanupResponse:
+      allOf:
+        - $ref: "#/components/schemas/MessageResponse"
+        - properties:
+            deletedCount:
+              format: int32
+              type: integer
+            deletedLabels:
+              items:
+                $ref: "#/components/schemas/Label"
+              type: array
+          required:
+            - deletedCount
+            - deletedLabels
+          type: object
+    LabelResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessResponse"
+        - properties:
+            label:
+              $ref: "#/components/schemas/Label"
+          required:
+            - label
+          type: object
+    LabelWithCount:
+      allOf:
+        - $ref: "#/components/schemas/Label"
+        - properties:
+            articleCount:
+              format: int64
+              type: integer
+          required:
+            - articleCount
+          type: object
+    LabelsResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessResponse"
+        - properties:
+            labels:
+              items:
+                $ref: "#/components/schemas/LabelWithCount"
+              type: array
+          required:
+            - labels
+          type: object
+    MessageResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessResponse"
+        - properties:
+            message:
+              type: string
+          required:
+            - message
+          type: object
+    RecentBookmarksResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessResponse"
+        - properties:
+            bookmarks:
+              additionalProperties:
+                items:
+                  $ref: "#/components/schemas/BookmarkWithLabel"
+                type: array
+              description: YYYY-MM-DD をキーにした既読ブックマークリスト
+              type: object
+          required:
+            - bookmarks
+          type: object
+    SuccessResponse:
+      properties:
+        success:
+          enum:
+            - true
+          type: boolean
+      required:
+        - success
+      type: object
+    UnlabeledBookmarksResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessResponse"
+        - properties:
+            bookmarks:
+              items:
+                $ref: "#/components/schemas/Bookmark"
+              type: array
+          required:
+            - bookmarks
+          type: object
+    UnratedBookmarksResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessResponse"
+        - properties:
+            bookmarks:
+              items:
+                $ref: "#/components/schemas/BookmarkWithLabel"
+              type: array
+          required:
+            - bookmarks
+          type: object
+    UpdateLabelRequest:
+      properties:
+        description:
+          nullable: true
+          type: string
+      required:
+        - description
+      type: object
+info:
+  description: |-
+    ブックマーク管理を行う Yomimono API の OpenAPI 定義。
+    このファイルは src/openapi/spec.ts を唯一のソースとして生成されます。
+  title: Yomimono API
+  version: 0.1.0
+openapi: 3.1.0
+paths:
+  /api/bookmarks:
+    get:
+      parameters:
+        - description: ラベル名でのフィルタ（正規化済みの値）
+          in: query
+          name: label
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookmarkListResponse"
+          description: 未読またはラベルで絞ったブックマーク一覧
+        "500":
+          $ref: "#/components/responses/Error"
+      summary: 未読ブックマーク一覧
+      tags:
+        - Bookmarks
+  /api/bookmarks/batch-label:
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BatchLabelRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BatchLabelResponse"
+          description: ラベル付け結果
+        "400":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+      summary: 複数記事にまとめてラベル付け
+      tags:
+        - Bookmarks
+  /api/bookmarks/bulk:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkBookmarksRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+          description: 登録処理を実行
+        "400":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+      summary: ブックマーク一括登録
+      tags:
+        - Bookmarks
+  /api/bookmarks/favorites:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FavoriteBookmarksResponse"
+          description: お気に入りのブックマーク一覧
+        "500":
+          $ref: "#/components/responses/Error"
+      summary: お気に入り一覧
+      tags:
+        - Bookmarks
+  /api/bookmarks/recent:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecentBookmarksResponse"
+          description: 日付ごとにグルーピングされた既読履歴
+        "500":
+          $ref: "#/components/responses/Error"
+      summary: 最近既読にしたブックマーク
+      tags:
+        - Bookmarks
+  /api/bookmarks/unlabeled:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnlabeledBookmarksResponse"
+          description: 未ラベルのブックマーク一覧
+        "500":
+          $ref: "#/components/responses/Error"
+      summary: 未ラベルの未読ブックマーク一覧
+      tags:
+        - Bookmarks
+  /api/bookmarks/unrated:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnratedBookmarksResponse"
+          description: 未評価のブックマーク一覧
+        "500":
+          $ref: "#/components/responses/Error"
+      summary: 未評価のブックマーク一覧
+      tags:
+        - Bookmarks
+  /api/bookmarks/{id}/favorite:
+    delete:
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: int64
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+          description: お気に入りから削除
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+      summary: お気に入り削除
+      tags:
+        - Bookmarks
+    post:
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: int64
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+          description: お気に入り登録完了
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+      summary: お気に入り追加
+      tags:
+        - Bookmarks
+  /api/bookmarks/{id}/label:
+    put:
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: int64
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignLabelRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssignLabelResponse"
+          description: 付与したラベルを返却
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+      summary: ブックマークへラベルを付与
+      tags:
+        - Bookmarks
+  /api/bookmarks/{id}/read:
+    patch:
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: int64
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+          description: 既読化完了
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+      summary: ブックマークを既読にする
+      tags:
+        - Bookmarks
+  /api/bookmarks/{id}/unread:
+    patch:
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: int64
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+          description: 未読へ戻した結果
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+      summary: ブックマークを未読に戻す
+      tags:
+        - Bookmarks
+  /api/labels:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LabelsResponse"
+          description: ラベルと件数の一覧
+        "500":
+          $ref: "#/components/responses/Error"
+      summary: ラベル一覧
+      tags:
+        - Labels
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLabelRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LabelResponse"
+          description: 作成したラベル
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+      summary: ラベル作成
+      tags:
+        - Labels
+  /api/labels/cleanup:
+    delete:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LabelCleanupResponse"
+          description: 削除件数を返却
+        "500":
+          $ref: "#/components/responses/Error"
+      summary: 未使用ラベルの一括削除
+      tags:
+        - Labels
+  /api/labels/{id}:
+    delete:
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: int64
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+          description: 削除完了メッセージ
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+      summary: ラベル削除
+      tags:
+        - Labels
+    get:
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: int64
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LabelResponse"
+          description: 対象ラベル
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+      summary: ID でラベル取得
+      tags:
+        - Labels
+    patch:
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: int64
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLabelRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LabelResponse"
+          description: 更新後のラベル
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+      summary: ラベル説明文の更新
+      tags:
+        - Labels
+servers:
+  - description: ローカル開発（wrangler dev）
+    url: http://localhost:8787
+  - description: 本番 API
+    url: https://api-yomimono.workers.dev
+tags:
+  - description: ブックマーク関連の操作
+    name: Bookmarks
+  - description: ラベル関連の操作
+    name: Labels

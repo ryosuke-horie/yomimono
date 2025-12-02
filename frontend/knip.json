@@ -11,7 +11,8 @@
 		"action_logs.zip",
 		"next.config.ci.mjs",
 		"open-next.config.ts",
-		"src/test-utils.tsx"
+		"src/test-utils.tsx",
+		"src/lib/openapi/**/*"
 	],
 	"ignoreDependencies": ["tailwindcss"],
 	"ignoreBinaries": ["only-allow"]

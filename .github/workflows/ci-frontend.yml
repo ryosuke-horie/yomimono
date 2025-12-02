@@ -37,8 +37,12 @@ jobs:
         working-directory: ./frontend
         run: |
           pnpm install
-          # ランナー環境で不足しがちなオプショナル依存関係を明示的にインストール
-          pnpm add @rollup/rollup-linux-x64-gnu --save-optional
+
+      - name: Generate OpenAPI clients
+        working-directory: ./frontend
+        run: |
+          pnpm run orval
+          git diff --exit-code src/lib/openapi ../api/src/generated
 
       - name: Run linter
         working-directory: ./frontend

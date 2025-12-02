@@ -14,6 +14,7 @@
 			"!**/.wrangler",
 			"!**/coverage",
 			"!**/node_modules",
+			"!src/lib/openapi",
 			"!**/*.json",
 			"!**/*.mjs",
 			"!src/app/globals.css"
