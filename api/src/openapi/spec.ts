@@ -55,22 +55,6 @@ export const openApiDocument: OpenAPIObject = {
 		{ name: "Developer", description: "開発・デバッグ向けエンドポイント" },
 	],
 	paths: {
-		"/health": {
-			get: {
-				tags: ["Developer"],
-				summary: "ヘルスチェック",
-				responses: {
-					200: {
-						description: "稼働中",
-						content: {
-							"application/json": {
-								schema: { $ref: "#/components/schemas/HealthResponse" },
-							},
-						},
-					},
-				},
-			},
-		},
 		"/api/bookmarks": {
 			get: {
 				tags: ["Bookmarks"],
@@ -1103,14 +1087,6 @@ export const openApiDocument: OpenAPIObject = {
 						},
 					},
 				],
-			},
-			HealthResponse: {
-				type: "object",
-				required: ["status", "timestamp"],
-				properties: {
-					status: { type: "string", example: "ok" },
-					timestamp: timestampSchema,
-				},
 			},
 		},
 		responses: {

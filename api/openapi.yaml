@@ -248,16 +248,6 @@ components:
           required:
             - bookmarks
           type: object
-    HealthResponse:
-      properties:
-        status:
-          example: ok
-          type: string
-        timestamp: *a1
-      required:
-        - status
-        - timestamp
-      type: object
     Label:
       properties:
         createdAt: *a1
@@ -1015,18 +1005,6 @@ paths:
       summary: ラベル説明文の更新
       tags:
         - Labels
-  /health:
-    get:
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HealthResponse"
-          description: 稼働中
-      summary: ヘルスチェック
-      tags:
-        - Developer
 servers:
   - description: ローカル開発（wrangler dev）
     url: http://localhost:8787

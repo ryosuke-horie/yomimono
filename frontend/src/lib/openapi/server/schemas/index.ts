@@ -31,7 +31,6 @@ export * from './errorResponse';
 export * from './favoriteBookmarksResponse';
 export * from './favoriteBookmarksResponseAllOf';
 export * from './getApiBookmarksParams';
-export * from './healthResponse';
 export * from './label';
 export * from './labelCleanupResponse';
 export * from './labelCleanupResponseAllOf';

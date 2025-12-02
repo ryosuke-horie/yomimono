@@ -65,14 +65,6 @@ export const createApp = (env: Env) => {
 	);
 	const seedService = new SeedService(db);
 
-	// ヘルスチェックエンドポイント - APIの稼働状況を確認するためのシンプルなエンドポイント
-	app.get("/health", (c) => {
-		return c.json({
-			status: "ok",
-			timestamp: new Date().toISOString(),
-		});
-	});
-
 	// ルーターのマウント
 	const bookmarksRouter = createBookmarksRouter(bookmarkService, labelService);
 	const labelsRouter = createLabelsRouter(labelService);

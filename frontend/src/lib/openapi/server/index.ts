@@ -19,7 +19,6 @@ import type {
   ErrorResponse,
   FavoriteBookmarksResponse,
   GetApiBookmarksParams,
-  HealthResponse,
   LabelCleanupResponse,
   LabelResponse,
   LabelsResponse,
@@ -1381,46 +1380,4 @@ export const patchApiLabelsId = async (id: number,
   
   const data: patchApiLabelsIdResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as patchApiLabelsIdResponse
-}
-
-
-
-/**
- * @summary ヘルスチェック
- */
-export type getHealthResponse200 = {
-  data: HealthResponse
-  status: 200
-}
-    
-export type getHealthResponseSuccess = (getHealthResponse200) & {
-  headers: Headers;
-};
-;
-
-export type getHealthResponse = (getHealthResponseSuccess)
-
-export const getGetHealthUrl = () => {
-
-
-  
-
-  return `/health`
-}
-
-export const getHealth = async ( options?: RequestInit): Promise<getHealthResponse> => {
-  
-  const res = await fetch(getGetHealthUrl(),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getHealthResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getHealthResponse
 }

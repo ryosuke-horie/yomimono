@@ -100,22 +100,6 @@ describe("開発用エンドポイント", () => {
 		});
 	});
 
-	describe("GET /health", () => {
-		it("ヘルスチェックレスポンスを返す", async () => {
-			app = createApp(env);
-			const req = new Request("http://localhost/health");
-			const res = await app.fetch(req, env);
-
-			expect(res.status).toBe(200);
-			const data = (await res.json()) as { status: string; timestamp: string };
-			expect(data).toHaveProperty("status", "ok");
-			expect(data).toHaveProperty("timestamp");
-			expect(typeof data.timestamp).toBe("string");
-			// タイムスタンプが有効なISO 8601形式であることを確認
-			expect(() => new Date(data.timestamp)).not.toThrow();
-		});
-	});
-
 	describe("GET /api/dev/recent-bookmarks", () => {
 		it("最新のブックマークを取得できる", async () => {
 			const mockBookmarks = [
