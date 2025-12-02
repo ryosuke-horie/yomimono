@@ -50,7 +50,6 @@ export const openApiDocument: OpenAPIObject = {
 		},
 	],
 	tags: [
-		{ name: "Health", description: "ヘルスチェック" },
 		{ name: "Bookmarks", description: "ブックマーク関連の操作" },
 		{ name: "Labels", description: "ラベル関連の操作" },
 		{ name: "Developer", description: "開発・デバッグ向けエンドポイント" },
@@ -58,7 +57,7 @@ export const openApiDocument: OpenAPIObject = {
 	paths: {
 		"/health": {
 			get: {
-				tags: ["Health"],
+				tags: ["Developer"],
 				summary: "ヘルスチェック",
 				responses: {
 					200: {

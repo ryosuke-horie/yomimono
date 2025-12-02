@@ -1026,15 +1026,13 @@ paths:
           description: 稼働中
       summary: ヘルスチェック
       tags:
-        - Health
+        - Developer
 servers:
   - description: ローカル開発（wrangler dev）
     url: http://localhost:8787
   - description: 本番 API
     url: https://api-yomimono.workers.dev
 tags:
-  - description: ヘルスチェック
-    name: Health
   - description: ブックマーク関連の操作
     name: Bookmarks
   - description: ラベル関連の操作
