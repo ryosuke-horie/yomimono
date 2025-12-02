@@ -42,7 +42,7 @@
 		"@vitest/coverage-v8": "^4.0.6",
 		"@vitest/ui": "^4.0.6",
 		"jsdom": "^27.1.0",
-		"knip": "^5.68.0",
+		"knip": "^5.71.0",
 		"orval": "^7.17.0",
 		"postcss": "^8",
 		"postcss-load-config": "^6.0.1",
