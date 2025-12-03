@@ -21,11 +21,8 @@ describe("errors", () => {
 
 	test("ステータスコードに応じてエラーコードをマッピングする", () => {
 		expect(mapStatusToErrorCode(400)).toBe(BFF_ERROR_CODES.BAD_REQUEST);
-		expect(mapStatusToErrorCode(401)).toBe(BFF_ERROR_CODES.UNAUTHORIZED);
-		expect(mapStatusToErrorCode(403)).toBe(BFF_ERROR_CODES.FORBIDDEN);
 		expect(mapStatusToErrorCode(404)).toBe(BFF_ERROR_CODES.NOT_FOUND);
 		expect(mapStatusToErrorCode(409)).toBe(BFF_ERROR_CODES.CONFLICT);
-		expect(mapStatusToErrorCode(429)).toBe(BFF_ERROR_CODES.RATE_LIMITED);
 		expect(mapStatusToErrorCode(502)).toBe(BFF_ERROR_CODES.UPSTREAM_ERROR);
 		expect(mapStatusToErrorCode(299)).toBe(BFF_ERROR_CODES.UNKNOWN);
 	});

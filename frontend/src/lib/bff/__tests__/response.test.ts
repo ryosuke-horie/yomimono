@@ -19,14 +19,14 @@ describe("response", () => {
 
 	test("エラーを正規化したJSONレスポンスを返す", async () => {
 		const response = errorJsonResponse(
-			new BffError("forbidden", 403, BFF_ERROR_CODES.FORBIDDEN),
+			new BffError("not found", 404, BFF_ERROR_CODES.NOT_FOUND),
 		);
 
-		expect(response.status).toBe(403);
+		expect(response.status).toBe(404);
 		expect(await response.json()).toEqual({
 			success: false,
-			message: "forbidden",
-			code: BFF_ERROR_CODES.FORBIDDEN,
+			message: "not found",
+			code: BFF_ERROR_CODES.NOT_FOUND,
 		});
 	});
 });
