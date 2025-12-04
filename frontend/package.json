@@ -48,7 +48,7 @@
 		"postcss": "^8",
 		"postcss-load-config": "^6.0.1",
 		"tailwindcss": "^4.1.16",
-		"typescript": "^5.9.3",
+		"typescript": "5.9.3",
 		"vite-tsconfig-paths": "^5.1.4",
 		"vitest": "^4.0.6",
 		"wrangler": "^4.45.3"

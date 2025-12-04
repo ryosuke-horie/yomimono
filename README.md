@@ -11,6 +11,12 @@
 - 依存関係のインストールやスクリプト実行は、各パッケージディレクトリに移動して `pnpm` を利用してください。
 - ルートには `.env` を配置し、必要に応じて各パッケージの `.env.example` をコピーして利用します。
 
+## BFF共通部品の使い方
+- サーバー専用クライアント: `frontend/src/lib/bff/client.ts` の `fetchFromApi` に Orvalサーバー生成物のURLビルダー（例: `getGetApiBookmarksUrl`）を渡す。`revalidateSeconds` で `next.revalidate`、デフォルトは `cache: "no-store"`。
+- エラー正規化: `frontend/src/lib/bff/errors.ts` の `normalizeUpstreamError` と `errorJsonResponse` で `{ success: false, message, code }` に統一。
+- 環境変数: 外部APIのURL/キーは `BFF_API_BASE_URL`/`BFF_API_KEY`（サーバー専用）に置き、`NEXT_PUBLIC_*` には機密情報を入れない。
+- キャッシュ方針: `buildCacheControl` で `maxAge`/`staleWhileRevalidate` を付与してレスポンスヘッダーを一元管理。
+
 ### API
 ```bash
 cd api
