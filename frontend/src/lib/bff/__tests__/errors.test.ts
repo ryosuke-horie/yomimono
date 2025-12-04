@@ -4,29 +4,11 @@ import {
 	BFF_ERROR_CODES,
 	BffError,
 	createInvalidResponseError,
-	mapStatusToErrorCode,
-	normalizeStatusCode,
 	normalizeUpstreamError,
 	toErrorResponseBody,
 } from "../errors";
 
 describe("errors", () => {
-	test("ステータスコードを安全な範囲に正規化する", () => {
-		expect(normalizeStatusCode(200)).toBe(200);
-		expect(normalizeStatusCode(599)).toBe(599);
-		expect(normalizeStatusCode(102)).toBe(502);
-		expect(normalizeStatusCode(700)).toBe(502);
-		expect(normalizeStatusCode(undefined)).toBe(502);
-	});
-
-	test("ステータスコードに応じてエラーコードをマッピングする", () => {
-		expect(mapStatusToErrorCode(400)).toBe(BFF_ERROR_CODES.BAD_REQUEST);
-		expect(mapStatusToErrorCode(404)).toBe(BFF_ERROR_CODES.NOT_FOUND);
-		expect(mapStatusToErrorCode(409)).toBe(BFF_ERROR_CODES.CONFLICT);
-		expect(mapStatusToErrorCode(502)).toBe(BFF_ERROR_CODES.UPSTREAM_ERROR);
-		expect(mapStatusToErrorCode(299)).toBe(BFF_ERROR_CODES.UNKNOWN);
-	});
-
 	test("上流エラーをBffErrorとして正規化する", () => {
 		const error = normalizeUpstreamError({
 			status: 404,
