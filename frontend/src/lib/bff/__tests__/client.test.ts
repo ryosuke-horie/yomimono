@@ -41,4 +41,24 @@ describe("client", () => {
 			status: 502,
 		});
 	});
+
+	test("revalidateSecondsを指定するとforce-cacheで再検証が有効になる", async () => {
+		const mockFetch = vi.fn().mockResolvedValue(
+			new Response(JSON.stringify({ ok: true }), {
+				status: 200,
+			}),
+		);
+
+		global.fetch = mockFetch as unknown as typeof fetch;
+
+		await fetchFromApi("/api/bookmarks", { revalidateSeconds: 30 });
+
+		expect(mockFetch).toHaveBeenCalledWith(
+			expect.any(String),
+			expect.objectContaining({
+				cache: "force-cache",
+				next: { revalidate: 30 },
+			}),
+		);
+	});
 });

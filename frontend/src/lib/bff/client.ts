@@ -55,6 +55,9 @@ export async function fetchFromApi<TSuccess, TError = ErrorResponse>(
 ): Promise<BffFetchResult<TSuccess>> {
 	const url = buildUrl(path);
 	const mergedHeaders = mergeHeaders(body, headers);
+	const cache =
+		init.cache ??
+		(revalidateSeconds !== undefined ? "force-cache" : "no-store");
 
 	let serializedBody: BodyInit | undefined;
 
@@ -67,7 +70,7 @@ export async function fetchFromApi<TSuccess, TError = ErrorResponse>(
 
 	const requestInit: RequestInit = {
 		method: init.method ?? "GET",
-		cache: init.cache ?? "no-store",
+		cache,
 		headers: mergedHeaders,
 		body: serializedBody,
 		...init,
