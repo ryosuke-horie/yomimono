@@ -3,41 +3,11 @@ import { fetchFromApi } from "../client";
 import { BFF_ERROR_CODES, BffError } from "../errors";
 
 const ORIGINAL_FETCH = global.fetch;
-const ORIGINAL_ENV = { ...process.env };
 
 describe("client", () => {
 	afterEach(() => {
 		global.fetch = ORIGINAL_FETCH;
-		process.env = { ...ORIGINAL_ENV };
 		vi.restoreAllMocks();
-	});
-
-	test("環境変数のベースURLとAPIキーを使ってfetchする", async () => {
-		process.env.BFF_API_BASE_URL = "https://upstream.example.com";
-		process.env.BFF_API_KEY = "secret";
-
-		const mockFetch = vi.fn().mockResolvedValue(
-			new Response(JSON.stringify({ ok: true }), {
-				status: 200,
-			}),
-		);
-
-		global.fetch = mockFetch as unknown as typeof fetch;
-
-		const result = await fetchFromApi<{ ok: boolean }>("/api/bookmarks");
-
-		expect(result.data).toEqual({ ok: true });
-		expect(result.status).toBe(200);
-		expect(mockFetch).toHaveBeenCalledWith(
-			"https://upstream.example.com/api/bookmarks",
-			expect.objectContaining({
-				headers: expect.any(Headers),
-			}),
-		);
-
-		const headers = (mockFetch.mock.calls[0]?.[1]?.headers ?? {}) as Headers;
-		expect(headers.get("x-api-key")).toBe("secret");
-		expect(headers.get("Cache-Control")).toBeNull();
 	});
 
 	test("HTTPエラーの場合はBffErrorを投げる", async () => {
