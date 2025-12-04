@@ -34,5 +34,3 @@ export function buildCacheControl(policy: CacheControlPolicy = {}): string {
 
 	return directives.join(", ");
 }
-
-export const DEFAULT_CACHE_CONTROL = buildCacheControl();

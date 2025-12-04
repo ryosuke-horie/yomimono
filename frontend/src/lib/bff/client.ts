@@ -17,7 +17,7 @@ interface BffRequestInit extends Omit<RequestInit, "body"> {
 	body?: BodyInitValue;
 }
 
-export interface BffFetchResult<T> {
+interface BffFetchResult<T> {
 	data: T;
 	status: number;
 	headers: Headers;

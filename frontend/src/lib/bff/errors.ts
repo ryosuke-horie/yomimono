@@ -11,8 +11,7 @@ export const BFF_ERROR_CODES = {
 	UNKNOWN: "UNKNOWN",
 } as const;
 
-export type BffErrorCode =
-	(typeof BFF_ERROR_CODES)[keyof typeof BFF_ERROR_CODES];
+type BffErrorCode = (typeof BFF_ERROR_CODES)[keyof typeof BFF_ERROR_CODES];
 
 const ERROR_MESSAGES: Record<BffErrorCode, string> = {
 	[BFF_ERROR_CODES.BAD_REQUEST]: "リクエスト内容が不正です。",
@@ -50,7 +49,7 @@ export function normalizeStatusCode(status?: number): number {
 	return status;
 }
 
-export function mapStatusToErrorCode(status: number): BffErrorCode {
+function mapStatusToErrorCode(status: number): BffErrorCode {
 	const normalized = normalizeStatusCode(status);
 
 	if (normalized === 400 || normalized === 422)
@@ -130,8 +129,4 @@ export function toErrorResponseBody(error: unknown): {
 		},
 		status: 500,
 	};
-}
-
-export function getErrorMessage(code: BffErrorCode): string {
-	return ERROR_MESSAGES[code];
 }
