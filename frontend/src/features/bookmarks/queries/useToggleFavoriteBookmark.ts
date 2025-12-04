@@ -33,9 +33,9 @@ export const useToggleFavoriteBookmark = (options?: QueryToastOptions) => {
 			await queryClient.cancelQueries({ queryKey: bookmarkKeys.all });
 
 			// ロールバック用に現在の未読リストキャッシュを保存
-			const previousUnreadData = queryClient.getQueryData<BookmarksData>(
-				bookmarkKeys.list("unread"),
-			);
+			const previousUnreadEntries = queryClient.getQueriesData<BookmarksData>({
+				queryKey: bookmarkKeys.list("unread"),
+			});
 			// ロールバック用にお気に入りリストキャッシュを保存
 			const previousFavoriteData = queryClient.getQueryData<Bookmark[]>(
 				bookmarkKeys.list("favorites"),
@@ -46,22 +46,20 @@ export const useToggleFavoriteBookmark = (options?: QueryToastOptions) => {
 			}>(bookmarkKeys.list("recent"));
 
 			// 未読リストキャッシュを即時更新 (isFavorite を反転)
-			if (previousUnreadData) {
-				queryClient.setQueryData<BookmarksData | undefined>(
-					bookmarkKeys.list("unread"),
-					(oldData) =>
-						oldData
-							? {
-									...oldData,
-									bookmarks: oldData.bookmarks.map((bookmark) =>
-										bookmark.id === id
-											? { ...bookmark, isFavorite: newIsFavorite }
-											: bookmark,
-									),
-								}
-							: undefined,
-				);
-			}
+			queryClient.setQueriesData<BookmarksData | undefined>(
+				{ queryKey: bookmarkKeys.list("unread") },
+				(oldData) =>
+					oldData
+						? {
+								...oldData,
+								bookmarks: oldData.bookmarks.map((bookmark) =>
+									bookmark.id === id
+										? { ...bookmark, isFavorite: newIsFavorite }
+										: bookmark,
+								),
+							}
+						: oldData,
+			);
 
 			// お気に入りリストキャッシュを即時更新
 			if (previousFavoriteData) {
@@ -72,9 +70,11 @@ export const useToggleFavoriteBookmark = (options?: QueryToastOptions) => {
 						if (newIsFavorite) {
 							// お気に入りに追加する場合:
 							// 未読リストのキャッシュから該当ブックマークを探す (存在する場合)
-							const bookmarkToAdd = previousUnreadData?.bookmarks.find(
-								(b) => b.id === id,
-							);
+							const bookmarkToAdd = previousUnreadEntries
+								.map(([, data]) =>
+									data?.bookmarks.find((bookmark) => bookmark.id === id),
+								)
+								.find(Boolean);
 							// 見つからない、または既にお気に入りリストに追加済みの場合は何もしない
 							if (!bookmarkToAdd || oldData.some((b) => b.id === id)) {
 								return oldData;
@@ -108,7 +108,11 @@ export const useToggleFavoriteBookmark = (options?: QueryToastOptions) => {
 			}
 
 			// ロールバック用に全てのスナップショットをコンテキストとして返す
-			return { previousUnreadData, previousFavoriteData, previousRecentData };
+			return {
+				previousUnreadEntries,
+				previousFavoriteData,
+				previousRecentData,
+			};
 		},
 
 		// 成功時の処理
@@ -140,11 +144,10 @@ export const useToggleFavoriteBookmark = (options?: QueryToastOptions) => {
 				});
 			}
 			// 保存しておいたデータで両方のキャッシュを元に戻す (ロールバック)
-			if (context?.previousUnreadData) {
-				queryClient.setQueryData(
-					bookmarkKeys.list("unread"),
-					context.previousUnreadData,
-				);
+			if (context?.previousUnreadEntries) {
+				context.previousUnreadEntries.forEach(([queryKey, data]) => {
+					queryClient.setQueryData(queryKey, data);
+				});
 			}
 			if (context?.previousFavoriteData) {
 				queryClient.setQueryData(

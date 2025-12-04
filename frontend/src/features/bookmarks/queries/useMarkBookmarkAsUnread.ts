@@ -21,9 +21,9 @@ export const useMarkBookmarkAsUnread = (options?: QueryToastOptions) => {
 			await queryClient.cancelQueries({ queryKey: bookmarkKeys.all });
 
 			// ロールバック用に現在のキャッシュデータを保存
-			const previousUnreadData = queryClient.getQueryData<BookmarksData>(
-				bookmarkKeys.list("unread"),
-			);
+			const previousUnreadEntries = queryClient.getQueriesData<BookmarksData>({
+				queryKey: bookmarkKeys.list("unread"),
+			});
 			const previousFavoriteData = queryClient.getQueryData<
 				BookmarkWithLabel[]
 			>(bookmarkKeys.list("favorites"));
@@ -44,6 +44,12 @@ export const useMarkBookmarkAsUnread = (options?: QueryToastOptions) => {
 						bookmarkToUpdate = found;
 					}
 				}
+			}
+
+			if (!bookmarkToUpdate) {
+				bookmarkToUpdate = previousFavoriteData?.find(
+					(bookmark) => bookmark.id === bookmarkId,
+				);
 			}
 
 			// 最近読んだリストから該当のブックマークを削除
@@ -89,32 +95,60 @@ export const useMarkBookmarkAsUnread = (options?: QueryToastOptions) => {
 			}
 
 			// 未読リストに追加
-			if (previousUnreadData && bookmarkToUpdate) {
-				queryClient.setQueryData<BookmarksData | undefined>(
-					bookmarkKeys.list("unread"),
-					(oldData) => {
-						if (!oldData) return undefined;
+			if (bookmarkToUpdate) {
+				const getFilterLabel = (queryKey: readonly unknown[]) => {
+					const lastEntry = queryKey.at(-1);
+					if (
+						lastEntry &&
+						typeof lastEntry === "object" &&
+						"label" in lastEntry
+					) {
+						return (lastEntry as { label?: string | null }).label ?? null;
+					}
+					return null;
+				};
 
-						// 既存の未読リストにブックマークを追加
-						const updatedBookmark: BookmarkWithLabel = {
-							...bookmarkToUpdate,
-							isRead: false,
-						};
+				previousUnreadEntries.forEach(([queryKey]) => {
+					queryClient.setQueryData<BookmarksData | undefined>(
+						queryKey,
+						(oldData) => {
+							if (!oldData) return oldData;
 
-						return {
-							...oldData,
-							bookmarks: [updatedBookmark, ...oldData.bookmarks],
-							totalUnread: oldData.totalUnread + 1,
-							todayReadCount:
-								oldData.todayReadCount > 0 ? oldData.todayReadCount - 1 : 0,
-						};
-					},
-				);
+							const filterLabel = getFilterLabel(queryKey);
+							if (
+								filterLabel &&
+								bookmarkToUpdate?.label?.name !== filterLabel
+							) {
+								return oldData;
+							}
+
+							if (
+								oldData.bookmarks.some((bookmark) => bookmark.id === bookmarkId)
+							) {
+								return oldData;
+							}
+
+							const updatedBookmark: BookmarkWithLabel = {
+								...bookmarkToUpdate,
+								isRead: false,
+							};
+							const totalUnread = oldData.totalUnread ?? 0;
+							const todayReadCount = oldData.todayReadCount ?? 0;
+
+							return {
+								...oldData,
+								bookmarks: [updatedBookmark, ...oldData.bookmarks],
+								totalUnread: totalUnread + 1,
+								todayReadCount: todayReadCount > 0 ? todayReadCount - 1 : 0,
+							};
+						},
+					);
+				});
 			}
 
 			// ロールバック用データをコンテキストとして返す
 			return {
-				previousUnreadData,
+				previousUnreadEntries,
 				previousFavoriteData,
 				previousRecentData,
 				bookmarkToUpdate,
@@ -142,11 +176,10 @@ export const useMarkBookmarkAsUnread = (options?: QueryToastOptions) => {
 				});
 			}
 			// 保存しておいたデータでキャッシュを元に戻す (ロールバック)
-			if (context?.previousUnreadData) {
-				queryClient.setQueryData(
-					bookmarkKeys.list("unread"),
-					context.previousUnreadData,
-				);
+			if (context?.previousUnreadEntries) {
+				context.previousUnreadEntries.forEach(([queryKey, data]) => {
+					queryClient.setQueryData(queryKey, data);
+				});
 			}
 			// お気に入りリストのキャッシュもロールバック
 			if (context?.previousFavoriteData) {

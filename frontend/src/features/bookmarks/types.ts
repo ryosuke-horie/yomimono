@@ -1,18 +1,7 @@
+import type { BookmarkWithLabel as OpenApiBookmarkWithLabel } from "@/lib/openapi/browser/schemas";
+
 /**
- * ブックマーク関連の型定義
+ * OpenAPI 生成型を参照したブックマーク型
  */
-import type { Label } from "../labels/types";
-
-export interface Bookmark {
-	id: number;
-	url: string;
-	title: string | null;
-	isRead: boolean;
-	isFavorite: boolean;
-	createdAt: string;
-	updatedAt: string;
-}
-
-export interface BookmarkWithLabel extends Bookmark {
-	label: Label | null;
-}
+export type Bookmark = OpenApiBookmarkWithLabel;
+export type BookmarkWithLabel = OpenApiBookmarkWithLabel;

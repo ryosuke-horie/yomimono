@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
+import type { BookmarkWithLabel } from "../types";
 import { ToastProvider } from "@/providers/ToastProvider";
 import { BookmarksList } from "./BookmarksList";
 
@@ -16,21 +17,19 @@ const createTestQueryClient = () =>
 		},
 	});
 
-const mockBookmark = {
+const mockBookmark: BookmarkWithLabel = {
 	id: 1,
 	url: "https://example.com",
 	title: "Test Bookmark",
 	isRead: false,
 	isFavorite: false,
-	summary: null,
-	summaryCreatedAt: null,
-	summaryUpdatedAt: null,
 	createdAt: "2024-01-01T00:00:00Z",
 	updatedAt: "2024-01-01T00:00:00Z",
 	label: {
 		id: 1,
 		name: "テスト",
-		color: "blue",
+		createdAt: "2024-01-01T00:00:00Z",
+		updatedAt: "2024-01-01T00:00:00Z",
 	},
 };
 
