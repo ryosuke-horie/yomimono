@@ -38,6 +38,7 @@ describe("client", () => {
 
 		await expect(fetchFromApi("/api/bookmarks")).rejects.toMatchObject({
 			code: BFF_ERROR_CODES.INVALID_RESPONSE,
+			status: 502,
 		});
 	});
 });

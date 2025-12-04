@@ -87,9 +87,10 @@ export function createInvalidResponseError(
 	cause?: unknown,
 ): BffError {
 	const normalizedStatus = normalizeStatusCode(status);
+	const errorStatus = normalizedStatus >= 500 ? normalizedStatus : 502;
 	return new BffError(
 		ERROR_MESSAGES[BFF_ERROR_CODES.INVALID_RESPONSE],
-		normalizedStatus,
+		errorStatus,
 		BFF_ERROR_CODES.INVALID_RESPONSE,
 		cause,
 	);

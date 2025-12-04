@@ -31,6 +31,12 @@ describe("errors", () => {
 		expect(error.message).toBe("上流APIのレスポンスを解析できませんでした。");
 	});
 
+	test("200系でも解析不能なら502として扱う", () => {
+		const error = createInvalidResponseError(200, { raw: "invalid" });
+		expect(error.code).toBe(BFF_ERROR_CODES.INVALID_RESPONSE);
+		expect(error.status).toBe(502);
+	});
+
 	test("BffError以外もエラーレスポンスボディに変換する", () => {
 		const normalized = toErrorResponseBody(
 			new BffError("bad request", 400, BFF_ERROR_CODES.BAD_REQUEST),
