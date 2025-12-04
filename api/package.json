@@ -31,7 +31,7 @@
 		"drizzle-kit": "^0.31.6",
 		"happy-dom": "^20.0.11",
 		"knip": "^5.67.1",
-		"only-allow": "^1.2.1",
+		"only-allow": "^1.2.2",
 		"openapi3-ts": "^4.5.0",
 		"tsx": "^4.20.6",
 		"typescript": "^5.9.3",
