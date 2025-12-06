@@ -18,12 +18,12 @@ updates:
         patterns:
           # 静的解析・コード品質ツール(CIのみで検証可能)
           - "@biomejs/biome"
-          - "typescript"
-          - "@types/*"
           - "knip"
       dev-tools:
         patterns:
           - "concurrently"
+          - "typescript"
+          - "@types/*"
 
   - package-ecosystem: "npm"
     directory: "/frontend"
@@ -60,9 +60,11 @@ updates:
         patterns:
           # 静的解析・コード品質ツール(CIのみで検証可能)
           - "@biomejs/biome"
+          - "knip"
+      dev-tools:
+        patterns:
           - "typescript"
           - "@types/*"
-          - "knip"
           - "orval"  # OpenAPIクライアントコード生成ツール(frontend専用)
       testing-frameworks:
         patterns:
@@ -108,12 +110,14 @@ updates:
         patterns:
           # 静的解析・コード品質ツール(CIのみで検証可能)
           - "@biomejs/biome"
-          - "typescript"
-          - "@types/*"
           - "knip"
           - "tsx"  # TypeScript実行ツール(api専用)
-          - "openapi3-ts"  # OpenAPIスキーマツール(api専用)
-          - "yaml"  # YAML処理ツール(api専用)
+      dev-tools:
+        patterns:
+          - "typescript"
+          - "@types/*"
+          - "openapi3-ts"  # OpenAPIスキーマ生成ツール
+          - "yaml"  # YAML処理ツール
       testing-frameworks:
         patterns:
           # テスト関連パッケージ
@@ -144,9 +148,11 @@ updates:
         patterns:
           # 静的解析・コード品質ツール(CIのみで検証可能)
           - "@biomejs/biome"
+          - "knip"
+      dev-tools:
+        patterns:
           - "typescript"
           - "@types/*"
-          - "knip"
 
   # MCPディレクトリの依存関係を管理
   - package-ecosystem: "npm"
@@ -173,9 +179,11 @@ updates:
         patterns:
           # 静的解析・コード品質ツール(CIのみで検証可能)
           - "@biomejs/biome"
+          - "knip"
+      dev-tools:
+        patterns:
           - "typescript"
           - "@types/*"
-          - "knip"
       testing-frameworks:
         patterns:
           # vitestとその関連パッケージ
