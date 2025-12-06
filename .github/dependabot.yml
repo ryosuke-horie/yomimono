@@ -14,9 +14,16 @@ updates:
     assignees:
       - "ryosuke-horie"
     groups:
+      static-analysis:
+        patterns:
+          # 静的解析・コード品質ツール(CIのみで検証可能)
+          - "@biomejs/biome"
+          - "knip"
       dev-tools:
         patterns:
           - "concurrently"
+          - "typescript"
+          - "@types/*"
 
   - package-ecosystem: "npm"
     directory: "/frontend"
@@ -40,8 +47,6 @@ updates:
           - "@types/react"
           - "@types/react-dom"
           - "@tanstack/react-query"
-          - "typescript"
-          - "@types/node"
           # Cloudflareデプロイメント関連
           - "wrangler"
           - "@opennextjs/cloudflare"
@@ -51,10 +56,16 @@ updates:
           - "@tailwindcss/postcss"
           - "postcss"
           - "postcss-load-config"
+      static-analysis:
+        patterns:
+          # 静的解析・コード品質ツール(CIのみで検証可能)
+          - "@biomejs/biome"
+          - "knip"
       dev-tools:
         patterns:
-          # 開発ツール関連
-          - "@biomejs/biome"
+          - "typescript"
+          - "@types/*"
+          - "orval"  # OpenAPIクライアントコード生成ツール(frontend専用)
       testing-frameworks:
         patterns:
           # テスト関連パッケージ
@@ -90,13 +101,23 @@ updates:
           - "drizzle-orm"
           - "dotenv"
           - "fast-xml-parser"
-          - "typescript"
-          - "@types/node"
           # Cloudflare関連のデプロイメント
           - "wrangler"
           - "@cloudflare/workers-types"
           # データベース関連ツール
           - "drizzle-kit"
+      static-analysis:
+        patterns:
+          # 静的解析・コード品質ツール(CIのみで検証可能)
+          - "@biomejs/biome"
+          - "knip"
+          - "tsx"  # TypeScript実行ツール(api専用)
+      dev-tools:
+        patterns:
+          - "typescript"
+          - "@types/*"
+          - "openapi3-ts"  # OpenAPIスキーマ生成ツール
+          - "yaml"  # YAML処理ツール
       testing-frameworks:
         patterns:
           # テスト関連パッケージ
@@ -107,10 +128,6 @@ updates:
           - "major"
           - "minor"
           - "patch"
-      code-quality:
-        patterns:
-          # コード品質管理ツール
-          - "@biomejs/biome"
 
   # Extensionディレクトリの依存関係を管理
   - package-ecosystem: "npm"
@@ -127,11 +144,15 @@ updates:
       - "ryosuke-horie"
     # ここで特定パッケージをグルーピング
     groups:
-      devdependencies:
+      static-analysis:
         patterns:
+          # 静的解析・コード品質ツール(CIのみで検証可能)
           - "@biomejs/biome"
-          - "@types/node"
+          - "knip"
+      dev-tools:
+        patterns:
           - "typescript"
+          - "@types/*"
 
   # MCPディレクトリの依存関係を管理
   - package-ecosystem: "npm"
@@ -153,8 +174,17 @@ updates:
           # コアとなるMCPライブラリ
           - "@modelcontextprotocol/sdk"
           - "zod"
+          - "dotenv"
+      static-analysis:
+        patterns:
+          # 静的解析・コード品質ツール(CIのみで検証可能)
+          - "@biomejs/biome"
+          - "knip"
+      dev-tools:
+        patterns:
           - "typescript"
-      vitest-ecosystem:
+          - "@types/*"
+      testing-frameworks:
         patterns:
           # vitestとその関連パッケージ
           - "vitest"
@@ -163,11 +193,6 @@ updates:
           - "major"
           - "minor"
           - "patch"
-      dev-tools:
-        patterns:
-          # 開発ツール関連
-          - "@types/bun"
-          - "dotenv"
 
   # GitHub Actionsの依存関係を管理
   - package-ecosystem: "github-actions"
