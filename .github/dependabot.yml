@@ -144,8 +144,8 @@ updates:
         patterns:
           # 静的解析・コード品質ツール(CIのみで検証可能)
           - "@biomejs/biome"
-          - "@types/*"
           - "typescript"
+          - "@types/*"
           - "knip"
 
   # MCPディレクトリの依存関係を管理
