@@ -14,6 +14,13 @@ updates:
     assignees:
       - "ryosuke-horie"
     groups:
+      static-analysis:
+        patterns:
+          # 静的解析・コード品質ツール(CIのみで検証可能)
+          - "@biomejs/biome"
+          - "typescript"
+          - "@types/*"
+          - "knip"
       dev-tools:
         patterns:
           - "concurrently"
@@ -40,8 +47,6 @@ updates:
           - "@types/react"
           - "@types/react-dom"
           - "@tanstack/react-query"
-          - "typescript"
-          - "@types/node"
           # Cloudflareデプロイメント関連
           - "wrangler"
           - "@opennextjs/cloudflare"
@@ -51,10 +56,14 @@ updates:
           - "@tailwindcss/postcss"
           - "postcss"
           - "postcss-load-config"
-      dev-tools:
+      static-analysis:
         patterns:
-          # 開発ツール関連
+          # 静的解析・コード品質ツール(CIのみで検証可能)
           - "@biomejs/biome"
+          - "typescript"
+          - "@types/node"
+          - "knip"
+          - "orval"
       testing-frameworks:
         patterns:
           # テスト関連パッケージ
@@ -90,13 +99,21 @@ updates:
           - "drizzle-orm"
           - "dotenv"
           - "fast-xml-parser"
-          - "typescript"
-          - "@types/node"
           # Cloudflare関連のデプロイメント
           - "wrangler"
           - "@cloudflare/workers-types"
           # データベース関連ツール
           - "drizzle-kit"
+      static-analysis:
+        patterns:
+          # 静的解析・コード品質ツール(CIのみで検証可能)
+          - "@biomejs/biome"
+          - "typescript"
+          - "@types/node"
+          - "knip"
+          - "tsx"
+          - "openapi3-ts"
+          - "yaml"
       testing-frameworks:
         patterns:
           # テスト関連パッケージ
@@ -107,10 +124,6 @@ updates:
           - "major"
           - "minor"
           - "patch"
-      code-quality:
-        patterns:
-          # コード品質管理ツール
-          - "@biomejs/biome"
 
   # Extensionディレクトリの依存関係を管理
   - package-ecosystem: "npm"
@@ -127,11 +140,13 @@ updates:
       - "ryosuke-horie"
     # ここで特定パッケージをグルーピング
     groups:
-      devdependencies:
+      static-analysis:
         patterns:
+          # 静的解析・コード品質ツール(CIのみで検証可能)
           - "@biomejs/biome"
           - "@types/node"
           - "typescript"
+          - "knip"
 
   # MCPディレクトリの依存関係を管理
   - package-ecosystem: "npm"
@@ -153,8 +168,15 @@ updates:
           # コアとなるMCPライブラリ
           - "@modelcontextprotocol/sdk"
           - "zod"
+          - "dotenv"
+      static-analysis:
+        patterns:
+          # 静的解析・コード品質ツール(CIのみで検証可能)
+          - "@biomejs/biome"
           - "typescript"
-      vitest-ecosystem:
+          - "@types/*"
+          - "knip"
+      testing-frameworks:
         patterns:
           # vitestとその関連パッケージ
           - "vitest"
@@ -163,11 +185,6 @@ updates:
           - "major"
           - "minor"
           - "patch"
-      dev-tools:
-        patterns:
-          # 開発ツール関連
-          - "@types/bun"
-          - "dotenv"
 
   # GitHub Actionsの依存関係を管理
   - package-ecosystem: "github-actions"
