@@ -35,13 +35,14 @@ updates:
           - "postcss-load-config"
           # コード生成ツール
           - "orval"
+          # ビルドに必要なツール
+          - "typescript"
+          - "@types/node"
       dev-dependencies:
         patterns:
           # テスト・静的解析・コード品質ツール
           - "@biomejs/biome"
           - "knip"
-          - "typescript"
-          - "@types/node"
           - "vitest"
           - "@vitest/*"
           - "@testing-library/*"
@@ -81,20 +82,21 @@ updates:
           - "@cloudflare/workers-types"
           # データベース関連ツール
           - "drizzle-kit"
+          - "better-sqlite3"
+          # ビルドに必要なツール
+          - "typescript"
+          - "@types/*"
+          - "tsx"
       dev-dependencies:
         patterns:
           # テスト・静的解析・コード品質ツール
           - "@biomejs/biome"
           - "knip"
-          - "typescript"
-          - "@types/*"
-          - "tsx"
           - "vitest"
           - "@vitest/*"
           - "happy-dom"
           - "openapi3-ts"
           - "yaml"
-          - "better-sqlite3"
           - "only-allow"
         update-types:
           - "major"
@@ -116,13 +118,16 @@ updates:
       - "ryosuke-horie"
     # ここで特定パッケージをグルーピング
     groups:
+      production-dependencies:
+        patterns:
+          # ビルドに必要なツール
+          - "typescript"
+          - "@types/*"
       dev-dependencies:
         patterns:
           # テスト・静的解析・コード品質ツール
           - "@biomejs/biome"
           - "knip"
-          - "typescript"
-          - "@types/*"
 
   # MCPディレクトリの依存関係を管理
   - package-ecosystem: "npm"
@@ -145,13 +150,14 @@ updates:
           - "@modelcontextprotocol/sdk"
           - "zod"
           - "dotenv"
+          # ビルドに必要なツール
+          - "typescript"
+          - "@types/*"
       dev-dependencies:
         patterns:
           # テスト・静的解析・コード品質ツール
           - "@biomejs/biome"
           - "knip"
-          - "typescript"
-          - "@types/*"
           - "vitest"
           - "@vitest/*"
         update-types:
