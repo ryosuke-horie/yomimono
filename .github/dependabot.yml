@@ -1,30 +1,5 @@
 version: 2
 updates:
-  # ルートディレクトリの依存関係を管理
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "monthly"
-    commit-message:
-      prefix: "chore(root)"
-      prefix-development: "chore(root-dev)"
-      include: "scope"
-    reviewers:
-      - "ryosuke-horie"
-    assignees:
-      - "ryosuke-horie"
-    groups:
-      static-analysis:
-        patterns:
-          # 静的解析・コード品質ツール(CIのみで検証可能)
-          - "@biomejs/biome"
-          - "knip"
-      dev-tools:
-        patterns:
-          - "concurrently"
-          - "typescript"
-          - "@types/*"
-
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
@@ -38,7 +13,7 @@ updates:
     assignees:
       - "ryosuke-horie"
     groups:
-      core-dependencies:
+      production-dependencies:
         patterns:
           # Reactとそのエコシステム
           - "next"
@@ -47,6 +22,8 @@ updates:
           - "@types/react"
           - "@types/react-dom"
           - "@tanstack/react-query"
+          - "react-icons"
+          - "server-only"
           # Cloudflareデプロイメント関連
           - "wrangler"
           - "@opennextjs/cloudflare"
@@ -56,24 +33,22 @@ updates:
           - "@tailwindcss/postcss"
           - "postcss"
           - "postcss-load-config"
-      static-analysis:
+          # コード生成ツール
+          - "orval"
+      dev-dependencies:
         patterns:
-          # 静的解析・コード品質ツール(CIのみで検証可能)
+          # テスト・静的解析・コード品質ツール
           - "@biomejs/biome"
           - "knip"
-      dev-tools:
-        patterns:
           - "typescript"
-          - "@types/*"
-          - "orval"  # OpenAPIクライアントコード生成ツール(frontend専用)
-      testing-frameworks:
-        patterns:
-          # テスト関連パッケージ
+          - "@types/node"
           - "vitest"
           - "@vitest/*"
           - "@testing-library/*"
           - "jsdom"
           - "msw"
+          - "vite-tsconfig-paths"
+          - "@vitejs/plugin-react"
         update-types:
           - "major"
           - "minor"
@@ -94,7 +69,7 @@ updates:
       - "ryosuke-horie"
     # ここで特定パッケージをグルーピング
     groups:
-      core-dependencies:
+      production-dependencies:
         patterns:
           # コアとなる実行時依存パッケージ
           - "hono"
@@ -106,24 +81,21 @@ updates:
           - "@cloudflare/workers-types"
           # データベース関連ツール
           - "drizzle-kit"
-      static-analysis:
+      dev-dependencies:
         patterns:
-          # 静的解析・コード品質ツール(CIのみで検証可能)
+          # テスト・静的解析・コード品質ツール
           - "@biomejs/biome"
           - "knip"
-          - "tsx"  # TypeScript実行ツール(api専用)
-      dev-tools:
-        patterns:
           - "typescript"
           - "@types/*"
-          - "openapi3-ts"  # OpenAPIスキーマ生成ツール
-          - "yaml"  # YAML処理ツール
-      testing-frameworks:
-        patterns:
-          # テスト関連パッケージ
+          - "tsx"
           - "vitest"
           - "@vitest/*"
           - "happy-dom"
+          - "openapi3-ts"
+          - "yaml"
+          - "better-sqlite3"
+          - "only-allow"
         update-types:
           - "major"
           - "minor"
@@ -144,13 +116,11 @@ updates:
       - "ryosuke-horie"
     # ここで特定パッケージをグルーピング
     groups:
-      static-analysis:
+      dev-dependencies:
         patterns:
-          # 静的解析・コード品質ツール(CIのみで検証可能)
+          # テスト・静的解析・コード品質ツール
           - "@biomejs/biome"
           - "knip"
-      dev-tools:
-        patterns:
           - "typescript"
           - "@types/*"
 
@@ -169,24 +139,19 @@ updates:
       - "ryosuke-horie"
     # ここで特定パッケージをグルーピング
     groups:
-      core-dependencies:
+      production-dependencies:
         patterns:
           # コアとなるMCPライブラリ
           - "@modelcontextprotocol/sdk"
           - "zod"
           - "dotenv"
-      static-analysis:
+      dev-dependencies:
         patterns:
-          # 静的解析・コード品質ツール(CIのみで検証可能)
+          # テスト・静的解析・コード品質ツール
           - "@biomejs/biome"
           - "knip"
-      dev-tools:
-        patterns:
           - "typescript"
           - "@types/*"
-      testing-frameworks:
-        patterns:
-          # vitestとその関連パッケージ
           - "vitest"
           - "@vitest/*"
         update-types:
