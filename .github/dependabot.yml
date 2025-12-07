@@ -1,23 +1,5 @@
 version: 2
 updates:
-  # ルートディレクトリの依存関係を管理
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "monthly"
-    commit-message:
-      prefix: "chore(root)"
-      prefix-development: "chore(root-dev)"
-      include: "scope"
-    reviewers:
-      - "ryosuke-horie"
-    assignees:
-      - "ryosuke-horie"
-    groups:
-      dev-tools:
-        patterns:
-          - "concurrently"
-
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
@@ -31,7 +13,7 @@ updates:
     assignees:
       - "ryosuke-horie"
     groups:
-      core-dependencies:
+      production-dependencies:
         patterns:
           # Reactとそのエコシステム
           - "next"
@@ -40,8 +22,8 @@ updates:
           - "@types/react"
           - "@types/react-dom"
           - "@tanstack/react-query"
-          - "typescript"
-          - "@types/node"
+          - "react-icons"
+          - "server-only"
           # Cloudflareデプロイメント関連
           - "wrangler"
           - "@opennextjs/cloudflare"
@@ -51,18 +33,23 @@ updates:
           - "@tailwindcss/postcss"
           - "postcss"
           - "postcss-load-config"
-      dev-tools:
+          # コード生成ツール
+          - "orval"
+          # ビルドに必要なツール
+          - "typescript"
+          - "@types/node"
+      dev-dependencies:
         patterns:
-          # 開発ツール関連
+          # テスト・静的解析・コード品質ツール
           - "@biomejs/biome"
-      testing-frameworks:
-        patterns:
-          # テスト関連パッケージ
+          - "knip"
           - "vitest"
           - "@vitest/*"
           - "@testing-library/*"
           - "jsdom"
           - "msw"
+          - "vite-tsconfig-paths"
+          - "@vitejs/plugin-react"
         update-types:
           - "major"
           - "minor"
@@ -83,34 +70,38 @@ updates:
       - "ryosuke-horie"
     # ここで特定パッケージをグルーピング
     groups:
-      core-dependencies:
+      production-dependencies:
         patterns:
           # コアとなる実行時依存パッケージ
           - "hono"
           - "drizzle-orm"
           - "dotenv"
           - "fast-xml-parser"
-          - "typescript"
-          - "@types/node"
           # Cloudflare関連のデプロイメント
           - "wrangler"
           - "@cloudflare/workers-types"
           # データベース関連ツール
           - "drizzle-kit"
-      testing-frameworks:
+          - "better-sqlite3"
+          # ビルドに必要なツール
+          - "typescript"
+          - "@types/*"
+          - "tsx"
+      dev-dependencies:
         patterns:
-          # テスト関連パッケージ
+          # テスト・静的解析・コード品質ツール
+          - "@biomejs/biome"
+          - "knip"
           - "vitest"
           - "@vitest/*"
           - "happy-dom"
+          - "openapi3-ts"
+          - "yaml"
+          - "only-allow"
         update-types:
           - "major"
           - "minor"
           - "patch"
-      code-quality:
-        patterns:
-          # コード品質管理ツール
-          - "@biomejs/biome"
 
   # Extensionディレクトリの依存関係を管理
   - package-ecosystem: "npm"
@@ -127,11 +118,16 @@ updates:
       - "ryosuke-horie"
     # ここで特定パッケージをグルーピング
     groups:
-      devdependencies:
+      production-dependencies:
         patterns:
-          - "@biomejs/biome"
-          - "@types/node"
+          # ビルドに必要なツール
           - "typescript"
+          - "@types/*"
+      dev-dependencies:
+        patterns:
+          # テスト・静的解析・コード品質ツール
+          - "@biomejs/biome"
+          - "knip"
 
   # MCPディレクトリの依存関係を管理
   - package-ecosystem: "npm"
@@ -148,26 +144,26 @@ updates:
       - "ryosuke-horie"
     # ここで特定パッケージをグルーピング
     groups:
-      core-dependencies:
+      production-dependencies:
         patterns:
           # コアとなるMCPライブラリ
           - "@modelcontextprotocol/sdk"
           - "zod"
+          - "dotenv"
+          # ビルドに必要なツール
           - "typescript"
-      vitest-ecosystem:
+          - "@types/*"
+      dev-dependencies:
         patterns:
-          # vitestとその関連パッケージ
+          # テスト・静的解析・コード品質ツール
+          - "@biomejs/biome"
+          - "knip"
           - "vitest"
           - "@vitest/*"
         update-types:
           - "major"
           - "minor"
           - "patch"
-      dev-tools:
-        patterns:
-          # 開発ツール関連
-          - "@types/bun"
-          - "dotenv"
 
   # GitHub Actionsの依存関係を管理
   - package-ecosystem: "github-actions"
