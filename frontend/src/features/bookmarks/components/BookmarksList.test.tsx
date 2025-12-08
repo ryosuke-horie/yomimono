@@ -1,8 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
-import type { BookmarkWithLabel } from "../types";
 import { ToastProvider } from "@/providers/ToastProvider";
+import type { BookmarkWithLabel } from "../types";
 import { BookmarksList } from "./BookmarksList";
 
 const createTestQueryClient = () =>
