@@ -34,7 +34,6 @@ jobs:
           version: 9.14.4
 
       - name: Install dependencies
-        working-directory: ./frontend
         run: |
           pnpm install
 

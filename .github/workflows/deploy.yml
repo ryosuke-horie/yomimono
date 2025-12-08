@@ -21,17 +21,8 @@ jobs:
         with:
           version: 9.14.4
     
-      - name: API Install dependencies
-        run: |
-          rm -rf node_modules
-          pnpm install
-        working-directory: ./api
-
-      - name: Frontend Clean and Install dependencies
-        run: |
-          rm -rf node_modules pnpm-lock.yaml
-          pnpm install
-        working-directory: ./frontend
+      - name: Install dependencies
+        run: pnpm install
 
       - name: Deploy API
         uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
