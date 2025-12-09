@@ -126,7 +126,12 @@ describe("BookmarkCard", () => {
 	it("ラベルがある場合、ラベルを表示する", () => {
 		const bookmarkWithLabel = {
 			...mockBookmark,
-			label: { id: 1, name: "テストラベル" },
+			label: {
+				id: 1,
+				name: "テストラベル",
+				createdAt: "2024-01-01T00:00:00.000Z",
+				updatedAt: "2024-01-01T00:00:00.000Z",
+			},
 		};
 		renderWithQueryClient(<BookmarkCard bookmark={bookmarkWithLabel} />);
 
@@ -136,7 +141,12 @@ describe("BookmarkCard", () => {
 	it("ラベルクリックで登録済みラベルの選択肢を表示し、別ラベルを選べる", () => {
 		const bookmarkWithLabel = {
 			...mockBookmark,
-			label: { id: 1, name: "テストラベル" },
+			label: {
+				id: 1,
+				name: "テストラベル",
+				createdAt: "2024-01-01T00:00:00.000Z",
+				updatedAt: "2024-01-01T00:00:00.000Z",
+			},
 		};
 		const labels = [
 			{ id: 1, name: "テストラベル" },

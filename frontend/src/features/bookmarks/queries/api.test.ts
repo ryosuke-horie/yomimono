@@ -1,312 +1,199 @@
-/**
- * ブックマークAPIのテスト
- */
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import * as api from "./api";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	addBookmarkToFavorites,
+	assignLabelToBookmark,
+	createBookmark,
+	getBookmarks,
+	getFavoriteBookmarks,
+	getRecentlyReadBookmarks,
+	markBookmarkAsRead,
+	markBookmarkAsUnread,
+	removeBookmarkFromFavorites,
+} from "./api";
 
-// グローバルfetchのモック
+const ORIGINAL_FETCH = global.fetch;
 const mockFetch = vi.fn();
-global.fetch = mockFetch;
 
-describe("ブックマークAPI", () => {
-	beforeEach(() => {
-		vi.clearAllMocks();
+const createResponse = (data: unknown, status = 200) =>
+	new Response(JSON.stringify(data), {
+		status,
+		headers: { "Content-Type": "application/json" },
 	});
 
-	describe("createBookmark", () => {
-		it("正常にブックマークを作成する", async () => {
-			const mockResponse = {
+beforeEach(() => {
+	mockFetch.mockReset();
+	global.fetch = mockFetch as unknown as typeof fetch;
+});
+
+afterEach(() => {
+	global.fetch = ORIGINAL_FETCH;
+});
+
+describe("ブックマークAPI (BFF 経由)", () => {
+	it("ラベル指定でブックマークリストを取得する", async () => {
+		mockFetch.mockResolvedValueOnce(
+			createResponse({
 				success: true,
-			};
-
-			mockFetch.mockResolvedValueOnce({
-				ok: true,
-				json: () => Promise.resolve(mockResponse),
-			});
-
-			await api.createBookmark({
-				title: "テスト記事",
-				url: "https://example.com",
-			});
-
-			expect(mockFetch).toHaveBeenCalledWith(
-				expect.stringContaining("/api/bookmarks/bulk"),
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
+				bookmarks: [
+					{
+						id: 1,
+						title: "test",
+						url: "https://example.com",
+						isRead: false,
+						isFavorite: false,
+						label: null,
+						createdAt: "2024-01-01T00:00:00.000Z",
+						updatedAt: "2024-01-01T00:00:00.000Z",
 					},
-					body: JSON.stringify({
-						bookmarks: [
-							{
-								title: "テスト記事",
-								url: "https://example.com",
-							},
-						],
-					}),
-				},
-			);
-		});
+				],
+				totalUnread: 5,
+				todayReadCount: 1,
+			}),
+		);
 
-		it("作成に失敗した場合エラーを投げる", async () => {
-			mockFetch.mockResolvedValueOnce({
-				ok: false,
-				status: 400,
-				json: () =>
-					Promise.resolve({
-						success: false,
-						message: "Invalid data",
-					}),
-			});
+		const result = await getBookmarks("tech");
 
-			await expect(
-				api.createBookmark({
-					title: "テスト記事",
-					url: "https://example.com",
-				}),
-			).rejects.toThrow("Invalid data");
+		expect(result.bookmarks[0]).toMatchObject({
+			id: 1,
+			url: "https://example.com",
 		});
+		expect(mockFetch).toHaveBeenCalledWith(
+			"/api/bookmarks?label=tech",
+			expect.objectContaining({ method: "GET" }),
+		);
 	});
 
-	describe("getRecentlyReadBookmarks", () => {
-		it("正常に最近のブックマークを取得する", async () => {
-			const mockResponse = {
+	it("エラーレスポンスは例外として扱う", async () => {
+		mockFetch.mockResolvedValueOnce(
+			createResponse({ success: false, message: "server error" }, 500),
+		);
+
+		await expect(getBookmarks()).rejects.toThrow("server error");
+	});
+
+	it("お気に入り一覧を取得する", async () => {
+		mockFetch.mockResolvedValueOnce(
+			createResponse({
+				success: true,
+				bookmarks: [],
+			}),
+		);
+
+		await getFavoriteBookmarks();
+
+		expect(mockFetch).toHaveBeenCalledWith(
+			"/api/bookmarks/favorites",
+			expect.objectContaining({ method: "GET" }),
+		);
+	});
+
+	it("最近読んだブックマークリストを返す", async () => {
+		mockFetch.mockResolvedValueOnce(
+			createResponse({
 				success: true,
 				bookmarks: {
 					"2024-01-01": [
 						{
 							id: 1,
-							title: "テスト記事",
+							title: "test",
 							url: "https://example.com",
-							createdAt: "2024-01-01T00:00:00.000Z",
 							isRead: true,
 							isFavorite: false,
 							label: null,
+							createdAt: "2024-01-01T00:00:00.000Z",
+							updatedAt: "2024-01-01T00:00:00.000Z",
 						},
 					],
 				},
-			};
+			}),
+		);
 
-			mockFetch.mockResolvedValueOnce({
-				ok: true,
-				text: () => Promise.resolve(JSON.stringify(mockResponse)),
-			});
-
-			const result = await api.getRecentlyReadBookmarks();
-
-			expect(mockFetch).toHaveBeenCalledWith(
-				expect.stringContaining("/api/bookmarks/recent"),
-				{
-					headers: {
-						Accept: "application/json",
-						"Content-Type": "application/json",
-					},
-				},
-			);
-			expect(result).toEqual(mockResponse.bookmarks);
-		});
-
-		it("取得に失敗した場合エラーを投げる", async () => {
-			mockFetch.mockResolvedValueOnce({
-				ok: false,
-				status: 500,
-				text: () => Promise.resolve("Server Error"),
-			});
-
-			await expect(api.getRecentlyReadBookmarks()).rejects.toThrow(
-				"Failed to fetch recently read bookmarks: 500",
-			);
-		});
+		const result = await getRecentlyReadBookmarks();
+		expect(result["2024-01-01"]).toHaveLength(1);
+		expect(mockFetch).toHaveBeenCalledWith(
+			"/api/bookmarks/recent",
+			expect.objectContaining({ method: "GET" }),
+		);
 	});
 
-	describe("addBookmarkToFavorites", () => {
-		it("正常にお気に入りに追加する", async () => {
-			const mockResponse = {
-				success: true,
-			};
+	it("既読/未読の更新を呼び出す", async () => {
+		mockFetch.mockImplementation(() =>
+			Promise.resolve(createResponse({ success: true })),
+		);
 
-			mockFetch.mockResolvedValueOnce({
-				ok: true,
-				json: () => Promise.resolve(mockResponse),
-			});
+		await markBookmarkAsRead(1);
+		await markBookmarkAsUnread(1);
 
-			await api.addBookmarkToFavorites(1);
-
-			expect(mockFetch).toHaveBeenCalledWith(
-				expect.stringContaining("/api/bookmarks/1/favorite"),
-				{
-					method: "POST",
-					headers: {
-						Accept: "application/json",
-						"Content-Type": "application/json",
-					},
-				},
-			);
-		});
-
-		it("追加に失敗した場合エラーを投げる", async () => {
-			mockFetch.mockResolvedValueOnce({
-				ok: false,
-				status: 404,
-			});
-
-			await expect(api.addBookmarkToFavorites(1)).rejects.toThrow(
-				"Failed to add to favorites: 404",
-			);
-		});
+		expect(mockFetch).toHaveBeenCalledWith(
+			"/api/bookmarks/1/read",
+			expect.objectContaining({ method: "PATCH" }),
+		);
+		expect(mockFetch).toHaveBeenCalledWith(
+			"/api/bookmarks/1/unread",
+			expect.objectContaining({ method: "PATCH" }),
+		);
 	});
 
-	describe("removeBookmarkFromFavorites", () => {
-		it("正常にお気に入りから削除する", async () => {
-			const mockResponse = {
+	it("ラベル付与を実行する", async () => {
+		mockFetch.mockResolvedValueOnce(
+			createResponse({
 				success: true,
-			};
-
-			mockFetch.mockResolvedValueOnce({
-				ok: true,
-				json: () => Promise.resolve(mockResponse),
-			});
-
-			await api.removeBookmarkFromFavorites(1);
-
-			expect(mockFetch).toHaveBeenCalledWith(
-				expect.stringContaining("/api/bookmarks/1/favorite"),
-				{
-					method: "DELETE",
-					headers: {
-						Accept: "application/json",
-						"Content-Type": "application/json",
-					},
+				label: {
+					id: 10,
+					name: "Tech",
+					createdAt: "2024-01-01T00:00:00.000Z",
+					updatedAt: "2024-01-01T00:00:00.000Z",
 				},
-			);
-		});
+			}),
+		);
 
-		it("削除に失敗した場合エラーを投げる", async () => {
-			mockFetch.mockResolvedValueOnce({
-				ok: false,
-				status: 404,
-			});
+		const result = await assignLabelToBookmark(5, "Tech");
 
-			await expect(api.removeBookmarkFromFavorites(1)).rejects.toThrow(
-				"Failed to remove from favorites: 404",
-			);
-		});
+		expect(result.name).toBe("Tech");
+		expect(mockFetch).toHaveBeenCalledWith(
+			"/api/bookmarks/5/label",
+			expect.objectContaining({
+				method: "PUT",
+				body: JSON.stringify({ labelName: "Tech" }),
+			}),
+		);
 	});
 
-	describe("markBookmarkAsRead", () => {
-		it("正常にブックマークを既読にする", async () => {
-			const mockResponse = {
-				success: true,
-			};
+	it("お気に入り追加/削除を実行する", async () => {
+		mockFetch.mockResolvedValueOnce(createResponse({ success: true }));
+		mockFetch.mockResolvedValueOnce(createResponse({ success: true }));
 
-			mockFetch.mockResolvedValueOnce({
-				ok: true,
-				text: () => Promise.resolve(JSON.stringify(mockResponse)),
-			});
+		await addBookmarkToFavorites(3);
+		await removeBookmarkFromFavorites(3);
 
-			await api.markBookmarkAsRead(1);
-
-			expect(mockFetch).toHaveBeenCalledWith(
-				expect.stringContaining("/api/bookmarks/1/read"),
-				{
-					method: "PATCH",
-					headers: {
-						Accept: "application/json",
-						"Content-Type": "application/json",
-					},
-				},
-			);
-		});
-
-		it("既読処理に失敗した場合エラーを投げる", async () => {
-			mockFetch.mockResolvedValueOnce({
-				ok: false,
-				status: 404,
-				text: () => Promise.resolve("Not Found"),
-			});
-
-			await expect(api.markBookmarkAsRead(1)).rejects.toThrow(
-				"Failed to mark as read: 404",
-			);
-		});
+		expect(mockFetch).toHaveBeenCalledWith(
+			"/api/bookmarks/3/favorite",
+			expect.objectContaining({ method: "POST" }),
+		);
+		expect(mockFetch).toHaveBeenCalledWith(
+			"/api/bookmarks/3/favorite",
+			expect.objectContaining({ method: "DELETE" }),
+		);
 	});
 
-	describe("markBookmarkAsUnread", () => {
-		it("正常にブックマークを未読にする", async () => {
-			const mockResponse = {
+	it("ブックマーク作成をBFF経由で呼び出す", async () => {
+		mockFetch.mockResolvedValueOnce(
+			createResponse({
 				success: true,
-			};
+				message: "ok",
+			}),
+		);
 
-			mockFetch.mockResolvedValueOnce({
-				ok: true,
-				text: () => Promise.resolve(JSON.stringify(mockResponse)),
-			});
+		await createBookmark({ title: "新規", url: "https://example.com" });
 
-			await api.markBookmarkAsUnread(1);
-
-			expect(mockFetch).toHaveBeenCalledWith(
-				expect.stringContaining("/api/bookmarks/1/unread"),
-				{
-					method: "PATCH",
-					headers: {
-						Accept: "application/json",
-						"Content-Type": "application/json",
-					},
-				},
-			);
-		});
-
-		it("未読処理に失敗した場合エラーを投げる", async () => {
-			mockFetch.mockResolvedValueOnce({
-				ok: false,
-				status: 404,
-				text: () => Promise.resolve("Not Found"),
-			});
-
-			await expect(api.markBookmarkAsUnread(1)).rejects.toThrow(
-				"Failed to mark as unread: 404",
-			);
-		});
-	});
-
-	describe("assignLabelToBookmark", () => {
-		it("正常にラベルを付け替える", async () => {
-			const mockResponse = {
-				success: true,
-				label: { id: 2, name: "新しいラベル" },
-			};
-
-			mockFetch.mockResolvedValueOnce({
-				ok: true,
-				text: () => Promise.resolve(JSON.stringify(mockResponse)),
-			});
-
-			const result = await api.assignLabelToBookmark(1, "新しいラベル");
-
-			expect(mockFetch).toHaveBeenCalledWith(
-				expect.stringContaining("/api/bookmarks/1/label"),
-				{
-					method: "PUT",
-					headers: {
-						Accept: "application/json",
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({ labelName: "新しいラベル" }),
-				},
-			);
-			expect(result).toEqual({ id: 2, name: "新しいラベル" });
-		});
-
-		it("APIが失敗した場合にエラーを投げる", async () => {
-			mockFetch.mockResolvedValueOnce({
-				ok: false,
-				status: 500,
-				text: () => Promise.resolve("server error"),
-			});
-
-			await expect(
-				api.assignLabelToBookmark(1, "テストラベル"),
-			).rejects.toThrow("Failed to assign label: 500");
-		});
+		expect(mockFetch).toHaveBeenCalledWith(
+			"/api/bookmarks/bulk",
+			expect.objectContaining({
+				method: "POST",
+				body: JSON.stringify({
+					bookmarks: [{ title: "新規", url: "https://example.com" }],
+				}),
+			}),
+		);
 	});
 });

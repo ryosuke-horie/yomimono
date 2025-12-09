@@ -2,33 +2,13 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { BookmarksList } from "@/features/bookmarks/components/BookmarksList";
-import type { BookmarkWithLabel } from "@/features/bookmarks/types";
+import {
+	type BookmarksData,
+	getBookmarks,
+} from "@/features/bookmarks/queries/api";
+import { bookmarkKeys } from "@/features/bookmarks/queries/queryKeys";
 import { LabelFilter } from "@/features/labels/components/LabelFilter";
 import { useLabels } from "@/features/labels/hooks/useLabels";
-import { API_BASE_URL } from "@/lib/api/config";
-
-interface BookmarksApiResponse {
-	success: boolean;
-	bookmarks: BookmarkWithLabel[];
-	totalUnread?: number;
-	todayReadCount?: number;
-}
-
-// ブックマーク一覧を取得する非同期関数 (戻り値の型を修正)
-const fetchBookmarks = async (
-	labelName?: string,
-): Promise<BookmarksApiResponse> => {
-	// 戻り値をレスポンス全体に変更
-	const url = labelName
-		? `${API_BASE_URL}/api/bookmarks?label=${encodeURIComponent(labelName)}`
-		: `${API_BASE_URL}/api/bookmarks`;
-	const response = await fetch(url);
-	if (!response.ok) {
-		throw new Error("Failed to fetch bookmarks");
-	}
-	const data: BookmarksApiResponse = await response.json();
-	return data;
-};
 
 export default function HomePage() {
 	// ラベル関連のフック
@@ -45,10 +25,12 @@ export default function HomePage() {
 		data: responseData,
 		isLoading: isLoadingBookmarks,
 		error: errorBookmarks,
-	} = useQuery<BookmarksApiResponse, Error>({
-		// useQuery の型引数を修正
-		queryKey: ["bookmarks", selectedLabelName],
-		queryFn: () => fetchBookmarks(selectedLabelName),
+	} = useQuery<BookmarksData, Error>({
+		queryKey: [
+			...bookmarkKeys.list("unread"),
+			{ label: selectedLabelName ?? null },
+		],
+		queryFn: () => getBookmarks(selectedLabelName),
 		staleTime: 1 * 60 * 1000, // 1分間キャッシュを有効にする
 	});
 

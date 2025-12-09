@@ -1,224 +1,117 @@
-import type { Bookmark, BookmarkWithLabel } from "@/features/bookmarks/types";
-import type { Label } from "@/features/labels/types";
-import { API_BASE_URL } from "@/lib/api/config";
-import { ApiError, createApiError } from "@/lib/api/errors";
-import type { ApiBookmarkResponse, ApiResponse } from "@/types/api";
+import {
+	deleteApiBookmarksIdFavorite,
+	getApiBookmarks,
+	getApiBookmarksFavorites,
+	getApiBookmarksRecent,
+	patchApiBookmarksIdRead,
+	patchApiBookmarksIdUnread,
+	postApiBookmarksBulk,
+	postApiBookmarksIdFavorite,
+	putApiBookmarksIdLabel,
+} from "@/lib/openapi/browser";
+import type {
+	AssignLabelResponse,
+	BookmarkListResponse,
+	ErrorResponse,
+	FavoriteBookmarksResponse,
+	MessageResponse,
+	RecentBookmarksResponse,
+	SuccessResponse,
+} from "@/lib/openapi/browser/schemas";
 
-// --- Query Functions ---
+type ApiResult<T> = { data: T; status: number };
 
-export interface BookmarksData {
-	bookmarks: Bookmark[];
-	totalUnread: number;
-	todayReadCount: number;
-}
+function unwrapResponse<T extends { success: boolean }>(
+	response: ApiResult<T> | ApiResult<ErrorResponse>,
+	fallbackMessage: string,
+): T {
+	const { data, status } = response;
+	const success = (data as { success?: boolean }).success;
 
-interface RecentBookmarksApiResponse {
-	success: boolean;
-	bookmarks: { [date: string]: BookmarkWithLabel[] };
-}
-
-export const getRecentlyReadBookmarks = async (): Promise<{
-	[date: string]: BookmarkWithLabel[];
-}> => {
-	const url = `${API_BASE_URL}/api/bookmarks/recent`;
-	const response = await fetch(url, {
-		headers: { Accept: "application/json", "Content-Type": "application/json" },
-	});
-	const responseText = await response.text();
-	if (!response.ok)
-		throw createApiError(
-			response,
-			`Failed to fetch recently read bookmarks: ${response.status}`,
-		);
-	try {
-		const data = JSON.parse(responseText);
-		// success フラグで成功/失敗を判断
-		if (!data.success) {
-			// エラーレスポンスとして型アサーション (ApiResponse<unknown> を使用)
-			const errorData = data as ApiResponse<unknown>;
-			throw new ApiError(
-				errorData.message || "Unknown error fetching recent bookmarks",
-				"API_ERROR",
-				errorData,
-			);
-		}
-		// 成功レスポンスとして型アサーション
-		const successData = data as RecentBookmarksApiResponse;
-		return successData.bookmarks || {};
-	} catch (e) {
-		// 既にApiErrorの場合はそのまま再スロー
-		if (e instanceof ApiError) throw e;
-		// パースエラーの場合はApiErrorでラップ
-		throw new ApiError("Invalid response format", "PARSE_ERROR", {
-			originalError: e,
-			responseText,
-		});
+	if (success && status < 400) {
+		return data as T;
 	}
+
+	const message =
+		(data as ErrorResponse).message ??
+		(status ? `${fallbackMessage}: ${status}` : fallbackMessage);
+
+	throw new Error(message);
+}
+
+export const getBookmarks = async (label?: string): Promise<BookmarksData> => {
+	const response = await getApiBookmarks(label ? { label } : undefined);
+	return unwrapResponse<BookmarkListResponse>(
+		response,
+		"ブックマークの取得に失敗しました",
+	);
 };
 
-// --- Mutation Functions ---
+export const getFavoriteBookmarks = async (): Promise<FavoritesData> => {
+	const response = await getApiBookmarksFavorites();
+	return unwrapResponse<FavoriteBookmarksResponse>(
+		response,
+		"お気に入りの取得に失敗しました",
+	);
+};
+
+export const getRecentlyReadBookmarks = async (): Promise<
+	RecentBookmarksResponse["bookmarks"]
+> => {
+	const response = await getApiBookmarksRecent();
+	const data = unwrapResponse<RecentBookmarksResponse>(
+		response,
+		"最近読んだブックマークの取得に失敗しました",
+	);
+	return data.bookmarks;
+};
 
 export const markBookmarkAsRead = async (id: number): Promise<void> => {
-	const url = `${API_BASE_URL}/api/bookmarks/${id}/read`;
-	const response = await fetch(url, {
-		method: "PATCH",
-		headers: { Accept: "application/json", "Content-Type": "application/json" },
-	});
-	const responseText = await response.text();
-	if (!response.ok)
-		throw createApiError(
-			response,
-			`Failed to mark as read: ${response.status}`,
-		);
-	try {
-		const data = JSON.parse(responseText) as ApiBookmarkResponse;
-		if (!data.success)
-			throw new ApiError(data.message || "Operation failed", "API_ERROR", data);
-	} catch (e) {
-		// 既にApiErrorの場合はそのまま再スロー
-		if (e instanceof ApiError) throw e;
-		// パースエラーの場合はApiErrorでラップ
-		throw new ApiError("Invalid response format", "PARSE_ERROR", {
-			originalError: e,
-			responseText,
-		});
-	}
+	const response = await patchApiBookmarksIdRead(id);
+	unwrapResponse<SuccessResponse>(response, "既読処理に失敗しました");
 };
 
 export const markBookmarkAsUnread = async (id: number): Promise<void> => {
-	const url = `${API_BASE_URL}/api/bookmarks/${id}/unread`;
-	const response = await fetch(url, {
-		method: "PATCH",
-		headers: { Accept: "application/json", "Content-Type": "application/json" },
-	});
-	const responseText = await response.text();
-	if (!response.ok)
-		throw createApiError(
-			response,
-			`Failed to mark as unread: ${response.status}`,
-		);
-	try {
-		const data = JSON.parse(responseText) as ApiBookmarkResponse;
-		if (!data.success)
-			throw new ApiError(data.message || "Operation failed", "API_ERROR", data);
-	} catch (e) {
-		// 既にApiErrorの場合はそのまま再スロー
-		if (e instanceof ApiError) throw e;
-		// パースエラーの場合はApiErrorでラップ
-		throw new ApiError("Invalid response format", "PARSE_ERROR", {
-			originalError: e,
-			responseText,
-		});
-	}
+	const response = await patchApiBookmarksIdUnread(id);
+	unwrapResponse<SuccessResponse>(response, "未読への戻しに失敗しました");
 };
 
 export const addBookmarkToFavorites = async (id: number): Promise<void> => {
-	const url = `${API_BASE_URL}/api/bookmarks/${id}/favorite`;
-	const response = await fetch(url, {
-		method: "POST",
-		headers: { Accept: "application/json", "Content-Type": "application/json" },
-	});
-	if (!response.ok)
-		throw createApiError(
-			response,
-			`Failed to add to favorites: ${response.status}`,
-		);
-	const data = (await response.json()) as ApiBookmarkResponse;
-	if (!data.success)
-		throw new ApiError(data.message || "Operation failed", "API_ERROR", data);
+	const response = await postApiBookmarksIdFavorite(id);
+	unwrapResponse<SuccessResponse>(response, "お気に入り追加に失敗しました");
 };
 
 export const removeBookmarkFromFavorites = async (
 	id: number,
 ): Promise<void> => {
-	const url = `${API_BASE_URL}/api/bookmarks/${id}/favorite`;
-	const response = await fetch(url, {
-		method: "DELETE",
-		headers: { Accept: "application/json", "Content-Type": "application/json" },
-	});
-	if (!response.ok)
-		throw createApiError(
-			response,
-			`Failed to remove from favorites: ${response.status}`,
-		);
-	const data = (await response.json()) as ApiBookmarkResponse;
-	if (!data.success)
-		throw new ApiError(data.message || "Operation failed", "API_ERROR", data);
+	const response = await deleteApiBookmarksIdFavorite(id);
+	unwrapResponse<SuccessResponse>(
+		response,
+		"お気に入りからの削除に失敗しました",
+	);
 };
 
 export const createBookmark = async (data: {
 	title: string;
 	url: string;
 }): Promise<void> => {
-	const url = `${API_BASE_URL}/api/bookmarks/bulk`;
-
-	const response = await fetch(url, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			bookmarks: [data],
-		}),
+	const response = await postApiBookmarksBulk({
+		bookmarks: [data],
 	});
-
-	if (!response.ok) {
-		const errorData = (await response.json()) as ApiResponse<unknown>;
-		throw createApiError(
-			response,
-			errorData.message || "Failed to create bookmark",
-			errorData,
-		);
-	}
+	unwrapResponse<MessageResponse>(response, "ブックマーク作成に失敗しました");
 };
 
 export const assignLabelToBookmark = async (
 	bookmarkId: number,
 	labelName: string,
-): Promise<Label> => {
-	const url = `${API_BASE_URL}/api/bookmarks/${bookmarkId}/label`;
-
-	const response = await fetch(url, {
-		method: "PUT",
-		headers: {
-			Accept: "application/json",
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({ labelName }),
-	});
-
-	const responseText = await response.text();
-
-	if (!response.ok) {
-		throw createApiError(
-			response,
-			`Failed to assign label: ${response.status}`,
-			responseText,
-		);
-	}
-
-	try {
-		const data = JSON.parse(responseText) as ApiResponse<Label> & {
-			label?: Label;
-		};
-
-		if (!data.success || !data.label) {
-			throw new ApiError(
-				data.message || "Failed to assign label",
-				"API_ERROR",
-				data,
-			);
-		}
-
-		return data.label;
-	} catch (error) {
-		if (error instanceof ApiError) {
-			throw error;
-		}
-
-		throw new ApiError("Invalid response format", "PARSE_ERROR", {
-			originalError: error,
-			responseText,
-		});
-	}
+): Promise<AssignLabelResponse["label"]> => {
+	const response = await putApiBookmarksIdLabel(bookmarkId, { labelName });
+	const data = unwrapResponse<AssignLabelResponse>(
+		response,
+		"ラベル付与に失敗しました",
+	);
+	return data.label;
 };
+
+export type BookmarksData = BookmarkListResponse;
+export type FavoritesData = FavoriteBookmarksResponse;

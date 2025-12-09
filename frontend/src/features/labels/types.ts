@@ -1,13 +1,18 @@
+import type {
+	Label as OpenApiLabel,
+	LabelWithCount as OpenApiLabelWithCount,
+} from "@/lib/openapi/browser/schemas";
+
 /**
- * ラベル関連の型定義
+ * OpenAPI生成型に準拠したラベル型
  */
-export interface Label {
-	id: number;
-	name: string;
-	description?: string | null;
-	articleCount?: number;
-	createdAt?: string;
-	updatedAt?: string;
+type LabelArticleCount = Pick<OpenApiLabelWithCount, "articleCount">;
+
+export interface Label
+	extends Partial<Omit<OpenApiLabel, "id" | "name">>,
+		Partial<LabelArticleCount> {
+	id: OpenApiLabel["id"];
+	name: OpenApiLabel["name"];
 }
 
 if (import.meta.vitest) {
