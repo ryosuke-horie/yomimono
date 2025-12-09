@@ -55,15 +55,16 @@ export const getFavoriteBookmarks = async (): Promise<FavoritesData> => {
 	);
 };
 
-export const getRecentlyReadBookmarks =
-	async (): Promise<RecentBookmarksData> => {
-		const response = await getApiBookmarksRecent();
-		const data = unwrapResponse<RecentBookmarksResponse>(
-			response,
-			"最近読んだブックマークの取得に失敗しました",
-		);
-		return data.bookmarks;
-	};
+export const getRecentlyReadBookmarks = async (): Promise<
+	RecentBookmarksResponse["bookmarks"]
+> => {
+	const response = await getApiBookmarksRecent();
+	const data = unwrapResponse<RecentBookmarksResponse>(
+		response,
+		"最近読んだブックマークの取得に失敗しました",
+	);
+	return data.bookmarks;
+};
 
 export const markBookmarkAsRead = async (id: number): Promise<void> => {
 	const response = await patchApiBookmarksIdRead(id);
@@ -103,7 +104,7 @@ export const createBookmark = async (data: {
 export const assignLabelToBookmark = async (
 	bookmarkId: number,
 	labelName: string,
-): Promise<LabelData> => {
+): Promise<AssignLabelResponse["label"]> => {
 	const response = await putApiBookmarksIdLabel(bookmarkId, { labelName });
 	const data = unwrapResponse<AssignLabelResponse>(
 		response,
@@ -114,5 +115,3 @@ export const assignLabelToBookmark = async (
 
 export type BookmarksData = BookmarkListResponse;
 export type FavoritesData = FavoriteBookmarksResponse;
-export type RecentBookmarksData = RecentBookmarksResponse["bookmarks"];
-export type LabelData = AssignLabelResponse["label"];
