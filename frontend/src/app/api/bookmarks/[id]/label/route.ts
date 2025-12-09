@@ -1,3 +1,4 @@
+import type { NextRequest } from "next/server";
 import {
 	assertLabelName,
 	parseBookmarkId,
@@ -10,11 +11,12 @@ import type { AssignLabelResponse } from "@/lib/openapi/server/schemas";
 export const dynamic = "force-dynamic";
 
 export async function PUT(
-	request: Request,
-	{ params }: { params: { id: string } },
+	request: NextRequest,
+	{ params }: { params: Promise<{ id: string }> },
 ): Promise<Response> {
 	try {
-		const bookmarkId = parseBookmarkId(params?.id);
+		const { id } = await params;
+		const bookmarkId = parseBookmarkId(id);
 
 		let requestBody: unknown;
 		try {

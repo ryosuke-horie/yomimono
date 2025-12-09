@@ -1,3 +1,4 @@
+import type { NextRequest } from "next/server";
 import { parseBookmarkId } from "@/app/api/bookmarks/route-utils";
 import { fetchFromApi } from "@/lib/bff/client";
 import { errorJsonResponse, jsonResponse } from "@/lib/bff/response";
@@ -6,11 +7,12 @@ import type { SuccessResponse } from "@/lib/openapi/server/schemas";
 export const dynamic = "force-dynamic";
 
 export async function POST(
-	_request: Request,
-	{ params }: { params: { id: string } },
+	_request: NextRequest,
+	{ params }: { params: Promise<{ id: string }> },
 ): Promise<Response> {
 	try {
-		const bookmarkId = parseBookmarkId(params?.id);
+		const { id } = await params;
+		const bookmarkId = parseBookmarkId(id);
 		const { data, status } = await fetchFromApi<SuccessResponse>(
 			`/api/bookmarks/${bookmarkId}/favorite`,
 			{ method: "POST" },
@@ -22,11 +24,12 @@ export async function POST(
 }
 
 export async function DELETE(
-	_request: Request,
-	{ params }: { params: { id: string } },
+	_request: NextRequest,
+	{ params }: { params: Promise<{ id: string }> },
 ): Promise<Response> {
 	try {
-		const bookmarkId = parseBookmarkId(params?.id);
+		const { id } = await params;
+		const bookmarkId = parseBookmarkId(id);
 		const { data, status } = await fetchFromApi<SuccessResponse>(
 			`/api/bookmarks/${bookmarkId}/favorite`,
 			{ method: "DELETE" },
