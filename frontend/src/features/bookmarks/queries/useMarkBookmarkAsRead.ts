@@ -20,10 +20,9 @@ export const useMarkBookmarkAsRead = (options?: QueryToastOptions) => {
 			// 進行中の関連クエリをすべてキャンセル
 			await queryClient.cancelQueries({ queryKey: bookmarkKeys.all });
 
-			// ロールバック用に現在のキャッシュデータを保存
-			const previousUnreadData = queryClient.getQueryData<BookmarksData>(
-				bookmarkKeys.list("unread"),
-			);
+			const previousUnreadEntries = queryClient.getQueriesData<BookmarksData>({
+				queryKey: bookmarkKeys.list("unread"),
+			});
 			const previousFavoriteData = queryClient.getQueryData<
 				BookmarkWithLabel[]
 			>(bookmarkKeys.list("favorites"));
@@ -31,36 +30,36 @@ export const useMarkBookmarkAsRead = (options?: QueryToastOptions) => {
 				[date: string]: BookmarkWithLabel[];
 			}>(bookmarkKeys.list("recent"));
 
-			// 未読リストから該当のブックマークを検索して取得
-			const bookmarkToUpdate = previousUnreadData?.bookmarks.find(
-				(bookmark) => bookmark.id === bookmarkId,
+			const bookmarkToUpdate =
+				previousUnreadEntries
+					.map(([, data]) =>
+						data?.bookmarks.find((bookmark) => bookmark.id === bookmarkId),
+					)
+					.find(Boolean) ??
+				previousFavoriteData?.find((bookmark) => bookmark.id === bookmarkId);
+
+			queryClient.setQueriesData<BookmarksData | undefined>(
+				{ queryKey: bookmarkKeys.list("unread") },
+				(oldData) => {
+					if (!oldData) return oldData;
+					const totalUnread = oldData.totalUnread ?? 0;
+					const todayReadCount = oldData.todayReadCount ?? 0;
+					return {
+						...oldData,
+						bookmarks: oldData.bookmarks.filter(
+							(bookmark) => bookmark.id !== bookmarkId,
+						),
+						totalUnread: totalUnread > 0 ? totalUnread - 1 : 0,
+						todayReadCount: todayReadCount + 1,
+					};
+				},
 			);
 
-			// キャッシュを即時更新 (isRead を true に)
-			if (previousUnreadData) {
-				queryClient.setQueryData<BookmarksData | undefined>(
-					bookmarkKeys.list("unread"),
-					(oldData) => {
-						if (!oldData) return undefined;
-						return {
-							...oldData,
-							bookmarks: oldData.bookmarks.filter(
-								(bookmark) => bookmark.id !== bookmarkId,
-							),
-							totalUnread:
-								oldData.totalUnread > 0 ? oldData.totalUnread - 1 : 0,
-							todayReadCount: oldData.todayReadCount + 1,
-						};
-					},
-				);
-			}
-
-			// お気に入りリストのキャッシュも更新
 			if (previousFavoriteData) {
 				queryClient.setQueryData<BookmarkWithLabel[] | undefined>(
 					bookmarkKeys.list("favorites"),
 					(oldData) => {
-						if (!oldData) return undefined;
+						if (!oldData) return oldData;
 						return oldData.map((bookmark) =>
 							bookmark.id === bookmarkId
 								? { ...bookmark, isRead: true }
@@ -70,7 +69,6 @@ export const useMarkBookmarkAsRead = (options?: QueryToastOptions) => {
 				);
 			}
 
-			// 最近読んだ記事リストに追加
 			if (previousRecentData && bookmarkToUpdate) {
 				queryClient.setQueryData<
 					| {
@@ -78,18 +76,15 @@ export const useMarkBookmarkAsRead = (options?: QueryToastOptions) => {
 					  }
 					| undefined
 				>(bookmarkKeys.list("recent"), (oldData) => {
-					if (!oldData) return undefined;
+					if (!oldData) return oldData;
 
-					// 今日の日付を取得
 					const today = new Date().toLocaleDateString("ja-JP");
 					const newData = { ...oldData };
 
-					// 今日の日付のエントリがなければ作成
 					if (!newData[today]) {
 						newData[today] = [];
 					}
 
-					// ブックマークが既にリストにないことを確認してから追加
 					const bookmarkExists = newData[today].some(
 						(bookmark) => bookmark.id === bookmarkId,
 					);
@@ -108,9 +103,8 @@ export const useMarkBookmarkAsRead = (options?: QueryToastOptions) => {
 				});
 			}
 
-			// ロールバック用データをコンテキストとして返す
 			return {
-				previousUnreadData,
+				previousUnreadEntries,
 				previousFavoriteData,
 				previousRecentData,
 				bookmarkToUpdate,
@@ -126,21 +120,17 @@ export const useMarkBookmarkAsRead = (options?: QueryToastOptions) => {
 					duration: 3000,
 				});
 			}
-			// 保存しておいたデータでキャッシュを元に戻す (ロールバック)
-			if (context?.previousUnreadData) {
-				queryClient.setQueryData(
-					bookmarkKeys.list("unread"),
-					context.previousUnreadData,
-				);
+			if (context?.previousUnreadEntries) {
+				context.previousUnreadEntries.forEach(([queryKey, data]) => {
+					queryClient.setQueryData(queryKey, data);
+				});
 			}
-			// お気に入りリストのキャッシュもロールバック
 			if (context?.previousFavoriteData) {
 				queryClient.setQueryData(
 					bookmarkKeys.list("favorites"),
 					context.previousFavoriteData,
 				);
 			}
-			// 最近読んだ記事リストのキャッシュもロールバック
 			if (context?.previousRecentData) {
 				queryClient.setQueryData(
 					bookmarkKeys.list("recent"),

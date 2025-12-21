@@ -2,24 +2,13 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { BookmarksList } from "@/features/bookmarks/components/BookmarksList";
-import type { BookmarkWithLabel } from "@/features/bookmarks/types";
+import {
+	type FavoritesData,
+	getFavoriteBookmarks,
+} from "@/features/bookmarks/queries/api";
+import { bookmarkKeys } from "@/features/bookmarks/queries/queryKeys";
 import { LabelFilter } from "@/features/labels/components/LabelFilter";
 import { useLabels } from "@/features/labels/hooks/useLabels";
-import { API_BASE_URL } from "@/lib/api/config";
-
-interface FavoritesApiResponse {
-	success: boolean;
-	bookmarks: BookmarkWithLabel[];
-}
-
-const fetchFavoriteBookmarks = async (): Promise<FavoritesApiResponse> => {
-	const response = await fetch(`${API_BASE_URL}/api/bookmarks/favorites`);
-	if (!response.ok) {
-		throw new Error("Failed to fetch favorite bookmarks");
-	}
-	const data: FavoritesApiResponse = await response.json();
-	return data;
-};
 
 export default function FavoritesPage() {
 	const {
@@ -34,9 +23,9 @@ export default function FavoritesPage() {
 		data: responseData,
 		isLoading: isLoadingBookmarks,
 		error: errorBookmarks,
-	} = useQuery<FavoritesApiResponse, Error>({
-		queryKey: ["bookmarks", "favorites"],
-		queryFn: fetchFavoriteBookmarks,
+	} = useQuery<FavoritesData, Error>({
+		queryKey: bookmarkKeys.list("favorites"),
+		queryFn: getFavoriteBookmarks,
 		staleTime: 1 * 60 * 1000,
 	});
 
