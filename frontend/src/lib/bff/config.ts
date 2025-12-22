@@ -7,10 +7,15 @@ export interface CacheControlPolicy {
 	mustRevalidate?: boolean;
 }
 
-const DEFAULT_API_BASE_URL = "https://api-yomimono.workers.dev";
+const DEFAULT_API_BASE_URL =
+	"https://effective-yomimono-api.ryosuke-horie37.workers.dev";
 
 export function getUpstreamApiBaseUrl(): string {
-	return process.env.BFF_API_BASE_URL ?? DEFAULT_API_BASE_URL;
+	return (
+		process.env.BFF_API_BASE_URL ??
+		process.env.NEXT_PUBLIC_API_BASE_URL ??
+		DEFAULT_API_BASE_URL
+	);
 }
 
 export function getUpstreamApiKey(): string | undefined {
