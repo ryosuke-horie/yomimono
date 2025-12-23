@@ -1,4 +1,3 @@
-import { API_BASE_URL } from "@/lib/api/config";
 import type { Label } from "../types";
 
 // APIレスポンスの型定義
@@ -27,7 +26,7 @@ interface ErrorResponse {
 
 // ラベル一覧を取得する関数
 export const fetchLabels = async (): Promise<Label[]> => {
-	const response = await fetch(`${API_BASE_URL}/api/labels`);
+	const response = await fetch("/api/labels");
 	if (!response.ok) {
 		throw new Error("Failed to fetch labels");
 	}
@@ -37,7 +36,7 @@ export const fetchLabels = async (): Promise<Label[]> => {
 
 // 特定のラベルを取得する関数（現在は未使用）
 const _fetchLabelById = async (id: number): Promise<Label> => {
-	const response = await fetch(`${API_BASE_URL}/api/labels/${id}`);
+	const response = await fetch(`/api/labels/${id}`);
 	if (!response.ok) {
 		throw new Error(`Failed to fetch label with ID: ${id}`);
 	}
@@ -50,7 +49,7 @@ export const createLabel = async (
 	name: string,
 	description?: string,
 ): Promise<Label> => {
-	const response = await fetch(`${API_BASE_URL}/api/labels`, {
+	const response = await fetch("/api/labels", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -72,7 +71,7 @@ export const updateLabelDescription = async (
 	id: number,
 	description: string | null,
 ): Promise<Label> => {
-	const response = await fetch(`${API_BASE_URL}/api/labels/${id}`, {
+	const response = await fetch(`/api/labels/${id}`, {
 		method: "PATCH",
 		headers: {
 			"Content-Type": "application/json",
@@ -93,7 +92,7 @@ export const updateLabelDescription = async (
 
 // ラベルを削除する関数
 export const deleteLabel = async (id: number): Promise<string> => {
-	const response = await fetch(`${API_BASE_URL}/api/labels/${id}`, {
+	const response = await fetch(`/api/labels/${id}`, {
 		method: "DELETE",
 	});
 
@@ -122,7 +121,7 @@ export const cleanupUnusedLabels = async (): Promise<{
 	deletedCount: number;
 	deletedLabels: Label[];
 }> => {
-	const response = await fetch(`${API_BASE_URL}/api/labels/cleanup`, {
+	const response = await fetch("/api/labels/cleanup", {
 		method: "DELETE",
 	});
 
