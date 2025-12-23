@@ -2,7 +2,10 @@ import type { NextRequest } from "next/server";
 import { fetchFromApi } from "@/lib/bff/client";
 import { BFF_ERROR_CODES, BffError } from "@/lib/bff/errors";
 import { errorJsonResponse, jsonResponse } from "@/lib/bff/response";
-import type { LabelResponse, LabelsResponse } from "@/lib/openapi/server/schemas";
+import type {
+	LabelResponse,
+	LabelsResponse,
+} from "@/lib/openapi/server/schemas";
 
 export const dynamic = "force-dynamic";
 
