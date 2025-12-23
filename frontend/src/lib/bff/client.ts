@@ -83,10 +83,10 @@ export async function fetchFromApi<TSuccess, TError = ErrorResponse>(
 	let response: Response;
 
 	try {
-        console.log(`[BFF] Fetching from: ${url}`); // Debug log
+		console.log(`[BFF] Fetching from: ${url}`); // Debug log
 		response = await fetch(url, requestInit);
 	} catch (error) {
-        console.error(`[BFF] Fetch failed for ${url}:`, error); // Debug log
+		console.error(`[BFF] Fetch failed for ${url}:`, error); // Debug log
 		throw new BffError(
 			"ネットワークまたはDNSエラーが発生しました。",
 			502,
