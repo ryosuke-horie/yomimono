@@ -1,5 +1,6 @@
 import "server-only";
 
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import type { ErrorResponse } from "@/lib/openapi/server/schemas";
 import { getUpstreamApiBaseUrl, getUpstreamApiKey } from "./config";
 import {
@@ -53,7 +54,6 @@ export async function fetchFromApi<TSuccess, TError = ErrorResponse>(
 	path: string,
 	{ revalidateSeconds, body, headers, ...init }: BffRequestInit = {},
 ): Promise<BffFetchResult<TSuccess>> {
-	const url = buildUrl(path);
 	const mergedHeaders = mergeHeaders(body, headers);
 	const cache =
 		init.cache ??
@@ -83,11 +83,25 @@ export async function fetchFromApi<TSuccess, TError = ErrorResponse>(
 	let response: Response;
 
 	try {
-		console.log(`[BFF] Fetching from: ${url}`); // Debug log
-		response = await fetch(url, requestInit);
-		console.log(`[BFF] Response status: ${response.status}`); // Debug log
+		let apiBinding: { fetch: typeof fetch } | undefined;
+		try {
+			apiBinding = getCloudflareContext().env.API as unknown as {
+				fetch: typeof fetch;
+			};
+		} catch {
+			// Context not available
+		}
+
+		if (apiBinding && process.env.NODE_ENV !== "development") {
+			// Use Service Binding
+			const url = new URL(path, "http://internal");
+			response = await apiBinding.fetch(url, requestInit);
+		} else {
+			// Fallback to public URL (or localhost in dev)
+			const url = buildUrl(path);
+			response = await fetch(url, requestInit);
+		}
 	} catch (error) {
-		console.error(`[BFF] Fetch failed for ${url}:`, error); // Debug log
 		throw new BffError(
 			"ネットワークまたはDNSエラーが発生しました。",
 			502,
@@ -97,7 +111,6 @@ export async function fetchFromApi<TSuccess, TError = ErrorResponse>(
 	}
 
 	const responseText = await response.text();
-	console.log(`[BFF] Response body preview: ${responseText.slice(0, 200)}`); // Debug log
 	let parsedBody: unknown = null;
 
 	try {

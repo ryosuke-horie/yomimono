@@ -16,6 +16,7 @@
 - エラー正規化: `frontend/src/lib/bff/errors.ts` の `normalizeUpstreamError` と `errorJsonResponse` で `{ success: false, message, code }` に統一。
 - 環境変数: 外部APIのURL/キーは `BFF_API_BASE_URL`/`BFF_API_KEY`（サーバー専用）に置き、`NEXT_PUBLIC_*` には機密情報を入れない。
 - キャッシュ方針: `buildCacheControl` で `maxAge`/`staleWhileRevalidate` を付与してレスポンスヘッダーを一元管理。
+- **Service Bindings (Error 1042対策)**: バックエンドAPIへの接続は、パブリックURLへの`fetch`ではなく、`wrangler.jsonc`で定義された`API`バインディング経由の通信（Service Bindings）を優先します。これにより、同一ゾーン内（workers.dev等）での`1042`エラーを回避し、内部通信による高速化を実現しています（`client.ts`でハンドリング）。
 
 ### API
 ```bash
