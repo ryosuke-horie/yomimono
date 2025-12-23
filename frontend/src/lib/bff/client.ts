@@ -92,8 +92,6 @@ export async function fetchFromApi<TSuccess, TError = ErrorResponse>(
 			// Context not available
 		}
 
-
-
 		if (apiBinding && process.env.NODE_ENV !== "development") {
 			// Use Service Binding
 			// Service Bindings do not support the 'cache' option in RequestInit.
