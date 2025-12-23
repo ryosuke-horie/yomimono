@@ -85,6 +85,7 @@ export async function fetchFromApi<TSuccess, TError = ErrorResponse>(
 	try {
 		console.log(`[BFF] Fetching from: ${url}`); // Debug log
 		response = await fetch(url, requestInit);
+		console.log(`[BFF] Response status: ${response.status}`); // Debug log
 	} catch (error) {
 		console.error(`[BFF] Fetch failed for ${url}:`, error); // Debug log
 		throw new BffError(
@@ -96,6 +97,7 @@ export async function fetchFromApi<TSuccess, TError = ErrorResponse>(
 	}
 
 	const responseText = await response.text();
+	console.log(`[BFF] Response body preview: ${responseText.slice(0, 200)}`); // Debug log
 	let parsedBody: unknown = null;
 
 	try {
