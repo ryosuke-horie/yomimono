@@ -1,5 +1,7 @@
 import "server-only";
 
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+
 export interface CacheControlPolicy {
 	maxAge?: number;
 	staleWhileRevalidate?: number;
@@ -11,7 +13,15 @@ const DEFAULT_API_BASE_URL =
 	"https://effective-yomimono-api.ryosuke-horie37.workers.dev";
 
 export function getUpstreamApiBaseUrl(): string {
+	let envUrl: string | undefined;
+	try {
+		envUrl = getCloudflareContext().env.BFF_API_BASE_URL as string;
+	} catch (e) {
+		// Ignore error if context is not available (e.g. build time)
+	}
+
 	return (
+		envUrl ??
 		process.env.BFF_API_BASE_URL ??
 		process.env.NEXT_PUBLIC_API_BASE_URL ??
 		DEFAULT_API_BASE_URL
@@ -19,7 +29,13 @@ export function getUpstreamApiBaseUrl(): string {
 }
 
 export function getUpstreamApiKey(): string | undefined {
-	return process.env.BFF_API_KEY;
+	let apiKey: string | undefined;
+	try {
+		apiKey = getCloudflareContext().env.BFF_API_KEY as string;
+	} catch (e) {
+		// Ignore error
+	}
+	return apiKey ?? process.env.BFF_API_KEY;
 }
 
 export function buildCacheControl(policy: CacheControlPolicy = {}): string {
