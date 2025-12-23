@@ -84,24 +84,33 @@ export async function fetchFromApi<TSuccess, TError = ErrorResponse>(
 
 	try {
 		let apiBinding: { fetch: typeof fetch } | undefined;
+		let envKeys: string[] = [];
 		try {
-			apiBinding = getCloudflareContext().env.API as unknown as {
+			const env = getCloudflareContext().env;
+			envKeys = Object.keys(env);
+			apiBinding = env.API as unknown as {
 				fetch: typeof fetch;
 			};
-		} catch {
-			// Context not available
+		} catch (e) {
+			console.error("[BFF] Failed to get Cloudflare context:", e);
 		}
+
+		console.log(`[BFF] Env keys: ${envKeys.join(", ")}`); // Debug: what do we have?
 
 		if (apiBinding && process.env.NODE_ENV !== "development") {
 			// Use Service Binding
 			const url = new URL(path, "http://internal");
+            console.log(`[BFF] Using Service Binding: ${!!apiBinding}`); // Debug
 			response = await apiBinding.fetch(url, requestInit);
 		} else {
 			// Fallback to public URL (or localhost in dev)
 			const url = buildUrl(path);
+            console.log(`[BFF] Using Public URL (Fallback): ${url}`); // Debug
 			response = await fetch(url, requestInit);
 		}
+        console.log(`[BFF] Response status: ${response.status}`); // Debug
 	} catch (error) {
+        console.error("[BFF] Fetch failed:", error); // Debug
 		throw new BffError(
 			"ネットワークまたはDNSエラーが発生しました。",
 			502,
