@@ -29,9 +29,22 @@ describe("labels route handlers", () => {
 	describe("GET /api/labels", () => {
 		it("正常にラベル一覧を取得できる", async () => {
 			const mockData: LabelsResponse = {
+				success: true,
 				labels: [
-					{ id: 1, name: "tech", color: "#000000", count: 10 },
-					{ id: 2, name: "news", color: "#ff0000", count: 5 },
+					{
+						id: 1,
+						name: "tech",
+						articleCount: 10,
+						createdAt: "2023-01-01T00:00:00Z",
+						updatedAt: "2023-01-01T00:00:00Z",
+					},
+					{
+						id: 2,
+						name: "news",
+						articleCount: 5,
+						createdAt: "2023-01-01T00:00:00Z",
+						updatedAt: "2023-01-01T00:00:00Z",
+					},
 				],
 			};
 
@@ -52,8 +65,15 @@ describe("labels route handlers", () => {
 	describe("POST /api/labels", () => {
 		it("正常にラベルを作成できる", async () => {
 			const mockData: LabelResponse = {
-				label: { id: 1, name: "tech", color: "#000000", count: 0 },
+				success: true,
+				label: {
+					id: 1,
+					name: "tech",
+					createdAt: "2023-01-01T00:00:00Z",
+					updatedAt: "2023-01-01T00:00:00Z",
+				},
 			};
+
 			const requestBody = { name: "tech", color: "#000000" };
 
 			mockedFetchFromApi.mockResolvedValueOnce({
@@ -89,7 +109,7 @@ describe("labels route handlers", () => {
 			const response = await createLabel(request);
 
 			expect(response.status).toBe(400);
-			const json = await response.json();
+			const json = (await response.json()) as { code: string };
 			expect(json.code).toBe("BAD_REQUEST");
 		});
 	});
@@ -97,7 +117,13 @@ describe("labels route handlers", () => {
 	describe("GET /api/labels/[id]", () => {
 		it("指定したIDのラベルを取得できる", async () => {
 			const mockData: LabelResponse = {
-				label: { id: 1, name: "tech", color: "#000000", count: 10 },
+				success: true,
+				label: {
+					id: 1,
+					name: "tech",
+					createdAt: "2023-01-01T00:00:00Z",
+					updatedAt: "2023-01-01T00:00:00Z",
+				},
 			};
 
 			mockedFetchFromApi.mockResolvedValueOnce({
@@ -127,7 +153,7 @@ describe("labels route handlers", () => {
 			const response = await getLabel(request, { params });
 
 			expect(response.status).toBe(400);
-			const json = await response.json();
+			const json = (await response.json()) as { code: string };
 			expect(json.code).toBe("BAD_REQUEST");
 		});
 	});
@@ -135,7 +161,13 @@ describe("labels route handlers", () => {
 	describe("PATCH /api/labels/[id]", () => {
 		it("正常にラベルを更新できる", async () => {
 			const mockData: LabelResponse = {
-				label: { id: 1, name: "updated", color: "#ffffff", count: 10 },
+				success: true,
+				label: {
+					id: 1,
+					name: "updated",
+					createdAt: "2023-01-01T00:00:00Z",
+					updatedAt: "2023-01-01T00:00:00Z",
+				},
 			};
 			const requestBody = { name: "updated", color: "#ffffff" };
 
@@ -168,6 +200,7 @@ describe("labels route handlers", () => {
 	describe("DELETE /api/labels/[id]", () => {
 		it("正常にラベルを削除できる", async () => {
 			const mockData: MessageResponse = {
+				success: true,
 				message: "Label deleted successfully",
 			};
 
@@ -198,8 +231,10 @@ describe("labels route handlers", () => {
 	describe("DELETE /api/labels/cleanup", () => {
 		it("未使用ラベルを一括削除できる", async () => {
 			const mockData: LabelCleanupResponse = {
+				success: true,
 				message: "Cleanup successful",
 				deletedCount: 5,
+				deletedLabels: [],
 			};
 
 			mockedFetchFromApi.mockResolvedValueOnce({
