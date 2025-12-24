@@ -16,7 +16,7 @@ export function getUpstreamApiBaseUrl(): string {
 	let envUrl: string | undefined;
 	try {
 		envUrl = getCloudflareContext().env.BFF_API_BASE_URL as string;
-	} catch (e) {
+	} catch (_e) {
 		// Ignore error if context is not available (e.g. build time)
 	}
 
@@ -32,7 +32,7 @@ export function getUpstreamApiKey(): string | undefined {
 	let apiKey: string | undefined;
 	try {
 		apiKey = getCloudflareContext().env.BFF_API_KEY as string;
-	} catch (e) {
+	} catch (_e) {
 		// Ignore error
 	}
 	return apiKey ?? process.env.BFF_API_KEY;

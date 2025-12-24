@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { parseLabelId } from "../route-utils";
 import { BFF_ERROR_CODES, BffError } from "@/lib/bff/errors";
+import { parseLabelId } from "../route-utils";
 
 describe("parseLabelId", () => {
 	it("有効な数値文字列をパースできる", () => {
@@ -10,9 +10,11 @@ describe("parseLabelId", () => {
 
 	it("数値でない文字列の場合はBffErrorを投げる", () => {
 		expect(() => parseLabelId("abc")).toThrow(BffError);
-		expect(() => parseLabelId("abc")).toThrow(expect.objectContaining({
-			code: BFF_ERROR_CODES.BAD_REQUEST,
-		}));
+		expect(() => parseLabelId("abc")).toThrow(
+			expect.objectContaining({
+				code: BFF_ERROR_CODES.BAD_REQUEST,
+			}),
+		);
 	});
 
 	it("小数の場合はBffErrorを投げる", () => {

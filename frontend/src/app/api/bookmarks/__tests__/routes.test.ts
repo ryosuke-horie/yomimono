@@ -4,7 +4,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { POST as postBulk } from "@/app/api/bookmarks/bulk/route";
 import { GET as getBookmarks } from "@/app/api/bookmarks/route";
 import { fetchFromApi } from "@/lib/bff/client";
-import type { BookmarkListResponse, MessageResponse } from "@/lib/openapi/server/schemas";
+import type {
+	BookmarkListResponse,
+	MessageResponse,
+} from "@/lib/openapi/server/schemas";
 
 vi.mock("@/lib/bff/client", () => ({
 	fetchFromApi: vi.fn(),

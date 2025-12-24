@@ -1,15 +1,19 @@
-import { afterEach, describe, expect, it, vi, type Mock } from "vitest";
-import { fetchFromApi } from "@/lib/bff/client";
-import { GET as getLabels, POST as createLabel } from "../route";
-import { GET as getLabel, PATCH as updateLabel, DELETE as deleteLabel } from "../[id]/route";
-import { DELETE as cleanupLabels } from "../cleanup/route";
 import type { NextRequest } from "next/server";
+import { afterEach, describe, expect, it, type Mock, vi } from "vitest";
+import { fetchFromApi } from "@/lib/bff/client";
 import type {
-	LabelsResponse,
-	LabelResponse,
-	MessageResponse,
 	LabelCleanupResponse,
+	LabelResponse,
+	LabelsResponse,
+	MessageResponse,
 } from "@/lib/openapi/server/schemas";
+import {
+	DELETE as deleteLabel,
+	GET as getLabel,
+	PATCH as updateLabel,
+} from "../[id]/route";
+import { DELETE as cleanupLabels } from "../cleanup/route";
+import { POST as createLabel, GET as getLabels } from "../route";
 
 vi.mock("@/lib/bff/client", () => ({
 	fetchFromApi: vi.fn(),
@@ -83,7 +87,7 @@ describe("labels route handlers", () => {
 			}) as unknown as NextRequest;
 
 			const response = await createLabel(request);
-			
+
 			expect(response.status).toBe(400);
 			const json = await response.json();
 			expect(json.code).toBe("BAD_REQUEST");
@@ -102,8 +106,10 @@ describe("labels route handlers", () => {
 			});
 
 			const params = Promise.resolve({ id: "1" });
-			const request = new Request("http://localhost/api/labels/1") as unknown as NextRequest;
-			
+			const request = new Request(
+				"http://localhost/api/labels/1",
+			) as unknown as NextRequest;
+
 			const response = await getLabel(request, { params });
 			const json = await response.json();
 
@@ -114,10 +120,12 @@ describe("labels route handlers", () => {
 
 		it("不正なIDの場合は400エラー", async () => {
 			const params = Promise.resolve({ id: "invalid" });
-			const request = new Request("http://localhost/api/labels/invalid") as unknown as NextRequest;
+			const request = new Request(
+				"http://localhost/api/labels/invalid",
+			) as unknown as NextRequest;
 
 			const response = await getLabel(request, { params });
-			
+
 			expect(response.status).toBe(400);
 			const json = await response.json();
 			expect(json.code).toBe("BAD_REQUEST");
