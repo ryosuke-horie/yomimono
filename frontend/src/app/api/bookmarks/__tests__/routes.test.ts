@@ -4,7 +4,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { POST as postBulk } from "@/app/api/bookmarks/bulk/route";
 import { GET as getBookmarks } from "@/app/api/bookmarks/route";
 import { fetchFromApi } from "@/lib/bff/client";
-import type { BookmarkListResponse } from "@/lib/openapi/server/schemas";
+import type {
+	BookmarkListResponse,
+	MessageResponse,
+} from "@/lib/openapi/server/schemas";
 
 vi.mock("@/lib/bff/client", () => ({
 	fetchFromApi: vi.fn(),
@@ -43,9 +46,10 @@ describe("bookmarks route handlers", () => {
 
 	it("POST /api/bookmarks/bulk を上流に転送する", async () => {
 		const body = { bookmarks: [{ title: "test", url: "https://example.com" }] };
+		const data: MessageResponse = { success: true, message: "ok" };
 
 		mockedFetchFromApi.mockResolvedValueOnce({
-			data: { success: true, message: "ok" },
+			data,
 			status: 200,
 			headers: new Headers(),
 		});
@@ -65,6 +69,6 @@ describe("bookmarks route handlers", () => {
 			}),
 		);
 		expect(response.status).toBe(200);
-		expect(await response.json()).toEqual({ success: true, message: "ok" });
+		expect(await response.json()).toEqual(data);
 	});
 });
