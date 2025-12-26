@@ -37,11 +37,9 @@ jobs:
         run: |
           pnpm install
 
-      - name: Generate OpenAPI clients
+      - name: Check OpenAPI client sync
         working-directory: ./frontend
-        run: |
-          pnpm run orval
-          git diff --exit-code src/lib/openapi ../api/src/generated
+        run: pnpm run check:orval
 
       - name: Run linter
         working-directory: ./frontend
