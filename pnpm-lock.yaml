@@ -193,6 +193,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.24.3
         version: 1.24.3(zod@4.1.13)
+      hono:
+        specifier: ^4.10.7
+        version: 4.10.7
       zod:
         specifier: ^4.1.13
         version: 4.1.13
@@ -200,6 +203,9 @@ importers:
       '@biomejs/biome':
         specifier: ^2.3.8
         version: 2.3.8
+      '@cloudflare/workers-types':
+        specifier: ^4.20251205.0
+        version: 4.20251205.0
       '@types/node':
         specifier: ^24.10.1
         version: 24.10.1
@@ -218,6 +224,9 @@ importers:
       vitest:
         specifier: ^4.0.15
         version: 4.0.15(@types/node@24.10.1)(@vitest/ui@4.0.15)(happy-dom@20.0.11)(jiti@2.6.1)(jsdom@27.2.0)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2)
+      wrangler:
+        specifier: ^4.53.0
+        version: 4.53.0(@cloudflare/workers-types@4.20251205.0)
 
 packages:
 
@@ -4498,6 +4507,7 @@ packages:
   next@15.5.6:
     resolution: {integrity: sha512-zTxsnI3LQo3c9HSdSf91O1jMNsEzIXDShXd4wVdg9y5shwLqBXi4ZtUUJyB86KGVSJLZx0PFONvO54aheGX8QQ==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
+    deprecated: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.org/blog/CVE-2025-66478 for more details.
     hasBin: true
     peerDependencies:
       '@opentelemetry/api': ^1.1.0

@@ -20,6 +20,41 @@
 - パッケージ管理は`pnpm`のみサポート（`npx only-allow pnpm`を利用）。
 - `API_BASE_URL` 環境変数にバックエンドAPIのベースURLを設定してください。
 
+### Remote MCPサーバー（Cloudflare Workers）
+
+MCPサーバーをCloudflare Workers上でホストし、HTTP/SSE経由でリモートアクセスできます。
+
+#### デプロイ
+1. 依存関係をインストールします。
+    ```bash
+    cd mcp
+    pnpm install
+    ```
+2. Cloudflare Workersにデプロイします。
+    ```bash
+    # ステージング環境
+    pnpm run deploy:staging
+
+    # 本番環境
+    pnpm run deploy:production
+    ```
+3. 環境変数を設定します（デプロイ後）。
+    ```bash
+    # API_BASE_URLをシークレットとして設定
+    wrangler secret put API_BASE_URL --env production
+    # プロンプトが表示されたら、APIのベースURLを入力
+    ```
+
+#### Claude Desktop連携（リモートサーバー）
+Claude Desktopからリモートサーバーに接続する場合、設定ファイルに以下を追加します。
+
+```json
+"yomimono-mcp-remote": {
+  "url": "https://yomimono-mcp-production.your-subdomain.workers.dev/sse",
+  "transport": "sse"
+}
+```
+
 ### ローカル開発（MCP Inspector等）
 1. 依存関係をインストールします。
     ```bash
