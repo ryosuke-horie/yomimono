@@ -24,7 +24,7 @@ export function BookmarksList({
 				<div
 					key={bookmark.id}
 					data-testid="bookmark-item"
-					className="mx-auto w-full max-w-sm"
+					className="md:mx-auto md:max-w-sm"
 				>
 					<BookmarkCard bookmark={bookmark} availableLabels={availableLabels} />
 				</div>
