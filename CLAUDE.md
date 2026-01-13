@@ -128,6 +128,10 @@ export function distance(a: Point, b: Point): number {
 - 日本語での解答生成を優先する
 - コードコメントは日本語で書く
 
+## ユーザーへの質問
+- 不明点や確認事項がある場合は、必ずAskUserQuestionツールを使用して質問する
+- 勝手に推測して進めず、ユーザーの意図を確認してから作業を行う
+
 ## PR作成時
 - .github/pull_request_template.mdのコメントを付与する。
 - GitHub copilotによる自動レビューが有効なため、日本語でレビューさせる。
