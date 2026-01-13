@@ -19,13 +19,8 @@ export function BookmarksList({
 
 	return (
 		<div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-			{/* grid-cols-3 と xl:grid-cols-4 に変更 */}
 			{bookmarks.map((bookmark) => (
-				<div
-					key={bookmark.id}
-					data-testid="bookmark-item"
-					className="md:mx-auto md:max-w-sm"
-				>
+				<div key={bookmark.id} data-testid="bookmark-item">
 					<BookmarkCard bookmark={bookmark} availableLabels={availableLabels} />
 				</div>
 			))}
