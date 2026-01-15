@@ -92,6 +92,12 @@ export function distance(a: Point, b: Point): number {
 git checkout -b EDG-289
 ```
 
+### MCP連携
+
+Linear MCPツールが利用可能な環境では、Claude Codeから直接Linearの操作（イシュー作成・検索・更新等）が可能です。
+
+詳細なルールは `.claude/rules/linear.md` を参照してください。
+
 ## ディレクトリ構造
 ```
 .
