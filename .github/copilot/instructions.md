@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## プロジェクト構成と配置
-- ルート配下: `api`(Cloudflare Workers/Hono), `frontend`(Next.js), `extension`(Chrome拡張), `mcp`(MCPユーティリティ), `docs`(設計/ADR)。
+- ルート配下: `api`(Cloudflare Workers/Hono), `frontend`(Next.js), `extension`(Chrome拡張), `docs`(設計/ADR)。
 - テスト: APIは`api/tests`(Vitest)、フロントは`frontend/src`での単体テスト(Vitest)。
 - アセット: `frontend/public`、拡張の画像は`extension/images`。
 
@@ -14,7 +14,7 @@
 
 ## コーディング規約・命名
 - フォーマッタ: Biome（タブインデント、ダブルクォート、import整列）。
-- 言語: TypeScript（API/FE/MCP）、拡張はJS中心。
+- 言語: TypeScript（API/FE/拡張）、拡張はJS中心。
 - 命名: 変数/関数camelCase、ReactコンポーネントPascalCase、ファイル`kebab-case.ts[x]`。
 - TSDocコメントを先頭に、可能なら実装と同一ファイルにVitest（`import.meta.vitest`）でTDDを推奨。
 

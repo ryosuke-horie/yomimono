@@ -1,19 +1,9 @@
-import {
-	and,
-	count,
-	desc,
-	eq,
-	gte,
-	inArray,
-	isNull,
-	type SQL,
-} from "drizzle-orm";
+import { and, count, desc, eq, gte, inArray, type SQL } from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { drizzle } from "drizzle-orm/d1";
 import { CONFIG } from "../config";
 import {
 	articleLabels,
-	type Bookmark,
 	bookmarks,
 	favorites,
 	type InsertBookmark,
@@ -422,29 +412,6 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 			throw error;
 		}
 	}
-	/**
-	 * ラベルが付与されていないブックマークを取得します。
-	 * @returns 未ラベルのブックマーク配列
-	 * * 既読のブックマークは除外されます。
-	 */
-	async findUnlabeled(): Promise<Bookmark[]> {
-		try {
-			const results = await this.db
-				.select({ bookmarks: bookmarks })
-				.from(bookmarks)
-				.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
-				.where(and(isNull(articleLabels.id), eq(bookmarks.isRead, false)))
-				.all();
-			return results.map((r) => r.bookmarks);
-		} catch (error) {
-			console.error(
-				"ラベルが付与されていないブックマークの取得に失敗しました:",
-				error,
-			);
-			throw error;
-		}
-	}
-
 	async findByLabelName(labelName: string): Promise<BookmarkWithLabel[]> {
 		try {
 			const results = await this.db
@@ -516,38 +483,6 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 				"[ERROR] BookmarkRepository.findByIds: Failed to fetch bookmarks by ids:",
 				error,
 			);
-			throw error;
-		}
-	}
-
-	/**
-	 * 評価が存在しないブックマークを取得します。
-	 * 記事評価機能が削除されたため、全てのブックマークを返します。
-	 * @returns 未評価のブックマーク配列
-	 */
-	async findUnrated(): Promise<BookmarkWithLabel[]> {
-		try {
-			const results = await this.db
-				.select({
-					bookmark: bookmarks,
-					favorite: favorites,
-					label: labels,
-				})
-				.from(bookmarks)
-				.leftJoin(favorites, eq(bookmarks.id, favorites.bookmarkId))
-				.leftJoin(articleLabels, eq(bookmarks.id, articleLabels.articleId))
-				.leftJoin(labels, eq(articleLabels.labelId, labels.id))
-				.all();
-
-			return results.map(
-				(row): BookmarkWithLabel => ({
-					...row.bookmark,
-					isFavorite: !!row.favorite,
-					label: row.label || null,
-				}),
-			);
-		} catch (error) {
-			console.error("Failed to fetch unrated bookmarks:", error);
 			throw error;
 		}
 	}

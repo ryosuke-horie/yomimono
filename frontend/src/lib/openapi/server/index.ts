@@ -9,8 +9,6 @@
 import type {
   AssignLabelRequest,
   AssignLabelResponse,
-  BatchLabelRequest,
-  BatchLabelResponse,
   BookmarkListResponse,
   BulkBookmarksRequest,
   CreateLabelRequest,
@@ -23,8 +21,6 @@ import type {
   MessageResponse,
   RecentBookmarksResponse,
   SuccessResponse,
-  UnlabeledBookmarksResponse,
-  UnratedBookmarksResponse,
   UpdateLabelRequest
 } from './schemas';
 
@@ -80,61 +76,6 @@ export const getApiBookmarks = async (params?: GetApiBookmarksParams, options?: 
   
   const data: getApiBookmarksResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as getApiBookmarksResponse
-}
-
-
-
-/**
- * @summary 複数記事にまとめてラベル付け
- */
-export type putApiBookmarksBatchLabelResponse200 = {
-  data: BatchLabelResponse
-  status: 200
-}
-
-export type putApiBookmarksBatchLabelResponse400 = {
-  data: ErrorResponse
-  status: 400
-}
-
-export type putApiBookmarksBatchLabelResponse500 = {
-  data: ErrorResponse
-  status: 500
-}
-    
-export type putApiBookmarksBatchLabelResponseSuccess = (putApiBookmarksBatchLabelResponse200) & {
-  headers: Headers;
-};
-export type putApiBookmarksBatchLabelResponseError = (putApiBookmarksBatchLabelResponse400 | putApiBookmarksBatchLabelResponse500) & {
-  headers: Headers;
-};
-
-export type putApiBookmarksBatchLabelResponse = (putApiBookmarksBatchLabelResponseSuccess | putApiBookmarksBatchLabelResponseError)
-
-export const getPutApiBookmarksBatchLabelUrl = () => {
-
-
-  
-
-  return `/api/bookmarks/batch-label`
-}
-
-export const putApiBookmarksBatchLabel = async (batchLabelRequest: BatchLabelRequest, options?: RequestInit): Promise<putApiBookmarksBatchLabelResponse> => {
-  
-  const res = await fetch(getPutApiBookmarksBatchLabelUrl(),
-  {      
-    ...options,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      batchLabelRequest,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: putApiBookmarksBatchLabelResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as putApiBookmarksBatchLabelResponse
 }
 
 
@@ -288,104 +229,6 @@ export const getApiBookmarksRecent = async ( options?: RequestInit): Promise<get
   
   const data: getApiBookmarksRecentResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as getApiBookmarksRecentResponse
-}
-
-
-
-/**
- * @summary 未ラベルの未読ブックマーク一覧
- */
-export type getApiBookmarksUnlabeledResponse200 = {
-  data: UnlabeledBookmarksResponse
-  status: 200
-}
-
-export type getApiBookmarksUnlabeledResponse500 = {
-  data: ErrorResponse
-  status: 500
-}
-    
-export type getApiBookmarksUnlabeledResponseSuccess = (getApiBookmarksUnlabeledResponse200) & {
-  headers: Headers;
-};
-export type getApiBookmarksUnlabeledResponseError = (getApiBookmarksUnlabeledResponse500) & {
-  headers: Headers;
-};
-
-export type getApiBookmarksUnlabeledResponse = (getApiBookmarksUnlabeledResponseSuccess | getApiBookmarksUnlabeledResponseError)
-
-export const getGetApiBookmarksUnlabeledUrl = () => {
-
-
-  
-
-  return `/api/bookmarks/unlabeled`
-}
-
-export const getApiBookmarksUnlabeled = async ( options?: RequestInit): Promise<getApiBookmarksUnlabeledResponse> => {
-  
-  const res = await fetch(getGetApiBookmarksUnlabeledUrl(),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getApiBookmarksUnlabeledResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getApiBookmarksUnlabeledResponse
-}
-
-
-
-/**
- * @summary 未評価のブックマーク一覧
- */
-export type getApiBookmarksUnratedResponse200 = {
-  data: UnratedBookmarksResponse
-  status: 200
-}
-
-export type getApiBookmarksUnratedResponse500 = {
-  data: ErrorResponse
-  status: 500
-}
-    
-export type getApiBookmarksUnratedResponseSuccess = (getApiBookmarksUnratedResponse200) & {
-  headers: Headers;
-};
-export type getApiBookmarksUnratedResponseError = (getApiBookmarksUnratedResponse500) & {
-  headers: Headers;
-};
-
-export type getApiBookmarksUnratedResponse = (getApiBookmarksUnratedResponseSuccess | getApiBookmarksUnratedResponseError)
-
-export const getGetApiBookmarksUnratedUrl = () => {
-
-
-  
-
-  return `/api/bookmarks/unrated`
-}
-
-export const getApiBookmarksUnrated = async ( options?: RequestInit): Promise<getApiBookmarksUnratedResponse> => {
-  
-  const res = await fetch(getGetApiBookmarksUnratedUrl(),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getApiBookmarksUnratedResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getApiBookmarksUnratedResponse
 }
 
 
@@ -910,65 +753,6 @@ export const deleteApiLabelsId = async (id: number, options?: RequestInit): Prom
   
   const data: deleteApiLabelsIdResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as deleteApiLabelsIdResponse
-}
-
-
-
-/**
- * @summary ID でラベル取得
- */
-export type getApiLabelsIdResponse200 = {
-  data: LabelResponse
-  status: 200
-}
-
-export type getApiLabelsIdResponse400 = {
-  data: ErrorResponse
-  status: 400
-}
-
-export type getApiLabelsIdResponse404 = {
-  data: ErrorResponse
-  status: 404
-}
-
-export type getApiLabelsIdResponse500 = {
-  data: ErrorResponse
-  status: 500
-}
-    
-export type getApiLabelsIdResponseSuccess = (getApiLabelsIdResponse200) & {
-  headers: Headers;
-};
-export type getApiLabelsIdResponseError = (getApiLabelsIdResponse400 | getApiLabelsIdResponse404 | getApiLabelsIdResponse500) & {
-  headers: Headers;
-};
-
-export type getApiLabelsIdResponse = (getApiLabelsIdResponseSuccess | getApiLabelsIdResponseError)
-
-export const getGetApiLabelsIdUrl = (id: number,) => {
-
-
-  
-
-  return `/api/labels/${id}`
-}
-
-export const getApiLabelsId = async (id: number, options?: RequestInit): Promise<getApiLabelsIdResponse> => {
-  
-  const res = await fetch(getGetApiLabelsIdUrl(id),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getApiLabelsIdResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getApiLabelsIdResponse
 }
 
 

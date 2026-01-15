@@ -25,54 +25,6 @@ components:
           required:
             - label
           type: object
-    BatchLabelRequest:
-      properties:
-        articleIds:
-          items:
-            format: int64
-            type: integer
-          minItems: 1
-          type: array
-        description:
-          nullable: true
-          type: string
-        labelName:
-          type: string
-      required:
-        - articleIds
-        - labelName
-      type: object
-    BatchLabelResponse:
-      allOf:
-        - $ref: "#/components/schemas/SuccessResponse"
-        - properties:
-            errors:
-              items:
-                properties:
-                  articleId:
-                    format: int64
-                    type: integer
-                  error:
-                    type: string
-                required:
-                  - articleId
-                  - error
-                type: object
-              type: array
-            label:
-              $ref: "#/components/schemas/Label"
-            skipped:
-              format: int32
-              type: integer
-            successful:
-              format: int32
-              type: integer
-          required:
-            - successful
-            - skipped
-            - errors
-            - label
-          type: object
     Bookmark:
       properties:
         createdAt: &a1
@@ -290,28 +242,6 @@ components:
       required:
         - success
       type: object
-    UnlabeledBookmarksResponse:
-      allOf:
-        - $ref: "#/components/schemas/SuccessResponse"
-        - properties:
-            bookmarks:
-              items:
-                $ref: "#/components/schemas/Bookmark"
-              type: array
-          required:
-            - bookmarks
-          type: object
-    UnratedBookmarksResponse:
-      allOf:
-        - $ref: "#/components/schemas/SuccessResponse"
-        - properties:
-            bookmarks:
-              items:
-                $ref: "#/components/schemas/BookmarkWithLabel"
-              type: array
-          required:
-            - bookmarks
-          type: object
     UpdateLabelRequest:
       properties:
         description:
@@ -347,28 +277,6 @@ paths:
         "500":
           $ref: "#/components/responses/Error"
       summary: 未読ブックマーク一覧
-      tags:
-        - Bookmarks
-  /api/bookmarks/batch-label:
-    put:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/BatchLabelRequest"
-        required: true
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/BatchLabelResponse"
-          description: ラベル付け結果
-        "400":
-          $ref: "#/components/responses/Error"
-        "500":
-          $ref: "#/components/responses/Error"
-      summary: 複数記事にまとめてラベル付け
       tags:
         - Bookmarks
   /api/bookmarks/bulk:
@@ -419,34 +327,6 @@ paths:
         "500":
           $ref: "#/components/responses/Error"
       summary: 最近既読にしたブックマーク
-      tags:
-        - Bookmarks
-  /api/bookmarks/unlabeled:
-    get:
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UnlabeledBookmarksResponse"
-          description: 未ラベルのブックマーク一覧
-        "500":
-          $ref: "#/components/responses/Error"
-      summary: 未ラベルの未読ブックマーク一覧
-      tags:
-        - Bookmarks
-  /api/bookmarks/unrated:
-    get:
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UnratedBookmarksResponse"
-          description: 未評価のブックマーク一覧
-        "500":
-          $ref: "#/components/responses/Error"
-      summary: 未評価のブックマーク一覧
       tags:
         - Bookmarks
   /api/bookmarks/{id}/favorite:
@@ -657,30 +537,6 @@ paths:
         "500":
           $ref: "#/components/responses/Error"
       summary: ラベル削除
-      tags:
-        - Labels
-    get:
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            format: int64
-            type: integer
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/LabelResponse"
-          description: 対象ラベル
-        "400":
-          $ref: "#/components/responses/Error"
-        "404":
-          $ref: "#/components/responses/Error"
-        "500":
-          $ref: "#/components/responses/Error"
-      summary: ID でラベル取得
       tags:
         - Labels
     patch:

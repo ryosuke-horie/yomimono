@@ -3,7 +3,6 @@ import {
 	resetDrizzleClientMock,
 	setupDrizzleClientMock,
 } from "../../tests/drizzle.mock";
-import { ArticleLabelRepository } from "./articleLabel";
 import { DrizzleBookmarkRepository } from "./bookmark";
 
 const { mockDb } = setupDrizzleClientMock();
@@ -23,85 +22,6 @@ beforeEach(() => {
 });
 
 describe("バッチラベル付け関連のリポジトリメソッド", () => {
-	describe("ArticleLabelRepository - createMany", () => {
-		let repository: ArticleLabelRepository;
-		let mockDb: unknown;
-
-		beforeEach(() => {
-			mockDb = {
-				prepare: vi.fn().mockReturnThis(),
-				bind: vi.fn().mockReturnThis(),
-				all: vi.fn(),
-				get: vi.fn(),
-			};
-			// biome-ignore lint/suspicious/noExplicitAny: Testing with mock db
-			repository = new ArticleLabelRepository(mockDb as any);
-		});
-
-		it("複数の記事ラベルを一括で作成できる", async () => {
-			const mockData = [
-				{ articleId: 1, labelId: 1 },
-				{ articleId: 2, labelId: 1 },
-			];
-
-			const expectedResults = [
-				{ id: 1, articleId: 1, labelId: 1, createdAt: new Date() },
-				{ id: 2, articleId: 2, labelId: 1, createdAt: new Date() },
-			];
-
-			// Mock Drizzle calls
-			// biome-ignore lint/suspicious/noExplicitAny: Testing with mock db
-			const mockedDb = (repository as any).db;
-			mockedDb.insert.mockReturnThis();
-			mockedDb.values.mockReturnThis();
-			mockedDb.returning.mockReturnThis();
-			mockedDb.all.mockResolvedValue(expectedResults);
-
-			const results = await repository.createMany(mockData);
-
-			expect(results).toBe(expectedResults);
-			expect(mockedDb.insert).toHaveBeenCalled();
-		});
-	});
-
-	describe("ArticleLabelRepository - findExistingArticleIds", () => {
-		let repository: ArticleLabelRepository;
-		let mockDb: unknown;
-
-		beforeEach(() => {
-			mockDb = {
-				prepare: vi.fn().mockReturnThis(),
-				bind: vi.fn().mockReturnThis(),
-				all: vi.fn(),
-				get: vi.fn(),
-			};
-			// biome-ignore lint/suspicious/noExplicitAny: Testing with mock db
-			repository = new ArticleLabelRepository(mockDb as any);
-		});
-
-		it("指定したラベルが付与済みの記事IDのSetを返す", async () => {
-			const articleIds = [1, 2, 3, 4];
-			const labelId = 99;
-			const existingLabels = [{ articleId: 1 }, { articleId: 3 }];
-
-			// Mock Drizzle calls
-			// biome-ignore lint/suspicious/noExplicitAny: Testing with mock db
-			const mockedDb = (repository as any).db;
-			mockedDb.select.mockReturnThis();
-			mockedDb.from.mockReturnThis();
-			mockedDb.where.mockReturnThis();
-			mockedDb.all.mockResolvedValue(existingLabels);
-
-			const result = await repository.findExistingArticleIds(
-				articleIds,
-				labelId,
-			);
-
-			expect(result).toEqual(new Set([1, 3]));
-			expect(mockedDb.where).toHaveBeenCalled();
-		});
-	});
-
 	describe("DrizzleBookmarkRepository - findByIds", () => {
 		let repository: DrizzleBookmarkRepository;
 		let mockDb: unknown;

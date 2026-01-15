@@ -92,12 +92,6 @@ export function distance(a: Point, b: Point): number {
 git checkout -b EDG-289
 ```
 
-### MCP連携
-
-Linear MCPツールが利用可能な環境では、Claude Codeから直接Linearの操作（イシュー作成・検索・更新等）が可能です。
-
-詳細なルールは `.claude/rules/linear.md` を参照してください。
-
 ## ディレクトリ構造
 ```
 .
@@ -113,7 +107,7 @@ Linear MCPツールが利用可能な環境では、Claude Codeから直接Linea
 - API開発: `cd api && pnpm run dev` - APIの開発サーバーを起動
 - フロント開発: `cd frontend && pnpm run dev` - フロントエンドの開発サーバーを起動
 - フロントビルド: `cd frontend && pnpm run build` - フロントエンドを本番用にビルド
-- リント/フォーマット: `cd <package> && pnpm run lint|format` - 各ディレクトリで実行（`<package>` は `api` / `frontend` / `extension` / `mcp` を指定）
+- リント/フォーマット: `cd <package> && pnpm run lint|format` - 各ディレクトリで実行（`<package>` は `api` / `frontend` / `extension` を指定）
 - テスト: `cd api && pnpm run test` / `cd frontend && pnpm run test` - 各パッケージのテストを実行
 - 単一テスト: `cd api && pnpm vitest run tests/unit/path/to/test.ts` - 特定のテストを実行
 - テストカバレッジ: `cd api && pnpm run test -- --coverage` - カバレッジレポート生成（9割以上必要）
@@ -142,7 +136,7 @@ Linear MCPツールが利用可能な環境では、Claude Codeから直接Linea
 
 ## 依存関係管理
 - **Dependabot**: `.github/dependabot.yml`で設定
-  - 各ディレクトリごと（api, frontend, extension, mcp）に個別に依存関係を管理
+  - 各ディレクトリごと（api, frontend, extension）に個別に依存関係を管理
   - 依存パッケージはグループ化されており、関連パッケージは一括で更新される
   - テスト関連パッケージ（vitest, @vitest/*）は同時に更新する必要があるためグループ化
 
