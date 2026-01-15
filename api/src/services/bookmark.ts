@@ -1,5 +1,5 @@
 import { CONFIG } from "../config";
-import type { Bookmark, InsertBookmark } from "../db/schema";
+import type { InsertBookmark } from "../db/schema";
 import { InternalServerError, NotFoundError } from "../exceptions";
 import type {
 	BookmarkWithLabel,
@@ -123,15 +123,6 @@ export class DefaultBookmarkService implements IBookmarkService {
 		}
 	}
 
-	async getUnlabeledBookmarks(): Promise<Bookmark[]> {
-		try {
-			return await this.repository.findUnlabeled();
-		} catch (error) {
-			console.error("Failed to get unlabeled bookmarks:", error);
-			throw new InternalServerError("Failed to get unlabeled bookmarks");
-		}
-	}
-
 	async getBookmarksByLabel(labelName: string): Promise<BookmarkWithLabel[]> {
 		try {
 			// Note: labelNameは正規化済みである必要があります。
@@ -140,15 +131,6 @@ export class DefaultBookmarkService implements IBookmarkService {
 		} catch (error) {
 			console.error("Failed to get bookmarks by label:", error);
 			throw new InternalServerError("Failed to get bookmarks by label");
-		}
-	}
-
-	async getUnratedBookmarks(): Promise<BookmarkWithLabel[]> {
-		try {
-			return await this.repository.findUnrated();
-		} catch (error) {
-			console.error("Failed to get unrated bookmarks:", error);
-			throw new InternalServerError("Failed to get unrated bookmarks");
 		}
 	}
 }

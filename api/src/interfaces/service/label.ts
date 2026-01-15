@@ -8,14 +8,6 @@ export interface ILabelService {
 	getLabels(): Promise<(Label & { articleCount: number })[]>;
 
 	/**
-	 * 指定されたIDのラベルを取得します。
-	 * @param id ラベルID
-	 * @returns ラベルオブジェクト
-	 * @throws Error ラベルが存在しない場合
-	 */
-	getLabelById(id: number): Promise<Label>;
-
-	/**
 	 * 指定された記事にラベルを付与します。
 	 * ラベルが存在しない場合は新規作成します。
 	 * ラベル名は正規化されます。
@@ -62,25 +54,6 @@ export interface ILabelService {
 		id: number,
 		description: string | null,
 	): Promise<Label>;
-
-	/**
-	 * 複数の記事に同じラベルを一括で付与します。
-	 * 既にラベルが付与されている記事はスキップされます。
-	 * @param articleIds ラベルを付与する記事IDの配列
-	 * @param labelName ラベル名（正規化前でも可）
-	 * @param description ラベルの説明文（オプション）
-	 * @returns 処理結果（成功数、スキップ数、エラー情報）
-	 */
-	assignLabelsToMultipleArticles(
-		articleIds: number[],
-		labelName: string,
-		description?: string,
-	): Promise<{
-		successful: number;
-		skipped: number;
-		errors: Array<{ articleId: number; error: string }>;
-		label: Label;
-	}>;
 
 	/**
 	 * 未使用のラベル（記事数が0のラベル）を一括削除します。

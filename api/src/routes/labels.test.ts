@@ -53,20 +53,16 @@ const mockGetLabels = vi.fn();
 const mockAssignLabel = vi.fn();
 const mockCreateLabel = vi.fn();
 const mockDeleteLabel = vi.fn();
-const mockGetLabelById = vi.fn();
 const mockUpdateLabelDescription = vi.fn();
-const mockAssignLabelsToMultipleArticles = vi.fn();
 const mockCleanupUnusedLabels = vi.fn();
 
 // モックサービスの作成
 const mockLabelService: ILabelService = {
 	getLabels: mockGetLabels,
-	getLabelById: mockGetLabelById,
 	assignLabel: mockAssignLabel,
 	createLabel: mockCreateLabel,
 	deleteLabel: mockDeleteLabel,
 	updateLabelDescription: mockUpdateLabelDescription,
-	assignLabelsToMultipleArticles: mockAssignLabelsToMultipleArticles,
 	cleanupUnusedLabels: mockCleanupUnusedLabels,
 };
 
@@ -441,91 +437,6 @@ describe("Labels Route", () => {
 			expect(mockCreateLabel).toHaveBeenCalledWith(newLabelName, undefined);
 		});
 	});
-
-	describe("GET /api/labels/:id", () => {
-		const mockEnv: Env = { DB: {} as D1Database };
-		const labelId = 1;
-		const mockLabel: Label = {
-			id: labelId,
-			name: "typescript",
-			description: "TypeScriptに関する記事",
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		};
-
-		it("指定されたIDのラベルを取得し、成功レスポンスを返すこと", async () => {
-			mockGetLabelById.mockResolvedValue(mockLabel);
-
-			const res = await app.request(
-				`/api/labels/${labelId}`,
-				{
-					method: "GET",
-				},
-				mockEnv,
-			);
-			const body = (await res.json()) as { success: boolean; label: Label };
-
-			expect(res.status).toBe(200);
-			expect(body.success).toBe(true);
-			compareObjectsIgnoringDateFormat(body.label, mockLabel);
-			expect(mockGetLabelById).toHaveBeenCalledWith(labelId);
-		});
-
-		it("不正なID形式の場合、400エラーレスポンスを返すこと", async () => {
-			const res = await app.request(
-				"/api/labels/invalid-id",
-				{
-					method: "GET",
-				},
-				mockEnv,
-			);
-			const body = (await res.json()) as { success: boolean; message: string };
-
-			expect(res.status).toBe(400);
-			expect(body.success).toBe(false);
-			expect(body.message).toBe("Invalid label ID");
-			expect(mockGetLabelById).not.toHaveBeenCalled();
-		});
-
-		it("存在しないラベルの場合、404エラーレスポンスを返すこと", async () => {
-			const error = new Error(`Label with id ${labelId} not found`);
-			mockGetLabelById.mockRejectedValue(error);
-
-			const res = await app.request(
-				`/api/labels/${labelId}`,
-				{
-					method: "GET",
-				},
-				mockEnv,
-			);
-			const body = (await res.json()) as { success: boolean; message: string };
-
-			expect(res.status).toBe(404);
-			expect(body.success).toBe(false);
-			expect(body.message).toBe("Label not found");
-			expect(mockGetLabelById).toHaveBeenCalledWith(labelId);
-		});
-
-		it("サービスでエラーが発生した場合、500エラーレスポンスを返すこと", async () => {
-			const error = new Error("Database connection failed");
-			mockGetLabelById.mockRejectedValue(error);
-
-			const res = await app.request(
-				`/api/labels/${labelId}`,
-				{
-					method: "GET",
-				},
-				mockEnv,
-			);
-			const body = (await res.json()) as { success: boolean; message: string };
-
-			expect(res.status).toBe(500);
-			expect(body.success).toBe(false);
-			expect(body.message).toBe("Database connection failed");
-			expect(mockGetLabelById).toHaveBeenCalledWith(labelId);
-		});
-	});
-
 	describe("PATCH /api/labels/:id", () => {
 		const mockEnv: Env = { DB: {} as D1Database };
 		const labelId = 1;

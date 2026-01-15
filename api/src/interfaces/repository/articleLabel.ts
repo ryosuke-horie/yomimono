@@ -18,26 +18,6 @@ export interface IArticleLabelRepository {
 	): Promise<ArticleLabel>;
 
 	/**
-	 * 複数の記事ラベルの紐付けを一括作成します。
-	 * @param data 記事ラベルデータの配列
-	 * @returns 作成された記事ラベルオブジェクトの配列
-	 */
-	createMany(
-		data: Array<Pick<InsertArticleLabel, "articleId" | "labelId">>,
-	): Promise<ArticleLabel[]>;
-
-	/**
-	 * 指定された記事IDのリストに対して、特定のラベルが付与されているかを一括で確認します。
-	 * @param articleIds 記事IDの配列
-	 * @param labelId 判定対象のラベルID
-	 * @returns 既にラベルが付与されている記事IDのSet
-	 */
-	findExistingArticleIds(
-		articleIds: number[],
-		labelId: number,
-	): Promise<Set<number>>;
-
-	/**
 	 * 記事に紐づくラベルの紐付けを削除します。
 	 * @param articleId 記事ID
 	 */

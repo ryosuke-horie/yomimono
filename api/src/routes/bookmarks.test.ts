@@ -28,7 +28,6 @@ const mockAddToFavorites = vi.fn();
 const mockRemoveFromFavorites = vi.fn();
 const mockGetFavoriteBookmarks = vi.fn();
 const mockGetRecentlyReadBookmarks = vi.fn();
-const mockGetUnlabeledBookmarks = vi.fn();
 const mockGetBookmarksByLabel = vi.fn();
 const mockAssignLabel = vi.fn();
 
@@ -43,18 +42,14 @@ const mockBookmarkService: IBookmarkService = {
 	removeFromFavorites: mockRemoveFromFavorites,
 	getFavoriteBookmarks: mockGetFavoriteBookmarks,
 	getRecentlyReadBookmarks: mockGetRecentlyReadBookmarks,
-	getUnlabeledBookmarks: mockGetUnlabeledBookmarks,
 	getBookmarksByLabel: mockGetBookmarksByLabel,
-	getUnratedBookmarks: vi.fn(),
 };
 const mockLabelService: ILabelService = {
 	getLabels: vi.fn(),
 	assignLabel: mockAssignLabel,
 	createLabel: vi.fn(),
 	deleteLabel: vi.fn(),
-	getLabelById: vi.fn(),
 	updateLabelDescription: vi.fn(),
-	assignLabelsToMultipleArticles: vi.fn(),
 	cleanupUnusedLabels: vi.fn(),
 };
 
@@ -164,38 +159,6 @@ describe("BookmarkRouter", () => {
 			expect(res.status).toBe(500);
 			expect(data.success).toBe(false);
 			expect(data.message).toBe("Service error on filter");
-		});
-	});
-
-	describe("GET /api/bookmarks/unlabeled", () => {
-		it("未ラベルのブックマーク一覧を取得できること", async () => {
-			const mockUnlabeled: Bookmark[] = [mockBookmark1];
-			mockGetUnlabeledBookmarks.mockResolvedValue(mockUnlabeled);
-
-			const res = await app.request("/api/bookmarks/unlabeled");
-			const data = (await res.json()) as {
-				success: boolean;
-				bookmarks: Bookmark[];
-			};
-
-			expect(res.status).toBe(200);
-			expect(data.success).toBe(true);
-			expect(data.bookmarks).toHaveLength(mockUnlabeled.length);
-			expect(data.bookmarks[0].id).toEqual(mockUnlabeled[0].id);
-			expect(data.bookmarks[0].url).toEqual(mockUnlabeled[0].url);
-			expect(mockGetUnlabeledBookmarks).toHaveBeenCalledOnce();
-		});
-
-		it("サービスでエラーが発生した場合、500エラーレスポンスを返すこと", async () => {
-			const error = new Error("Service error");
-			mockGetUnlabeledBookmarks.mockRejectedValue(error);
-
-			const res = await app.request("/api/bookmarks/unlabeled");
-			const data = (await res.json()) as { success: boolean; message: string };
-
-			expect(res.status).toBe(500);
-			expect(data.success).toBe(false);
-			expect(data.message).toBe("Service error");
 		});
 	});
 

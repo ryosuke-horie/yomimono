@@ -26,13 +26,6 @@ export interface IBookmarkRepository {
 	findRecentlyRead(): Promise<BookmarkWithLabel[]>;
 
 	/**
-	 * ラベルが付与されていないブックマークを取得します。
-	 * * 既読のブックマークは除外されます。
-	 * @returns 未ラベルのブックマーク配列
-	 */
-	findUnlabeled(): Promise<Bookmark[]>;
-
-	/**
 	 * 指定されたラベル名に紐づくブックマークを取得します。
 	 * @param labelName ラベル名（正規化済み）
 	 * @returns ラベルに紐づくブックマーク配列（ラベル情報付き）
@@ -52,10 +45,4 @@ export interface IBookmarkRepository {
 	 * @returns ブックマークのマップ（ID => BookmarkWithLabel）
 	 */
 	findByIds(ids: number[]): Promise<Map<number, BookmarkWithLabel>>;
-
-	/**
-	 * 評価が存在しないブックマークを取得します。
-	 * @returns 未評価のブックマーク配列
-	 */
-	findUnrated(): Promise<BookmarkWithLabel[]>;
 }

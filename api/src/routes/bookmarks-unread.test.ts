@@ -31,8 +31,6 @@ describe("Bookmark Unread Endpoint", () => {
 		assignLabel: vi.fn(),
 		createLabel: vi.fn(),
 		deleteLabel: vi.fn(),
-		assignLabelsToMultipleArticles: vi.fn(),
-		getLabelById: vi.fn(),
 		updateLabelDescription: vi.fn(),
 		cleanupUnusedLabels: vi.fn(),
 	};

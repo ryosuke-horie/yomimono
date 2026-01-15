@@ -398,33 +398,6 @@ describe("ブックマークリポジトリ", () => {
 		// DBエラーハンドリングは他ケースでカバー済み
 	});
 
-	describe("未ラベルブックマーク取得 (findUnlabeled)", () => {
-		it("ラベルが付与されていないブックマークのみ取得できること", async () => {
-			mockDbClient.all.mockResolvedValue([{ bookmarks: mockBookmark2 }]);
-			const result = await repository.findUnlabeled();
-			expect(result).toEqual([mockBookmark2]);
-			expect(mockDbClient.select).toHaveBeenCalledWith({
-				bookmarks: bookmarks,
-			});
-			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
-			expect(mockDbClient.leftJoin).toHaveBeenCalledWith(
-				articleLabels,
-				expect.anything(),
-			);
-
-			expect(mockDbClient.all).toHaveBeenCalledOnce();
-		});
-
-		it("未ラベルのブックマークが存在しない場合、空配列を返すこと", async () => {
-			mockDbClient.all.mockResolvedValue([]);
-			const result = await repository.findUnlabeled();
-			expect(result).toEqual([]);
-			expect(mockDbClient.all).toHaveBeenCalledOnce();
-		});
-
-		// DBエラーハンドリングは他ケースでカバー済み
-	});
-
 	describe("ラベル名によるブックマーク取得 (findByLabelName)", () => {
 		it("指定されたラベル名を持つブックマークをラベル・お気に入り情報付きで取得できること", async () => {
 			const labelName = "typescript";
@@ -867,73 +840,6 @@ describe("ブックマークリポジトリ", () => {
 			expect(mockDbClient.where).toHaveBeenCalledWith(
 				eq(favorites.bookmarkId, 1),
 			);
-		});
-	});
-
-	describe("findUnrated", () => {
-		it("記事評価機能削除後、全てのブックマークを未評価として返すこと", async () => {
-			const mockResults = [
-				{
-					bookmark: mockBookmark1,
-					favorite: null,
-					label: null,
-				},
-				{
-					bookmark: mockBookmark2,
-					favorite: { id: 1, bookmarkId: 2, createdAt: new Date() },
-					label: mockLabel1,
-				},
-			];
-
-			mockDbClient.all.mockResolvedValue(mockResults);
-
-			const result = await repository.findUnrated();
-
-			expect(mockDbClient.select).toHaveBeenCalled();
-			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
-			expect(mockDbClient.leftJoin).toHaveBeenCalledWith(
-				favorites,
-				eq(bookmarks.id, favorites.bookmarkId),
-			);
-			expect(mockDbClient.leftJoin).toHaveBeenCalledWith(
-				articleLabels,
-				eq(bookmarks.id, articleLabels.articleId),
-			);
-			expect(mockDbClient.leftJoin).toHaveBeenCalledWith(
-				labels,
-				eq(articleLabels.labelId, labels.id),
-			);
-			expect(mockDbClient.all).toHaveBeenCalled();
-
-			expect(result).toHaveLength(2);
-			expect(result[0]).toEqual({
-				...mockBookmark1,
-				isFavorite: false,
-				label: null,
-			});
-			expect(result[1]).toEqual({
-				...mockBookmark2,
-				isFavorite: true,
-				label: mockLabel1,
-			});
-		});
-
-		it("空の結果を返すこと", async () => {
-			mockDbClient.all.mockResolvedValue([]);
-
-			const result = await repository.findUnrated();
-
-			expect(result).toEqual([]);
-		});
-
-		it("DBエラー時にエラーをスローすること", async () => {
-			const mockError = new Error("Database error");
-			mockDbClient.all.mockRejectedValue(mockError);
-
-			await expect(repository.findUnrated()).rejects.toThrow(mockError);
-
-			expect(mockDbClient.select).toHaveBeenCalled();
-			expect(mockDbClient.from).toHaveBeenCalledWith(bookmarks);
 		});
 	});
 });

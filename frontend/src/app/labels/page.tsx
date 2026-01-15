@@ -121,7 +121,7 @@ export default function LabelsPage() {
 								登録済みラベル一覧
 							</h2>
 							<p className="text-sm text-gray-500 mt-1">
-								ラベルの説明文は、MCPによる自動ラベリングの参考になります。
+								ラベルの説明文は、記事の分類に役立ちます。
 							</p>
 						</div>
 						<LabelList

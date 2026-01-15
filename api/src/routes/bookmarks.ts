@@ -13,8 +13,6 @@ import type { IBookmarkService } from "../interfaces/service/bookmark";
 import type { ILabelService } from "../interfaces/service/label";
 import {
 	validateId,
-	validateIdArray,
-	validateOptionalString,
 	validateRequestBody,
 	validateRequiredString,
 } from "../utils/validation";
@@ -58,20 +56,6 @@ export const createBookmarksRouter = (
 			});
 		} catch (error) {
 			console.error("Failed to fetch bookmarks:", error);
-			const errorResponse = createErrorResponse(error);
-			return c.json(
-				createErrorResponseBody(error),
-				toContentfulStatusCode(errorResponse.statusCode),
-			);
-		}
-	});
-
-	app.get("/unlabeled", async (c) => {
-		try {
-			const bookmarks = await bookmarkService.getUnlabeledBookmarks();
-			return c.json({ success: true, bookmarks });
-		} catch (error) {
-			console.error("Failed to fetch unlabeled bookmarks:", error);
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),
@@ -276,62 +260,6 @@ export const createBookmarksRouter = (
 			return c.json({ success: true, bookmarks: recentlyReadBookmarks });
 		} catch (error) {
 			console.error("Failed to fetch recently read bookmarks:", error);
-			const errorResponse = createErrorResponse(error);
-			return c.json(
-				createErrorResponseBody(error),
-				toContentfulStatusCode(errorResponse.statusCode),
-			);
-		}
-	});
-
-	app.get("/unrated", async (c) => {
-		try {
-			const unratedBookmarks = await bookmarkService.getUnratedBookmarks();
-			return c.json({ success: true, bookmarks: unratedBookmarks });
-		} catch (error) {
-			console.error("Failed to fetch unrated bookmarks:", error);
-			const errorResponse = createErrorResponse(error);
-			return c.json(
-				createErrorResponseBody(error),
-				toContentfulStatusCode(errorResponse.statusCode),
-			);
-		}
-	});
-
-	// 一括ラベル付け
-	app.put("/batch-label", async (c) => {
-		try {
-			const body = validateRequestBody<{
-				articleIds?: number[];
-				labelName?: string;
-				description?: string;
-			}>(await c.req.json());
-
-			const articleIds = validateIdArray(body.articleIds, "articleIds");
-			const labelName = validateRequiredString(body.labelName, "labelName");
-			const description = validateOptionalString(
-				body.description,
-				"description",
-			);
-
-			// labelServiceを使って一括ラベル付け
-			const result = await labelService.assignLabelsToMultipleArticles(
-				articleIds,
-				labelName,
-				description,
-			);
-
-			return c.json({ success: true, ...result });
-		} catch (error) {
-			if (error instanceof Error && !(error instanceof BadRequestError)) {
-				if (error.message.includes("Invalid article ID")) {
-					throw new BadRequestError(error.message);
-				}
-				if (error.message.includes("cannot be empty")) {
-					throw new BadRequestError(error.message);
-				}
-			}
-			console.error("Failed to batch assign labels:", error);
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),

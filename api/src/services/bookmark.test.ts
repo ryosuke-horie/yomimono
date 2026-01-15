@@ -62,7 +62,6 @@ describe("DefaultBookmarkService", () => {
 	const mockGetFavoriteBookmarks = vi.fn();
 	const mockIsFavorite = vi.fn();
 	const mockFindRecentlyRead = vi.fn();
-	const mockFindUnlabeled = vi.fn();
 	const mockFindByLabelName = vi.fn();
 	const mockFindById = vi.fn();
 
@@ -79,11 +78,9 @@ describe("DefaultBookmarkService", () => {
 		getFavoriteBookmarks: mockGetFavoriteBookmarks,
 		isFavorite: mockIsFavorite,
 		findRecentlyRead: mockFindRecentlyRead,
-		findUnlabeled: mockFindUnlabeled,
 		findByLabelName: mockFindByLabelName,
 		findById: mockFindById,
 		findByIds: vi.fn(),
-		findUnrated: vi.fn(),
 	};
 
 	beforeEach(() => {
@@ -371,27 +368,6 @@ describe("DefaultBookmarkService", () => {
 
 			await expect(service.getRecentlyReadBookmarks()).rejects.toThrow(
 				"Failed to get recently read bookmarks",
-			);
-		});
-	});
-
-	describe("getUnlabeledBookmarks：未ラベルブックマークの取得", () => {
-		it("リポジトリから未ラベルブックマークを返す", async () => {
-			const mockUnlabeled: Bookmark[] = [mockBookmark1];
-			mockFindUnlabeled.mockResolvedValue(mockUnlabeled);
-
-			const result = await service.getUnlabeledBookmarks();
-
-			expect(mockFindUnlabeled).toHaveBeenCalled();
-			expect(result).toEqual(mockUnlabeled);
-		});
-
-		it("リポジトリからのエラーを伝播する", async () => {
-			const error = new Error("Repository error");
-			mockFindUnlabeled.mockRejectedValue(error);
-
-			await expect(service.getUnlabeledBookmarks()).rejects.toThrow(
-				"Failed to get unlabeled bookmarks",
 			);
 		});
 	});

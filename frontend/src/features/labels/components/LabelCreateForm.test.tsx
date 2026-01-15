@@ -23,7 +23,7 @@ describe("LabelCreateForm", () => {
 
 		const nameInput = screen.getByPlaceholderText("例：react, typescript, aws");
 		const descriptionInput = screen.getByPlaceholderText(
-			"このラベルの説明（MCPの自動ラベリングの参考になります）",
+			"このラベルの説明（記事の分類に役立ちます）",
 		);
 
 		fireEvent.change(nameInput, { target: { value: "テストラベル" } });
@@ -41,7 +41,7 @@ describe("LabelCreateForm", () => {
 
 		const nameInput = screen.getByPlaceholderText("例：react, typescript, aws");
 		const descriptionInput = screen.getByPlaceholderText(
-			"このラベルの説明（MCPの自動ラベリングの参考になります）",
+			"このラベルの説明（記事の分類に役立ちます）",
 		);
 		const submitButton = screen.getByText("作成");
 

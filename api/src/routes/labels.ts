@@ -84,30 +84,6 @@ export const createLabelsRouter = (labelService: ILabelService) => {
 		}
 	});
 
-	// ラベル取得（ID指定）
-	app.get("/:id", async (c) => {
-		try {
-			const id = validateId(c.req.param("id"), "label ID");
-
-			const label = await labelService.getLabelById(id);
-			return c.json({ success: true, label });
-		} catch (error) {
-			if (
-				error instanceof Error &&
-				error.message.includes("not found") &&
-				!(error instanceof BadRequestError)
-			) {
-				throw new NotFoundError("Label not found");
-			}
-			console.error("Failed to get label:", error);
-			const errorResponse = createErrorResponse(error);
-			return c.json(
-				createErrorResponseBody(error),
-				toContentfulStatusCode(errorResponse.statusCode),
-			);
-		}
-	});
-
 	// ラベル説明文更新
 	app.patch("/:id", async (c) => {
 		try {

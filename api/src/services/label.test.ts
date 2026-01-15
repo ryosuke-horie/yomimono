@@ -99,35 +99,6 @@ describe("LabelService", () => {
 		});
 	});
 
-	describe("getLabelById", () => {
-		const labelId = 1;
-		const mockLabel: Label = {
-			id: labelId,
-			name: "typescript",
-			description: "TypeScriptに関する記事",
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		};
-
-		it("指定されたIDのラベルを取得できること", async () => {
-			mockFindLabelById.mockResolvedValue(mockLabel);
-
-			const result = await labelService.getLabelById(labelId);
-
-			expect(result).toEqual(mockLabel);
-			expect(mockFindLabelById).toHaveBeenCalledWith(labelId);
-		});
-
-		it("存在しないIDの場合エラーをスローすること", async () => {
-			mockFindLabelById.mockResolvedValue(undefined);
-
-			await expect(labelService.getLabelById(999)).rejects.toThrow(
-				"Label with id 999 not found",
-			);
-			expect(mockFindLabelById).toHaveBeenCalledWith(999);
-		});
-	});
-
 	describe("assignLabel", () => {
 		const articleId = 1;
 		const labelNameInput = " TypeScript "; // Test normalization

@@ -82,25 +82,6 @@ const openApiDocument: OpenAPIObject = {
 				},
 			},
 		},
-		"/api/bookmarks/unlabeled": {
-			get: {
-				tags: ["Bookmarks"],
-				summary: "未ラベルの未読ブックマーク一覧",
-				responses: {
-					200: {
-						description: "未ラベルのブックマーク一覧",
-						content: {
-							"application/json": {
-								schema: {
-									$ref: "#/components/schemas/UnlabeledBookmarksResponse",
-								},
-							},
-						},
-					},
-					500: { $ref: "#/components/responses/Error" },
-				},
-			},
-		},
 		"/api/bookmarks/{id}/label": {
 			put: {
 				tags: ["Bookmarks"],
@@ -312,53 +293,6 @@ const openApiDocument: OpenAPIObject = {
 				},
 			},
 		},
-		"/api/bookmarks/unrated": {
-			get: {
-				tags: ["Bookmarks"],
-				summary: "未評価のブックマーク一覧",
-				responses: {
-					200: {
-						description: "未評価のブックマーク一覧",
-						content: {
-							"application/json": {
-								schema: {
-									$ref: "#/components/schemas/UnratedBookmarksResponse",
-								},
-							},
-						},
-					},
-					500: { $ref: "#/components/responses/Error" },
-				},
-			},
-		},
-		"/api/bookmarks/batch-label": {
-			put: {
-				tags: ["Bookmarks"],
-				summary: "複数記事にまとめてラベル付け",
-				requestBody: {
-					required: true,
-					content: {
-						"application/json": {
-							schema: { $ref: "#/components/schemas/BatchLabelRequest" },
-						},
-					},
-				},
-				responses: {
-					200: {
-						description: "ラベル付け結果",
-						content: {
-							"application/json": {
-								schema: {
-									$ref: "#/components/schemas/BatchLabelResponse",
-								},
-							},
-						},
-					},
-					400: { $ref: "#/components/responses/Error" },
-					500: { $ref: "#/components/responses/Error" },
-				},
-			},
-		},
 		"/api/labels": {
 			get: {
 				tags: ["Labels"],
@@ -421,31 +355,6 @@ const openApiDocument: OpenAPIObject = {
 			},
 		},
 		"/api/labels/{id}": {
-			get: {
-				tags: ["Labels"],
-				summary: "ID でラベル取得",
-				parameters: [
-					{
-						name: "id",
-						in: "path",
-						required: true,
-						schema: { type: "integer", format: "int64" },
-					},
-				],
-				responses: {
-					200: {
-						description: "対象ラベル",
-						content: {
-							"application/json": {
-								schema: { $ref: "#/components/schemas/LabelResponse" },
-							},
-						},
-					},
-					400: { $ref: "#/components/responses/Error" },
-					404: { $ref: "#/components/responses/Error" },
-					500: { $ref: "#/components/responses/Error" },
-				},
-			},
 			patch: {
 				tags: ["Labels"],
 				summary: "ラベル説明文の更新",
@@ -585,21 +494,6 @@ const openApiDocument: OpenAPIObject = {
 					},
 				],
 			},
-			UnlabeledBookmarksResponse: {
-				allOf: [
-					{ $ref: "#/components/schemas/SuccessResponse" },
-					{
-						type: "object",
-						required: ["bookmarks"],
-						properties: {
-							bookmarks: {
-								type: "array",
-								items: { $ref: "#/components/schemas/Bookmark" },
-							},
-						},
-					},
-				],
-			},
 			FavoriteBookmarksResponse: {
 				allOf: [
 					{ $ref: "#/components/schemas/SuccessResponse" },
@@ -612,21 +506,6 @@ const openApiDocument: OpenAPIObject = {
 								items: { $ref: "#/components/schemas/BookmarkWithLabel" },
 							},
 							total: { type: "integer", format: "int64" },
-						},
-					},
-				],
-			},
-			UnratedBookmarksResponse: {
-				allOf: [
-					{ $ref: "#/components/schemas/SuccessResponse" },
-					{
-						type: "object",
-						required: ["bookmarks"],
-						properties: {
-							bookmarks: {
-								type: "array",
-								items: { $ref: "#/components/schemas/BookmarkWithLabel" },
-							},
 						},
 					},
 				],
@@ -686,44 +565,6 @@ const openApiDocument: OpenAPIObject = {
 						},
 					},
 				},
-			},
-			BatchLabelRequest: {
-				type: "object",
-				required: ["articleIds", "labelName"],
-				properties: {
-					articleIds: {
-						type: "array",
-						minItems: 1,
-						items: { type: "integer", format: "int64" },
-					},
-					labelName: { type: "string" },
-					description: { type: "string", nullable: true },
-				},
-			},
-			BatchLabelResponse: {
-				allOf: [
-					{ $ref: "#/components/schemas/SuccessResponse" },
-					{
-						type: "object",
-						required: ["successful", "skipped", "errors", "label"],
-						properties: {
-							successful: { type: "integer", format: "int32" },
-							skipped: { type: "integer", format: "int32" },
-							errors: {
-								type: "array",
-								items: {
-									type: "object",
-									required: ["articleId", "error"],
-									properties: {
-										articleId: { type: "integer", format: "int64" },
-										error: { type: "string" },
-									},
-								},
-							},
-							label: { $ref: "#/components/schemas/Label" },
-						},
-					},
-				],
 			},
 			CreateLabelRequest: {
 				type: "object",
