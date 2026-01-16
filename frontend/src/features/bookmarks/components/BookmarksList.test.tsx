@@ -79,5 +79,4 @@ describe("BookmarksList", () => {
 		expect(screen.getByText("Second Bookmark")).toBeInTheDocument();
 		expect(screen.getByText("Third Bookmark")).toBeInTheDocument();
 	});
-
 });

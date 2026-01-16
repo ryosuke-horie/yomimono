@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NotFoundError } from "../exceptions";
 import type { Env } from "../index";
 import type { IBookmarkService } from "../interfaces/service/bookmark";
-import type { ILabelService } from "../interfaces/service/label";
 import { createBookmarksRouter } from "./bookmarks";
 
 describe("Bookmark Unread Endpoint", () => {
@@ -22,23 +21,13 @@ describe("Bookmark Unread Endpoint", () => {
 		removeFromFavorites: vi.fn(),
 		getFavoriteBookmarks: vi.fn(),
 		getRecentlyReadBookmarks: vi.fn(),
-		getUnlabeledBookmarks: vi.fn(),
-		getBookmarksByLabel: vi.fn(),
 		getUnratedBookmarks: vi.fn(),
-	};
-	const mockLabelService: ILabelService = {
-		getLabels: vi.fn(),
-		assignLabel: vi.fn(),
-		createLabel: vi.fn(),
-		deleteLabel: vi.fn(),
-		updateLabelDescription: vi.fn(),
-		cleanupUnusedLabels: vi.fn(),
 	};
 
 	beforeEach(() => {
 		vi.clearAllMocks();
 		app = new Hono<{ Bindings: Env }>();
-		const router = createBookmarksRouter(mockBookmarkService, mockLabelService);
+		const router = createBookmarksRouter(mockBookmarkService);
 		app.route("/api/bookmarks", router);
 	});
 

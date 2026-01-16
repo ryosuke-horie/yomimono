@@ -96,13 +96,11 @@ export const useMarkBookmarkAsUnread = (options?: QueryToastOptions) => {
 
 			// 未読リストに追加
 			if (bookmarkToUpdate) {
-
 				previousUnreadEntries.forEach(([queryKey]) => {
 					queryClient.setQueryData<BookmarksData | undefined>(
 						queryKey,
 						(oldData) => {
 							if (!oldData) return oldData;
-
 
 							if (
 								oldData.bookmarks.some((bookmark) => bookmark.id === bookmarkId)

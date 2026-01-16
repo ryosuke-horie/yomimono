@@ -40,16 +40,6 @@ export class ConflictError extends HttpError {
 }
 
 /**
- * 422 Unprocessable Entity
- * リクエストの形式は正しいが、検証エラーで処理できない場合
- */
-export class ValidationError extends HttpError {
-	constructor(message = "Validation Failed") {
-		super(message, 422);
-	}
-}
-
-/**
  * 500 Internal Server Error
  * サーバー内部でエラーが発生した場合
  */
