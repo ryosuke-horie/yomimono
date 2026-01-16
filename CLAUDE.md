@@ -136,7 +136,11 @@ Linear MCPツールが利用可能な環境では、Claude Codeから直接Linea
 - **インポート**: organize-importsを使用（Biomeで有効化）
 - **型**: TypeScriptの厳格な型付けを使用（strict mode）
 - **命名規則**: 変数/関数はcamelCase、コンポーネント/クラスはPascalCase
-- **コミットメッセージ**: 絵文字プレフィックス + 日本語の説明（.github/copilot-instructions.mdを参照）
+- **コミットメッセージ**:
+  - **絵文字の使用禁止**: コミットメッセージに絵文字を使用しないこと
+  - プレフィックス形式: `<type>: <description>` (例: `feat: ユーザー認証機能を追加`, `fix: ログイン時のバグを修正`)
+  - 日本語で簡潔に記述する
+  - type一覧: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 - **エラー処理**: try/catchブロックで明示的にエラーを処理
 - **テスト記述**: テスト内容は日本語で記述し、理解しやすくする
 
