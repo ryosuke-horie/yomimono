@@ -1,13 +1,9 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
-import { ArticleLabelRepository } from "./repositories/articleLabel";
 import { DrizzleBookmarkRepository } from "./repositories/bookmark";
-import { LabelRepository } from "./repositories/label";
 import { createBookmarksRouter } from "./routes/bookmarks";
-import { createLabelsRouter } from "./routes/labels";
 import { DefaultBookmarkService } from "./services/bookmark";
-import { LabelService } from "./services/label";
 
 export interface Env {
 	DB: D1Database;
@@ -50,20 +46,11 @@ export const createApp = (env: Env) => {
 	// データベース、リポジトリ、サービスの初期化
 	const db = env.DB;
 	const bookmarkRepository = new DrizzleBookmarkRepository(db);
-	const labelRepository = new LabelRepository(db);
-	const articleLabelRepository = new ArticleLabelRepository(db);
 	const bookmarkService = new DefaultBookmarkService(bookmarkRepository);
-	const labelService = new LabelService(
-		labelRepository,
-		articleLabelRepository,
-		bookmarkRepository,
-	);
 
 	// ルーターのマウント
-	const bookmarksRouter = createBookmarksRouter(bookmarkService, labelService);
-	const labelsRouter = createLabelsRouter(labelService);
+	const bookmarksRouter = createBookmarksRouter(bookmarkService);
 	app.route("/api/bookmarks", bookmarksRouter);
-	app.route("/api/labels", labelsRouter);
 
 	return app;
 };

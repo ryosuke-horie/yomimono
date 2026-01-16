@@ -13,18 +13,3 @@ export function parseBookmarkId(rawId: string | undefined): number {
 
 	return id;
 }
-
-export function assertLabelName(body: unknown): string {
-	if (typeof body === "object" && body !== null && "labelName" in body) {
-		const { labelName } = body as { labelName?: unknown };
-		if (typeof labelName === "string" && labelName.trim().length > 0) {
-			return labelName;
-		}
-	}
-
-	throw new BffError(
-		"labelNameが指定されていません。",
-		400,
-		BFF_ERROR_CODES.BAD_REQUEST,
-	);
-}

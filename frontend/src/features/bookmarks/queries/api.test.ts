@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	addBookmarkToFavorites,
-	assignLabelToBookmark,
 	createBookmark,
 	getBookmarks,
 	getFavoriteBookmarks,
@@ -30,7 +29,7 @@ afterEach(() => {
 });
 
 describe("ブックマークAPI (BFF 経由)", () => {
-	it("ラベル指定でブックマークリストを取得する", async () => {
+	it("ブックマークリストを取得する", async () => {
 		mockFetch.mockResolvedValueOnce(
 			createResponse({
 				success: true,
@@ -41,7 +40,6 @@ describe("ブックマークAPI (BFF 経由)", () => {
 						url: "https://example.com",
 						isRead: false,
 						isFavorite: false,
-						label: null,
 						createdAt: "2024-01-01T00:00:00.000Z",
 						updatedAt: "2024-01-01T00:00:00.000Z",
 					},
@@ -51,14 +49,14 @@ describe("ブックマークAPI (BFF 経由)", () => {
 			}),
 		);
 
-		const result = await getBookmarks("tech");
+		const result = await getBookmarks();
 
 		expect(result.bookmarks[0]).toMatchObject({
 			id: 1,
 			url: "https://example.com",
 		});
 		expect(mockFetch).toHaveBeenCalledWith(
-			"/api/bookmarks?label=tech",
+			"/api/bookmarks",
 			expect.objectContaining({ method: "GET" }),
 		);
 	});
@@ -99,7 +97,6 @@ describe("ブックマークAPI (BFF 経由)", () => {
 							url: "https://example.com",
 							isRead: true,
 							isFavorite: false,
-							label: null,
 							createdAt: "2024-01-01T00:00:00.000Z",
 							updatedAt: "2024-01-01T00:00:00.000Z",
 						},
@@ -131,31 +128,6 @@ describe("ブックマークAPI (BFF 経由)", () => {
 		expect(mockFetch).toHaveBeenCalledWith(
 			"/api/bookmarks/1/unread",
 			expect.objectContaining({ method: "PATCH" }),
-		);
-	});
-
-	it("ラベル付与を実行する", async () => {
-		mockFetch.mockResolvedValueOnce(
-			createResponse({
-				success: true,
-				label: {
-					id: 10,
-					name: "Tech",
-					createdAt: "2024-01-01T00:00:00.000Z",
-					updatedAt: "2024-01-01T00:00:00.000Z",
-				},
-			}),
-		);
-
-		const result = await assignLabelToBookmark(5, "Tech");
-
-		expect(result.name).toBe("Tech");
-		expect(mockFetch).toHaveBeenCalledWith(
-			"/api/bookmarks/5/label",
-			expect.objectContaining({
-				method: "PUT",
-				body: JSON.stringify({ labelName: "Tech" }),
-			}),
 		);
 	});
 

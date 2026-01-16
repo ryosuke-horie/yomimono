@@ -1,21 +1,17 @@
 "use client";
 
-import { BookmarkLabelSelector } from "@/features/bookmarks/components/BookmarkLabelSelector";
-import { useAssignLabelToBookmark } from "@/features/bookmarks/queries/useAssignLabelToBookmark";
 import { useMarkBookmarkAsRead } from "@/features/bookmarks/queries/useMarkBookmarkAsRead";
 import { useMarkBookmarkAsUnread } from "@/features/bookmarks/queries/useMarkBookmarkAsUnread";
 import { useToggleFavoriteBookmark } from "@/features/bookmarks/queries/useToggleFavoriteBookmark";
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
-import type { Label } from "@/features/labels/types";
 import { useToast } from "@/hooks/useToast";
 
 interface Props {
 	bookmark: BookmarkWithLabel;
-	availableLabels?: Label[];
 }
 
-export function BookmarkCard({ bookmark, availableLabels }: Props) {
-	const { id, title, url, createdAt, isRead, isFavorite, label } = bookmark;
+export function BookmarkCard({ bookmark }: Props) {
+	const { id, title, url, createdAt, isRead, isFavorite } = bookmark;
 	const formattedDate = new Date(createdAt).toLocaleDateString("ja-JP");
 
 	const { showToast } = useToast();
@@ -24,8 +20,6 @@ export function BookmarkCard({ bookmark, availableLabels }: Props) {
 	const { mutate: markAsReadMutate } = useMarkBookmarkAsRead({ showToast });
 	const { mutate: markAsUnreadMutate, isPending: isMarkingAsUnread } =
 		useMarkBookmarkAsUnread({ showToast });
-	const { mutate: assignLabelMutate, isPending: isAssigningLabel } =
-		useAssignLabelToBookmark();
 
 	const handleFavoriteToggle = () => {
 		toggleFavorite({ id, isCurrentlyFavorite: isFavorite });
@@ -43,38 +37,12 @@ export function BookmarkCard({ bookmark, availableLabels }: Props) {
 		}
 	};
 
-	const handleLabelSelect = (nextLabel: Label) => {
-		if (!label || label.name === nextLabel.name) {
-			return;
-		}
-		assignLabelMutate({
-			bookmarkId: id,
-			labelName: nextLabel.name,
-			optimisticLabel: nextLabel,
-		});
-	};
-
 	return (
 		<article
 			className={`relative p-4 pb-16 border rounded-lg hover:shadow-md transition-shadow flex flex-col h-[200px] ${
 				isRead ? "bg-gray-50" : ""
 			}`}
 		>
-			{/* ラベル表示 */}
-			{label && (
-				<div
-					className="absolute bottom-2 left-2 z-10"
-					data-testid="label-container"
-				>
-					<BookmarkLabelSelector
-						label={label}
-						availableLabels={availableLabels ?? []}
-						onSelect={handleLabelSelect}
-						isUpdating={isAssigningLabel}
-					/>
-				</div>
-			)}
-
 			{/* アクションボタンを右下にまとめて配置 */}
 			<div className="absolute bottom-2 right-2 flex items-center gap-2">
 				{/* お気に入りボタン */}

@@ -7,34 +7,18 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export * from './assignLabelRequest';
-export * from './assignLabelResponse';
-export * from './assignLabelResponseAllOf';
 export * from './bookmark';
 export * from './bookmarkListResponse';
 export * from './bookmarkListResponseAllOf';
-export * from './bookmarkWithLabel';
-export * from './bookmarkWithLabelLabel';
+export * from './bookmarkWithFavorite';
 export * from './bulkBookmarksRequest';
 export * from './bulkBookmarksRequestBookmarksItem';
-export * from './createLabelRequest';
 export * from './errorResponse';
 export * from './favoriteBookmarksResponse';
 export * from './favoriteBookmarksResponseAllOf';
-export * from './getApiBookmarksParams';
-export * from './label';
-export * from './labelCleanupResponse';
-export * from './labelCleanupResponseAllOf';
-export * from './labelResponse';
-export * from './labelResponseAllOf';
-export * from './labelWithCount';
-export * from './labelWithCountAllOf';
-export * from './labelsResponse';
-export * from './labelsResponseAllOf';
 export * from './messageResponse';
 export * from './messageResponseAllOf';
 export * from './recentBookmarksResponse';
 export * from './recentBookmarksResponseAllOf';
 export * from './recentBookmarksResponseAllOfBookmarks';
 export * from './successResponse';
-export * from './updateLabelRequest';

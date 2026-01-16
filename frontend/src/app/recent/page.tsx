@@ -3,7 +3,6 @@
 import { BookmarkCard } from "@/features/bookmarks/components/BookmarkCard";
 import { useGetRecentBookmarks } from "@/features/bookmarks/queries/useGetRecentBookmarks";
 import type { BookmarkWithLabel } from "@/features/bookmarks/types";
-import { useLabels } from "@/features/labels/hooks/useLabels";
 
 export default function RecentPage() {
 	const {
@@ -12,11 +11,6 @@ export default function RecentPage() {
 		isError,
 		error,
 	} = useGetRecentBookmarks();
-	const {
-		labels,
-		isLoading: isLoadingLabels,
-		error: labelsError,
-	} = useLabels();
 
 	const formatDate = (dateStr: string) => {
 		const date = new Date(dateStr);
@@ -80,18 +74,6 @@ export default function RecentPage() {
 		);
 	}
 
-	if (labelsError) {
-		return (
-			<main className="container mx-auto px-4 py-8">
-				<div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-sm">
-					<p className="text-red-700">
-						ラベルの読み込みに失敗しました: {labelsError.message}
-					</p>
-				</div>
-			</main>
-		);
-	}
-
 	return (
 		<main className="container mx-auto px-4 py-8">
 			<h1 className="text-2xl font-bold mb-6">最近読んだ記事</h1>
@@ -108,11 +90,7 @@ export default function RecentPage() {
 						</h2>
 						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 							{groupedBookmarks[date].map((bookmark) => (
-								<BookmarkCard
-									key={bookmark.id}
-									bookmark={bookmark}
-									availableLabels={isLoadingLabels ? [] : labels}
-								/>
+								<BookmarkCard key={bookmark.id} bookmark={bookmark} />
 							))}
 						</div>
 					</div>
