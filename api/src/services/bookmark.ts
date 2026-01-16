@@ -2,7 +2,7 @@ import { CONFIG } from "../config";
 import type { InsertBookmark } from "../db/schema";
 import { InternalServerError, NotFoundError } from "../exceptions";
 import type {
-	BookmarkWithLabel,
+	BookmarkWithFavorite,
 	IBookmarkRepository,
 } from "../interfaces/repository/bookmark";
 import type { IBookmarkService } from "../interfaces/service/bookmark";
@@ -19,8 +19,7 @@ export class DefaultBookmarkService implements IBookmarkService {
 		return await this.repository.countTodayRead();
 	}
 
-	async getUnreadBookmarks(): Promise<BookmarkWithLabel[]> {
-		// Update return type
+	async getUnreadBookmarks(): Promise<BookmarkWithFavorite[]> {
 		return await this.repository.findUnread();
 	}
 
@@ -47,7 +46,7 @@ export class DefaultBookmarkService implements IBookmarkService {
 	}
 
 	async getFavoriteBookmarks(): Promise<{
-		bookmarks: BookmarkWithLabel[];
+		bookmarks: BookmarkWithFavorite[];
 	}> {
 		try {
 			// 個人ツールではページネーション不要のため、全件取得
@@ -110,7 +109,7 @@ export class DefaultBookmarkService implements IBookmarkService {
 	}
 
 	async getRecentlyReadBookmarks(): Promise<{
-		[date: string]: BookmarkWithLabel[];
+		[date: string]: BookmarkWithFavorite[];
 	}> {
 		try {
 			const bookmarks = await this.repository.findRecentlyRead();
@@ -120,17 +119,6 @@ export class DefaultBookmarkService implements IBookmarkService {
 		} catch (error) {
 			console.error("Failed to get recently read bookmarks:", error);
 			throw new InternalServerError("Failed to get recently read bookmarks");
-		}
-	}
-
-	async getBookmarksByLabel(labelName: string): Promise<BookmarkWithLabel[]> {
-		try {
-			// Note: labelNameは正規化済みである必要があります。
-			// このサービスメソッドを呼び出す前に正規化してください。
-			return await this.repository.findByLabelName(labelName);
-		} catch (error) {
-			console.error("Failed to get bookmarks by label:", error);
-			throw new InternalServerError("Failed to get bookmarks by label");
 		}
 	}
 }

@@ -9,7 +9,6 @@ export {
 	ConflictError,
 	InternalServerError,
 	NotFoundError,
-	ValidationError,
 } from "./http";
 
 // エラーハンドリングユーティリティ

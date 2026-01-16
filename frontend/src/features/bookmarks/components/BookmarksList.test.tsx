@@ -25,12 +25,6 @@ const mockBookmark: BookmarkWithLabel = {
 	isFavorite: false,
 	createdAt: "2024-01-01T00:00:00Z",
 	updatedAt: "2024-01-01T00:00:00Z",
-	label: {
-		id: 1,
-		name: "テスト",
-		createdAt: "2024-01-01T00:00:00Z",
-		updatedAt: "2024-01-01T00:00:00Z",
-	},
 };
 
 describe("BookmarksList", () => {
@@ -84,20 +78,5 @@ describe("BookmarksList", () => {
 		expect(screen.getByText("First Bookmark")).toBeInTheDocument();
 		expect(screen.getByText("Second Bookmark")).toBeInTheDocument();
 		expect(screen.getByText("Third Bookmark")).toBeInTheDocument();
-	});
-
-	test("ラベル情報を持つブックマークも表示できる", () => {
-		const queryClient = createTestQueryClient();
-		const bookmarks = [mockBookmark];
-
-		render(
-			<QueryClientProvider client={queryClient}>
-				<ToastProvider>
-					<BookmarksList bookmarks={bookmarks} />
-				</ToastProvider>
-			</QueryClientProvider>,
-		);
-
-		expect(screen.getByText("テスト")).toBeInTheDocument();
 	});
 });

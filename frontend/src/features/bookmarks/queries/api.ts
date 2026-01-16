@@ -7,10 +7,8 @@ import {
 	patchApiBookmarksIdUnread,
 	postApiBookmarksBulk,
 	postApiBookmarksIdFavorite,
-	putApiBookmarksIdLabel,
 } from "@/lib/openapi/browser";
 import type {
-	AssignLabelResponse,
 	BookmarkListResponse,
 	ErrorResponse,
 	FavoriteBookmarksResponse,
@@ -39,8 +37,8 @@ function unwrapResponse<T extends { success: boolean }>(
 	throw new Error(message);
 }
 
-export const getBookmarks = async (label?: string): Promise<BookmarksData> => {
-	const response = await getApiBookmarks(label ? { label } : undefined);
+export const getBookmarks = async (): Promise<BookmarksData> => {
+	const response = await getApiBookmarks();
 	return unwrapResponse<BookmarkListResponse>(
 		response,
 		"ブックマークの取得に失敗しました",
@@ -99,18 +97,6 @@ export const createBookmark = async (data: {
 		bookmarks: [data],
 	});
 	unwrapResponse<MessageResponse>(response, "ブックマーク作成に失敗しました");
-};
-
-export const assignLabelToBookmark = async (
-	bookmarkId: number,
-	labelName: string,
-): Promise<AssignLabelResponse["label"]> => {
-	const response = await putApiBookmarksIdLabel(bookmarkId, { labelName });
-	const data = unwrapResponse<AssignLabelResponse>(
-		response,
-		"ラベル付与に失敗しました",
-	);
-	return data.label;
 };
 
 export type BookmarksData = BookmarkListResponse;

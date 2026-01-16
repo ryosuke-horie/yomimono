@@ -6,9 +6,9 @@
 このファイルは src/openapi/spec.ts を唯一のソースとして生成されます。
  * OpenAPI spec version: 0.1.0
  */
-import type { BookmarkWithLabel } from './bookmarkWithLabel';
+import type { BookmarkWithFavorite } from './bookmarkWithFavorite';
 
 export type FavoriteBookmarksResponseAllOf = {
-  bookmarks: BookmarkWithLabel[];
+  bookmarks: BookmarkWithFavorite[];
   total?: number;
 };

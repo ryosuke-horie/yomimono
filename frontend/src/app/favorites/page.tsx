@@ -7,18 +7,8 @@ import {
 	getFavoriteBookmarks,
 } from "@/features/bookmarks/queries/api";
 import { bookmarkKeys } from "@/features/bookmarks/queries/queryKeys";
-import { LabelFilter } from "@/features/labels/components/LabelFilter";
-import { useLabels } from "@/features/labels/hooks/useLabels";
 
 export default function FavoritesPage() {
-	const {
-		labels,
-		selectedLabelName,
-		setSelectedLabelName,
-		isLoading: isLoadingLabels,
-		error: errorLabels,
-	} = useLabels();
-
 	const {
 		data: responseData,
 		isLoading: isLoadingBookmarks,
@@ -29,19 +19,8 @@ export default function FavoritesPage() {
 		staleTime: 1 * 60 * 1000,
 	});
 
-	const allBookmarks = responseData?.bookmarks ?? [];
+	const bookmarks = responseData?.bookmarks ?? [];
 
-	const bookmarks = selectedLabelName
-		? allBookmarks.filter((b) => b.label?.name === selectedLabelName)
-		: allBookmarks;
-
-	if (errorLabels) {
-		return (
-			<main className="container mx-auto px-4 py-8 text-red-500">
-				ラベルの読み込みに失敗しました: {errorLabels.message}
-			</main>
-		);
-	}
 	if (errorBookmarks) {
 		return (
 			<main className="container mx-auto px-4 py-8 text-red-500">
@@ -54,16 +33,6 @@ export default function FavoritesPage() {
 		<main className="container mx-auto px-4 py-8">
 			<h1 className="text-2xl font-bold mb-6">お気に入り</h1>
 
-			{isLoadingLabels ? (
-				<div className="mb-4 text-gray-500">ラベルを読み込み中...</div>
-			) : (
-				<LabelFilter
-					labels={labels}
-					selectedLabelName={selectedLabelName}
-					onLabelSelect={setSelectedLabelName}
-				/>
-			)}
-
 			{isLoadingBookmarks ? (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{[...Array(6)].map((_, i) => (
@@ -74,7 +43,7 @@ export default function FavoritesPage() {
 					))}
 				</div>
 			) : (
-				<BookmarksList bookmarks={bookmarks} availableLabels={labels} />
+				<BookmarksList bookmarks={bookmarks} />
 			)}
 		</main>
 	);

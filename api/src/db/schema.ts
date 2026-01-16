@@ -42,60 +42,12 @@ export const favorites = sqliteTable("favorites", {
 		.default(new Date()),
 });
 
-// ラベルマスター
-export const labels = sqliteTable("labels", {
-	id: integer("id").primaryKey({ autoIncrement: true }),
-	name: text("name").notNull().unique(), // ラベル名（正規化済み）
-	description: text("description"), // ラベルの説明文
-	createdAt: integer("created_at", { mode: "timestamp" })
-		.notNull()
-		.default(new Date()),
-	updatedAt: integer("updated_at", { mode: "timestamp" })
-		.notNull()
-		.default(new Date()),
-});
-
-// 記事-ラベル紐付け
-export const articleLabels = sqliteTable(
-	"article_labels",
-	{
-		id: integer("id").primaryKey({ autoIncrement: true }),
-		articleId: integer("article_id")
-			.notNull()
-			.references(() => bookmarks.id, { onDelete: "cascade" }), // bookmarksテーブルを参照
-		labelId: integer("label_id")
-			.notNull()
-			.references(() => labels.id, { onDelete: "cascade" }), // labelsテーブルを参照
-		createdAt: integer("created_at", { mode: "timestamp" })
-			.notNull()
-			.default(new Date()),
-	},
-	(table) => {
-		return {
-			// article_id でのJOIN最適化用インデックス（最重要）
-			articleIdIdx: index("idx_article_labels_article_id").on(table.articleId),
-			// label_id でのJOIN最適化用インデックス
-			labelIdIdx: index("idx_article_labels_label_id").on(table.labelId),
-			// 記事-ラベルペアの一意性とJOIN最適化用複合インデックス
-			articleLabelIdx: index("idx_article_labels_article_label").on(
-				table.articleId,
-				table.labelId,
-			),
-		};
-	},
-);
-
 export type Bookmark = typeof bookmarks.$inferSelect;
 export type InsertBookmark = typeof bookmarks.$inferInsert;
 export type Favorite = typeof favorites.$inferSelect;
 export type InsertFavorite = typeof favorites.$inferInsert;
-export type Label = typeof labels.$inferSelect;
-export type InsertLabel = typeof labels.$inferInsert;
-export type ArticleLabel = typeof articleLabels.$inferSelect;
-export type InsertArticleLabel = typeof articleLabels.$inferInsert;
 
-// BookmarkWithLabel type for external use
-export type BookmarkWithLabel = Bookmark & {
+// BookmarkWithFavorite type for external use
+export type BookmarkWithFavorite = Bookmark & {
 	isFavorite: boolean;
-	label: Label | null;
 };

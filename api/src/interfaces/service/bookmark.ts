@@ -1,10 +1,10 @@
-import type { BookmarkWithLabel } from "../repository/bookmark";
+import type { BookmarkWithFavorite } from "../repository/bookmark";
 
 export interface IBookmarkService {
 	createBookmarksFromData(
 		bookmarks: Array<{ url: string; title: string }>,
 	): Promise<void>;
-	getUnreadBookmarks(): Promise<BookmarkWithLabel[]>;
+	getUnreadBookmarks(): Promise<BookmarkWithFavorite[]>;
 	markBookmarkAsRead(id: number): Promise<void>;
 	markBookmarkAsUnread(id: number): Promise<void>;
 	getUnreadBookmarksCount(): Promise<number>;
@@ -12,16 +12,9 @@ export interface IBookmarkService {
 	addToFavorites(bookmarkId: number): Promise<void>;
 	removeFromFavorites(bookmarkId: number): Promise<void>;
 	getFavoriteBookmarks(): Promise<{
-		bookmarks: BookmarkWithLabel[];
+		bookmarks: BookmarkWithFavorite[];
 	}>;
 	getRecentlyReadBookmarks(): Promise<{
-		[date: string]: BookmarkWithLabel[];
+		[date: string]: BookmarkWithFavorite[];
 	}>;
-
-	/**
-	 * 指定されたラベル名に紐づくブックマークを取得します。
-	 * @param labelName ラベル名（正規化済みである必要あり）
-	 * @returns ラベルに紐づくブックマーク配列
-	 */
-	getBookmarksByLabel(labelName: string): Promise<BookmarkWithLabel[]>;
 }

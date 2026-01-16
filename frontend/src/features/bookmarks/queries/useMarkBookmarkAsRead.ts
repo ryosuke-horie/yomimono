@@ -93,7 +93,6 @@ export const useMarkBookmarkAsRead = (options?: QueryToastOptions) => {
 						const bookmarkWithLabel: BookmarkWithLabel = {
 							...bookmarkToUpdate,
 							isRead: true,
-							label: null,
 						};
 
 						newData[today] = [bookmarkWithLabel, ...newData[today]];

@@ -26,21 +26,13 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  AssignLabelRequest,
-  AssignLabelResponse,
   BookmarkListResponse,
   BulkBookmarksRequest,
-  CreateLabelRequest,
   ErrorResponse,
   FavoriteBookmarksResponse,
-  GetApiBookmarksParams,
-  LabelCleanupResponse,
-  LabelResponse,
-  LabelsResponse,
   MessageResponse,
   RecentBookmarksResponse,
-  SuccessResponse,
-  UpdateLabelRequest
+  SuccessResponse
 } from './schemas';
 
 /**
@@ -65,24 +57,17 @@ export type getApiBookmarksResponseError = (getApiBookmarksResponse500) & {
 
 export type getApiBookmarksResponse = (getApiBookmarksResponseSuccess | getApiBookmarksResponseError)
 
-export const getGetApiBookmarksUrl = (params?: GetApiBookmarksParams,) => {
-  const normalizedParams = new URLSearchParams();
+export const getGetApiBookmarksUrl = () => {
 
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
 
-  const stringifiedParams = normalizedParams.toString();
+  
 
-  return stringifiedParams.length > 0 ? `/api/bookmarks?${stringifiedParams}` : `/api/bookmarks`
+  return `/api/bookmarks`
 }
 
-export const getApiBookmarks = async (params?: GetApiBookmarksParams, options?: RequestInit): Promise<getApiBookmarksResponse> => {
+export const getApiBookmarks = async ( options?: RequestInit): Promise<getApiBookmarksResponse> => {
   
-  const res = await fetch(getGetApiBookmarksUrl(params),
+  const res = await fetch(getGetApiBookmarksUrl(),
   {      
     ...options,
     method: 'GET'
@@ -101,23 +86,23 @@ export const getApiBookmarks = async (params?: GetApiBookmarksParams, options?: 
 
 
 
-export const getGetApiBookmarksQueryKey = (params?: GetApiBookmarksParams,) => {
+export const getGetApiBookmarksQueryKey = () => {
     return [
-    `/api/bookmarks`, ...(params ? [params]: [])
+    `/api/bookmarks`
     ] as const;
     }
 
     
-export const getGetApiBookmarksQueryOptions = <TData = Awaited<ReturnType<typeof getApiBookmarks>>, TError = ErrorResponse>(params?: GetApiBookmarksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiBookmarksQueryOptions = <TData = Awaited<ReturnType<typeof getApiBookmarks>>, TError = ErrorResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiBookmarksQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetApiBookmarksQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBookmarks>>> = ({ signal }) => getApiBookmarks(params, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBookmarks>>> = ({ signal }) => getApiBookmarks({ signal, ...fetchOptions });
 
       
 
@@ -131,7 +116,7 @@ export type GetApiBookmarksQueryError = ErrorResponse
 
 
 export function useGetApiBookmarks<TData = Awaited<ReturnType<typeof getApiBookmarks>>, TError = ErrorResponse>(
- params: undefined |  GetApiBookmarksParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>> & Pick<
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiBookmarks>>,
           TError,
@@ -141,7 +126,7 @@ export function useGetApiBookmarks<TData = Awaited<ReturnType<typeof getApiBookm
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiBookmarks<TData = Awaited<ReturnType<typeof getApiBookmarks>>, TError = ErrorResponse>(
- params?: GetApiBookmarksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>> & Pick<
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiBookmarks>>,
           TError,
@@ -151,7 +136,7 @@ export function useGetApiBookmarks<TData = Awaited<ReturnType<typeof getApiBookm
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiBookmarks<TData = Awaited<ReturnType<typeof getApiBookmarks>>, TError = ErrorResponse>(
- params?: GetApiBookmarksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>>, fetch?: RequestInit}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -159,11 +144,11 @@ export function useGetApiBookmarks<TData = Awaited<ReturnType<typeof getApiBookm
  */
 
 export function useGetApiBookmarks<TData = Awaited<ReturnType<typeof getApiBookmarks>>, TError = ErrorResponse>(
- params?: GetApiBookmarksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>>, fetch?: RequestInit}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiBookmarksQueryOptions(params,options)
+  const queryOptions = getGetApiBookmarksQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -748,119 +733,6 @@ export const usePostApiBookmarksIdFavorite = <TError = ErrorResponse,
     }
     
 /**
- * @summary ブックマークへラベルを付与
- */
-export type putApiBookmarksIdLabelResponse200 = {
-  data: AssignLabelResponse
-  status: 200
-}
-
-export type putApiBookmarksIdLabelResponse400 = {
-  data: ErrorResponse
-  status: 400
-}
-
-export type putApiBookmarksIdLabelResponse404 = {
-  data: ErrorResponse
-  status: 404
-}
-
-export type putApiBookmarksIdLabelResponse409 = {
-  data: ErrorResponse
-  status: 409
-}
-
-export type putApiBookmarksIdLabelResponse500 = {
-  data: ErrorResponse
-  status: 500
-}
-    
-export type putApiBookmarksIdLabelResponseSuccess = (putApiBookmarksIdLabelResponse200) & {
-  headers: Headers;
-};
-export type putApiBookmarksIdLabelResponseError = (putApiBookmarksIdLabelResponse400 | putApiBookmarksIdLabelResponse404 | putApiBookmarksIdLabelResponse409 | putApiBookmarksIdLabelResponse500) & {
-  headers: Headers;
-};
-
-export type putApiBookmarksIdLabelResponse = (putApiBookmarksIdLabelResponseSuccess | putApiBookmarksIdLabelResponseError)
-
-export const getPutApiBookmarksIdLabelUrl = (id: number,) => {
-
-
-  
-
-  return `/api/bookmarks/${id}/label`
-}
-
-export const putApiBookmarksIdLabel = async (id: number,
-    assignLabelRequest: AssignLabelRequest, options?: RequestInit): Promise<putApiBookmarksIdLabelResponse> => {
-  
-  const res = await fetch(getPutApiBookmarksIdLabelUrl(id),
-  {      
-    ...options,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      assignLabelRequest,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: putApiBookmarksIdLabelResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as putApiBookmarksIdLabelResponse
-}
-
-
-
-
-export const getPutApiBookmarksIdLabelMutationOptions = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiBookmarksIdLabel>>, TError,{id: number;data: AssignLabelRequest}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof putApiBookmarksIdLabel>>, TError,{id: number;data: AssignLabelRequest}, TContext> => {
-
-const mutationKey = ['putApiBookmarksIdLabel'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putApiBookmarksIdLabel>>, {id: number;data: AssignLabelRequest}> = (props) => {
-          const {id,data} = props ?? {};
-
-          return  putApiBookmarksIdLabel(id,data,fetchOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PutApiBookmarksIdLabelMutationResult = NonNullable<Awaited<ReturnType<typeof putApiBookmarksIdLabel>>>
-    export type PutApiBookmarksIdLabelMutationBody = AssignLabelRequest
-    export type PutApiBookmarksIdLabelMutationError = ErrorResponse
-
-    /**
- * @summary ブックマークへラベルを付与
- */
-export const usePutApiBookmarksIdLabel = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiBookmarksIdLabel>>, TError,{id: number;data: AssignLabelRequest}, TContext>, fetch?: RequestInit}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof putApiBookmarksIdLabel>>,
-        TError,
-        {id: number;data: AssignLabelRequest},
-        TContext
-      > => {
-
-      const mutationOptions = getPutApiBookmarksIdLabelMutationOptions(options);
-
-      return useMutation(mutationOptions, queryClient);
-    }
-    
-/**
  * @summary ブックマークを既読にする
  */
 export type patchApiBookmarksIdReadResponse200 = {
@@ -1068,549 +940,6 @@ export const usePatchApiBookmarksIdUnread = <TError = ErrorResponse,
       > => {
 
       const mutationOptions = getPatchApiBookmarksIdUnreadMutationOptions(options);
-
-      return useMutation(mutationOptions, queryClient);
-    }
-    
-/**
- * @summary ラベル一覧
- */
-export type getApiLabelsResponse200 = {
-  data: LabelsResponse
-  status: 200
-}
-
-export type getApiLabelsResponse500 = {
-  data: ErrorResponse
-  status: 500
-}
-    
-export type getApiLabelsResponseSuccess = (getApiLabelsResponse200) & {
-  headers: Headers;
-};
-export type getApiLabelsResponseError = (getApiLabelsResponse500) & {
-  headers: Headers;
-};
-
-export type getApiLabelsResponse = (getApiLabelsResponseSuccess | getApiLabelsResponseError)
-
-export const getGetApiLabelsUrl = () => {
-
-
-  
-
-  return `/api/labels`
-}
-
-export const getApiLabels = async ( options?: RequestInit): Promise<getApiLabelsResponse> => {
-  
-  const res = await fetch(getGetApiLabelsUrl(),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getApiLabelsResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getApiLabelsResponse
-}
-
-
-
-
-
-export const getGetApiLabelsQueryKey = () => {
-    return [
-    `/api/labels`
-    ] as const;
-    }
-
-    
-export const getGetApiLabelsQueryOptions = <TData = Awaited<ReturnType<typeof getApiLabels>>, TError = ErrorResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLabels>>, TError, TData>>, fetch?: RequestInit}
-) => {
-
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetApiLabelsQueryKey();
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiLabels>>> = ({ signal }) => getApiLabels({ signal, ...fetchOptions });
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiLabels>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GetApiLabelsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiLabels>>>
-export type GetApiLabelsQueryError = ErrorResponse
-
-
-export function useGetApiLabels<TData = Awaited<ReturnType<typeof getApiLabels>>, TError = ErrorResponse>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLabels>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiLabels>>,
-          TError,
-          Awaited<ReturnType<typeof getApiLabels>>
-        > , 'initialData'
-      >, fetch?: RequestInit}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiLabels<TData = Awaited<ReturnType<typeof getApiLabels>>, TError = ErrorResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLabels>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiLabels>>,
-          TError,
-          Awaited<ReturnType<typeof getApiLabels>>
-        > , 'initialData'
-      >, fetch?: RequestInit}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiLabels<TData = Awaited<ReturnType<typeof getApiLabels>>, TError = ErrorResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLabels>>, TError, TData>>, fetch?: RequestInit}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary ラベル一覧
- */
-
-export function useGetApiLabels<TData = Awaited<ReturnType<typeof getApiLabels>>, TError = ErrorResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLabels>>, TError, TData>>, fetch?: RequestInit}
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getGetApiLabelsQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey ;
-
-  return query;
-}
-
-
-
-
-
-/**
- * @summary ラベル作成
- */
-export type postApiLabelsResponse201 = {
-  data: LabelResponse
-  status: 201
-}
-
-export type postApiLabelsResponse400 = {
-  data: ErrorResponse
-  status: 400
-}
-
-export type postApiLabelsResponse409 = {
-  data: ErrorResponse
-  status: 409
-}
-
-export type postApiLabelsResponse500 = {
-  data: ErrorResponse
-  status: 500
-}
-    
-export type postApiLabelsResponseSuccess = (postApiLabelsResponse201) & {
-  headers: Headers;
-};
-export type postApiLabelsResponseError = (postApiLabelsResponse400 | postApiLabelsResponse409 | postApiLabelsResponse500) & {
-  headers: Headers;
-};
-
-export type postApiLabelsResponse = (postApiLabelsResponseSuccess | postApiLabelsResponseError)
-
-export const getPostApiLabelsUrl = () => {
-
-
-  
-
-  return `/api/labels`
-}
-
-export const postApiLabels = async (createLabelRequest: CreateLabelRequest, options?: RequestInit): Promise<postApiLabelsResponse> => {
-  
-  const res = await fetch(getPostApiLabelsUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      createLabelRequest,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: postApiLabelsResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as postApiLabelsResponse
-}
-
-
-
-
-export const getPostApiLabelsMutationOptions = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiLabels>>, TError,{data: CreateLabelRequest}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof postApiLabels>>, TError,{data: CreateLabelRequest}, TContext> => {
-
-const mutationKey = ['postApiLabels'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiLabels>>, {data: CreateLabelRequest}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postApiLabels(data,fetchOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostApiLabelsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiLabels>>>
-    export type PostApiLabelsMutationBody = CreateLabelRequest
-    export type PostApiLabelsMutationError = ErrorResponse
-
-    /**
- * @summary ラベル作成
- */
-export const usePostApiLabels = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiLabels>>, TError,{data: CreateLabelRequest}, TContext>, fetch?: RequestInit}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postApiLabels>>,
-        TError,
-        {data: CreateLabelRequest},
-        TContext
-      > => {
-
-      const mutationOptions = getPostApiLabelsMutationOptions(options);
-
-      return useMutation(mutationOptions, queryClient);
-    }
-    
-/**
- * @summary 未使用ラベルの一括削除
- */
-export type deleteApiLabelsCleanupResponse200 = {
-  data: LabelCleanupResponse
-  status: 200
-}
-
-export type deleteApiLabelsCleanupResponse500 = {
-  data: ErrorResponse
-  status: 500
-}
-    
-export type deleteApiLabelsCleanupResponseSuccess = (deleteApiLabelsCleanupResponse200) & {
-  headers: Headers;
-};
-export type deleteApiLabelsCleanupResponseError = (deleteApiLabelsCleanupResponse500) & {
-  headers: Headers;
-};
-
-export type deleteApiLabelsCleanupResponse = (deleteApiLabelsCleanupResponseSuccess | deleteApiLabelsCleanupResponseError)
-
-export const getDeleteApiLabelsCleanupUrl = () => {
-
-
-  
-
-  return `/api/labels/cleanup`
-}
-
-export const deleteApiLabelsCleanup = async ( options?: RequestInit): Promise<deleteApiLabelsCleanupResponse> => {
-  
-  const res = await fetch(getDeleteApiLabelsCleanupUrl(),
-  {      
-    ...options,
-    method: 'DELETE'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: deleteApiLabelsCleanupResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as deleteApiLabelsCleanupResponse
-}
-
-
-
-
-export const getDeleteApiLabelsCleanupMutationOptions = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiLabelsCleanup>>, TError,void, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteApiLabelsCleanup>>, TError,void, TContext> => {
-
-const mutationKey = ['deleteApiLabelsCleanup'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteApiLabelsCleanup>>, void> = () => {
-          
-
-          return  deleteApiLabelsCleanup(fetchOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteApiLabelsCleanupMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiLabelsCleanup>>>
-    
-    export type DeleteApiLabelsCleanupMutationError = ErrorResponse
-
-    /**
- * @summary 未使用ラベルの一括削除
- */
-export const useDeleteApiLabelsCleanup = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiLabelsCleanup>>, TError,void, TContext>, fetch?: RequestInit}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteApiLabelsCleanup>>,
-        TError,
-        void,
-        TContext
-      > => {
-
-      const mutationOptions = getDeleteApiLabelsCleanupMutationOptions(options);
-
-      return useMutation(mutationOptions, queryClient);
-    }
-    
-/**
- * @summary ラベル削除
- */
-export type deleteApiLabelsIdResponse200 = {
-  data: MessageResponse
-  status: 200
-}
-
-export type deleteApiLabelsIdResponse400 = {
-  data: ErrorResponse
-  status: 400
-}
-
-export type deleteApiLabelsIdResponse404 = {
-  data: ErrorResponse
-  status: 404
-}
-
-export type deleteApiLabelsIdResponse500 = {
-  data: ErrorResponse
-  status: 500
-}
-    
-export type deleteApiLabelsIdResponseSuccess = (deleteApiLabelsIdResponse200) & {
-  headers: Headers;
-};
-export type deleteApiLabelsIdResponseError = (deleteApiLabelsIdResponse400 | deleteApiLabelsIdResponse404 | deleteApiLabelsIdResponse500) & {
-  headers: Headers;
-};
-
-export type deleteApiLabelsIdResponse = (deleteApiLabelsIdResponseSuccess | deleteApiLabelsIdResponseError)
-
-export const getDeleteApiLabelsIdUrl = (id: number,) => {
-
-
-  
-
-  return `/api/labels/${id}`
-}
-
-export const deleteApiLabelsId = async (id: number, options?: RequestInit): Promise<deleteApiLabelsIdResponse> => {
-  
-  const res = await fetch(getDeleteApiLabelsIdUrl(id),
-  {      
-    ...options,
-    method: 'DELETE'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: deleteApiLabelsIdResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as deleteApiLabelsIdResponse
-}
-
-
-
-
-export const getDeleteApiLabelsIdMutationOptions = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiLabelsId>>, TError,{id: number}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteApiLabelsId>>, TError,{id: number}, TContext> => {
-
-const mutationKey = ['deleteApiLabelsId'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteApiLabelsId>>, {id: number}> = (props) => {
-          const {id} = props ?? {};
-
-          return  deleteApiLabelsId(id,fetchOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteApiLabelsIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiLabelsId>>>
-    
-    export type DeleteApiLabelsIdMutationError = ErrorResponse
-
-    /**
- * @summary ラベル削除
- */
-export const useDeleteApiLabelsId = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiLabelsId>>, TError,{id: number}, TContext>, fetch?: RequestInit}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteApiLabelsId>>,
-        TError,
-        {id: number},
-        TContext
-      > => {
-
-      const mutationOptions = getDeleteApiLabelsIdMutationOptions(options);
-
-      return useMutation(mutationOptions, queryClient);
-    }
-    
-/**
- * @summary ラベル説明文の更新
- */
-export type patchApiLabelsIdResponse200 = {
-  data: LabelResponse
-  status: 200
-}
-
-export type patchApiLabelsIdResponse400 = {
-  data: ErrorResponse
-  status: 400
-}
-
-export type patchApiLabelsIdResponse404 = {
-  data: ErrorResponse
-  status: 404
-}
-
-export type patchApiLabelsIdResponse500 = {
-  data: ErrorResponse
-  status: 500
-}
-    
-export type patchApiLabelsIdResponseSuccess = (patchApiLabelsIdResponse200) & {
-  headers: Headers;
-};
-export type patchApiLabelsIdResponseError = (patchApiLabelsIdResponse400 | patchApiLabelsIdResponse404 | patchApiLabelsIdResponse500) & {
-  headers: Headers;
-};
-
-export type patchApiLabelsIdResponse = (patchApiLabelsIdResponseSuccess | patchApiLabelsIdResponseError)
-
-export const getPatchApiLabelsIdUrl = (id: number,) => {
-
-
-  
-
-  return `/api/labels/${id}`
-}
-
-export const patchApiLabelsId = async (id: number,
-    updateLabelRequest: UpdateLabelRequest, options?: RequestInit): Promise<patchApiLabelsIdResponse> => {
-  
-  const res = await fetch(getPatchApiLabelsIdUrl(id),
-  {      
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      updateLabelRequest,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: patchApiLabelsIdResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as patchApiLabelsIdResponse
-}
-
-
-
-
-export const getPatchApiLabelsIdMutationOptions = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchApiLabelsId>>, TError,{id: number;data: UpdateLabelRequest}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof patchApiLabelsId>>, TError,{id: number;data: UpdateLabelRequest}, TContext> => {
-
-const mutationKey = ['patchApiLabelsId'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof patchApiLabelsId>>, {id: number;data: UpdateLabelRequest}> = (props) => {
-          const {id,data} = props ?? {};
-
-          return  patchApiLabelsId(id,data,fetchOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PatchApiLabelsIdMutationResult = NonNullable<Awaited<ReturnType<typeof patchApiLabelsId>>>
-    export type PatchApiLabelsIdMutationBody = UpdateLabelRequest
-    export type PatchApiLabelsIdMutationError = ErrorResponse
-
-    /**
- * @summary ラベル説明文の更新
- */
-export const usePatchApiLabelsId = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchApiLabelsId>>, TError,{id: number;data: UpdateLabelRequest}, TContext>, fetch?: RequestInit}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof patchApiLabelsId>>,
-        TError,
-        {id: number;data: UpdateLabelRequest},
-        TContext
-      > => {
-
-      const mutationOptions = getPatchApiLabelsIdMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }

@@ -26,7 +26,6 @@ describe("Header", () => {
 		expect(screen.getByText("未読一覧")).toBeInTheDocument();
 		expect(screen.getByText("お気に入り")).toBeInTheDocument();
 		expect(screen.getByText("最近読んだ記事")).toBeInTheDocument();
-		expect(screen.getByText("ラベル設定")).toBeInTheDocument();
 	});
 
 	test("メニューボタンでモバイルメニューを切り替えできる", () => {

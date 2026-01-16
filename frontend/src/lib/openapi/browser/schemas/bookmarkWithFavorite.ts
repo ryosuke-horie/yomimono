@@ -6,7 +6,16 @@
 このファイルは src/openapi/spec.ts を唯一のソースとして生成されます。
  * OpenAPI spec version: 0.1.0
  */
-import type { Label } from './label';
-import type { LabelWithCountAllOf } from './labelWithCountAllOf';
 
-export type LabelWithCount = Label & LabelWithCountAllOf;
+export interface BookmarkWithFavorite {
+  /** ISO 8601 形式の日時 */
+  createdAt: string;
+  id: number;
+  isFavorite: boolean;
+  isRead: boolean;
+  /** @nullable */
+  title?: string | null;
+  /** ISO 8601 形式の日時 */
+  updatedAt: string;
+  url: string;
+}

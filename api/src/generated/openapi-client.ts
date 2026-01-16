@@ -7,21 +7,13 @@
  * OpenAPI spec version: 0.1.0
  */
 import type {
-  AssignLabelRequest,
-  AssignLabelResponse,
   BookmarkListResponse,
   BulkBookmarksRequest,
-  CreateLabelRequest,
   ErrorResponse,
   FavoriteBookmarksResponse,
-  GetApiBookmarksParams,
-  LabelCleanupResponse,
-  LabelResponse,
-  LabelsResponse,
   MessageResponse,
   RecentBookmarksResponse,
-  SuccessResponse,
-  UpdateLabelRequest
+  SuccessResponse
 } from './openapi-schemas';
 
 /**
@@ -46,24 +38,17 @@ export type getApiBookmarksResponseError = (getApiBookmarksResponse500) & {
 
 export type getApiBookmarksResponse = (getApiBookmarksResponseSuccess | getApiBookmarksResponseError)
 
-export const getGetApiBookmarksUrl = (params?: GetApiBookmarksParams,) => {
-  const normalizedParams = new URLSearchParams();
+export const getGetApiBookmarksUrl = () => {
 
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
 
-  const stringifiedParams = normalizedParams.toString();
+  
 
-  return stringifiedParams.length > 0 ? `/api/bookmarks?${stringifiedParams}` : `/api/bookmarks`
+  return `/api/bookmarks`
 }
 
-export const getApiBookmarks = async (params?: GetApiBookmarksParams, options?: RequestInit): Promise<getApiBookmarksResponse> => {
+export const getApiBookmarks = async ( options?: RequestInit): Promise<getApiBookmarksResponse> => {
   
-  const res = await fetch(getGetApiBookmarksUrl(params),
+  const res = await fetch(getGetApiBookmarksUrl(),
   {      
     ...options,
     method: 'GET'
@@ -357,72 +342,6 @@ export const postApiBookmarksIdFavorite = async (id: number, options?: RequestIn
 
 
 /**
- * @summary ブックマークへラベルを付与
- */
-export type putApiBookmarksIdLabelResponse200 = {
-  data: AssignLabelResponse
-  status: 200
-}
-
-export type putApiBookmarksIdLabelResponse400 = {
-  data: ErrorResponse
-  status: 400
-}
-
-export type putApiBookmarksIdLabelResponse404 = {
-  data: ErrorResponse
-  status: 404
-}
-
-export type putApiBookmarksIdLabelResponse409 = {
-  data: ErrorResponse
-  status: 409
-}
-
-export type putApiBookmarksIdLabelResponse500 = {
-  data: ErrorResponse
-  status: 500
-}
-    
-export type putApiBookmarksIdLabelResponseSuccess = (putApiBookmarksIdLabelResponse200) & {
-  headers: Headers;
-};
-export type putApiBookmarksIdLabelResponseError = (putApiBookmarksIdLabelResponse400 | putApiBookmarksIdLabelResponse404 | putApiBookmarksIdLabelResponse409 | putApiBookmarksIdLabelResponse500) & {
-  headers: Headers;
-};
-
-export type putApiBookmarksIdLabelResponse = (putApiBookmarksIdLabelResponseSuccess | putApiBookmarksIdLabelResponseError)
-
-export const getPutApiBookmarksIdLabelUrl = (id: number,) => {
-
-
-  
-
-  return `/api/bookmarks/${id}/label`
-}
-
-export const putApiBookmarksIdLabel = async (id: number,
-    assignLabelRequest: AssignLabelRequest, options?: RequestInit): Promise<putApiBookmarksIdLabelResponse> => {
-  
-  const res = await fetch(getPutApiBookmarksIdLabelUrl(id),
-  {      
-    ...options,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      assignLabelRequest,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: putApiBookmarksIdLabelResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as putApiBookmarksIdLabelResponse
-}
-
-
-
-/**
  * @summary ブックマークを既読にする
  */
 export type patchApiBookmarksIdReadResponse200 = {
@@ -536,282 +455,4 @@ export const patchApiBookmarksIdUnread = async (id: number, options?: RequestIni
   
   const data: patchApiBookmarksIdUnreadResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as patchApiBookmarksIdUnreadResponse
-}
-
-
-
-/**
- * @summary ラベル一覧
- */
-export type getApiLabelsResponse200 = {
-  data: LabelsResponse
-  status: 200
-}
-
-export type getApiLabelsResponse500 = {
-  data: ErrorResponse
-  status: 500
-}
-    
-export type getApiLabelsResponseSuccess = (getApiLabelsResponse200) & {
-  headers: Headers;
-};
-export type getApiLabelsResponseError = (getApiLabelsResponse500) & {
-  headers: Headers;
-};
-
-export type getApiLabelsResponse = (getApiLabelsResponseSuccess | getApiLabelsResponseError)
-
-export const getGetApiLabelsUrl = () => {
-
-
-  
-
-  return `/api/labels`
-}
-
-export const getApiLabels = async ( options?: RequestInit): Promise<getApiLabelsResponse> => {
-  
-  const res = await fetch(getGetApiLabelsUrl(),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getApiLabelsResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getApiLabelsResponse
-}
-
-
-
-/**
- * @summary ラベル作成
- */
-export type postApiLabelsResponse201 = {
-  data: LabelResponse
-  status: 201
-}
-
-export type postApiLabelsResponse400 = {
-  data: ErrorResponse
-  status: 400
-}
-
-export type postApiLabelsResponse409 = {
-  data: ErrorResponse
-  status: 409
-}
-
-export type postApiLabelsResponse500 = {
-  data: ErrorResponse
-  status: 500
-}
-    
-export type postApiLabelsResponseSuccess = (postApiLabelsResponse201) & {
-  headers: Headers;
-};
-export type postApiLabelsResponseError = (postApiLabelsResponse400 | postApiLabelsResponse409 | postApiLabelsResponse500) & {
-  headers: Headers;
-};
-
-export type postApiLabelsResponse = (postApiLabelsResponseSuccess | postApiLabelsResponseError)
-
-export const getPostApiLabelsUrl = () => {
-
-
-  
-
-  return `/api/labels`
-}
-
-export const postApiLabels = async (createLabelRequest: CreateLabelRequest, options?: RequestInit): Promise<postApiLabelsResponse> => {
-  
-  const res = await fetch(getPostApiLabelsUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      createLabelRequest,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: postApiLabelsResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as postApiLabelsResponse
-}
-
-
-
-/**
- * @summary 未使用ラベルの一括削除
- */
-export type deleteApiLabelsCleanupResponse200 = {
-  data: LabelCleanupResponse
-  status: 200
-}
-
-export type deleteApiLabelsCleanupResponse500 = {
-  data: ErrorResponse
-  status: 500
-}
-    
-export type deleteApiLabelsCleanupResponseSuccess = (deleteApiLabelsCleanupResponse200) & {
-  headers: Headers;
-};
-export type deleteApiLabelsCleanupResponseError = (deleteApiLabelsCleanupResponse500) & {
-  headers: Headers;
-};
-
-export type deleteApiLabelsCleanupResponse = (deleteApiLabelsCleanupResponseSuccess | deleteApiLabelsCleanupResponseError)
-
-export const getDeleteApiLabelsCleanupUrl = () => {
-
-
-  
-
-  return `/api/labels/cleanup`
-}
-
-export const deleteApiLabelsCleanup = async ( options?: RequestInit): Promise<deleteApiLabelsCleanupResponse> => {
-  
-  const res = await fetch(getDeleteApiLabelsCleanupUrl(),
-  {      
-    ...options,
-    method: 'DELETE'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: deleteApiLabelsCleanupResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as deleteApiLabelsCleanupResponse
-}
-
-
-
-/**
- * @summary ラベル削除
- */
-export type deleteApiLabelsIdResponse200 = {
-  data: MessageResponse
-  status: 200
-}
-
-export type deleteApiLabelsIdResponse400 = {
-  data: ErrorResponse
-  status: 400
-}
-
-export type deleteApiLabelsIdResponse404 = {
-  data: ErrorResponse
-  status: 404
-}
-
-export type deleteApiLabelsIdResponse500 = {
-  data: ErrorResponse
-  status: 500
-}
-    
-export type deleteApiLabelsIdResponseSuccess = (deleteApiLabelsIdResponse200) & {
-  headers: Headers;
-};
-export type deleteApiLabelsIdResponseError = (deleteApiLabelsIdResponse400 | deleteApiLabelsIdResponse404 | deleteApiLabelsIdResponse500) & {
-  headers: Headers;
-};
-
-export type deleteApiLabelsIdResponse = (deleteApiLabelsIdResponseSuccess | deleteApiLabelsIdResponseError)
-
-export const getDeleteApiLabelsIdUrl = (id: number,) => {
-
-
-  
-
-  return `/api/labels/${id}`
-}
-
-export const deleteApiLabelsId = async (id: number, options?: RequestInit): Promise<deleteApiLabelsIdResponse> => {
-  
-  const res = await fetch(getDeleteApiLabelsIdUrl(id),
-  {      
-    ...options,
-    method: 'DELETE'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: deleteApiLabelsIdResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as deleteApiLabelsIdResponse
-}
-
-
-
-/**
- * @summary ラベル説明文の更新
- */
-export type patchApiLabelsIdResponse200 = {
-  data: LabelResponse
-  status: 200
-}
-
-export type patchApiLabelsIdResponse400 = {
-  data: ErrorResponse
-  status: 400
-}
-
-export type patchApiLabelsIdResponse404 = {
-  data: ErrorResponse
-  status: 404
-}
-
-export type patchApiLabelsIdResponse500 = {
-  data: ErrorResponse
-  status: 500
-}
-    
-export type patchApiLabelsIdResponseSuccess = (patchApiLabelsIdResponse200) & {
-  headers: Headers;
-};
-export type patchApiLabelsIdResponseError = (patchApiLabelsIdResponse400 | patchApiLabelsIdResponse404 | patchApiLabelsIdResponse500) & {
-  headers: Headers;
-};
-
-export type patchApiLabelsIdResponse = (patchApiLabelsIdResponseSuccess | patchApiLabelsIdResponseError)
-
-export const getPatchApiLabelsIdUrl = (id: number,) => {
-
-
-  
-
-  return `/api/labels/${id}`
-}
-
-export const patchApiLabelsId = async (id: number,
-    updateLabelRequest: UpdateLabelRequest, options?: RequestInit): Promise<patchApiLabelsIdResponse> => {
-  
-  const res = await fetch(getPatchApiLabelsIdUrl(id),
-  {      
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      updateLabelRequest,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: patchApiLabelsIdResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as patchApiLabelsIdResponse
 }

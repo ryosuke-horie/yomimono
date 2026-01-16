@@ -8,41 +8,14 @@ import {
 	NotFoundError,
 	toContentfulStatusCode,
 } from "../exceptions";
-import type { BookmarkWithLabel } from "../interfaces/repository/bookmark";
 import type { IBookmarkService } from "../interfaces/service/bookmark";
-import type { ILabelService } from "../interfaces/service/label";
-import {
-	validateId,
-	validateRequestBody,
-	validateRequiredString,
-} from "../utils/validation";
+import { validateId } from "../utils/validation";
 
-export const createBookmarksRouter = (
-	bookmarkService: IBookmarkService,
-	labelService: ILabelService,
-) => {
+export const createBookmarksRouter = (bookmarkService: IBookmarkService) => {
 	const app = new Hono();
 
 	app.get("/", async (c) => {
-		const labelQuery = c.req.query("label");
-
 		try {
-			let bookmarks: BookmarkWithLabel[];
-			if (labelQuery) {
-				// ラベルによるフィルタリング
-				bookmarks = await bookmarkService.getBookmarksByLabel(labelQuery);
-				const [totalUnread, todayReadCount] = await Promise.all([
-					bookmarkService.getUnreadBookmarksCount(),
-					bookmarkService.getTodayReadCount(),
-				]);
-				return c.json({
-					success: true,
-					bookmarks,
-					totalUnread,
-					todayReadCount,
-				});
-			}
-			// 通常の未読取得
 			const [unreadBookmarks, totalUnread, todayReadCount] = await Promise.all([
 				bookmarkService.getUnreadBookmarks(),
 				bookmarkService.getUnreadBookmarksCount(),
@@ -56,47 +29,6 @@ export const createBookmarksRouter = (
 			});
 		} catch (error) {
 			console.error("Failed to fetch bookmarks:", error);
-			const errorResponse = createErrorResponse(error);
-			return c.json(
-				createErrorResponseBody(error),
-				toContentfulStatusCode(errorResponse.statusCode),
-			);
-		}
-	});
-
-	app.put("/:id/label", async (c) => {
-		try {
-			const id = validateId(c.req.param("id"), "bookmark ID");
-
-			let body: { labelName?: string };
-			try {
-				body = await c.req.json();
-			} catch (_e) {
-				throw new BadRequestError("Invalid request body");
-			}
-
-			validateRequestBody(body);
-			const labelName = validateRequiredString(body.labelName, "labelName");
-
-			// labelServiceを使ってラベルを付与 (正規化はサービス内で行う)
-			const assignedLabel = await labelService.assignLabel(id, labelName);
-			return c.json({ success: true, label: assignedLabel });
-		} catch (error) {
-			if (error instanceof Error && !(error instanceof BadRequestError)) {
-				if (error.message.includes("not found")) {
-					const notFoundError = new NotFoundError(error.message);
-					return c.json(createErrorResponseBody(notFoundError), 404);
-				}
-				if (error.message.includes("already assigned")) {
-					const conflictError = new ConflictError(error.message);
-					return c.json(createErrorResponseBody(conflictError), 409);
-				}
-				if (error.message.includes("cannot be empty")) {
-					const badRequestError = new BadRequestError(error.message);
-					return c.json(createErrorResponseBody(badRequestError), 400);
-				}
-			}
-			console.error("Failed to assign label:", error);
 			const errorResponse = createErrorResponse(error);
 			return c.json(
 				createErrorResponseBody(error),

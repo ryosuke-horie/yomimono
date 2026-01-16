@@ -96,31 +96,11 @@ export const useMarkBookmarkAsUnread = (options?: QueryToastOptions) => {
 
 			// 未読リストに追加
 			if (bookmarkToUpdate) {
-				const getFilterLabel = (queryKey: readonly unknown[]) => {
-					const lastEntry = queryKey.at(-1);
-					if (
-						lastEntry &&
-						typeof lastEntry === "object" &&
-						"label" in lastEntry
-					) {
-						return (lastEntry as { label?: string | null }).label ?? null;
-					}
-					return null;
-				};
-
 				previousUnreadEntries.forEach(([queryKey]) => {
 					queryClient.setQueryData<BookmarksData | undefined>(
 						queryKey,
 						(oldData) => {
 							if (!oldData) return oldData;
-
-							const filterLabel = getFilterLabel(queryKey);
-							if (
-								filterLabel &&
-								bookmarkToUpdate?.label?.name !== filterLabel
-							) {
-								return oldData;
-							}
 
 							if (
 								oldData.bookmarks.some((bookmark) => bookmark.id === bookmarkId)

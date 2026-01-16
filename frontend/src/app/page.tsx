@@ -7,30 +7,16 @@ import {
 	getBookmarks,
 } from "@/features/bookmarks/queries/api";
 import { bookmarkKeys } from "@/features/bookmarks/queries/queryKeys";
-import { LabelFilter } from "@/features/labels/components/LabelFilter";
-import { useLabels } from "@/features/labels/hooks/useLabels";
 
 export default function HomePage() {
-	// ラベル関連のフック
-	const {
-		labels,
-		selectedLabelName,
-		setSelectedLabelName,
-		isLoading: isLoadingLabels,
-		error: errorLabels,
-	} = useLabels();
-
-	// ブックマーク一覧取得 (選択されたラベルに応じて再取得)
+	// ブックマーク一覧取得
 	const {
 		data: responseData,
 		isLoading: isLoadingBookmarks,
 		error: errorBookmarks,
 	} = useQuery<BookmarksData, Error>({
-		queryKey: [
-			...bookmarkKeys.list("unread"),
-			{ label: selectedLabelName ?? null },
-		],
-		queryFn: () => getBookmarks(selectedLabelName),
+		queryKey: bookmarkKeys.list("unread"),
+		queryFn: () => getBookmarks(),
 		staleTime: 1 * 60 * 1000, // 1分間キャッシュを有効にする
 	});
 
@@ -39,14 +25,7 @@ export default function HomePage() {
 
 	const bookmarksToDisplay = responseData?.bookmarks ?? [];
 
-	// エラーハンドリング (ラベルまたはブックマーク取得エラー)
-	if (errorLabels) {
-		return (
-			<main className="container mx-auto px-4 py-8 text-red-500">
-				ラベルの読み込みに失敗しました: {errorLabels.message}
-			</main>
-		);
-	}
+	// エラーハンドリング
 	if (errorBookmarks) {
 		return (
 			<main className="container mx-auto px-4 py-8 text-red-500">
@@ -69,17 +48,6 @@ export default function HomePage() {
 					)}
 			</div>
 
-			{/* ラベルフィルター */}
-			{isLoadingLabels ? (
-				<div className="mb-4 text-gray-500">ラベルを読み込み中...</div>
-			) : (
-				<LabelFilter
-					labels={labels}
-					selectedLabelName={selectedLabelName}
-					onLabelSelect={setSelectedLabelName}
-				/>
-			)}
-
 			{/* ブックマークリスト */}
 			{isLoadingBookmarks ? (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -92,10 +60,7 @@ export default function HomePage() {
 					))}
 				</div>
 			) : (
-				<BookmarksList
-					bookmarks={bookmarksToDisplay} // 正しい変数を渡す
-					availableLabels={labels}
-				/>
+				<BookmarksList bookmarks={bookmarksToDisplay} />
 			)}
 		</main>
 	);

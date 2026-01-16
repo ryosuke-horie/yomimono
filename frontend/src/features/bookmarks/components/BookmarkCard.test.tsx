@@ -32,15 +32,6 @@ vi.mock("../queries/useMarkBookmarkAsUnread", () => ({
 	}),
 }));
 
-const assignLabelMock = vi.fn();
-
-vi.mock("../queries/useAssignLabelToBookmark", () => ({
-	useAssignLabelToBookmark: () => ({
-		mutate: assignLabelMock,
-		isPending: false,
-	}),
-}));
-
 const mockBookmark: BookmarkWithLabel = {
 	id: 1,
 	title: "テスト記事",
@@ -49,7 +40,6 @@ const mockBookmark: BookmarkWithLabel = {
 	updatedAt: "2024-01-01T00:00:00.000Z",
 	isRead: false,
 	isFavorite: false,
-	label: null,
 };
 
 const renderWithQueryClient = (component: React.ReactElement) => {
@@ -70,7 +60,6 @@ describe("BookmarkCard", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		markAsReadMock.mockClear();
-		assignLabelMock.mockClear();
 	});
 
 	it("基本的なブックマーク情報を表示する", () => {
@@ -121,51 +110,5 @@ describe("BookmarkCard", () => {
 		renderWithQueryClient(<BookmarkCard bookmark={favoriteBookmark} />);
 
 		expect(screen.getByTitle("お気に入りから削除")).toBeInTheDocument();
-	});
-
-	it("ラベルがある場合、ラベルを表示する", () => {
-		const bookmarkWithLabel = {
-			...mockBookmark,
-			label: {
-				id: 1,
-				name: "テストラベル",
-				createdAt: "2024-01-01T00:00:00.000Z",
-				updatedAt: "2024-01-01T00:00:00.000Z",
-			},
-		};
-		renderWithQueryClient(<BookmarkCard bookmark={bookmarkWithLabel} />);
-
-		expect(screen.getByText("テストラベル")).toBeInTheDocument();
-	});
-
-	it("ラベルクリックで登録済みラベルの選択肢を表示し、別ラベルを選べる", () => {
-		const bookmarkWithLabel = {
-			...mockBookmark,
-			label: {
-				id: 1,
-				name: "テストラベル",
-				createdAt: "2024-01-01T00:00:00.000Z",
-				updatedAt: "2024-01-01T00:00:00.000Z",
-			},
-		};
-		const labels = [
-			{ id: 1, name: "テストラベル" },
-			{ id: 2, name: "別ラベル" },
-		];
-		renderWithQueryClient(
-			<BookmarkCard bookmark={bookmarkWithLabel} availableLabels={labels} />,
-		);
-
-		const labelElement = screen.getByText("テストラベル");
-		fireEvent.click(labelElement);
-
-		const otherLabelButton = screen.getByRole("button", { name: "別ラベル" });
-		fireEvent.click(otherLabelButton);
-
-		expect(assignLabelMock).toHaveBeenCalledWith({
-			bookmarkId: 1,
-			labelName: "別ラベル",
-			optimisticLabel: { id: 2, name: "別ラベル" },
-		});
 	});
 });

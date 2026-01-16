@@ -19,18 +19,6 @@ const bookmarkSchema: SchemaObject = {
 	},
 };
 
-const labelSchema: SchemaObject = {
-	type: "object",
-	required: ["id", "name", "createdAt", "updatedAt"],
-	properties: {
-		id: { type: "integer", format: "int64", example: 1 },
-		name: { type: "string", description: "正規化済みのラベル名" },
-		description: { type: "string", nullable: true },
-		createdAt: timestampSchema,
-		updatedAt: timestampSchema,
-	},
-};
-
 const openApiDocument: OpenAPIObject = {
 	openapi: "3.1.0",
 	info: {
@@ -49,27 +37,15 @@ const openApiDocument: OpenAPIObject = {
 			description: "本番 API",
 		},
 	],
-	tags: [
-		{ name: "Bookmarks", description: "ブックマーク関連の操作" },
-		{ name: "Labels", description: "ラベル関連の操作" },
-	],
+	tags: [{ name: "Bookmarks", description: "ブックマーク関連の操作" }],
 	paths: {
 		"/api/bookmarks": {
 			get: {
 				tags: ["Bookmarks"],
 				summary: "未読ブックマーク一覧",
-				parameters: [
-					{
-						name: "label",
-						in: "query",
-						description: "ラベル名でのフィルタ（正規化済みの値）",
-						schema: { type: "string" },
-						required: false,
-					},
-				],
 				responses: {
 					200: {
-						description: "未読またはラベルで絞ったブックマーク一覧",
+						description: "未読ブックマーク一覧",
 						content: {
 							"application/json": {
 								schema: {
@@ -78,44 +54,6 @@ const openApiDocument: OpenAPIObject = {
 							},
 						},
 					},
-					500: { $ref: "#/components/responses/Error" },
-				},
-			},
-		},
-		"/api/bookmarks/{id}/label": {
-			put: {
-				tags: ["Bookmarks"],
-				summary: "ブックマークへラベルを付与",
-				parameters: [
-					{
-						name: "id",
-						in: "path",
-						required: true,
-						schema: { type: "integer", format: "int64" },
-					},
-				],
-				requestBody: {
-					required: true,
-					content: {
-						"application/json": {
-							schema: { $ref: "#/components/schemas/AssignLabelRequest" },
-						},
-					},
-				},
-				responses: {
-					200: {
-						description: "付与したラベルを返却",
-						content: {
-							"application/json": {
-								schema: {
-									$ref: "#/components/schemas/AssignLabelResponse",
-								},
-							},
-						},
-					},
-					400: { $ref: "#/components/responses/Error" },
-					404: { $ref: "#/components/responses/Error" },
-					409: { $ref: "#/components/responses/Error" },
 					500: { $ref: "#/components/responses/Error" },
 				},
 			},
@@ -293,134 +231,11 @@ const openApiDocument: OpenAPIObject = {
 				},
 			},
 		},
-		"/api/labels": {
-			get: {
-				tags: ["Labels"],
-				summary: "ラベル一覧",
-				responses: {
-					200: {
-						description: "ラベルと件数の一覧",
-						content: {
-							"application/json": {
-								schema: { $ref: "#/components/schemas/LabelsResponse" },
-							},
-						},
-					},
-					500: { $ref: "#/components/responses/Error" },
-				},
-			},
-			post: {
-				tags: ["Labels"],
-				summary: "ラベル作成",
-				requestBody: {
-					required: true,
-					content: {
-						"application/json": {
-							schema: { $ref: "#/components/schemas/CreateLabelRequest" },
-						},
-					},
-				},
-				responses: {
-					201: {
-						description: "作成したラベル",
-						content: {
-							"application/json": {
-								schema: { $ref: "#/components/schemas/LabelResponse" },
-							},
-						},
-					},
-					400: { $ref: "#/components/responses/Error" },
-					409: { $ref: "#/components/responses/Error" },
-					500: { $ref: "#/components/responses/Error" },
-				},
-			},
-		},
-		"/api/labels/cleanup": {
-			delete: {
-				tags: ["Labels"],
-				summary: "未使用ラベルの一括削除",
-				responses: {
-					200: {
-						description: "削除件数を返却",
-						content: {
-							"application/json": {
-								schema: {
-									$ref: "#/components/schemas/LabelCleanupResponse",
-								},
-							},
-						},
-					},
-					500: { $ref: "#/components/responses/Error" },
-				},
-			},
-		},
-		"/api/labels/{id}": {
-			patch: {
-				tags: ["Labels"],
-				summary: "ラベル説明文の更新",
-				parameters: [
-					{
-						name: "id",
-						in: "path",
-						required: true,
-						schema: { type: "integer", format: "int64" },
-					},
-				],
-				requestBody: {
-					required: true,
-					content: {
-						"application/json": {
-							schema: { $ref: "#/components/schemas/UpdateLabelRequest" },
-						},
-					},
-				},
-				responses: {
-					200: {
-						description: "更新後のラベル",
-						content: {
-							"application/json": {
-								schema: { $ref: "#/components/schemas/LabelResponse" },
-							},
-						},
-					},
-					400: { $ref: "#/components/responses/Error" },
-					404: { $ref: "#/components/responses/Error" },
-					500: { $ref: "#/components/responses/Error" },
-				},
-			},
-			delete: {
-				tags: ["Labels"],
-				summary: "ラベル削除",
-				parameters: [
-					{
-						name: "id",
-						in: "path",
-						required: true,
-						schema: { type: "integer", format: "int64" },
-					},
-				],
-				responses: {
-					200: {
-						description: "削除完了メッセージ",
-						content: {
-							"application/json": {
-								schema: {
-									$ref: "#/components/schemas/MessageResponse",
-								},
-							},
-						},
-					},
-					400: { $ref: "#/components/responses/Error" },
-					404: { $ref: "#/components/responses/Error" },
-					500: { $ref: "#/components/responses/Error" },
-				},
-			},
-		},
 	},
 	components: {
 		schemas: {
 			Bookmark: bookmarkSchema,
-			BookmarkWithLabel: {
+			BookmarkWithFavorite: {
 				type: "object",
 				required: [
 					"id",
@@ -433,24 +248,7 @@ const openApiDocument: OpenAPIObject = {
 				properties: {
 					...bookmarkSchema.properties,
 					isFavorite: { type: "boolean" },
-					label: {
-						allOf: [{ $ref: "#/components/schemas/Label" }],
-						nullable: true,
-					},
 				},
-			},
-			Label: labelSchema,
-			LabelWithCount: {
-				allOf: [
-					{ $ref: "#/components/schemas/Label" },
-					{
-						type: "object",
-						required: ["articleCount"],
-						properties: {
-							articleCount: { type: "integer", format: "int64" },
-						},
-					},
-				],
 			},
 			ErrorResponse: {
 				type: "object",
@@ -486,7 +284,7 @@ const openApiDocument: OpenAPIObject = {
 						properties: {
 							bookmarks: {
 								type: "array",
-								items: { $ref: "#/components/schemas/BookmarkWithLabel" },
+								items: { $ref: "#/components/schemas/BookmarkWithFavorite" },
 							},
 							totalUnread: { type: "integer", format: "int64" },
 							todayReadCount: { type: "integer", format: "int64" },
@@ -503,7 +301,7 @@ const openApiDocument: OpenAPIObject = {
 						properties: {
 							bookmarks: {
 								type: "array",
-								items: { $ref: "#/components/schemas/BookmarkWithLabel" },
+								items: { $ref: "#/components/schemas/BookmarkWithFavorite" },
 							},
 							total: { type: "integer", format: "int64" },
 						},
@@ -521,29 +319,10 @@ const openApiDocument: OpenAPIObject = {
 								type: "object",
 								additionalProperties: {
 									type: "array",
-									items: { $ref: "#/components/schemas/BookmarkWithLabel" },
+									items: { $ref: "#/components/schemas/BookmarkWithFavorite" },
 								},
 								description: "YYYY-MM-DD をキーにした既読ブックマークリスト",
 							},
-						},
-					},
-				],
-			},
-			AssignLabelRequest: {
-				type: "object",
-				required: ["labelName"],
-				properties: {
-					labelName: { type: "string", description: "付与するラベル名" },
-				},
-			},
-			AssignLabelResponse: {
-				allOf: [
-					{ $ref: "#/components/schemas/SuccessResponse" },
-					{
-						type: "object",
-						required: ["label"],
-						properties: {
-							label: { $ref: "#/components/schemas/Label" },
 						},
 					},
 				],
@@ -565,64 +344,6 @@ const openApiDocument: OpenAPIObject = {
 						},
 					},
 				},
-			},
-			CreateLabelRequest: {
-				type: "object",
-				required: ["name"],
-				properties: {
-					name: { type: "string" },
-					description: { type: "string", nullable: true },
-				},
-			},
-			UpdateLabelRequest: {
-				type: "object",
-				required: ["description"],
-				properties: {
-					description: { type: "string", nullable: true },
-				},
-			},
-			LabelResponse: {
-				allOf: [
-					{ $ref: "#/components/schemas/SuccessResponse" },
-					{
-						type: "object",
-						required: ["label"],
-						properties: {
-							label: { $ref: "#/components/schemas/Label" },
-						},
-					},
-				],
-			},
-			LabelsResponse: {
-				allOf: [
-					{ $ref: "#/components/schemas/SuccessResponse" },
-					{
-						type: "object",
-						required: ["labels"],
-						properties: {
-							labels: {
-								type: "array",
-								items: { $ref: "#/components/schemas/LabelWithCount" },
-							},
-						},
-					},
-				],
-			},
-			LabelCleanupResponse: {
-				allOf: [
-					{ $ref: "#/components/schemas/MessageResponse" },
-					{
-						type: "object",
-						required: ["deletedCount", "deletedLabels"],
-						properties: {
-							deletedCount: { type: "integer", format: "int32" },
-							deletedLabels: {
-								type: "array",
-								items: { $ref: "#/components/schemas/Label" },
-							},
-						},
-					},
-				],
 			},
 		},
 		responses: {
