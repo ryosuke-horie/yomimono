@@ -42,12 +42,6 @@ exports[`Header > デスクトップ表示のスナップショット 1`] = `
           >
             最近読んだ記事
           </a>
-          <a
-            class="inline-flex items-center px-1 pt-1 text-gray-600 hover:text-blue-500"
-            href="/labels"
-          >
-            ラベル設定
-          </a>
         </nav>
         <div
           class="md:hidden"
@@ -125,12 +119,6 @@ exports[`Header > ナビゲーションリンクの構造 > デフォルトの�
             href="/recent"
           >
             最近読んだ記事
-          </a>
-          <a
-            class="inline-flex items-center px-1 pt-1 text-gray-600 hover:text-blue-500"
-            href="/labels"
-          >
-            ラベル設定
           </a>
         </nav>
         <div
@@ -210,12 +198,6 @@ exports[`Header > モバイルメニュー展開時のスナップショット 1
           >
             最近読んだ記事
           </a>
-          <a
-            class="inline-flex items-center px-1 pt-1 text-gray-600 hover:text-blue-500"
-            href="/labels"
-          >
-            ラベル設定
-          </a>
         </nav>
         <div
           class="md:hidden"
@@ -270,12 +252,6 @@ exports[`Header > モバイルメニュー展開時のスナップショット 1
             href="/recent"
           >
             最近読んだ記事
-          </a>
-          <a
-            class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-            href="/labels"
-          >
-            ラベル設定
           </a>
         </div>
       </div>
