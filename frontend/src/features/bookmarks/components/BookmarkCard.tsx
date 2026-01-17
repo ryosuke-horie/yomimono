@@ -1,3 +1,11 @@
+/**
+ * ブックマークカードコンポーネント
+ * ブックマークの情報を表示し、以下のアクションを提供する
+ * - お気に入りの切り替え
+ * - 既読にする（記事を開かずに）
+ * - 未読に戻す
+ * - リンククリックで記事を開く（自動で既読に）
+ */
 "use client";
 
 import { useMarkBookmarkAsRead } from "@/features/bookmarks/queries/useMarkBookmarkAsRead";
@@ -17,7 +25,8 @@ export function BookmarkCard({ bookmark }: Props) {
 	const { showToast } = useToast();
 	const { mutate: toggleFavorite, isPending: isTogglingFavorite } =
 		useToggleFavoriteBookmark({ showToast });
-	const { mutate: markAsReadMutate } = useMarkBookmarkAsRead({ showToast });
+	const { mutate: markAsReadMutate, isPending: isMarkingAsRead } =
+		useMarkBookmarkAsRead({ showToast });
 	const { mutate: markAsUnreadMutate, isPending: isMarkingAsUnread } =
 		useMarkBookmarkAsUnread({ showToast });
 
@@ -27,6 +36,11 @@ export function BookmarkCard({ bookmark }: Props) {
 
 	const handleMarkAsUnread = () => {
 		markAsUnreadMutate(id);
+	};
+
+	// 記事を開かずに既読にする処理
+	const handleMarkAsRead = () => {
+		markAsReadMutate(id);
 	};
 
 	// リンククリック時に既読にする処理を追加
@@ -78,6 +92,59 @@ export function BookmarkCard({ bookmark }: Props) {
 						</svg>
 					)}
 				</button>
+				{/* 既読にするボタン（未読時のみ表示） */}
+				{!isRead && (
+					<button
+						type="button"
+						onClick={handleMarkAsRead}
+						disabled={isMarkingAsRead}
+						className={`p-1 rounded-full ${
+							isMarkingAsRead
+								? "text-gray-400"
+								: "text-gray-400 hover:text-green-500 hover:bg-green-50"
+						}`}
+						title="既読にする"
+					>
+						{isMarkingAsRead ? (
+							<svg
+								className="animate-spin w-6 h-6"
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								role="status"
+							>
+								<circle
+									className="opacity-25"
+									cx="12"
+									cy="12"
+									r="10"
+									stroke="currentColor"
+									strokeWidth="4"
+								/>
+								<path
+									className="opacity-75"
+									fill="currentColor"
+									d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+								/>
+							</svg>
+						) : (
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								strokeWidth={1.5}
+								stroke="currentColor"
+								className="w-6 h-6"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+								/>
+							</svg>
+						)}
+					</button>
+				)}
 				{/* 未読に戻すボタン */}
 				{isRead && (
 					<button

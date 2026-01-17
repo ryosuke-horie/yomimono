@@ -77,10 +77,26 @@ describe("BookmarkCard", () => {
 		expect(screen.getByText("タイトルなし")).toBeInTheDocument();
 	});
 
-	it("未読の場合、既読ボタンを表示しない", () => {
+	it("未読の場合、既読にするボタンを表示する", () => {
 		renderWithQueryClient(<BookmarkCard bookmark={mockBookmark} />);
 
+		expect(screen.getByTitle("既読にする")).toBeInTheDocument();
+	});
+
+	it("既読の場合、既読にするボタンを表示しない", () => {
+		const readBookmark = { ...mockBookmark, isRead: true };
+		renderWithQueryClient(<BookmarkCard bookmark={readBookmark} />);
+
 		expect(screen.queryByTitle("既読にする")).not.toBeInTheDocument();
+	});
+
+	it("既読にするボタンをクリックすると記事を開かずに既読にする", () => {
+		renderWithQueryClient(<BookmarkCard bookmark={mockBookmark} />);
+
+		const markAsReadButton = screen.getByTitle("既読にする");
+		fireEvent.click(markAsReadButton);
+
+		expect(markAsReadMock).toHaveBeenCalledWith(1);
 	});
 
 	it("既読の場合、未読に戻すボタンを表示する", () => {
