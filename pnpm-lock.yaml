@@ -13,7 +13,7 @@ importers:
         version: 2.3.8
       knip:
         specifier: ^5.71.0
-        version: 5.72.0(@types/node@24.10.1)(typescript@5.9.3)
+        version: 5.72.0(@types/node@25.2.2)(typescript@5.9.3)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -85,11 +85,11 @@ importers:
         specifier: ^2.3.8
         version: 2.3.8
       '@types/node':
-        specifier: ^24.10.1
-        version: 24.10.1
+        specifier: ^25.2.0
+        version: 25.2.2
       knip:
         specifier: ^5.71.0
-        version: 5.72.0(@types/node@24.10.1)(typescript@5.9.3)
+        version: 5.72.0(@types/node@25.2.2)(typescript@5.9.3)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -2894,6 +2894,9 @@ packages:
 
   '@types/node@24.10.1':
     resolution: {integrity: sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ==}
+
+  '@types/node@25.2.2':
+    resolution: {integrity: sha512-BkmoP5/FhRYek5izySdkOneRyXYN35I860MFAGupTdebyE66uZaR+bXLHq8k4DirE5DwQi3NuhvRU1jqTVwUrQ==}
 
   '@types/rclone.js@0.6.3':
     resolution: {integrity: sha512-BssKAAVRY//fxGKso8SatyOwiD7X0toDofNnVxZlIXmN7UHrn2UBTxldNAjgUvWA91qJyeEPfKmeJpZVhLugXg==}
@@ -8798,6 +8801,10 @@ snapshots:
     dependencies:
       undici-types: 7.16.0
 
+  '@types/node@25.2.2':
+    dependencies:
+      undici-types: 7.16.0
+
   '@types/rclone.js@0.6.3':
     dependencies:
       '@types/node': 24.10.1
@@ -10164,6 +10171,23 @@ snapshots:
     dependencies:
       '@nodelib/fs.walk': 1.2.8
       '@types/node': 24.10.1
+      fast-glob: 3.3.3
+      formatly: 0.3.0
+      jiti: 2.6.1
+      js-yaml: 4.1.1
+      minimist: 1.2.8
+      oxc-resolver: 11.15.0
+      picocolors: 1.1.1
+      picomatch: 4.0.3
+      smol-toml: 1.5.2
+      strip-json-comments: 5.0.3
+      typescript: 5.9.3
+      zod: 4.1.13
+
+  knip@5.72.0(@types/node@25.2.2)(typescript@5.9.3):
+    dependencies:
+      '@nodelib/fs.walk': 1.2.8
+      '@types/node': 25.2.2
       fast-glob: 3.3.3
       formatly: 0.3.0
       jiti: 2.6.1
