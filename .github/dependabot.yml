@@ -129,16 +129,23 @@ updates:
           - "@biomejs/biome"
           - "knip"
 
-  # GitHub Actionsの依存関係を管理
-  - package-ecosystem: "github-actions"
+  # ルート（モノレポ共通）の依存関係を管理
+  - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "monthly"
     commit-message:
-      prefix: "chore(actions)"
-      prefix-development: "chore(actions)"
+      prefix: "chore(root)"
+      prefix-development: "chore(root-dev)"
       include: "scope"
     reviewers:
       - "ryosuke-horie"
     assignees:
       - "ryosuke-horie"
+    groups:
+      dev-dependencies:
+        patterns:
+          - "@biomejs/biome"
+          - "knip"
+          - "lefthook"
+          - "typescript"

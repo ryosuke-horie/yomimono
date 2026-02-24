@@ -1,0 +1,61 @@
+# Lefthook 設定
+# pre-commit: 変更パッケージの lint を実行
+# pre-push: 変更パッケージの test / typecheck / knip / build 等を実行
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: lint api
+      glob: "api/**/*.{ts,tsx,js,jsx}"
+      run: cd api && pnpm run lint
+
+    - name: lint frontend
+      glob: "frontend/**/*.{ts,tsx,js,jsx}"
+      run: cd frontend && pnpm run lint
+
+    - name: lint extension
+      glob: "extension/**/*.{ts,tsx,js,jsx}"
+      run: cd extension && pnpm run lint
+
+pre-push:
+  parallel: true
+  jobs:
+    - name: test api
+      glob: "api/**/*.{ts,tsx,js,jsx}"
+      run: cd api && pnpm run test
+
+    - name: knip api
+      glob: "api/**/*.{ts,tsx,js,jsx,json}"
+      run: cd api && pnpm run knip
+
+    - name: generate check api
+      glob: "api/**/*.{ts,tsx,js,jsx}"
+      run: cd api && pnpm run generate && git diff --exit-code -- openapi.yaml
+
+    - name: test frontend
+      glob: "frontend/**/*.{ts,tsx,js,jsx}"
+      run: cd frontend && pnpm run test
+
+    - name: typecheck frontend
+      glob: "frontend/**/*.{ts,tsx,js,jsx,json}"
+      run: cd frontend && pnpm run typecheck
+
+    - name: knip frontend
+      glob: "frontend/**/*.{ts,tsx,js,jsx,json}"
+      run: cd frontend && pnpm run knip
+
+    - name: orval check
+      glob: "{api,frontend}/**/*.{ts,tsx,js,jsx}"
+      run: cd frontend && pnpm run check:orval
+
+    - name: build frontend
+      glob: "frontend/**/*.{ts,tsx,js,jsx,css,json}"
+      run: cd frontend && pnpm run build
+
+    - name: knip extension
+      glob: "extension/**/*.{ts,tsx,js,jsx,json}"
+      run: cd extension && pnpm run knip
+
+    - name: build extension
+      glob: "extension/**/*.{ts,tsx,js,jsx,json}"
+      run: cd extension && pnpm run build

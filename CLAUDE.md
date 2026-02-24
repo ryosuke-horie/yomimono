@@ -7,25 +7,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 重要
 
-### GitHub Actions制限について
+### コード品質チェックについて
 
-**⚠️ 重要**: GitHub Actions無料枠制限により、GitHub-hosted runnerワークフローは停止中です。セルフホストランナーのみ利用しています。
+Lefthook による Git フックでコード品質を担保しています。
+必ず編集したディレクトリの Lint, TypeCheck, Test を実行するようにしましょう。
+`--no-verify` 等でフックをスキップすることは認めません。
 
-### CIについて
+#### Lefthook 設計方針
 
-CIがパスしない限りマージすることは許容できません。
-必ず編集したディレクトリのLint, TypeCheck, Testを実行するようにしましょう。
-またコメント等を利用してDisableすることも認めません。本気で取り組みましょう
+pre-commit（コミット時）:
+- 変更パッケージの lint を実行
 
-#### CI設計方針
-**現在**: セルフホストランナーのみ稼働（GitHub Actions制限のため）
+pre-push（プッシュ時）:
+- 変更パッケージの test / typecheck / knip / build 等を実行
+- API・フロントエンド間の OpenAPI / orval 同期チェックを実行
 
-**セルフホストランナー（軽量・高速）：**
-- リント・単体テスト・型チェック・セキュリティ監査
-- 事前セットアップ環境でキャッシュ効果を活用
-
-**GitHub-hosted Runner（一時停止中）：**
-- 無料枠制限により停止中（必要時は手動でセルフホスト環境を用意）
+変更があったパッケージのみチェック対象となるため、無関係なパッケージの待ち時間は発生しません。
 
 ### テスト駆動開発を行う
 TDDを実施する。コードを生成するときにはそれに対応するユニットテストを常に生成する。
@@ -102,7 +99,7 @@ Linear MCPツールが利用可能な環境では、Claude Codeから直接Linea
 ```
 .
 ├── .claude ... Claude Code用のルールファイル
-├── .github ... CICD, Dependabot関連
+├── .github ... Dependabot関連
 ├── api ... APIのソースコード (Hono/Node.js)
 ├── docs ... 設計や調査結果等のドキュメント
 ├── extension ... Chrome拡張機能のソースコード
