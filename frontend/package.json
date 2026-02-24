@@ -21,7 +21,7 @@
 		"check:orval": "bash scripts/check-orval-sync.sh"
 	},
 	"dependencies": {
-		"@tanstack/react-query": "^5.90.20",
+		"@tanstack/react-query": "^5.90.21",
 		"next": "16.1.6",
 		"react": "19.2.4",
 		"react-dom": "19.2.4",
@@ -30,14 +30,14 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.13",
-		"@cloudflare/workers-types": "^4.20260205.0",
-		"@opennextjs/cloudflare": "1.16.3",
-		"@tailwindcss/postcss": "^4.1.18",
+		"@cloudflare/workers-types": "^4.20260303.0",
+		"@opennextjs/cloudflare": "1.17.0",
+		"@tailwindcss/postcss": "^4.2.1",
 		"@testing-library/dom": "^10.4.0",
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/react": "^16.3.2",
 		"@testing-library/user-event": "^14.6.1",
-		"@types/node": "^25.2.2",
+		"@types/node": "^25.3.0",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
 		"@vitejs/plugin-react": "^5.1.2",
@@ -45,14 +45,14 @@
 		"@vitest/ui": "^4.0.18",
 		"jsdom": "^27.4.0",
 		"knip": "^5.82.1",
-		"orval": "^8.2.0",
+		"orval": "^8.4.2",
 		"postcss": "^8",
 		"postcss-load-config": "^6.0.1",
-		"tailwindcss": "^4.1.18",
+		"tailwindcss": "^4.2.1",
 		"typescript": "5.9.3",
 		"vite-tsconfig-paths": "^6.0.5",
 		"vitest": "^4.0.18",
-		"wrangler": "^4.61.1"
+		"wrangler": "^4.68.0"
 	},
 	"overrides": {
 		"@ast-grep/napi": {
