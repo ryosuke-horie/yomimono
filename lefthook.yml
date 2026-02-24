@@ -1,0 +1,80 @@
+# Lefthook 設定
+# pre-commit: 変更パッケージの lint を実行
+# pre-push: 変更パッケージの test / typecheck / knip / build / OpenAPI同期チェック を実行
+
+# 標準的な ** 動作（0個以上のディレクトリにマッチ）を使用
+glob_matcher: doublestar
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: lint api
+      glob: "api/**/*.{ts,tsx,js,jsx}"
+      run: cd api && pnpm run lint
+
+    - name: lint frontend
+      glob: "frontend/**/*.{ts,tsx,js,jsx,css}"
+      run: cd frontend && pnpm run lint
+
+    - name: lint extension
+      glob: "extension/**/*.{ts,tsx,js,jsx,css,html}"
+      run: cd extension && pnpm run lint
+
+pre-push:
+  parallel: true
+  jobs:
+    - name: test api
+      glob: "api/**/*.{ts,tsx,js,jsx,json,yaml,yml}"
+      run: cd api && pnpm run test
+
+    - name: knip api
+      glob: "api/**/*.{ts,tsx,js,jsx,json,yaml,yml}"
+      run: cd api && pnpm run knip
+
+    - name: api-frontend sync check
+      glob: "{api,frontend}/**/*.{ts,tsx,js,jsx,json,yaml,yml}"
+      run: |
+        set -e
+        cd api && pnpm run generate && git diff --exit-code -- openapi.yaml
+        cd ../frontend && pnpm run check:orval
+      fail_text: |
+        OpenAPI / Orval 同期チェックに失敗しました。
+        generate により openapi.yaml は更新済みの場合があります。以下を実行してください:
+          cd api && pnpm run generate
+          git add api/openapi.yaml
+          cd ../frontend && pnpm run orval
+          git add frontend/src/lib/openapi
+          git commit
+
+    - name: test frontend
+      glob: "frontend/**/*.{ts,tsx,js,jsx,mjs,json,yaml,yml,css}"
+      run: cd frontend && pnpm run test
+
+    - name: typecheck frontend
+      glob: "frontend/**/*.{ts,tsx,js,jsx,mjs,json,jsonc,yaml,yml}"
+      run: cd frontend && pnpm run typecheck
+
+    - name: knip frontend
+      glob: "frontend/**/*.{ts,tsx,js,jsx,mjs,json,yaml,yml}"
+      run: cd frontend && pnpm run knip
+
+    - name: build frontend
+      glob: "frontend/**/*.{ts,tsx,js,jsx,mjs,css,json,jsonc,yaml,yml,html}"
+      run: cd frontend && pnpm run build
+
+    - name: knip extension
+      glob: "extension/**/*.{ts,tsx,js,jsx,json,html,css}"
+      run: cd extension && pnpm run knip
+
+    - name: build extension
+      glob: "extension/**/*.{ts,tsx,js,jsx,json,html,css}"
+      run: |
+        set -e
+        cd extension && pnpm run build
+        test -f dist/manifest.json || (echo "manifest.json not found in dist/" && exit 1)
+        test -f dist/popup/popup.html || (echo "popup.html not found in dist/popup/" && exit 1)
+        test -f dist/popup/popup.js || (echo "popup.js not found in dist/popup/" && exit 1)
+
+    - name: root dependency check
+      glob: "{package.json,pnpm-lock.yaml}"
+      run: pnpm run typecheck && pnpm run test
