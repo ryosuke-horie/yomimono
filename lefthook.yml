@@ -1,6 +1,9 @@
 # Lefthook 設定
 # pre-commit: 変更パッケージの lint を実行
-# pre-push: 変更パッケージの test / typecheck / knip / build 等を実行
+# pre-push: 変更パッケージの test / typecheck / knip / build / OpenAPI同期チェック を実行
+
+# 標準的な ** 動作（0個以上のディレクトリにマッチ）を使用
+glob_matcher: doublestar
 
 pre-commit:
   parallel: true
@@ -21,41 +24,54 @@ pre-push:
   parallel: true
   jobs:
     - name: test api
-      glob: "api/**/*.{ts,tsx,js,jsx}"
+      glob: "api/**/*.{ts,tsx,js,jsx,json,yaml,yml}"
       run: cd api && pnpm run test
 
     - name: knip api
-      glob: "api/**/*.{ts,tsx,js,jsx,json}"
+      glob: "api/**/*.{ts,tsx,js,jsx,json,yaml,yml}"
       run: cd api && pnpm run knip
 
     - name: generate check api
-      glob: "api/**/*.{ts,tsx,js,jsx}"
+      glob: "api/**/*.{ts,tsx,js,jsx,json,yaml,yml}"
       run: cd api && pnpm run generate && git diff --exit-code -- openapi.yaml
+      fail_text: |
+        OpenAPI 仕様が最新ではありません。以下を実行してください:
+          cd api && pnpm run generate
+          git add openapi.yaml
+          git commit
 
     - name: test frontend
-      glob: "frontend/**/*.{ts,tsx,js,jsx}"
+      glob: "frontend/**/*.{ts,tsx,js,jsx,json,yaml,yml,css}"
       run: cd frontend && pnpm run test
 
     - name: typecheck frontend
-      glob: "frontend/**/*.{ts,tsx,js,jsx,json}"
+      glob: "frontend/**/*.{ts,tsx,js,jsx,json,yaml,yml}"
       run: cd frontend && pnpm run typecheck
 
     - name: knip frontend
-      glob: "frontend/**/*.{ts,tsx,js,jsx,json}"
+      glob: "frontend/**/*.{ts,tsx,js,jsx,json,yaml,yml}"
       run: cd frontend && pnpm run knip
 
     - name: orval check
-      glob: "{api,frontend}/**/*.{ts,tsx,js,jsx}"
+      glob: "{api,frontend}/**/*.{ts,tsx,js,jsx,json,yaml,yml}"
       run: cd frontend && pnpm run check:orval
+      fail_text: |
+        Orval 生成ファイルが同期されていません。以下を実行してください:
+          cd frontend && pnpm run orval
+          git add frontend/src/lib/openapi
 
     - name: build frontend
-      glob: "frontend/**/*.{ts,tsx,js,jsx,css,json}"
+      glob: "frontend/**/*.{ts,tsx,js,jsx,css,json,yaml,yml,html}"
       run: cd frontend && pnpm run build
 
     - name: knip extension
-      glob: "extension/**/*.{ts,tsx,js,jsx,json}"
+      glob: "extension/**/*.{ts,tsx,js,jsx,json,html}"
       run: cd extension && pnpm run knip
 
     - name: build extension
-      glob: "extension/**/*.{ts,tsx,js,jsx,json}"
-      run: cd extension && pnpm run build
+      glob: "extension/**/*.{ts,tsx,js,jsx,json,html}"
+      run: |
+        cd extension && pnpm run build
+        test -f dist/manifest.json || (echo "manifest.json not found in dist/" && exit 1)
+        test -f dist/popup/popup.html || (echo "popup.html not found in dist/popup/" && exit 1)
+        test -f dist/popup/popup.js || (echo "popup.js not found in dist/popup/" && exit 1)

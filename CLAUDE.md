@@ -117,6 +117,8 @@ Linear MCPツールが利用可能な環境では、Claude Codeから直接Linea
 - DB開発: `cd api && pnpm run migrate:development` - 開発環境用DBマイグレーション
 - DB本番: `cd api && pnpm run migrate:production` - 本番環境用DBマイグレーション
 - DB新規作成: `cd api && pnpm run db:generate` - マイグレーションファイル生成
+- APIデプロイ: `cd api && pnpm run deploy` - APIをCloudflare Workersにデプロイ
+- フロントデプロイ: `cd frontend && pnpm run deploy` - フロントエンドをCloudflareにデプロイ
 
 ## アーキテクチャ情報
 - **API**: レイヤードアーキテクチャ採用
@@ -143,7 +145,7 @@ Linear MCPツールが利用可能な環境では、Claude Codeから直接Linea
 
 ## 依存関係管理
 - **Dependabot**: `.github/dependabot.yml`で設定
-  - 各ディレクトリごと（api, frontend, extension）に個別に依存関係を管理
+  - 各ディレクトリごと（ルート, api, frontend, extension）に個別に依存関係を管理
   - 依存パッケージはグループ化されており、関連パッケージは一括で更新される
   - テスト関連パッケージ（vitest, @vitest/*）は同時に更新する必要があるためグループ化
 
