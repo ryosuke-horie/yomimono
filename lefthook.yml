@@ -34,6 +34,7 @@ pre-push:
     - name: api-frontend sync check
       glob: "{api,frontend}/**/*.{ts,tsx,js,jsx,json,yaml,yml}"
       run: |
+        set -e
         cd api && pnpm run generate && git diff --exit-code -- openapi.yaml
         cd ../frontend && pnpm run check:orval
       fail_text: |
@@ -68,6 +69,7 @@ pre-push:
     - name: build extension
       glob: "extension/**/*.{ts,tsx,js,jsx,json,html,css}"
       run: |
+        set -e
         cd extension && pnpm run build
         test -f dist/manifest.json || (echo "manifest.json not found in dist/" && exit 1)
         test -f dist/popup/popup.html || (echo "popup.html not found in dist/popup/" && exit 1)
