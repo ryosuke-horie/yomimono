@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 
 <head>
     <meta charset="UTF-8">
@@ -13,17 +13,17 @@
         <div class="frontend-link-container">
             <div class="frontend-header">
                 <p class="frontend-label">フロントエンド</p>
-                <button id="openFrontendButton" class="frontend-button">開く</button>
+                <button id="openFrontendButton" class="frontend-button" type="button">開く</button>
             </div>
-            <a id="frontendLink" class="frontend-link" href="#" target="_blank" rel="noopener noreferrer"></a>
+            <a id="frontendLink" class="frontend-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="フロントエンドを開く"></a>
         </div>
         <div id="tabList" class="tab-list">
             <!-- タブ一覧がここに動的に追加されます -->
         </div>
         <div class="actions">
-            <button id="selectAllButton">全て選択</button>
-            <button id="deselectAllButton">選択解除</button>
-            <button id="collectButton">選択したURLを送信</button>
+            <button id="selectAllButton" type="button">全て選択</button>
+            <button id="deselectAllButton" type="button">選択解除</button>
+            <button id="collectButton" type="button">選択したURLを送信</button>
         </div>
         <div id="status" class="status"></div>
         <div id="result" class="result"></div>

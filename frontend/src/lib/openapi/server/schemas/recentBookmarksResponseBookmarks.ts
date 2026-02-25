@@ -6,8 +6,9 @@
 このファイルは src/openapi/spec.ts を唯一のソースとして生成されます。
  * OpenAPI spec version: 0.1.0
  */
-import type { SuccessResponse } from './successResponse';
+import type { BookmarkWithFavorite } from './bookmarkWithFavorite';
 
-export type MessageResponse = SuccessResponse & {
-  message: string;
-};
+/**
+ * YYYY-MM-DD をキーにした既読ブックマークリスト
+ */
+export type RecentBookmarksResponseBookmarks = {[key: string]: BookmarkWithFavorite[]};
