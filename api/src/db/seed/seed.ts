@@ -4,25 +4,20 @@ import Database from "better-sqlite3";
 /**
  * シードデータ生成スクリプト
  * 開発環境でのテスト用データ生成
- * 現実的なテック記事のブックマーク、ラベル、お気に入りデータを生成する
+ * 現実的なテック記事のブックマークとお気に入りデータを生成する
  */
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { getCurrentDatabaseConfig } from "../../config/database";
 import {
-	articleLabels,
 	bookmarks,
 	favorites,
-	type InsertArticleLabel,
 	type InsertBookmark,
 	type InsertFavorite,
-	type InsertLabel,
-	labels,
 } from "../schema";
 
 // 環境チェック用の型定義
 interface SeedDataOptions {
 	bookmarkCount?: number;
-	labelCount?: number;
 	favoriteRatio?: number; // お気に入り率 (0-1)
 	forceRun?: boolean; // 本番環境でも実行を強制する
 }
@@ -154,47 +149,6 @@ const SAMPLE_TECH_ARTICLES = [
 ];
 
 /**
- * ラベルのサンプルデータ
- */
-const SAMPLE_LABELS = [
-	{
-		name: "React",
-		description:
-			"Reactライブラリに関する記事。コンポーネント設計、Hooks、状態管理など",
-	},
-	{
-		name: "Node.js",
-		description:
-			"Node.jsを使ったサーバーサイド開発。パフォーマンス改善や運用に関する記事",
-	},
-	{
-		name: "TypeScript",
-		description: "TypeScriptの型システム、新機能、実装パターンに関する記事",
-	},
-	{
-		name: "データベース",
-		description: "PostgreSQL、MySQL、NoSQLなどデータベース技術全般の記事",
-	},
-	{
-		name: "インフラ・DevOps",
-		description:
-			"Kubernetes、Docker、CI/CD、監視など開発・運用基盤に関する記事",
-	},
-	{
-		name: "セキュリティ",
-		description: "Webセキュリティ、認証・認可、脆弱性対策に関する記事",
-	},
-	{
-		name: "アーキテクチャ",
-		description: "システム設計、マイクロサービス、設計パターンに関する記事",
-	},
-	{
-		name: "パフォーマンス",
-		description: "最適化、チューニング、パフォーマンス改善に関する記事",
-	},
-];
-
-/**
  * 環境チェック: 本番環境での実行を防ぐ
  */
 export function validateEnvironment(forceRun = false): void {
@@ -258,49 +212,6 @@ function generateBookmarkData(count: number): InsertBookmark[] {
 			updatedAt,
 		} satisfies InsertBookmark;
 	});
-}
-
-/**
- * ラベルデータを生成
- */
-function generateLabelData(count: number): InsertLabel[] {
-	const selectedLabels = getRandomElements(SAMPLE_LABELS, count);
-
-	return selectedLabels.map((label) => {
-		const now = new Date();
-		return {
-			name: label.name,
-			description: label.description,
-			createdAt: now,
-			updatedAt: now,
-		} satisfies InsertLabel;
-	});
-}
-
-/**
- * 記事-ラベル関連付けデータを生成
- */
-function generateArticleLabelData(
-	bookmarkIds: number[],
-	labelIds: number[],
-): InsertArticleLabel[] {
-	const articleLabels: InsertArticleLabel[] = [];
-
-	// 各ブックマークに1-3個のラベルをランダムに割り当て
-	for (const bookmarkId of bookmarkIds) {
-		const labelCount = Math.floor(Math.random() * 3) + 1; // 1-3個
-		const selectedLabelIds = getRandomElements(labelIds, labelCount);
-
-		for (const labelId of selectedLabelIds) {
-			articleLabels.push({
-				articleId: bookmarkId,
-				labelId,
-				createdAt: new Date(),
-			} satisfies InsertArticleLabel);
-		}
-	}
-
-	return articleLabels;
 }
 
 /**
@@ -401,10 +312,8 @@ export async function clearDatabase(): Promise<void> {
 	console.log("データベースをクリア中...");
 
 	// 外部キー制約のため、順序を考慮して削除
-	await db.delete(articleLabels);
 	await db.delete(favorites);
 	await db.delete(bookmarks);
-	await db.delete(labels);
 
 	console.log("✅ データベースクリア完了");
 }
@@ -415,12 +324,7 @@ export async function clearDatabase(): Promise<void> {
 export async function runSeedData(
 	options: SeedDataOptions = {},
 ): Promise<void> {
-	const {
-		bookmarkCount = 25,
-		labelCount = 6,
-		favoriteRatio = 0.3,
-		forceRun = false,
-	} = options;
+	const { bookmarkCount = 25, favoriteRatio = 0.3, forceRun = false } = options;
 
 	try {
 		// 環境チェック
@@ -433,25 +337,11 @@ export async function runSeedData(
 
 		// 既存データをクリア
 		console.log("既存データをクリア中...");
-		await db.delete(articleLabels);
 		await db.delete(favorites);
 		await db.delete(bookmarks);
-		await db.delete(labels);
 		console.log("✅ 既存データをクリアしました");
 
-		// 1. ラベルデータを挿入
-		console.log("ラベルデータを生成中...");
-		const labelData = generateLabelData(labelCount);
-		const insertedLabels = await Promise.all(
-			labelData.map(async (label) => {
-				const result = await db.insert(labels).values(label).returning();
-				return result[0]; // SQLiteでは配列の最初の要素を取得
-			}),
-		);
-		const labelIds = insertedLabels.map((label) => label.id);
-		console.log(`${insertedLabels.length}個のラベルを作成しました`);
-
-		// 2. ブックマークデータを挿入
+		// 1. ブックマークデータを挿入
 		console.log("ブックマークデータを生成中...");
 		const bookmarkData = generateBookmarkData(bookmarkCount);
 		const insertedBookmarks = await Promise.all(
@@ -463,19 +353,7 @@ export async function runSeedData(
 		const bookmarkIds = insertedBookmarks.map((bookmark) => bookmark.id);
 		console.log(`${insertedBookmarks.length}個のブックマークを作成しました`);
 
-		// 3. 記事-ラベル関連付けデータを挿入
-		console.log("記事-ラベル関連付けを生成中...");
-		const articleLabelData = generateArticleLabelData(bookmarkIds, labelIds);
-		await Promise.all(
-			articleLabelData.map(async (articleLabel) => {
-				await db.insert(articleLabels).values(articleLabel).run();
-			}),
-		);
-		console.log(
-			`${articleLabelData.length}個の記事-ラベル関連付けを作成しました`,
-		);
-
-		// 4. お気に入りデータを挿入
+		// 2. お気に入りデータを挿入
 		console.log("お気に入りデータを生成中...");
 		const favoriteData = generateFavoriteData(bookmarkIds, favoriteRatio);
 		await Promise.all(
@@ -488,8 +366,6 @@ export async function runSeedData(
 		console.log("✅ シードデータ生成が完了しました！");
 		console.log("📊 生成データサマリー:");
 		console.log(`  - ブックマーク: ${insertedBookmarks.length}件`);
-		console.log(`  - ラベル: ${insertedLabels.length}件`);
-		console.log(`  - 記事-ラベル関連付け: ${articleLabelData.length}件`);
 		console.log(`  - お気に入り: ${favoriteData.length}件`);
 	} catch (error) {
 		console.error("❌ シードデータ生成中にエラーが発生しました:", error);
