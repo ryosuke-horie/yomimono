@@ -38,17 +38,23 @@ API → Frontend の順に自動デプロイし、Extension の手動提出手�
    - `git status` の出力に "Your branch is up to date" が含まれているか確認する
    - 未 push の場合: 「リモートへ push されていないコミットがあります。`git push` 後に再実行してください。」と案内して中断する
 
-4. `CLOUDFLARE_API_TOKEN` が設定されていることを確認する
+4. `api/.env` を読み込んで環境変数を設定する
+   ```bash
+   set -a && source api/.env && set +a
+   ```
+   - 読み込みに失敗した場合は中断する
+
+5. `CLOUDFLARE_API_TOKEN` が設定されていることを確認する
    ```bash
    echo $CLOUDFLARE_API_TOKEN
    ```
-   - 空の場合: 「CLOUDFLARE_API_TOKEN が設定されていません。環境変数を設定してから再実行してください。」と案内して中断する
+   - 空の場合: 「CLOUDFLARE_API_TOKEN が設定されていません。api/.env を確認してください。」と案内して中断する
 
-5. `CLOUDFLARE_ACCOUNT_ID` が設定されていることを確認する
+6. `CLOUDFLARE_ACCOUNT_ID` が設定されていることを確認する
    ```bash
    echo $CLOUDFLARE_ACCOUNT_ID
    ```
-   - 空の場合: 「CLOUDFLARE_ACCOUNT_ID が設定されていません。環境変数を設定してから再実行してください。」と案内して中断する
+   - 空の場合: 「CLOUDFLARE_ACCOUNT_ID が設定されていません。api/.env を確認してください。」と案内して中断する
 
 全チェック通過後、「事前チェック OK。デプロイを開始します。」と表示して次のステップへ進む。
 
