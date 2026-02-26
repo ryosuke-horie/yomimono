@@ -160,3 +160,9 @@ Linear MCPツールが利用可能な環境では、Claude Codeから直接Linea
 ## PR作成時
 - .github/pull_request_template.mdのコメントを付与する。
 - GitHub copilotによる自動レビューが有効なため、日本語でレビューさせる。
+
+## ユーザー呼び出し可能なスキル
+
+以下のスキルは `/skill-name` コマンドでトリガーできます。
+
+- `/deploy`: yomimono プロジェクトの本番デプロイを実行する。D1 バックアップ → マイグレーション → API デプロイ → Frontend デプロイ の順に処理し、Extension の手動提出手順を案内する。

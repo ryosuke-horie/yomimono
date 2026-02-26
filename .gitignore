@@ -39,5 +39,6 @@ Thumbs.db
 
 # Database backups
 **/db_backup_*.sql
+backups/*.sql
 
 **/CLAUDE.local.md
