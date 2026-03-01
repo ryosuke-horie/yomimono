@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 // ブックマーク
@@ -10,10 +11,10 @@ export const bookmarks = sqliteTable(
 		isRead: integer("is_read", { mode: "boolean" }).notNull().default(false),
 		createdAt: integer("created_at", { mode: "timestamp" })
 			.notNull()
-			.default(new Date()),
+			.default(sql`(unixepoch())`),
 		updatedAt: integer("updated_at", { mode: "timestamp" })
 			.notNull()
-			.default(new Date()),
+			.default(sql`(unixepoch())`),
 	},
 	(table) => {
 		return {
@@ -39,7 +40,7 @@ export const favorites = sqliteTable("favorites", {
 		.references(() => bookmarks.id, { onDelete: "cascade" }),
 	createdAt: integer("created_at", { mode: "timestamp" })
 		.notNull()
-		.default(new Date()),
+		.default(sql`(unixepoch())`),
 });
 
 export type Bookmark = typeof bookmarks.$inferSelect;
