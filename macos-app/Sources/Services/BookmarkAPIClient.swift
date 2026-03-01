@@ -4,6 +4,21 @@
  */
 import Foundation
 
+// MARK: - プロトコル（テスト時のモック差し替えに使用）
+
+protocol BookmarkAPIClientProtocol: Sendable {
+    func fetchUnreadBookmarks() async throws -> BookmarkListResponse
+    func fetchFavoriteBookmarks() async throws -> FavoriteBookmarksResponse
+    func fetchRecentBookmarks() async throws -> RecentBookmarksResponse
+    func markAsRead(id: Int) async throws
+    func markAsUnread(id: Int) async throws
+    func addToFavorites(id: Int) async throws
+    func removeFromFavorites(id: Int) async throws
+    func bulkRegister(bookmarks: [(url: String, title: String)]) async throws
+}
+
+// MARK: - エラー型
+
 enum BookmarkAPIError: Error, LocalizedError {
     case invalidURL
     case httpError(statusCode: Int, message: String)
@@ -24,7 +39,7 @@ enum BookmarkAPIError: Error, LocalizedError {
     }
 }
 
-final class BookmarkAPIClient: Sendable {
+final class BookmarkAPIClient: BookmarkAPIClientProtocol, Sendable {
     static let shared = BookmarkAPIClient()
 
     private let baseURL = "https://effective-yomimono-api.ryosuke-horie37.workers.dev"

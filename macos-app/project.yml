@@ -49,3 +49,20 @@ targets:
         CFBundleDisplayName: yomimono
         NSHumanReadableCopyright: ""
         LSMinimumSystemVersion: "13.0"
+
+  yomimonoTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests
+    dependencies:
+      - target: yomimono
+    settings:
+      base:
+        SWIFT_VERSION: "6.0"
+        MACOSX_DEPLOYMENT_TARGET: "13.0"
+        PRODUCT_BUNDLE_IDENTIFIER: com.yomimono.macos.tests
+        GENERATE_INFOPLIST_FILE: "YES"
+        CODE_SIGN_IDENTITY: ""
+        CODE_SIGNING_REQUIRED: "NO"
+        CODE_SIGNING_ALLOWED: "NO"

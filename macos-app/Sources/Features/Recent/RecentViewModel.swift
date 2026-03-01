@@ -11,7 +11,11 @@ final class RecentViewModel: ObservableObject {
     @Published var loadError: String?
     @Published var mutationError: String?
 
-    private let api = BookmarkAPIClient.shared
+    private let api: BookmarkAPIClientProtocol
+
+    init(api: BookmarkAPIClientProtocol = BookmarkAPIClient.shared) {
+        self.api = api
+    }
 
     func load() async {
         isLoading = true
