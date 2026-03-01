@@ -1,0 +1,68 @@
+# macOS アプリのビルドとテストを実行する CI ワークフロー
+# macos-app/** の変更がある PR / push でのみ実行する（macOS ランナーのコスト削減）
+name: macOS Build and Test
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "macos-app/**"
+      - ".github/workflows/macos-build.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "macos-app/**"
+      - ".github/workflows/macos-build.yml"
+
+# 同一ブランチへの連続 push で古いビルドをキャンセルしてコストを削減する
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Homebrew packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/Homebrew
+            /opt/homebrew/Cellar/xcodegen
+          key: ${{ runner.os }}-brew-xcodegen-${{ hashFiles('.github/workflows/macos-build.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-brew-xcodegen-
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: macos-app
+        run: xcodegen generate
+
+      - name: Build
+        working-directory: macos-app
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project yomimono.xcodeproj \
+            -scheme yomimono \
+            -destination "platform=macOS" \
+            -skipPackagePluginValidation \
+            build
+
+      - name: Test
+        working-directory: macos-app
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project yomimono.xcodeproj \
+            -scheme yomimono \
+            -destination "platform=macOS" \
+            -skipPackagePluginValidation
