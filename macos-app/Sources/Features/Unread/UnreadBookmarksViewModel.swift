@@ -15,7 +15,11 @@ final class UnreadBookmarksViewModel: ObservableObject {
     @Published var totalUnread = 0
     @Published var todayReadCount = 0
 
-    private let api = BookmarkAPIClient.shared
+    private let api: BookmarkAPIClientProtocol
+
+    init(api: BookmarkAPIClientProtocol = BookmarkAPIClient.shared) {
+        self.api = api
+    }
 
     func load() async {
         isLoading = true

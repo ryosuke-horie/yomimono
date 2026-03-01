@@ -12,7 +12,11 @@ final class FavoritesViewModel: ObservableObject {
     @Published var mutationError: String?
     @Published var total = 0
 
-    private let api = BookmarkAPIClient.shared
+    private let api: BookmarkAPIClientProtocol
+
+    init(api: BookmarkAPIClientProtocol = BookmarkAPIClient.shared) {
+        self.api = api
+    }
 
     func load() async {
         isLoading = true
