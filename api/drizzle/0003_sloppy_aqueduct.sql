@@ -1,6 +1,6 @@
-DROP TABLE `article_labels`;--> statement-breakpoint
-DROP TABLE `books`;--> statement-breakpoint
-DROP TABLE `labels`;--> statement-breakpoint
+DROP TABLE IF EXISTS `article_labels`;--> statement-breakpoint
+DROP TABLE IF EXISTS `books`;--> statement-breakpoint
+DROP TABLE IF EXISTS `labels`;--> statement-breakpoint
 PRAGMA foreign_keys=OFF;--> statement-breakpoint
 CREATE TABLE `__new_bookmarks` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
