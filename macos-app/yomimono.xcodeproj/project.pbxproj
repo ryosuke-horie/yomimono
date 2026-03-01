@@ -201,18 +201,18 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		"TEMP_5E36EB7E-317F-4450-B29B-8C92F3BD91DA" /* Summary */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Summary;
-			sourceTree = "<group>";
-		};
-		"TEMP_7659CF3A-EC8F-4B9F-B1C7-74BA3F2CC7D9" /* Bookmarks */ = {
+		"TEMP_D7F24FA7-5D89-484A-954B-712702291C2E" /* Bookmarks */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			path = Bookmarks;
+			sourceTree = "<group>";
+		};
+		"TEMP_F6FC55DF-86AB-4D2F-B2DE-9070168F8E56" /* Summary */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Summary;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -260,7 +260,6 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				874EA836CA8D007B927BBBD1 /* XCRemoteSwiftPackageReference "FeedKit" */,
-				84F3E6AD8680508CB13DCDD5 /* XCRemoteSwiftPackageReference "SwiftLint" */,
 			);
 			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
@@ -300,7 +299,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed. Install via Homebrew: brew install swiftlint\"\nfi\n";
+			shellScript = "cd \"${SRCROOT}\"\nif which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed. Install via Homebrew: brew install swiftlint\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -519,14 +518,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		84F3E6AD8680508CB13DCDD5 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/realm/SwiftLint";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.57.0;
-			};
-		};
 		874EA836CA8D007B927BBBD1 /* XCRemoteSwiftPackageReference "FeedKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/nmdias/FeedKit";

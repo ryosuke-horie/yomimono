@@ -18,7 +18,6 @@ opt_in_rules:
   - explicit_init
   - first_where
   - force_unwrapping
-  - implicit_return
   - joined_default_parameter
   - literal_expression_end_indentation
   - modifier_order

@@ -9,9 +9,6 @@ packages:
   FeedKit:
     url: https://github.com/nmdias/FeedKit
     from: 9.0.0
-  SwiftLint:
-    url: https://github.com/realm/SwiftLint
-    from: 0.57.0
 
 targets:
   yomimono:
@@ -39,6 +36,7 @@ targets:
       - name: SwiftLint
         basedOnDependencyAnalysis: false
         script: |
+          cd "${SRCROOT}"
           if which swiftlint > /dev/null; then
             swiftlint
           else
