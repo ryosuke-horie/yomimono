@@ -1,0 +1,51 @@
+# macOS アプリのビルドとテストを実行する CI ワークフロー
+# macos-app/** の変更がある PR / push でのみ実行する（macOS ランナーのコスト削減）
+name: macOS Build and Test
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "macos-app/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "macos-app/**"
+
+jobs:
+  build-and-test:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: macos-app
+        run: xcodegen generate
+
+      - name: Build
+        working-directory: macos-app
+        run: |
+          xcodebuild \
+            -project yomimono.xcodeproj \
+            -scheme yomimono \
+            -destination "platform=macOS" \
+            -skipPackagePluginValidation \
+            -quiet \
+            build
+
+      - name: Test
+        working-directory: macos-app
+        run: |
+          xcodebuild test \
+            -project yomimono.xcodeproj \
+            -scheme yomimono \
+            -destination "platform=macOS" \
+            -skipPackagePluginValidation \
+            -quiet
