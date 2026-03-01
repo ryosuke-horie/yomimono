@@ -13,6 +13,7 @@ struct BookmarkCardView: View {
     @State private var isTogglingFavorite = false
     @State private var isMarkingRead = false
     @State private var isMarkingUnread = false
+    @State private var showSummary = false
 
     private var displayTitle: String {
         bookmark.title ?? "タイトルなし"
@@ -60,6 +61,19 @@ struct BookmarkCardView: View {
                     .foregroundStyle(.tertiary)
 
                 Spacer()
+
+                // 概要生成ボタン（CLI連携）
+                Button {
+                    showSummary = true
+                } label: {
+                    Image(systemName: "sparkles")
+                        .foregroundStyle(.purple)
+                }
+                .buttonStyle(.plain)
+                .frame(width: 24, height: 24)
+                .sheet(isPresented: $showSummary) {
+                    ArticleSummaryView(url: bookmark.url, title: bookmark.title ?? "タイトルなし")
+                }
 
                 // お気に入りボタン
                 actionButton(

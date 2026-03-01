@@ -13,12 +13,18 @@
 		2286F438A7D59276416EC401 /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7E75ACD7D47356575C78337 /* FavoritesView.swift */; };
 		3ECFEC0F6BF2688ED9FA3FE9 /* RecentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE33793241F144EC706AB1FF /* RecentViewModel.swift */; };
 		590BBFF1B66B1DC0E689D3C0 /* UnreadBookmarksViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 626A5F7C95724D9D63A9747F /* UnreadBookmarksViewModel.swift */; };
+		5951DC29CA63ABD69FF2DCDD /* RSSFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = D454E0F0D07A7AA79CFC0E12 /* RSSFeed.swift */; };
+		753B42F5CA6022C46536DA5A /* RSSFeedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDDE38F1DA231219FDA153BC /* RSSFeedStore.swift */; };
 		7810AF40786A333DD4AFFF31 /* Bookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52D9AE2B44B64CA1188FAEFC /* Bookmark.swift */; };
 		887D18285A3CD98865C9A605 /* UnreadBookmarksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47C77788E4A48579F2051A9C /* UnreadBookmarksView.swift */; };
 		AA55A716A5DBAF48F32E3B41 /* RSSFeedListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5388EA603B548FDDED988C39 /* RSSFeedListView.swift */; };
 		AF8D82B44080BC6EC5947419 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4CF34D43EF4086A5183B1F0 /* ContentView.swift */; };
 		B1B120CA018D89FF727A8B7C /* RecentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8831F5C7888D640F94DA8209 /* RecentView.swift */; };
+		BA6150690254A21C7CBE01E7 /* RSSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F50B578A44C248E21981B2A /* RSSService.swift */; };
 		BE821152E35C3AEC6B9F2269 /* FeedKit in Frameworks */ = {isa = PBXBuildFile; productRef = 4CD64F21A9C9044E80402E41 /* FeedKit */; };
+		D88C5DB2B32838825C646D20 /* ArticleSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9395F3279C84DF46388EF809 /* ArticleSummaryView.swift */; };
+		E7727FADD4E4AF61FB4906CC /* CLIRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CBDB5D71400614DF9F6E29E /* CLIRunner.swift */; };
+		E7DE9DA6E45E81D1A270702F /* RSSFeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD272CE74DF50AB9800FB1B8 /* RSSFeedViewModel.swift */; };
 		EB306070EDBD1755110ED106 /* BookmarkCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77688F045740FF323FCA2C75 /* BookmarkCardView.swift */; };
 		F7B820C1FD8230FDAB237676 /* BookmarkAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F28DD42A3E6610B9113FE96 /* BookmarkAPIClient.swift */; };
 /* End PBXBuildFile section */
@@ -26,19 +32,25 @@
 /* Begin PBXFileReference section */
 		09DCD1B122EB7CC3630B9CCA /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		0F28DD42A3E6610B9113FE96 /* BookmarkAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkAPIClient.swift; sourceTree = "<group>"; };
+		1F50B578A44C248E21981B2A /* RSSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSService.swift; sourceTree = "<group>"; };
 		29A842C614BD52F2BE1E481A /* yomimono.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = yomimono.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		47C77788E4A48579F2051A9C /* UnreadBookmarksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnreadBookmarksView.swift; sourceTree = "<group>"; };
 		52D9AE2B44B64CA1188FAEFC /* Bookmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bookmark.swift; sourceTree = "<group>"; };
 		5388EA603B548FDDED988C39 /* RSSFeedListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSFeedListView.swift; sourceTree = "<group>"; };
 		626A5F7C95724D9D63A9747F /* UnreadBookmarksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnreadBookmarksViewModel.swift; sourceTree = "<group>"; };
 		77688F045740FF323FCA2C75 /* BookmarkCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkCardView.swift; sourceTree = "<group>"; };
+		7CBDB5D71400614DF9F6E29E /* CLIRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIRunner.swift; sourceTree = "<group>"; };
 		8831F5C7888D640F94DA8209 /* RecentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentView.swift; sourceTree = "<group>"; };
+		9395F3279C84DF46388EF809 /* ArticleSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleSummaryView.swift; sourceTree = "<group>"; };
 		979AE7CEC893CA151B79FD9C /* yomimono.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = yomimono.entitlements; sourceTree = "<group>"; };
 		A7E75ACD7D47356575C78337 /* FavoritesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesView.swift; sourceTree = "<group>"; };
 		B4CF34D43EF4086A5183B1F0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B86C31FCFDB6ABC009EAAF3A /* FavoritesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesViewModel.swift; sourceTree = "<group>"; };
 		BE33793241F144EC706AB1FF /* RecentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentViewModel.swift; sourceTree = "<group>"; };
 		D21C7770DC3C5F4C69DD6F5D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		D454E0F0D07A7AA79CFC0E12 /* RSSFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSFeed.swift; sourceTree = "<group>"; };
+		DD272CE74DF50AB9800FB1B8 /* RSSFeedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSFeedViewModel.swift; sourceTree = "<group>"; };
+		DDDE38F1DA231219FDA153BC /* RSSFeedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSFeedStore.swift; sourceTree = "<group>"; };
 		FF7B35B93F60F6B2E00F99AE /* YomimonoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YomimonoApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -112,6 +124,7 @@
 			isa = PBXGroup;
 			children = (
 				52D9AE2B44B64CA1188FAEFC /* Bookmark.swift */,
+				D454E0F0D07A7AA79CFC0E12 /* RSSFeed.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -134,7 +147,9 @@
 		B57BFE6EAB4410FD2D554E59 /* RSS */ = {
 			isa = PBXGroup;
 			children = (
+				9395F3279C84DF46388EF809 /* ArticleSummaryView.swift */,
 				5388EA603B548FDDED988C39 /* RSSFeedListView.swift */,
+				DD272CE74DF50AB9800FB1B8 /* RSSFeedViewModel.swift */,
 			);
 			path = RSS;
 			sourceTree = "<group>";
@@ -152,6 +167,9 @@
 			isa = PBXGroup;
 			children = (
 				0F28DD42A3E6610B9113FE96 /* BookmarkAPIClient.swift */,
+				7CBDB5D71400614DF9F6E29E /* CLIRunner.swift */,
+				DDDE38F1DA231219FDA153BC /* RSSFeedStore.swift */,
+				1F50B578A44C248E21981B2A /* RSSService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -180,18 +198,18 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		"TEMP_69063F29-3CAB-40E1-82E5-6695D1EEB28A" /* Summary */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Summary;
-			sourceTree = "<group>";
-		};
-		"TEMP_911227B1-4B00-4755-A208-CAADC05DE859" /* Bookmarks */ = {
+		"TEMP_617CF9C0-062C-4492-B9D8-8CEBB60D39D5" /* Bookmarks */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			path = Bookmarks;
+			sourceTree = "<group>";
+		};
+		"TEMP_FEA414BB-7B6B-4EC9-9382-CEE8714C9960" /* Summary */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Summary;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -252,13 +270,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D88C5DB2B32838825C646D20 /* ArticleSummaryView.swift in Sources */,
 				7810AF40786A333DD4AFFF31 /* Bookmark.swift in Sources */,
 				F7B820C1FD8230FDAB237676 /* BookmarkAPIClient.swift in Sources */,
 				EB306070EDBD1755110ED106 /* BookmarkCardView.swift in Sources */,
+				E7727FADD4E4AF61FB4906CC /* CLIRunner.swift in Sources */,
 				AF8D82B44080BC6EC5947419 /* ContentView.swift in Sources */,
 				2286F438A7D59276416EC401 /* FavoritesView.swift in Sources */,
 				18CC814FBDB45DBF268694D8 /* FavoritesViewModel.swift in Sources */,
+				5951DC29CA63ABD69FF2DCDD /* RSSFeed.swift in Sources */,
 				AA55A716A5DBAF48F32E3B41 /* RSSFeedListView.swift in Sources */,
+				753B42F5CA6022C46536DA5A /* RSSFeedStore.swift in Sources */,
+				E7DE9DA6E45E81D1A270702F /* RSSFeedViewModel.swift in Sources */,
+				BA6150690254A21C7CBE01E7 /* RSSService.swift in Sources */,
 				B1B120CA018D89FF727A8B7C /* RecentView.swift in Sources */,
 				3ECFEC0F6BF2688ED9FA3FE9 /* RecentViewModel.swift in Sources */,
 				1758F2DABB5C2486B30DD747 /* SettingsView.swift in Sources */,
