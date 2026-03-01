@@ -9,7 +9,7 @@ struct FavoritesView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if !viewModel.isLoading && viewModel.errorMessage == nil {
+            if !viewModel.isLoading && viewModel.loadError == nil {
                 HStack {
                     Text("合計: \(viewModel.total)件")
                         .font(.caption)
@@ -28,10 +28,27 @@ struct FavoritesView: View {
                 Divider()
             }
 
+            if let mutationError = viewModel.mutationError {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle")
+                        .foregroundStyle(.orange)
+                    Text(mutationError)
+                        .font(.caption)
+                        .foregroundStyle(.primary)
+                    Spacer()
+                    Button("閉じる") { viewModel.mutationError = nil }
+                        .font(.caption)
+                        .buttonStyle(.plain)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 6)
+                .background(Color.orange.opacity(0.1))
+            }
+
             if viewModel.isLoading {
                 ProgressView("読み込み中...")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let error = viewModel.errorMessage {
+            } else if let error = viewModel.loadError {
                 VStack(spacing: 12) {
                     Text("エラーが発生しました")
                         .font(.headline)

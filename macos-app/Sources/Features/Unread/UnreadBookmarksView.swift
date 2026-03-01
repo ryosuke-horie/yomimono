@@ -9,8 +9,7 @@ struct UnreadBookmarksView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // ヘッダー統計
-            if !viewModel.isLoading && viewModel.errorMessage == nil {
+            if !viewModel.isLoading && viewModel.loadError == nil {
                 HStack {
                     Text("未読: \(viewModel.totalUnread)件")
                         .font(.caption)
@@ -32,10 +31,28 @@ struct UnreadBookmarksView: View {
                 Divider()
             }
 
+            // 操作エラーはインラインバナーで表示（一覧は維持）
+            if let mutationError = viewModel.mutationError {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle")
+                        .foregroundStyle(.orange)
+                    Text(mutationError)
+                        .font(.caption)
+                        .foregroundStyle(.primary)
+                    Spacer()
+                    Button("閉じる") { viewModel.mutationError = nil }
+                        .font(.caption)
+                        .buttonStyle(.plain)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 6)
+                .background(Color.orange.opacity(0.1))
+            }
+
             if viewModel.isLoading {
                 ProgressView("読み込み中...")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let error = viewModel.errorMessage {
+            } else if let error = viewModel.loadError {
                 VStack(spacing: 12) {
                     Text("エラーが発生しました")
                         .font(.headline)

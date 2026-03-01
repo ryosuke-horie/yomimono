@@ -4,16 +4,36 @@
  */
 import Foundation
 
+// サポートする CLI ツールのホワイトリスト
+enum SupportedCLI: String, CaseIterable {
+    case claude
+    case gemini
+
+    // CLIごとの引数フォーマット
+    func arguments(for prompt: String) -> [String] {
+        switch self {
+        case .claude:
+            return ["-p", prompt]
+        case .gemini:
+            return [prompt]
+        }
+    }
+}
+
 enum CLIRunnerError: LocalizedError {
     case commandNotFound(String)
+    case launchFailed(Error)
     case executionFailed(Int32, String)
 
     var errorDescription: String? {
         switch self {
         case .commandNotFound(let cmd):
             return "コマンドが見つかりません: \(cmd)"
+        case .launchFailed(let error):
+            return "起動失敗: \(error.localizedDescription)"
         case .executionFailed(let code, let stderr):
-            return "実行失敗 (exit \(code)): \(stderr)"
+            let detail = stderr.isEmpty ? "詳細なし" : stderr
+            return "実行失敗 (exit \(code)): \(detail)"
         }
     }
 }
@@ -24,15 +44,15 @@ actor CLIRunner {
     private init() {}
 
     // コマンドを実行して標準出力を返す
-    func run(command: String, arguments: [String]) async throws -> String {
-        guard let executableURL = findExecutable(command) else {
-            throw CLIRunnerError.commandNotFound(command)
+    func run(cli: SupportedCLI, prompt: String) async throws -> String {
+        guard let executableURL = findExecutable(cli.rawValue) else {
+            throw CLIRunnerError.commandNotFound(cli.rawValue)
         }
 
         return try await withCheckedThrowingContinuation { continuation in
             let process = Process()
             process.executableURL = executableURL
-            process.arguments = arguments
+            process.arguments = cli.arguments(for: prompt)
 
             // 環境変数を引き継ぐ（PATH を含む）
             var env = ProcessInfo.processInfo.environment
@@ -46,47 +66,45 @@ actor CLIRunner {
             process.standardOutput = outPipe
             process.standardError = errPipe
 
-            process.terminationHandler = { proc in
-                let out = String(data: outPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
-                let err = String(data: errPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
-
-                if proc.terminationStatus == 0 {
-                    continuation.resume(returning: out)
-                } else {
-                    continuation.resume(throwing: CLIRunnerError.executionFailed(proc.terminationStatus, err))
-                }
-            }
-
             do {
                 try process.run()
             } catch {
-                continuation.resume(throwing: error)
+                continuation.resume(throwing: CLIRunnerError.launchFailed(error))
+                return
+            }
+
+            // readDataToEndOfFile() + waitUntilExit() はブロッキングのため
+            // cooperative thread pool を占有しないよう DispatchQueue で実行する
+            DispatchQueue.global(qos: .userInitiated).async {
+                let outData = outPipe.fileHandleForReading.readDataToEndOfFile()
+                let errData = errPipe.fileHandleForReading.readDataToEndOfFile()
+                process.waitUntilExit()
+
+                let out = String(data: outData, encoding: .utf8) ?? ""
+                let err = String(data: errData, encoding: .utf8) ?? ""
+
+                if process.terminationStatus == 0 {
+                    continuation.resume(returning: out)
+                } else {
+                    continuation.resume(throwing: CLIRunnerError.executionFailed(
+                        process.terminationStatus, err))
+                }
             }
         }
     }
 
     // コマンドのフルパスを探索する（PATH + 既知の一般的な場所）
     private func findExecutable(_ command: String) -> URL? {
-        // 既にフルパスの場合
-        if command.hasPrefix("/") {
-            let url = URL(fileURLWithPath: command)
-            if FileManager.default.isExecutableFile(atPath: url.path) { return url }
-            return nil
-        }
-
-        // PATH 環境変数から探索
         let pathEnv = ProcessInfo.processInfo.environment["PATH"] ?? ""
         let searchPaths = pathEnv.split(separator: ":").map(String.init)
         let fallbackPaths = ["/usr/local/bin", "/opt/homebrew/bin", "/usr/bin", "/bin",
                              "\(NSHomeDirectory())/.local/bin",
                              "\(NSHomeDirectory())/.npm-global/bin"]
-        let allPaths = searchPaths + fallbackPaths
 
-        for dir in allPaths {
+        for dir in (searchPaths + fallbackPaths) {
             let url = URL(fileURLWithPath: "\(dir)/\(command)")
             if FileManager.default.isExecutableFile(atPath: url.path) { return url }
         }
-
         return nil
     }
 }

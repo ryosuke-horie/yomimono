@@ -8,7 +8,10 @@ import SwiftUI
 final class UnreadBookmarksViewModel: ObservableObject {
     @Published var bookmarks: [BookmarkWithFavorite] = []
     @Published var isLoading = false
-    @Published var errorMessage: String?
+    // 一覧取得失敗（全画面エラー表示）
+    @Published var loadError: String?
+    // 操作失敗（インライン通知）
+    @Published var mutationError: String?
     @Published var totalUnread = 0
     @Published var todayReadCount = 0
 
@@ -16,39 +19,42 @@ final class UnreadBookmarksViewModel: ObservableObject {
 
     func load() async {
         isLoading = true
-        errorMessage = nil
+        defer { isLoading = false }
+        loadError = nil
         do {
             let response = try await api.fetchUnreadBookmarks()
             bookmarks = response.bookmarks
             totalUnread = response.totalUnread
             todayReadCount = response.todayReadCount
         } catch {
-            errorMessage = error.localizedDescription
+            loadError = error.localizedDescription
         }
-        isLoading = false
     }
 
     func markAsRead(bookmark: BookmarkWithFavorite) async {
+        mutationError = nil
         do {
             try await api.markAsRead(id: bookmark.id)
             bookmarks.removeAll { $0.id == bookmark.id }
             totalUnread = max(0, totalUnread - 1)
             todayReadCount += 1
         } catch {
-            errorMessage = error.localizedDescription
+            mutationError = error.localizedDescription
         }
     }
 
     func markAsUnread(bookmark: BookmarkWithFavorite) async {
+        mutationError = nil
         do {
             try await api.markAsUnread(id: bookmark.id)
             await load()
         } catch {
-            errorMessage = error.localizedDescription
+            mutationError = error.localizedDescription
         }
     }
 
     func toggleFavorite(bookmark: BookmarkWithFavorite) async {
+        mutationError = nil
         do {
             if bookmark.isFavorite {
                 try await api.removeFromFavorites(id: bookmark.id)
@@ -56,19 +62,10 @@ final class UnreadBookmarksViewModel: ObservableObject {
                 try await api.addToFavorites(id: bookmark.id)
             }
             if let idx = bookmarks.firstIndex(where: { $0.id == bookmark.id }) {
-                let updated = BookmarkWithFavorite(
-                    id: bookmark.id,
-                    url: bookmark.url,
-                    title: bookmark.title,
-                    isRead: bookmark.isRead,
-                    isFavorite: !bookmark.isFavorite,
-                    createdAt: bookmark.createdAt,
-                    updatedAt: bookmark.updatedAt
-                )
-                bookmarks[idx] = updated
+                bookmarks[idx] = bookmark.with(isFavorite: !bookmark.isFavorite)
             }
         } catch {
-            errorMessage = error.localizedDescription
+            mutationError = error.localizedDescription
         }
     }
 }

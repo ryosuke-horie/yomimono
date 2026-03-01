@@ -1,24 +1,29 @@
 /**
  * 設定画面
- * API エンドポイントなどアプリ設定を管理する
+ * アプリのバージョン情報と CLI 設定を表示する
+ * API エンドポイントはハードコード（将来の拡張時に追加予定）
  */
 import SwiftUI
 
 struct SettingsView: View {
-    @AppStorage("apiBaseURL") private var apiBaseURL = "https://effective-yomimono-api.ryosuke-horie37.workers.dev"
-
     var body: some View {
         Form {
-            Section("API設定") {
+            Section("アプリ情報") {
+                LabeledContent("バージョン", value: "1.0.0")
                 LabeledContent("APIエンドポイント") {
-                    TextField("API URL", text: $apiBaseURL)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(width: 400)
+                    Text("effective-yomimono-api.ryosuke-horie37.workers.dev")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
+            }
+            Section("CLI連携") {
+                Text("記事概要生成には claude または gemini CLI のインストールが必要です。")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)
         .navigationTitle("設定")
-        .frame(width: 560, height: 200)
+        .frame(width: 480, height: 200)
     }
 }

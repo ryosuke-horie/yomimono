@@ -8,67 +8,60 @@ import SwiftUI
 final class RecentViewModel: ObservableObject {
     @Published var groupedBookmarks: [(date: String, bookmarks: [BookmarkWithFavorite])] = []
     @Published var isLoading = false
-    @Published var errorMessage: String?
+    @Published var loadError: String?
+    @Published var mutationError: String?
 
     private let api = BookmarkAPIClient.shared
 
     func load() async {
         isLoading = true
-        errorMessage = nil
+        defer { isLoading = false }
+        loadError = nil
         do {
             let response = try await api.fetchRecentBookmarks()
-            // 日付降順でソート
             groupedBookmarks = response.bookmarks
                 .sorted { $0.key > $1.key }
                 .map { (date: $0.key, bookmarks: $0.value) }
         } catch {
-            errorMessage = error.localizedDescription
+            loadError = error.localizedDescription
         }
-        isLoading = false
     }
 
     func markAsUnread(bookmark: BookmarkWithFavorite) async {
+        mutationError = nil
         do {
             try await api.markAsUnread(id: bookmark.id)
             await load()
         } catch {
-            errorMessage = error.localizedDescription
+            mutationError = error.localizedDescription
         }
     }
 
     func markAsRead(bookmark: BookmarkWithFavorite) async {
+        mutationError = nil
         do {
             try await api.markAsRead(id: bookmark.id)
             await load()
         } catch {
-            errorMessage = error.localizedDescription
+            mutationError = error.localizedDescription
         }
     }
 
     func toggleFavorite(bookmark: BookmarkWithFavorite) async {
+        mutationError = nil
         do {
             if bookmark.isFavorite {
                 try await api.removeFromFavorites(id: bookmark.id)
             } else {
                 try await api.addToFavorites(id: bookmark.id)
             }
-            // ローカル状態を更新
             for i in groupedBookmarks.indices {
                 if let j = groupedBookmarks[i].bookmarks.firstIndex(where: { $0.id == bookmark.id }) {
-                    let b = groupedBookmarks[i].bookmarks[j]
-                    groupedBookmarks[i].bookmarks[j] = BookmarkWithFavorite(
-                        id: b.id,
-                        url: b.url,
-                        title: b.title,
-                        isRead: b.isRead,
-                        isFavorite: !b.isFavorite,
-                        createdAt: b.createdAt,
-                        updatedAt: b.updatedAt
-                    )
+                    groupedBookmarks[i].bookmarks[j] = bookmark.with(isFavorite: !bookmark.isFavorite)
                 }
             }
         } catch {
-            errorMessage = error.localizedDescription
+            mutationError = error.localizedDescription
         }
     }
 }

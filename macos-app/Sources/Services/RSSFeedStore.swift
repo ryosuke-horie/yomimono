@@ -10,6 +10,8 @@ final class RSSFeedStore: ObservableObject {
 
     private let key = "rss_feed_configs"
     @Published private(set) var feeds: [RSSFeedConfig] = []
+    // 永続化エラーは UI 側で警告表示に使う
+    @Published private(set) var persistenceError: String?
 
     private init() {
         load()
@@ -46,17 +48,27 @@ final class RSSFeedStore: ObservableObject {
     }
 
     private func save() {
-        if let data = try? JSONEncoder().encode(feeds) {
+        do {
+            let data = try JSONEncoder().encode(feeds)
             UserDefaults.standard.set(data, forKey: key)
+            persistenceError = nil
+        } catch {
+            persistenceError = "フィード設定の保存に失敗しました: \(error.localizedDescription)"
         }
     }
 
     private func load() {
-        guard let data = UserDefaults.standard.data(forKey: key),
-              let decoded = try? JSONDecoder().decode([RSSFeedConfig].self, from: data) else {
+        guard let data = UserDefaults.standard.data(forKey: key) else {
             feeds = []
             return
         }
-        feeds = decoded
+        do {
+            feeds = try JSONDecoder().decode([RSSFeedConfig].self, from: data)
+            persistenceError = nil
+        } catch {
+            // デコード失敗時は既存データを保護して空配列にフォールバック
+            feeds = []
+            persistenceError = "フィード設定の読み込みに失敗しました。設定がリセットされました。"
+        }
     }
 }

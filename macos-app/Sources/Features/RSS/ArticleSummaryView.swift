@@ -1,6 +1,7 @@
 /**
  * CLI連携による記事概要生成ビュー
  * ローカルにインストールされた claude / gemini CLI を使って記事URLの概要を生成する
+ * CLI コマンドは SupportedCLI のホワイトリストに限定する
  */
 import SwiftUI
 
@@ -11,21 +12,18 @@ struct ArticleSummaryView: View {
     @State private var summary = ""
     @State private var isGenerating = false
     @State private var errorMessage: String?
-    @AppStorage("selectedCLI") private var selectedCLI = "claude"
-
-    private let cliOptions = ["claude", "gemini"]
+    @State private var selectedCLI = SupportedCLI.claude
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // ヘッダー
             HStack {
                 Text(title)
                     .font(.headline)
                     .lineLimit(2)
                 Spacer()
                 Picker("CLI", selection: $selectedCLI) {
-                    ForEach(cliOptions, id: \.self) { option in
-                        Text(option).tag(option)
+                    ForEach(SupportedCLI.allCases, id: \.self) { option in
+                        Text(option.rawValue).tag(option)
                     }
                 }
                 .pickerStyle(.segmented)
@@ -40,12 +38,11 @@ struct ArticleSummaryView: View {
 
             Divider()
 
-            // 概要生成エリア
             if isGenerating {
                 HStack(spacing: 8) {
                     ProgressView()
                         .controlSize(.small)
-                    Text("\(selectedCLI) で概要を生成中...")
+                    Text("\(selectedCLI.rawValue) で概要を生成中...")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -86,26 +83,30 @@ struct ArticleSummaryView: View {
 
     private func generateSummary() async {
         isGenerating = true
+        defer { isGenerating = false }
         errorMessage = nil
         summary = ""
 
-        let prompt = "以下のURLの記事を読んで、技術的なポイントを日本語で3〜5行で要約してください。URL: \(url)"
+        // URL のスキームを検証（http/https のみ許可）
+        guard let parsedURL = URL(string: url),
+              let scheme = parsedURL.scheme,
+              ["http", "https"].contains(scheme) else {
+            errorMessage = "有効なURLではないため概要を生成できません"
+            return
+        }
+
+        let prompt = "以下のURLの記事を読んで、技術的なポイントを日本語で3〜5行で要約してください。URL: \(parsedURL.absoluteString)"
 
         do {
-            let output: String
-            switch selectedCLI {
-            case "claude":
-                output = try await CLIRunner.shared.run(command: "claude", arguments: ["-p", prompt])
-            case "gemini":
-                output = try await CLIRunner.shared.run(command: "gemini", arguments: [prompt])
-            default:
-                output = try await CLIRunner.shared.run(command: selectedCLI, arguments: ["-p", prompt])
+            let output = try await CLIRunner.shared.run(cli: selectedCLI, prompt: prompt)
+            let trimmed = output.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty {
+                errorMessage = "CLIからの出力が空でした。コマンドが正常に動作しているか確認してください。"
+            } else {
+                summary = trimmed
             }
-            summary = output.trimmingCharacters(in: .whitespacesAndNewlines)
         } catch {
             errorMessage = error.localizedDescription
         }
-
-        isGenerating = false
     }
 }

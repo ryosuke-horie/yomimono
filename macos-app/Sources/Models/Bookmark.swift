@@ -1,10 +1,11 @@
 /**
  * yomimono API のブックマーク関連データモデル
  * API レスポンスを Codable で定義する
+ * JSON キーは camelCase のままであるため keyDecodingStrategy は設定しない
  */
 import Foundation
 
-struct BookmarkWithFavorite: Codable, Identifiable {
+struct BookmarkWithFavorite: Codable, Identifiable, Sendable {
     let id: Int
     let url: String
     let title: String?
@@ -12,6 +13,20 @@ struct BookmarkWithFavorite: Codable, Identifiable {
     let isFavorite: Bool
     let createdAt: String
     let updatedAt: String
+
+    // isRead のみ変更したコピーを返す（手動コピーの重複を防ぐ）
+    func with(isRead: Bool) -> BookmarkWithFavorite {
+        BookmarkWithFavorite(id: id, url: url, title: title,
+                             isRead: isRead, isFavorite: isFavorite,
+                             createdAt: createdAt, updatedAt: updatedAt)
+    }
+
+    // isFavorite のみ変更したコピーを返す
+    func with(isFavorite: Bool) -> BookmarkWithFavorite {
+        BookmarkWithFavorite(id: id, url: url, title: title,
+                             isRead: isRead, isFavorite: isFavorite,
+                             createdAt: createdAt, updatedAt: updatedAt)
+    }
 }
 
 struct BookmarkListResponse: Codable {

@@ -15,18 +15,22 @@ struct BookmarkCardView: View {
     @State private var isMarkingUnread = false
     @State private var showSummary = false
 
+    // DateFormatter は高コストなため static でキャッシュする
+    private static let iso8601Formatter = ISO8601DateFormatter()
+    private static let displayFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateStyle = .short
+        f.locale = Locale(identifier: "ja_JP")
+        return f
+    }()
+
     private var displayTitle: String {
         bookmark.title ?? "タイトルなし"
     }
 
     private var formattedDate: String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.locale = Locale(identifier: "ja_JP")
-        // ISO 8601 パース
-        let iso = ISO8601DateFormatter()
-        if let date = iso.date(from: bookmark.createdAt) {
-            return formatter.string(from: date)
+        if let date = Self.iso8601Formatter.date(from: bookmark.createdAt) {
+            return Self.displayFormatter.string(from: date)
         }
         return bookmark.createdAt
     }
@@ -45,7 +49,7 @@ struct BookmarkCardView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .buttonStyle(.plain)
-            .cursor(.pointingHand)
+            .pointingHandCursor()
 
             // URL
             Text(bookmark.url)
@@ -72,7 +76,7 @@ struct BookmarkCardView: View {
                 .buttonStyle(.plain)
                 .frame(width: 24, height: 24)
                 .sheet(isPresented: $showSummary) {
-                    ArticleSummaryView(url: bookmark.url, title: bookmark.title ?? "タイトルなし")
+                    ArticleSummaryView(url: bookmark.url, title: displayTitle)
                 }
 
                 // お気に入りボタン
@@ -146,7 +150,6 @@ struct BookmarkCardView: View {
     private func openInBrowser() {
         guard let url = URL(string: bookmark.url) else { return }
         NSWorkspace.shared.open(url)
-        // 未読の場合のみ既読化
         if !bookmark.isRead {
             Task {
                 isMarkingRead = true
@@ -158,10 +161,15 @@ struct BookmarkCardView: View {
 }
 
 // カーソルスタイル用の拡張
+// NSCursor.push()/pop() はスタックが崩れる危険があるため cursor.set() を使用する
 extension View {
-    func cursor(_ cursor: NSCursor) -> some View {
+    func pointingHandCursor() -> some View {
         self.onHover { inside in
-            if inside { cursor.push() } else { NSCursor.pop() }
+            if inside {
+                NSCursor.pointingHand.set()
+            } else {
+                NSCursor.arrow.set()
+            }
         }
     }
 }

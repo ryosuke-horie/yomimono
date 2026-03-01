@@ -7,9 +7,24 @@ import SwiftUI
 struct RecentView: View {
     @StateObject private var viewModel = RecentViewModel()
 
+    // DateFormatter は高コストなため static でキャッシュする
+    private static let inputFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.locale = Locale(identifier: "ja_JP")
+        return f
+    }()
+
+    private static let displayFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        f.locale = Locale(identifier: "ja_JP")
+        return f
+    }()
+
     var body: some View {
         VStack(spacing: 0) {
-            if !viewModel.isLoading && viewModel.errorMessage == nil {
+            if !viewModel.isLoading && viewModel.loadError == nil {
                 HStack {
                     Spacer()
                     Button("更新") {
@@ -25,10 +40,27 @@ struct RecentView: View {
                 Divider()
             }
 
+            if let mutationError = viewModel.mutationError {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle")
+                        .foregroundStyle(.orange)
+                    Text(mutationError)
+                        .font(.caption)
+                        .foregroundStyle(.primary)
+                    Spacer()
+                    Button("閉じる") { viewModel.mutationError = nil }
+                        .font(.caption)
+                        .buttonStyle(.plain)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 6)
+                .background(Color.orange.opacity(0.1))
+            }
+
             if viewModel.isLoading {
                 ProgressView("読み込み中...")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let error = viewModel.errorMessage {
+            } else if let error = viewModel.loadError {
                 VStack(spacing: 12) {
                     Text("エラーが発生しました")
                         .font(.headline)
@@ -83,14 +115,8 @@ struct RecentView: View {
     }
 
     private func formattedDate(_ dateStr: String) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.locale = Locale(identifier: "ja_JP")
-        if let date = formatter.date(from: dateStr) {
-            let display = DateFormatter()
-            display.dateStyle = .medium
-            display.locale = Locale(identifier: "ja_JP")
-            return display.string(from: date)
+        if let date = Self.inputFormatter.date(from: dateStr) {
+            return Self.displayFormatter.string(from: date)
         }
         return dateStr
     }

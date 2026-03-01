@@ -4,7 +4,7 @@
  */
 import Foundation
 
-struct RSSFeedConfig: Codable, Identifiable, Equatable {
+struct RSSFeedConfig: Codable, Identifiable, Equatable, Sendable {
     let id: UUID
     var url: String
     var title: String
@@ -19,7 +19,8 @@ struct RSSFeedConfig: Codable, Identifiable, Equatable {
     }
 }
 
-struct RSSFeedItem: Identifiable {
+// isRegistered のみ var で残りは不変。actor 境界を越えて渡すため Sendable を明示する
+struct RSSFeedItem: Identifiable, Sendable {
     let id: String
     let title: String
     let url: String

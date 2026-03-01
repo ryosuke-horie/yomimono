@@ -20,47 +20,57 @@ final class RSSFeedViewModel: ObservableObject {
     // 全有効フィードからアイテムを取得
     func fetchAll() async {
         isLoading = true
+        defer { isLoading = false }
         errorMessage = nil
         feedItems = []
 
         let enabledFeeds = store.feeds.filter { $0.isEnabled }
-        guard !enabledFeeds.isEmpty else {
-            isLoading = false
-            return
-        }
+        guard !enabledFeeds.isEmpty else { return }
 
-        await withTaskGroup(of: [RSSFeedItem].self) { group in
+        // 各フィードを並列取得し、失敗を収集して報告する
+        var fetchedItems: [RSSFeedItem] = []
+        var failedFeedTitles: [String] = []
+
+        await withTaskGroup(of: (feed: RSSFeedConfig, result: Result<[RSSFeedItem], Error>).self) { group in
             for feed in enabledFeeds {
                 group.addTask {
                     do {
                         let items = try await self.rssService.fetchItems(from: feed)
-                        await self.store.updateLastFetched(id: feed.id, date: Date())
-                        return items
+                        return (feed: feed, result: .success(items))
                     } catch {
-                        return []
+                        return (feed: feed, result: .failure(error))
                     }
                 }
             }
-            for await items in group {
-                feedItems.append(contentsOf: items)
+            for await (feed, result) in group {
+                switch result {
+                case .success(let items):
+                    fetchedItems.append(contentsOf: items)
+                    // store.updateLastFetched は @MainActor なので TaskGroup 外から呼ぶ
+                    store.updateLastFetched(id: feed.id, date: Date())
+                case .failure:
+                    failedFeedTitles.append(feed.title)
+                }
             }
         }
 
-        // 登録日時降順でソート
-        feedItems.sort { ($0.publishedAt ?? .distantPast) > ($1.publishedAt ?? .distantPast) }
-        isLoading = false
+        feedItems = fetchedItems.sorted { ($0.publishedAt ?? .distantPast) > ($1.publishedAt ?? .distantPast) }
+
+        if !failedFeedTitles.isEmpty {
+            errorMessage = "以下のフィードの取得に失敗しました:\n" + failedFeedTitles.joined(separator: "\n")
+        }
     }
 
     // 選択したアイテムを yomimono API に一括登録
     func register(items: [RSSFeedItem]) async {
         isLoading = true
+        defer { isLoading = false }
         errorMessage = nil
         successMessage = nil
         let bookmarks = items.map { (url: $0.url, title: $0.title) }
         do {
             try await api.bulkRegister(bookmarks: bookmarks)
             successMessage = "\(items.count)件の記事を登録しました"
-            // 登録済みにマーク
             for item in items {
                 if let idx = feedItems.firstIndex(where: { $0.id == item.id }) {
                     feedItems[idx].isRegistered = true
@@ -69,15 +79,12 @@ final class RSSFeedViewModel: ObservableObject {
         } catch {
             errorMessage = error.localizedDescription
         }
-        isLoading = false
     }
 
-    // フィードを追加
     func addFeed(url: String, title: String) {
         store.add(url: url, title: title)
     }
 
-    // フィードを削除
     func removeFeed(at offsets: IndexSet) {
         store.remove(at: offsets)
     }
