@@ -22,6 +22,7 @@
 		B1B120CA018D89FF727A8B7C /* RecentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8831F5C7888D640F94DA8209 /* RecentView.swift */; };
 		BA6150690254A21C7CBE01E7 /* RSSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F50B578A44C248E21981B2A /* RSSService.swift */; };
 		BE821152E35C3AEC6B9F2269 /* FeedKit in Frameworks */ = {isa = PBXBuildFile; productRef = 4CD64F21A9C9044E80402E41 /* FeedKit */; };
+		D6A9733A88276A719CCFBEB4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A41AFA50D2817B4487B52FB /* Assets.xcassets */; };
 		D88C5DB2B32838825C646D20 /* ArticleSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9395F3279C84DF46388EF809 /* ArticleSummaryView.swift */; };
 		E7727FADD4E4AF61FB4906CC /* CLIRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CBDB5D71400614DF9F6E29E /* CLIRunner.swift */; };
 		E7DE9DA6E45E81D1A270702F /* RSSFeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD272CE74DF50AB9800FB1B8 /* RSSFeedViewModel.swift */; };
@@ -31,6 +32,7 @@
 
 /* Begin PBXFileReference section */
 		09DCD1B122EB7CC3630B9CCA /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		0A41AFA50D2817B4487B52FB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0F28DD42A3E6610B9113FE96 /* BookmarkAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkAPIClient.swift; sourceTree = "<group>"; };
 		1F50B578A44C248E21981B2A /* RSSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSService.swift; sourceTree = "<group>"; };
 		29A842C614BD52F2BE1E481A /* yomimono.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = yomimono.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -132,6 +134,7 @@
 		B08F31F9EE63C8B3549E1B2C /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				0A41AFA50D2817B4487B52FB /* Assets.xcassets */,
 				D21C7770DC3C5F4C69DD6F5D /* Info.plist */,
 				979AE7CEC893CA151B79FD9C /* yomimono.entitlements */,
 				66D9E07A9455D62BDCE66068 /* App */,
@@ -198,14 +201,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		"TEMP_BD4C3B62-3EC0-4E00-BF05-8427D5FCE0B3" /* Summary */ = {
+		"TEMP_63479567-6301-40C2-AE02-E62034526362" /* Summary */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			path = Summary;
 			sourceTree = "<group>";
 		};
-		"TEMP_BF33F8B7-CAD5-4F66-B9A9-84458FF0E57B" /* Bookmarks */ = {
+		"TEMP_D71E747C-B075-47C0-A497-49FD55CD5EFE" /* Bookmarks */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -220,6 +223,7 @@
 			buildConfigurationList = A16AFD4F018B4DBD0A2DCAD5 /* Build configuration list for PBXNativeTarget "yomimono" */;
 			buildPhases = (
 				8566DBDDE750409E8892E3BF /* Sources */,
+				5B6DF7E50E64128D14A13A1F /* Resources */,
 				C37F9F2AC253B8F687CACDBC /* Frameworks */,
 			);
 			buildRules = (
@@ -264,6 +268,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		5B6DF7E50E64128D14A13A1F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6A9733A88276A719CCFBEB4 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8566DBDDE750409E8892E3BF /* Sources */ = {
