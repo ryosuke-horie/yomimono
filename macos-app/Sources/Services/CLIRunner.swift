@@ -101,7 +101,7 @@ actor CLIRunner {
                              "\(NSHomeDirectory())/.local/bin",
                              "\(NSHomeDirectory())/.npm-global/bin"]
 
-        for dir in (searchPaths + fallbackPaths) {
+        for dir in searchPaths + fallbackPaths {
             let url = URL(fileURLWithPath: "\(dir)/\(command)")
             if FileManager.default.isExecutableFile(atPath: url.path) { return url }
         }

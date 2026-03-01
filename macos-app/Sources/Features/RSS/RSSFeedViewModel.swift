@@ -2,7 +2,7 @@
  * RSSフィード一覧のViewModel
  * フィード設定の管理・アイテム取得・yomimono APIへの一括登録を担当する
  */
-import SwiftUI
+import Foundation
 
 @MainActor
 final class RSSFeedViewModel: ObservableObject {
@@ -46,7 +46,6 @@ final class RSSFeedViewModel: ObservableObject {
                 switch result {
                 case .success(let items):
                     fetchedItems.append(contentsOf: items)
-                    // store.updateLastFetched は @MainActor なので TaskGroup 外から呼ぶ
                     store.updateLastFetched(id: feed.id, date: Date())
                 case .failure:
                     failedFeedTitles.append(feed.title)

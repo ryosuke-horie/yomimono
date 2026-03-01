@@ -14,18 +14,14 @@ struct BookmarkWithFavorite: Codable, Identifiable, Sendable {
     let createdAt: String
     let updatedAt: String
 
-    // isRead のみ変更したコピーを返す（手動コピーの重複を防ぐ）
-    func with(isRead: Bool) -> BookmarkWithFavorite {
-        BookmarkWithFavorite(id: id, url: url, title: title,
-                             isRead: isRead, isFavorite: isFavorite,
-                             createdAt: createdAt, updatedAt: updatedAt)
-    }
-
-    // isFavorite のみ変更したコピーを返す
-    func with(isFavorite: Bool) -> BookmarkWithFavorite {
-        BookmarkWithFavorite(id: id, url: url, title: title,
-                             isRead: isRead, isFavorite: isFavorite,
-                             createdAt: createdAt, updatedAt: updatedAt)
+    // 指定フィールドのみ変更したコピーを返す
+    func copying(isRead: Bool? = nil, isFavorite: Bool? = nil) -> BookmarkWithFavorite {
+        BookmarkWithFavorite(
+            id: id, url: url, title: title,
+            isRead: isRead ?? self.isRead,
+            isFavorite: isFavorite ?? self.isFavorite,
+            createdAt: createdAt, updatedAt: updatedAt
+        )
     }
 }
 

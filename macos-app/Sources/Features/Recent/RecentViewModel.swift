@@ -2,7 +2,7 @@
  * 最近読んだブックマーク一覧のViewModel
  * API から日付グループ別に取得し、既読化・お気に入りトグルを管理する
  */
-import SwiftUI
+import Foundation
 
 @MainActor
 final class RecentViewModel: ObservableObject {
@@ -57,7 +57,7 @@ final class RecentViewModel: ObservableObject {
             }
             for i in groupedBookmarks.indices {
                 if let j = groupedBookmarks[i].bookmarks.firstIndex(where: { $0.id == bookmark.id }) {
-                    groupedBookmarks[i].bookmarks[j] = bookmark.with(isFavorite: !bookmark.isFavorite)
+                    groupedBookmarks[i].bookmarks[j] = bookmark.copying(isFavorite: !bookmark.isFavorite)
                 }
             }
         } catch {

@@ -2,7 +2,7 @@
  * お気に入りブックマーク一覧のViewModel
  * API からお気に入りを取得し、お気に入り解除・既読化を管理する
  */
-import SwiftUI
+import Foundation
 
 @MainActor
 final class FavoritesViewModel: ObservableObject {
@@ -32,7 +32,7 @@ final class FavoritesViewModel: ObservableObject {
         do {
             try await api.markAsRead(id: bookmark.id)
             if let idx = bookmarks.firstIndex(where: { $0.id == bookmark.id }) {
-                bookmarks[idx] = bookmark.with(isRead: true)
+                bookmarks[idx] = bookmark.copying(isRead: true)
             }
         } catch {
             mutationError = error.localizedDescription
@@ -44,7 +44,7 @@ final class FavoritesViewModel: ObservableObject {
         do {
             try await api.markAsUnread(id: bookmark.id)
             if let idx = bookmarks.firstIndex(where: { $0.id == bookmark.id }) {
-                bookmarks[idx] = bookmark.with(isRead: false)
+                bookmarks[idx] = bookmark.copying(isRead: false)
             }
         } catch {
             mutationError = error.localizedDescription

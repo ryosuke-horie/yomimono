@@ -2,7 +2,7 @@
  * 未読ブックマーク一覧のViewModel
  * API から未読ブックマークを取得し、既読化・お気に入りトグルを管理する
  */
-import SwiftUI
+import Foundation
 
 @MainActor
 final class UnreadBookmarksViewModel: ObservableObject {
@@ -62,7 +62,7 @@ final class UnreadBookmarksViewModel: ObservableObject {
                 try await api.addToFavorites(id: bookmark.id)
             }
             if let idx = bookmarks.firstIndex(where: { $0.id == bookmark.id }) {
-                bookmarks[idx] = bookmark.with(isFavorite: !bookmark.isFavorite)
+                bookmarks[idx] = bookmark.copying(isFavorite: !bookmark.isFavorite)
             }
         } catch {
             mutationError = error.localizedDescription
