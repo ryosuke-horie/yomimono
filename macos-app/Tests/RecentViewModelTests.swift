@@ -47,6 +47,7 @@ struct RecentViewModelTests {
 
         #expect(vm.groupedBookmarks.isEmpty)
         #expect(vm.loadError != nil)
+        #expect(!vm.isLoading)
     }
 
     // MARK: - markAsRead
@@ -142,15 +143,37 @@ struct RecentViewModelTests {
         #expect(vm.mutationError == nil)
     }
 
-    @Test("toggleFavorite: API失敗時にmutationErrorを設定する")
-    func toggleFavoriteFailure() async {
+    @Test("toggleFavorite: addToFavorites失敗時にmutationErrorを設定しisFavoriteは変化しない")
+    func toggleFavoriteAddFailure() async {
         let mock = MockBookmarkAPIClient()
-        mock.addToFavoritesResult = .failure(BookmarkAPIError.networkError(URLError(.notConnectedToInternet)))
         let bookmark = MockBookmarkAPIClient.makeBookmark(id: 1, isFavorite: false)
+        mock.fetchRecentResult = .success(
+            RecentBookmarksResponse(success: true, bookmarks: ["2024-01-01": [bookmark]])
+        )
+        mock.addToFavoritesResult = .failure(BookmarkAPIError.networkError(URLError(.notConnectedToInternet)))
         let vm = RecentViewModel(api: mock)
+        await vm.load()
 
         await vm.toggleFavorite(bookmark: bookmark)
 
+        #expect(vm.groupedBookmarks[0].bookmarks[0].isFavorite == false)
+        #expect(vm.mutationError != nil)
+    }
+
+    @Test("toggleFavorite: removeFromFavorites失敗時にmutationErrorを設定しisFavoriteは変化しない")
+    func toggleFavoriteRemoveFailure() async {
+        let mock = MockBookmarkAPIClient()
+        let bookmark = MockBookmarkAPIClient.makeBookmark(id: 1, isFavorite: true)
+        mock.fetchRecentResult = .success(
+            RecentBookmarksResponse(success: true, bookmarks: ["2024-01-01": [bookmark]])
+        )
+        mock.removeFromFavoritesResult = .failure(BookmarkAPIError.networkError(URLError(.notConnectedToInternet)))
+        let vm = RecentViewModel(api: mock)
+        await vm.load()
+
+        await vm.toggleFavorite(bookmark: bookmark)
+
+        #expect(vm.groupedBookmarks[0].bookmarks[0].isFavorite == true)
         #expect(vm.mutationError != nil)
     }
 }

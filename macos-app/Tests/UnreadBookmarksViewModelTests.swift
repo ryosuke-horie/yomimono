@@ -40,7 +40,7 @@ struct UnreadBookmarksViewModelTests {
 
         #expect(vm.bookmarks.isEmpty)
         #expect(vm.loadError != nil)
-        #expect(!vm.isLoading)
+        #expect(!vm.isLoading)  // defer で isLoading が false に戻ることを確認
     }
 
     // MARK: - markAsRead
@@ -79,6 +79,21 @@ struct UnreadBookmarksViewModelTests {
 
         #expect(vm.bookmarks.count == 1)
         #expect(vm.mutationError != nil)
+    }
+
+    @Test("markAsRead: totalUnreadが0の状態でも負数にならない")
+    func markAsReadDoesNotUnderflowTotalUnread() async {
+        let mock = MockBookmarkAPIClient()
+        let bookmark = MockBookmarkAPIClient.makeBookmark(id: 1)
+        mock.fetchUnreadResult = .success(
+            BookmarkListResponse(success: true, bookmarks: [bookmark], totalUnread: 0, todayReadCount: 0)
+        )
+        let vm = UnreadBookmarksViewModel(api: mock)
+        await vm.load()
+
+        await vm.markAsRead(bookmark: bookmark)
+
+        #expect(vm.totalUnread == 0)
     }
 
     // MARK: - markAsUnread
@@ -146,15 +161,37 @@ struct UnreadBookmarksViewModelTests {
         #expect(vm.mutationError == nil)
     }
 
-    @Test("toggleFavorite: API失敗時にmutationErrorを設定する")
-    func toggleFavoriteFailure() async {
+    @Test("toggleFavorite: addToFavorites失敗時にmutationErrorを設定しisFavoriteは変化しない")
+    func toggleFavoriteAddFailure() async {
         let mock = MockBookmarkAPIClient()
-        mock.addToFavoritesResult = .failure(BookmarkAPIError.networkError(URLError(.notConnectedToInternet)))
         let bookmark = MockBookmarkAPIClient.makeBookmark(id: 1, isFavorite: false)
+        mock.fetchUnreadResult = .success(
+            BookmarkListResponse(success: true, bookmarks: [bookmark], totalUnread: 1, todayReadCount: 0)
+        )
+        mock.addToFavoritesResult = .failure(BookmarkAPIError.networkError(URLError(.notConnectedToInternet)))
         let vm = UnreadBookmarksViewModel(api: mock)
+        await vm.load()
 
         await vm.toggleFavorite(bookmark: bookmark)
 
+        #expect(vm.bookmarks[0].isFavorite == false)
+        #expect(vm.mutationError != nil)
+    }
+
+    @Test("toggleFavorite: removeFromFavorites失敗時にmutationErrorを設定しisFavoriteは変化しない")
+    func toggleFavoriteRemoveFailure() async {
+        let mock = MockBookmarkAPIClient()
+        let bookmark = MockBookmarkAPIClient.makeBookmark(id: 1, isFavorite: true)
+        mock.fetchUnreadResult = .success(
+            BookmarkListResponse(success: true, bookmarks: [bookmark], totalUnread: 1, todayReadCount: 0)
+        )
+        mock.removeFromFavoritesResult = .failure(BookmarkAPIError.networkError(URLError(.notConnectedToInternet)))
+        let vm = UnreadBookmarksViewModel(api: mock)
+        await vm.load()
+
+        await vm.toggleFavorite(bookmark: bookmark)
+
+        #expect(vm.bookmarks[0].isFavorite == true)
         #expect(vm.mutationError != nil)
     }
 }

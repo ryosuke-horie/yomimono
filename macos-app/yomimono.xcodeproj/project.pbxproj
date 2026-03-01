@@ -241,18 +241,18 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		"TEMP_B9B80905-7B41-4CE1-8B94-89DDBD0C3900" /* Bookmarks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Bookmarks;
-			sourceTree = "<group>";
-		};
-		"TEMP_E3FDEE89-9B9C-4478-A1EA-2B763E88D458" /* Summary */ = {
+		"TEMP_5621D704-E577-4A28-915C-CF7FF5CCFDF1" /* Summary */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			path = Summary;
+			sourceTree = "<group>";
+		};
+		"TEMP_93F3D18C-7F48-4EDA-AF0C-A77709441567" /* Bookmarks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Bookmarks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -426,7 +426,7 @@
 					"@loader_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.yomimono.yomimonoTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yomimono.macos.tests;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/yomimono.app/Contents/MacOS/yomimono";
@@ -553,7 +553,7 @@
 					"@loader_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.yomimono.yomimonoTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yomimono.macos.tests;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/yomimono.app/Contents/MacOS/yomimono";

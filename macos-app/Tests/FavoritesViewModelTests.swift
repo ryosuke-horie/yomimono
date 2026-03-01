@@ -1,6 +1,6 @@
 /**
  * FavoritesViewModel のユニットテスト
- * load / markAsRead / removeFromFavorites / toggleFavorite のビジネスロジックを検証する
+ * load / markAsRead / markAsUnread / removeFromFavorites / toggleFavorite のビジネスロジックを検証する
  */
 import Foundation
 import Testing
@@ -39,6 +39,7 @@ struct FavoritesViewModelTests {
 
         #expect(vm.bookmarks.isEmpty)
         #expect(vm.loadError != nil)
+        #expect(!vm.isLoading)
     }
 
     // MARK: - markAsRead
@@ -60,14 +61,56 @@ struct FavoritesViewModelTests {
         #expect(vm.mutationError == nil)
     }
 
-    @Test("markAsRead: API失敗時にmutationErrorを設定する")
+    @Test("markAsRead: API失敗時にmutationErrorを設定しisReadは変化しない")
     func markAsReadFailure() async {
         let mock = MockBookmarkAPIClient()
+        let bookmark = MockBookmarkAPIClient.makeBookmark(id: 1, isRead: false, isFavorite: true)
+        mock.fetchFavoriteResult = .success(
+            FavoriteBookmarksResponse(success: true, bookmarks: [bookmark])
+        )
         mock.markAsReadResult = .failure(BookmarkAPIError.networkError(URLError(.notConnectedToInternet)))
         let vm = FavoritesViewModel(api: mock)
+        await vm.load()
 
-        await vm.markAsRead(bookmark: MockBookmarkAPIClient.makeBookmark())
+        await vm.markAsRead(bookmark: bookmark)
 
+        #expect(vm.bookmarks[0].isRead == false)
+        #expect(vm.mutationError != nil)
+    }
+
+    // MARK: - markAsUnread
+
+    @Test("markAsUnread: 未読化後にローカルの isRead フラグを更新する")
+    func markAsUnreadSuccess() async {
+        let mock = MockBookmarkAPIClient()
+        let bookmark = MockBookmarkAPIClient.makeBookmark(id: 1, isRead: true, isFavorite: true)
+        mock.fetchFavoriteResult = .success(
+            FavoriteBookmarksResponse(success: true, bookmarks: [bookmark])
+        )
+        let vm = FavoritesViewModel(api: mock)
+        await vm.load()
+
+        await vm.markAsUnread(bookmark: bookmark)
+
+        #expect(mock.markAsUnreadCalledIds == [1])
+        #expect(vm.bookmarks[0].isRead == false)
+        #expect(vm.mutationError == nil)
+    }
+
+    @Test("markAsUnread: API失敗時にmutationErrorを設定しisReadは変化しない")
+    func markAsUnreadFailure() async {
+        let mock = MockBookmarkAPIClient()
+        let bookmark = MockBookmarkAPIClient.makeBookmark(id: 1, isRead: true, isFavorite: true)
+        mock.fetchFavoriteResult = .success(
+            FavoriteBookmarksResponse(success: true, bookmarks: [bookmark])
+        )
+        mock.markAsUnreadResult = .failure(BookmarkAPIError.networkError(URLError(.notConnectedToInternet)))
+        let vm = FavoritesViewModel(api: mock)
+        await vm.load()
+
+        await vm.markAsUnread(bookmark: bookmark)
+
+        #expect(vm.bookmarks[0].isRead == true)
         #expect(vm.mutationError != nil)
     }
 

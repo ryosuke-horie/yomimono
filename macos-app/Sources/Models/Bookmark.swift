@@ -25,19 +25,19 @@ struct BookmarkWithFavorite: Codable, Identifiable, Sendable {
     }
 }
 
-struct BookmarkListResponse: Codable {
+struct BookmarkListResponse: Codable, Sendable {
     let success: Bool
     let bookmarks: [BookmarkWithFavorite]
     let totalUnread: Int
     let todayReadCount: Int
 }
 
-struct FavoriteBookmarksResponse: Codable {
+struct FavoriteBookmarksResponse: Codable, Sendable {
     let success: Bool
     let bookmarks: [BookmarkWithFavorite]
 }
 
-struct RecentBookmarksResponse: Codable {
+struct RecentBookmarksResponse: Codable, Sendable {
     let success: Bool
     // "YYYY-MM-DD" をキーとした日付ごとのグループ
     let bookmarks: [String: [BookmarkWithFavorite]]
