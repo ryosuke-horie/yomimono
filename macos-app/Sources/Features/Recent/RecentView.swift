@@ -9,17 +9,17 @@ struct RecentView: View {
 
     // DateFormatter は高コストなため static でキャッシュする
     private static let inputFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "yyyy-MM-dd"
-        f.locale = Locale(identifier: "ja_JP")
-        return f
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "ja_JP")
+        return formatter
     }()
 
     private static let displayFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateStyle = .medium
-        f.locale = Locale(identifier: "ja_JP")
-        return f
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.locale = Locale(identifier: "ja_JP")
+        return formatter
     }()
 
     var body: some View {

@@ -32,6 +32,16 @@ targets:
         com.apple.security.network.client: true
     dependencies:
       - package: FeedKit
+    preBuildScripts:
+      - name: SwiftLint
+        basedOnDependencyAnalysis: false
+        script: |
+          cd "${SRCROOT}"
+          if which swiftlint > /dev/null; then
+            swiftlint
+          else
+            echo "warning: SwiftLint not installed. Install via Homebrew: brew install swiftlint"
+          fi
     info:
       path: Sources/Info.plist
       properties:

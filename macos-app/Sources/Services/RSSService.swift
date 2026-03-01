@@ -2,8 +2,8 @@
  * RSSフィード取得サービス
  * FeedKit を使用して RSS/Atom フィードをパースし、未登録アイテムを返す
  */
-import Foundation
 import FeedKit
+import Foundation
 
 actor RSSService {
     static let shared = RSSService()

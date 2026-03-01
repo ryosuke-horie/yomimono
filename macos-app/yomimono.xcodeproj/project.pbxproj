@@ -201,18 +201,18 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		"TEMP_63479567-6301-40C2-AE02-E62034526362" /* Summary */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Summary;
-			sourceTree = "<group>";
-		};
-		"TEMP_D71E747C-B075-47C0-A497-49FD55CD5EFE" /* Bookmarks */ = {
+		"TEMP_D7F24FA7-5D89-484A-954B-712702291C2E" /* Bookmarks */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			path = Bookmarks;
+			sourceTree = "<group>";
+		};
+		"TEMP_F6FC55DF-86AB-4D2F-B2DE-9070168F8E56" /* Summary */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Summary;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -222,6 +222,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A16AFD4F018B4DBD0A2DCAD5 /* Build configuration list for PBXNativeTarget "yomimono" */;
 			buildPhases = (
+				098D2E6C671D0F77F15896C5 /* SwiftLint */,
 				8566DBDDE750409E8892E3BF /* Sources */,
 				5B6DF7E50E64128D14A13A1F /* Resources */,
 				C37F9F2AC253B8F687CACDBC /* Frameworks */,
@@ -279,6 +280,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		098D2E6C671D0F77F15896C5 /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd \"${SRCROOT}\"\nif which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed. Install via Homebrew: brew install swiftlint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8566DBDDE750409E8892E3BF /* Sources */ = {
