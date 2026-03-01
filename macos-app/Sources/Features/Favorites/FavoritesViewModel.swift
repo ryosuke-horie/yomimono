@@ -21,7 +21,7 @@ final class FavoritesViewModel: ObservableObject {
         do {
             let response = try await api.fetchFavoriteBookmarks()
             bookmarks = response.bookmarks
-            total = response.total
+            total = response.bookmarks.count
         } catch {
             loadError = error.localizedDescription
         }

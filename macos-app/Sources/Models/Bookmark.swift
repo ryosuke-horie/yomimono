@@ -35,7 +35,6 @@ struct BookmarkListResponse: Codable {
 struct FavoriteBookmarksResponse: Codable {
     let success: Bool
     let bookmarks: [BookmarkWithFavorite]
-    let total: Int
 }
 
 struct RecentBookmarksResponse: Codable {
