@@ -18,10 +18,10 @@ struct BookmarkCardView: View {
     // DateFormatter は高コストなため static でキャッシュする
     private static let iso8601Formatter = ISO8601DateFormatter()
     private static let displayFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateStyle = .short
-        f.locale = Locale(identifier: "ja_JP")
-        return f
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.locale = Locale(identifier: "ja_JP")
+        return formatter
     }()
 
     private var displayTitle: String {
@@ -115,7 +115,9 @@ struct BookmarkCardView: View {
             }
         }
         .padding(12)
-        .background(bookmark.isRead ? Color(NSColor.controlBackgroundColor).opacity(0.5) : Color(NSColor.controlBackgroundColor))
+        .background(bookmark.isRead
+            ? Color(NSColor.controlBackgroundColor).opacity(0.5)
+            : Color(NSColor.controlBackgroundColor))
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
             RoundedRectangle(cornerRadius: 8)

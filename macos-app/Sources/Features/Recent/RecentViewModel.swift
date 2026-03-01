@@ -55,9 +55,9 @@ final class RecentViewModel: ObservableObject {
             } else {
                 try await api.addToFavorites(id: bookmark.id)
             }
-            for i in groupedBookmarks.indices {
-                if let j = groupedBookmarks[i].bookmarks.firstIndex(where: { $0.id == bookmark.id }) {
-                    groupedBookmarks[i].bookmarks[j] = bookmark.copying(isFavorite: !bookmark.isFavorite)
+            for groupIdx in groupedBookmarks.indices {
+                if let bookmarkIdx = groupedBookmarks[groupIdx].bookmarks.firstIndex(where: { $0.id == bookmark.id }) {
+                    groupedBookmarks[groupIdx].bookmarks[bookmarkIdx] = bookmark.copying(isFavorite: !bookmark.isFavorite)
                 }
             }
         } catch {

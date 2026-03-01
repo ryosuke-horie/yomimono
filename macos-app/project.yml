@@ -9,6 +9,9 @@ packages:
   FeedKit:
     url: https://github.com/nmdias/FeedKit
     from: 9.0.0
+  SwiftLint:
+    url: https://github.com/realm/SwiftLint
+    from: 0.57.0
 
 targets:
   yomimono:
@@ -32,6 +35,15 @@ targets:
         com.apple.security.network.client: true
     dependencies:
       - package: FeedKit
+    preBuildScripts:
+      - name: SwiftLint
+        basedOnDependencyAnalysis: false
+        script: |
+          if which swiftlint > /dev/null; then
+            swiftlint
+          else
+            echo "warning: SwiftLint not installed. Install via Homebrew: brew install swiftlint"
+          fi
     info:
       path: Sources/Info.plist
       properties:
