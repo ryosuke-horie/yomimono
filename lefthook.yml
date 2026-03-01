@@ -22,7 +22,7 @@ pre-commit:
 
     - name: lint macos-app
       glob: "macos-app/**/*.swift"
-      run: cd macos-app && swiftlint lint Sources
+      run: cd macos-app && swiftlint lint --strict Sources
 
 pre-push:
   parallel: true
@@ -80,6 +80,7 @@ pre-push:
         test -f dist/popup/popup.js || (echo "popup.js not found in dist/popup/" && exit 1)
 
     - name: build macos-app
+      # project.yml や xcassets 等の設定ファイル変更もビルドに影響するため macos-app 全体を対象にする
       glob: "macos-app/**"
       run: |
         set -e
@@ -90,6 +91,7 @@ pre-push:
           -scheme yomimono \
           -destination "platform=macOS" \
           -skipPackagePluginValidation \
+          -quiet \
           build
 
     - name: root dependency check
