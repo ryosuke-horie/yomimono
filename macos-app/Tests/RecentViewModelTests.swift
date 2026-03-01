@@ -93,6 +93,7 @@ struct RecentViewModelTests {
         await vm.markAsUnread(bookmark: bookmark)
 
         #expect(mock.markAsUnreadCalledIds == [1])
+        #expect(vm.groupedBookmarks.count == 1)  // リロード後の件数を確認
         #expect(vm.mutationError == nil)
     }
 

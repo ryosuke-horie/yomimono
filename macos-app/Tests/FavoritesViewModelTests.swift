@@ -181,6 +181,37 @@ struct FavoritesViewModelTests {
         await vm.toggleFavorite(bookmark: bookmark)
 
         #expect(mock.addToFavoritesCalledIds == [1])
+        #expect(vm.bookmarks.count == 1)  // load が呼ばれて状態が更新されたことを確認
         #expect(vm.mutationError == nil)
+    }
+
+    @Test("toggleFavorite: addToFavorites失敗時にmutationErrorを設定する")
+    func toggleFavoriteAddFailure() async {
+        let mock = MockBookmarkAPIClient()
+        let bookmark = MockBookmarkAPIClient.makeBookmark(id: 1, isFavorite: false)
+        mock.fetchFavoriteResult = .success(
+            FavoriteBookmarksResponse(success: true, bookmarks: [bookmark])
+        )
+        mock.addToFavoritesResult = .failure(BookmarkAPIError.networkError(URLError(.notConnectedToInternet)))
+        let vm = FavoritesViewModel(api: mock)
+        await vm.load()
+
+        await vm.toggleFavorite(bookmark: bookmark)
+
+        #expect(vm.mutationError != nil)
+    }
+
+    @Test("removeFromFavorites: totalが0の状態でも負数にならない")
+    func removeFromFavoritesDoesNotUnderflowTotal() async {
+        let mock = MockBookmarkAPIClient()
+        mock.fetchFavoriteResult = .success(
+            FavoriteBookmarksResponse(success: true, bookmarks: [])
+        )
+        let vm = FavoritesViewModel(api: mock)
+        await vm.load()
+
+        await vm.removeFromFavorites(bookmark: MockBookmarkAPIClient.makeBookmark(id: 1, isFavorite: true))
+
+        #expect(vm.total == 0)
     }
 }
