@@ -1,0 +1,478 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0D982A7A9C672B12B9D2F067 /* YomimonoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7B35B93F60F6B2E00F99AE /* YomimonoApp.swift */; };
+		1758F2DABB5C2486B30DD747 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09DCD1B122EB7CC3630B9CCA /* SettingsView.swift */; };
+		18CC814FBDB45DBF268694D8 /* FavoritesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86C31FCFDB6ABC009EAAF3A /* FavoritesViewModel.swift */; };
+		2286F438A7D59276416EC401 /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7E75ACD7D47356575C78337 /* FavoritesView.swift */; };
+		3ECFEC0F6BF2688ED9FA3FE9 /* RecentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE33793241F144EC706AB1FF /* RecentViewModel.swift */; };
+		590BBFF1B66B1DC0E689D3C0 /* UnreadBookmarksViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 626A5F7C95724D9D63A9747F /* UnreadBookmarksViewModel.swift */; };
+		7810AF40786A333DD4AFFF31 /* Bookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52D9AE2B44B64CA1188FAEFC /* Bookmark.swift */; };
+		887D18285A3CD98865C9A605 /* UnreadBookmarksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47C77788E4A48579F2051A9C /* UnreadBookmarksView.swift */; };
+		AA55A716A5DBAF48F32E3B41 /* RSSFeedListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5388EA603B548FDDED988C39 /* RSSFeedListView.swift */; };
+		AF8D82B44080BC6EC5947419 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4CF34D43EF4086A5183B1F0 /* ContentView.swift */; };
+		B1B120CA018D89FF727A8B7C /* RecentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8831F5C7888D640F94DA8209 /* RecentView.swift */; };
+		BE821152E35C3AEC6B9F2269 /* FeedKit in Frameworks */ = {isa = PBXBuildFile; productRef = 4CD64F21A9C9044E80402E41 /* FeedKit */; };
+		EB306070EDBD1755110ED106 /* BookmarkCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77688F045740FF323FCA2C75 /* BookmarkCardView.swift */; };
+		F7B820C1FD8230FDAB237676 /* BookmarkAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F28DD42A3E6610B9113FE96 /* BookmarkAPIClient.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		09DCD1B122EB7CC3630B9CCA /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		0F28DD42A3E6610B9113FE96 /* BookmarkAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkAPIClient.swift; sourceTree = "<group>"; };
+		29A842C614BD52F2BE1E481A /* yomimono.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = yomimono.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		47C77788E4A48579F2051A9C /* UnreadBookmarksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnreadBookmarksView.swift; sourceTree = "<group>"; };
+		52D9AE2B44B64CA1188FAEFC /* Bookmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bookmark.swift; sourceTree = "<group>"; };
+		5388EA603B548FDDED988C39 /* RSSFeedListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSFeedListView.swift; sourceTree = "<group>"; };
+		626A5F7C95724D9D63A9747F /* UnreadBookmarksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnreadBookmarksViewModel.swift; sourceTree = "<group>"; };
+		77688F045740FF323FCA2C75 /* BookmarkCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkCardView.swift; sourceTree = "<group>"; };
+		8831F5C7888D640F94DA8209 /* RecentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentView.swift; sourceTree = "<group>"; };
+		979AE7CEC893CA151B79FD9C /* yomimono.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = yomimono.entitlements; sourceTree = "<group>"; };
+		A7E75ACD7D47356575C78337 /* FavoritesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesView.swift; sourceTree = "<group>"; };
+		B4CF34D43EF4086A5183B1F0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B86C31FCFDB6ABC009EAAF3A /* FavoritesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesViewModel.swift; sourceTree = "<group>"; };
+		BE33793241F144EC706AB1FF /* RecentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentViewModel.swift; sourceTree = "<group>"; };
+		D21C7770DC3C5F4C69DD6F5D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		FF7B35B93F60F6B2E00F99AE /* YomimonoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YomimonoApp.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C37F9F2AC253B8F687CACDBC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BE821152E35C3AEC6B9F2269 /* FeedKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0D737A8406C91C4B90051874 /* Unread */ = {
+			isa = PBXGroup;
+			children = (
+				47C77788E4A48579F2051A9C /* UnreadBookmarksView.swift */,
+				626A5F7C95724D9D63A9747F /* UnreadBookmarksViewModel.swift */,
+			);
+			path = Unread;
+			sourceTree = "<group>";
+		};
+		2144B051D55F48E94899937A /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				77688F045740FF323FCA2C75 /* BookmarkCardView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		2F63C78AA091D371A0E8ECAD /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				B5A754606AFC773A7C68D782 /* Favorites */,
+				56220F44A43C4C26F4119E56 /* Recent */,
+				B57BFE6EAB4410FD2D554E59 /* RSS */,
+				0D737A8406C91C4B90051874 /* Unread */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		439C8E630AD7BA0263231B9E /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				2144B051D55F48E94899937A /* Components */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		56220F44A43C4C26F4119E56 /* Recent */ = {
+			isa = PBXGroup;
+			children = (
+				8831F5C7888D640F94DA8209 /* RecentView.swift */,
+				BE33793241F144EC706AB1FF /* RecentViewModel.swift */,
+			);
+			path = Recent;
+			sourceTree = "<group>";
+		};
+		66D9E07A9455D62BDCE66068 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				B4CF34D43EF4086A5183B1F0 /* ContentView.swift */,
+				FF7B35B93F60F6B2E00F99AE /* YomimonoApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A212F8EC77AB1844E2A041CC /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				52D9AE2B44B64CA1188FAEFC /* Bookmark.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		B08F31F9EE63C8B3549E1B2C /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				D21C7770DC3C5F4C69DD6F5D /* Info.plist */,
+				979AE7CEC893CA151B79FD9C /* yomimono.entitlements */,
+				66D9E07A9455D62BDCE66068 /* App */,
+				2F63C78AA091D371A0E8ECAD /* Features */,
+				A212F8EC77AB1844E2A041CC /* Models */,
+				B6E11618EFDE73EE4710FEFA /* Services */,
+				C1F6A28CC837E25618A2C517 /* Settings */,
+				439C8E630AD7BA0263231B9E /* Shared */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		B57BFE6EAB4410FD2D554E59 /* RSS */ = {
+			isa = PBXGroup;
+			children = (
+				5388EA603B548FDDED988C39 /* RSSFeedListView.swift */,
+			);
+			path = RSS;
+			sourceTree = "<group>";
+		};
+		B5A754606AFC773A7C68D782 /* Favorites */ = {
+			isa = PBXGroup;
+			children = (
+				A7E75ACD7D47356575C78337 /* FavoritesView.swift */,
+				B86C31FCFDB6ABC009EAAF3A /* FavoritesViewModel.swift */,
+			);
+			path = Favorites;
+			sourceTree = "<group>";
+		};
+		B6E11618EFDE73EE4710FEFA /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				0F28DD42A3E6610B9113FE96 /* BookmarkAPIClient.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		C1560674FE2F860D0FBD26D9 = {
+			isa = PBXGroup;
+			children = (
+				B08F31F9EE63C8B3549E1B2C /* Sources */,
+				E7DA4473FEC594105ACA4CBF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C1F6A28CC837E25618A2C517 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				09DCD1B122EB7CC3630B9CCA /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		E7DA4473FEC594105ACA4CBF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				29A842C614BD52F2BE1E481A /* yomimono.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		"TEMP_69063F29-3CAB-40E1-82E5-6695D1EEB28A" /* Summary */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Summary;
+			sourceTree = "<group>";
+		};
+		"TEMP_911227B1-4B00-4755-A208-CAADC05DE859" /* Bookmarks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Bookmarks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		EC22AE2238071AA9980E92CF /* yomimono */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A16AFD4F018B4DBD0A2DCAD5 /* Build configuration list for PBXNativeTarget "yomimono" */;
+			buildPhases = (
+				8566DBDDE750409E8892E3BF /* Sources */,
+				C37F9F2AC253B8F687CACDBC /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = yomimono;
+			packageProductDependencies = (
+				4CD64F21A9C9044E80402E41 /* FeedKit */,
+			);
+			productName = yomimono;
+			productReference = 29A842C614BD52F2BE1E481A /* yomimono.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5F443213931BBE14722C98D0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+			};
+			buildConfigurationList = 671A608C6D8096D16AEED611 /* Build configuration list for PBXProject "yomimono" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = C1560674FE2F860D0FBD26D9;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				874EA836CA8D007B927BBBD1 /* XCRemoteSwiftPackageReference "FeedKit" */,
+			);
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EC22AE2238071AA9980E92CF /* yomimono */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8566DBDDE750409E8892E3BF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7810AF40786A333DD4AFFF31 /* Bookmark.swift in Sources */,
+				F7B820C1FD8230FDAB237676 /* BookmarkAPIClient.swift in Sources */,
+				EB306070EDBD1755110ED106 /* BookmarkCardView.swift in Sources */,
+				AF8D82B44080BC6EC5947419 /* ContentView.swift in Sources */,
+				2286F438A7D59276416EC401 /* FavoritesView.swift in Sources */,
+				18CC814FBDB45DBF268694D8 /* FavoritesViewModel.swift in Sources */,
+				AA55A716A5DBAF48F32E3B41 /* RSSFeedListView.swift in Sources */,
+				B1B120CA018D89FF727A8B7C /* RecentView.swift in Sources */,
+				3ECFEC0F6BF2688ED9FA3FE9 /* RecentViewModel.swift in Sources */,
+				1758F2DABB5C2486B30DD747 /* SettingsView.swift in Sources */,
+				887D18285A3CD98865C9A605 /* UnreadBookmarksView.swift in Sources */,
+				590BBFF1B66B1DC0E689D3C0 /* UnreadBookmarksViewModel.swift in Sources */,
+				0D982A7A9C672B12B9D2F067 /* YomimonoApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		132674AC69C32EF2AEDF21DA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_ENTITLEMENTS = Sources/yomimono.entitlements;
+				CODE_SIGN_IDENTITY = "";
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Sources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yomimono.macos;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		2831D42402701128DA99CD38 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_ENTITLEMENTS = Sources/yomimono.entitlements;
+				CODE_SIGN_IDENTITY = "";
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Sources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yomimono.macos;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		B4ACD81479D6428CD1CCC24D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		F154BD623D7E6BD1D1DB0F52 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		671A608C6D8096D16AEED611 /* Build configuration list for PBXProject "yomimono" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B4ACD81479D6428CD1CCC24D /* Debug */,
+				F154BD623D7E6BD1D1DB0F52 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A16AFD4F018B4DBD0A2DCAD5 /* Build configuration list for PBXNativeTarget "yomimono" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				132674AC69C32EF2AEDF21DA /* Debug */,
+				2831D42402701128DA99CD38 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		874EA836CA8D007B927BBBD1 /* XCRemoteSwiftPackageReference "FeedKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nmdias/FeedKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4CD64F21A9C9044E80402E41 /* FeedKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 874EA836CA8D007B927BBBD1 /* XCRemoteSwiftPackageReference "FeedKit" */;
+			productName = FeedKit;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 5F443213931BBE14722C98D0 /* Project object */;
+}
