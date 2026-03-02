@@ -1,135 +1,7 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/frontend"
-    schedule:
-      interval: "monthly"
-    commit-message:
-      prefix: "chore(frontend)"
-      prefix-development: "chore(frontend-dev)"
-      include: "scope"
-    reviewers:
-      - "ryosuke-horie"
-    assignees:
-      - "ryosuke-horie"
-    groups:
-      production-dependencies:
-        patterns:
-          # Reactとそのエコシステム
-          - "next"
-          - "react"
-          - "react-dom"
-          - "@types/react"
-          - "@types/react-dom"
-          - "@tanstack/react-query"
-          - "react-icons"
-          - "server-only"
-          # Cloudflareデプロイメント関連
-          - "wrangler"
-          - "@opennextjs/cloudflare"
-          - "@cloudflare/workers-types"
-          # スタイリング関連
-          - "tailwindcss"
-          - "@tailwindcss/postcss"
-          - "postcss"
-          - "postcss-load-config"
-          # コード生成ツール
-          - "orval"
-          # ビルドに必要なツール
-          - "typescript"
-          - "@types/node"
-      dev-dependencies:
-        patterns:
-          # テスト・静的解析・コード品質ツール
-          - "@biomejs/biome"
-          - "knip"
-          - "vitest"
-          - "@vitest/*"
-          - "@testing-library/*"
-          - "jsdom"
-          - "msw"
-          - "vite-tsconfig-paths"
-          - "@vitejs/plugin-react"
-        update-types:
-          - "major"
-          - "minor"
-          - "patch"
-
-  # apiディレクトリの依存関係を管理
-  - package-ecosystem: "npm"
-    directory: "/api"
-    schedule:
-      interval: "monthly"
-    commit-message:
-      prefix: "chore(api)"
-      prefix-development: "chore(api-dev)"
-      include: "scope"
-    reviewers:
-      - "ryosuke-horie"
-    assignees:
-      - "ryosuke-horie"
-    # ここで特定パッケージをグルーピング
-    groups:
-      production-dependencies:
-        patterns:
-          # コアとなる実行時依存パッケージ
-          - "hono"
-          - "drizzle-orm"
-          - "dotenv"
-          - "fast-xml-parser"
-          # Cloudflare関連のデプロイメント
-          - "wrangler"
-          - "@cloudflare/workers-types"
-          # データベース関連ツール
-          - "drizzle-kit"
-          - "better-sqlite3"
-          # ビルドに必要なツール
-          - "typescript"
-          - "@types/*"
-          - "tsx"
-      dev-dependencies:
-        patterns:
-          # テスト・静的解析・コード品質ツール
-          - "@biomejs/biome"
-          - "knip"
-          - "vitest"
-          - "@vitest/*"
-          - "happy-dom"
-          - "openapi3-ts"
-          - "yaml"
-          - "only-allow"
-        update-types:
-          - "major"
-          - "minor"
-          - "patch"
-
-  # Extensionディレクトリの依存関係を管理
-  - package-ecosystem: "npm"
-    directory: "/extension"
-    schedule:
-      interval: "monthly"
-    commit-message:
-      prefix: "chore(extension)"
-      prefix-development: "chore(extension-dev)"
-      include: "scope"
-    reviewers:
-      - "ryosuke-horie"
-    assignees:
-      - "ryosuke-horie"
-    # ここで特定パッケージをグルーピング
-    groups:
-      production-dependencies:
-        patterns:
-          # ビルドに必要なツール
-          - "typescript"
-          - "@types/*"
-      dev-dependencies:
-        patterns:
-          # テスト・静的解析・コード品質ツール
-          - "@biomejs/biome"
-          - "knip"
-
   # ルート（モノレポ共通）の依存関係を管理
+  # pnpm workspace 全体を対象とし、複数ディレクトリで共通するパッケージを一括管理する
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -143,9 +15,110 @@ updates:
     assignees:
       - "ryosuke-horie"
     groups:
-      dev-dependencies:
+      shared-tools:
         patterns:
+          # モノレポ共通ツール（ルート package.json）
+          - "lefthook"
+          # 全ディレクトリ共通：静的解析・フォーマット・型チェック
           - "@biomejs/biome"
           - "knip"
-          - "lefthook"
           - "typescript"
+          # api/frontend 共通：Cloudflare 関連デプロイツール
+          - "wrangler"
+          - "@cloudflare/workers-types"
+          # api/frontend/extension 共通：Node.js 型定義
+          - "@types/node"
+
+  # apiディレクトリ固有の依存関係を管理
+  # 共通パッケージ（wrangler/@cloudflare/workers-types/@types/node/@biomejs/biome/knip/typescript）はルートで管理
+  - package-ecosystem: "npm"
+    directory: "/api"
+    schedule:
+      interval: "monthly"
+    commit-message:
+      prefix: "chore(api)"
+      prefix-development: "chore(api-dev)"
+      include: "scope"
+    reviewers:
+      - "ryosuke-horie"
+    assignees:
+      - "ryosuke-horie"
+    groups:
+      api-deps:
+        patterns:
+          # コアとなる実行時依存パッケージ
+          - "hono"
+          - "drizzle-orm"
+          - "drizzle-kit"
+          - "dotenv"
+          - "fast-xml-parser"
+          # データベース関連
+          - "better-sqlite3"
+          - "@types/better-sqlite3"
+          # ビルドツール
+          - "tsx"
+      api-dev-deps:
+        patterns:
+          # テスト関連
+          - "vitest"
+          - "@vitest/*"
+          - "happy-dom"
+          # 開発ツール
+          - "openapi3-ts"
+          - "yaml"
+          - "only-allow"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
+
+  # frontendディレクトリ固有の依存関係を管理
+  # 共通パッケージ（wrangler/@cloudflare/workers-types/@types/node/@biomejs/biome/knip/typescript）はルートで管理
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "monthly"
+    commit-message:
+      prefix: "chore(frontend)"
+      prefix-development: "chore(frontend-dev)"
+      include: "scope"
+    reviewers:
+      - "ryosuke-horie"
+    assignees:
+      - "ryosuke-horie"
+    groups:
+      frontend-deps:
+        patterns:
+          # Reactとそのエコシステム
+          - "next"
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+          - "@tanstack/react-query"
+          - "react-icons"
+          - "server-only"
+          # Cloudflareデプロイメント（frontend固有）
+          - "@opennextjs/cloudflare"
+          # スタイリング関連
+          - "tailwindcss"
+          - "@tailwindcss/postcss"
+          - "postcss"
+          - "postcss-load-config"
+          # コード生成ツール
+          - "orval"
+      frontend-dev-deps:
+        patterns:
+          # テスト関連
+          - "vitest"
+          - "@vitest/*"
+          - "@testing-library/*"
+          - "jsdom"
+          - "msw"
+          # ビルドツール
+          - "vite-tsconfig-paths"
+          - "@vitejs/plugin-react"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
