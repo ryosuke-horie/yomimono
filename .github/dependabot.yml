@@ -30,7 +30,7 @@ updates:
           - "@types/node"
 
   # apiディレクトリ固有の依存関係を管理
-  # 共通パッケージ（wrangler/@cloudflare/workers-types/@types/node/@biomejs/biome/knip/typescript）はルートで管理
+  # 共通パッケージはルート設定の shared-tools グループで一括管理するため、ここでは除外する
   - package-ecosystem: "npm"
     directory: "/api"
     schedule:
@@ -43,6 +43,13 @@ updates:
       - "ryosuke-horie"
     assignees:
       - "ryosuke-horie"
+    ignore:
+      - dependency-name: "@biomejs/biome"
+      - dependency-name: "knip"
+      - dependency-name: "typescript"
+      - dependency-name: "wrangler"
+      - dependency-name: "@cloudflare/workers-types"
+      - dependency-name: "@types/node"
     groups:
       api-deps:
         patterns:
@@ -73,7 +80,7 @@ updates:
           - "patch"
 
   # frontendディレクトリ固有の依存関係を管理
-  # 共通パッケージ（wrangler/@cloudflare/workers-types/@types/node/@biomejs/biome/knip/typescript）はルートで管理
+  # 共通パッケージはルート設定の shared-tools グループで一括管理するため、ここでは除外する
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
@@ -86,6 +93,13 @@ updates:
       - "ryosuke-horie"
     assignees:
       - "ryosuke-horie"
+    ignore:
+      - dependency-name: "@biomejs/biome"
+      - dependency-name: "knip"
+      - dependency-name: "typescript"
+      - dependency-name: "wrangler"
+      - dependency-name: "@cloudflare/workers-types"
+      - dependency-name: "@types/node"
     groups:
       frontend-deps:
         patterns:
@@ -114,7 +128,6 @@ updates:
           - "@vitest/*"
           - "@testing-library/*"
           - "jsdom"
-          - "msw"
           # ビルドツール
           - "vite-tsconfig-paths"
           - "@vitejs/plugin-react"
