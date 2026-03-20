@@ -43,6 +43,15 @@ const openApiDocument: OpenAPIObject = {
 			get: {
 				tags: ["Bookmarks"],
 				summary: "未読ブックマーク一覧",
+				parameters: [
+					{
+						name: "limit",
+						in: "query",
+						required: false,
+						description: "取得件数の上限（1-100）。未指定時は全件取得",
+						schema: { type: "integer", minimum: 1, maximum: 100 },
+					},
+				],
 				responses: {
 					200: {
 						description: "未読ブックマーク一覧",

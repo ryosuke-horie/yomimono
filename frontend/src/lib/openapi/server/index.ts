@@ -11,6 +11,7 @@ import type {
   BulkBookmarksRequest,
   ErrorResponse,
   FavoriteBookmarksResponse,
+  GetApiBookmarksParams,
   MessageResponse,
   RecentBookmarksResponse,
   SuccessResponse
@@ -38,17 +39,24 @@ export type getApiBookmarksResponseError = (getApiBookmarksResponse500) & {
 
 export type getApiBookmarksResponse = (getApiBookmarksResponseSuccess | getApiBookmarksResponseError)
 
-export const getGetApiBookmarksUrl = () => {
+export const getGetApiBookmarksUrl = (params?: GetApiBookmarksParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/bookmarks`
+  return stringifiedParams.length > 0 ? `/api/bookmarks?${stringifiedParams}` : `/api/bookmarks`
 }
 
-export const getApiBookmarks = async ( options?: RequestInit): Promise<getApiBookmarksResponse> => {
+export const getApiBookmarks = async (params?: GetApiBookmarksParams, options?: RequestInit): Promise<getApiBookmarksResponse> => {
   
-  const res = await fetch(getGetApiBookmarksUrl(),
+  const res = await fetch(getGetApiBookmarksUrl(params),
   {      
     ...options,
     method: 'GET'

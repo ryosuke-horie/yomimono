@@ -86,9 +86,44 @@ describe("BookmarkRouter", () => {
 			expect(data.bookmarks[0].id).toBe(expectedResult1.id);
 			expect(data.totalUnread).toBe(1);
 			expect(data.todayReadCount).toBe(5);
-			expect(mockGetUnreadBookmarks).toHaveBeenCalledOnce();
+			expect(mockGetUnreadBookmarks).toHaveBeenCalledWith(undefined);
 			expect(mockGetUnreadBookmarksCount).toHaveBeenCalledOnce();
 			expect(mockGetTodayReadCount).toHaveBeenCalledOnce();
+		});
+
+		it("limitクエリパラメータを指定した場合、サービスにlimitを渡すこと", async () => {
+			const mockBookmarks: BookmarkWithFavorite[] = [expectedResult1];
+			mockGetUnreadBookmarks.mockResolvedValue(mockBookmarks);
+			mockGetUnreadBookmarksCount.mockResolvedValue(10);
+			mockGetTodayReadCount.mockResolvedValue(2);
+
+			const res = await app.request("/api/bookmarks?limit=3");
+			const data = (await res.json()) as {
+				success: boolean;
+				bookmarks: BookmarkWithFavorite[];
+				totalUnread: number;
+				todayReadCount: number;
+			};
+
+			expect(res.status).toBe(200);
+			expect(data.success).toBe(true);
+			expect(mockGetUnreadBookmarks).toHaveBeenCalledWith(3);
+		});
+
+		it("limitが不正な値の場合、400エラーを返すこと", async () => {
+			const res = await app.request("/api/bookmarks?limit=0");
+			const data = (await res.json()) as { success: boolean; message: string };
+
+			expect(res.status).toBe(400);
+			expect(data.success).toBe(false);
+		});
+
+		it("limitが数値でない場合、400エラーを返すこと", async () => {
+			const res = await app.request("/api/bookmarks?limit=abc");
+			const data = (await res.json()) as { success: boolean; message: string };
+
+			expect(res.status).toBe(400);
+			expect(data.success).toBe(false);
 		});
 
 		it("サービスでエラーが発生した場合、500エラーレスポンスを返すこと", async () => {

@@ -9,15 +9,22 @@ import {
 	toContentfulStatusCode,
 } from "../exceptions";
 import type { IBookmarkService } from "../interfaces/service/bookmark";
-import { validateId } from "../utils/validation";
+import { validateId, validateOptionalNumber } from "../utils/validation";
 
 export const createBookmarksRouter = (bookmarkService: IBookmarkService) => {
 	const app = new Hono();
 
 	app.get("/", async (c) => {
 		try {
+			// limitクエリパラメータを取得（未指定時は全件取得）
+			const limitParam = c.req.query("limit");
+			const limit =
+				limitParam !== undefined
+					? validateOptionalNumber(Number(limitParam), "limit", 1, 100)
+					: undefined;
+
 			const [unreadBookmarks, totalUnread, todayReadCount] = await Promise.all([
-				bookmarkService.getUnreadBookmarks(),
+				bookmarkService.getUnreadBookmarks(limit),
 				bookmarkService.getUnreadBookmarksCount(),
 				bookmarkService.getTodayReadCount(),
 			]);

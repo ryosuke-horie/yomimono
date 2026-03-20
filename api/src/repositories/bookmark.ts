@@ -115,9 +115,10 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 		}
 	}
 
-	async findUnread(): Promise<BookmarkWithFavorite[]> {
+	// 未読ブックマークを取得する。limitを指定すると最新N件のみ返す
+	async findUnread(limit?: number): Promise<BookmarkWithFavorite[]> {
 		try {
-			const bookmarksResult = await this.db
+			const query = this.db
 				.select({
 					bookmark: bookmarks,
 					favorite: favorites,
@@ -125,8 +126,12 @@ export class DrizzleBookmarkRepository implements IBookmarkRepository {
 				.from(bookmarks)
 				.leftJoin(favorites, eq(bookmarks.id, favorites.bookmarkId))
 				.where(eq(bookmarks.isRead, false))
-				.orderBy(desc(bookmarks.createdAt))
-				.all();
+				.orderBy(desc(bookmarks.createdAt));
+
+			const bookmarksResult = await (limit !== undefined
+				? query.limit(limit)
+				: query
+			).all();
 
 			return bookmarksResult.map(
 				(row): BookmarkWithFavorite => ({

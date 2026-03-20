@@ -14,6 +14,7 @@ export * from './bulkBookmarksRequest';
 export * from './bulkBookmarksRequestBookmarksItem';
 export * from './errorResponse';
 export * from './favoriteBookmarksResponse';
+export * from './getApiBookmarksParams';
 export * from './messageResponse';
 export * from './recentBookmarksResponse';
 export * from './recentBookmarksResponseBookmarks';
