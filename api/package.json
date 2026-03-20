@@ -19,8 +19,8 @@
 	"dependencies": {
 		"dotenv": "^17.3.1",
 		"drizzle-orm": "^0.45.1",
-		"fast-xml-parser": "^5.5.7",
-		"hono": "^4.12.3"
+		"fast-xml-parser": "^5.5.8",
+		"hono": "^4.12.8"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.8",
@@ -28,8 +28,8 @@
 		"@types/better-sqlite3": "^7.6.13",
 		"@types/node": "^25.5.0",
 		"@vitest/coverage-v8": "4.1.0",
-		"better-sqlite3": "^12.6.2",
-		"drizzle-kit": "^0.31.9",
+		"better-sqlite3": "^12.8.0",
+		"drizzle-kit": "^0.31.10",
 		"happy-dom": "^20.8.4",
 		"knip": "^6.0.0",
 		"only-allow": "^1.2.2",
