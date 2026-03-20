@@ -1,0 +1,13 @@
+{
+  "featureName": "rss-reader",
+  "description": "RSSリーダー機能構築 - RSSフィードを購読・管理し、技術記事を自動収集する機能を追加する",
+  "projectDescription": "Dosen Issue #14: RSSリーダー機能構築。参考: https://github.com/babarot/oksskolten",
+  "language": "ja",
+  "createdAt": "2026-03-20T00:00:00.000Z",
+  "status": {
+    "requirements": "approved",
+    "design": "approved",
+    "tasks": "approved",
+    "implementation": "completed"
+  }
+}

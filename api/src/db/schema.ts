@@ -15,6 +15,7 @@ export const bookmarks = sqliteTable(
 		updatedAt: integer("updated_at", { mode: "timestamp" })
 			.notNull()
 			.default(sql`(unixepoch())`),
+		feedId: text("feed_id"),
 	},
 	(table) => {
 		return {

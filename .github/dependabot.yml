@@ -58,6 +58,7 @@ updates:
           - "drizzle-orm"
           - "drizzle-kit"
           - "dotenv"
+          - "fast-xml-parser"
           # データベース関連
           - "better-sqlite3"
           - "@types/better-sqlite3"
