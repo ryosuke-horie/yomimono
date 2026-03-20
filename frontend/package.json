@@ -40,10 +40,10 @@
 		"@types/node": "^25.3.3",
 		"@types/react": "^19.2.14",
 		"@types/react-dom": "^19.2.3",
-		"@vitejs/plugin-react": "^5.1.4",
-		"@vitest/coverage-v8": "^4.0.18",
-		"@vitest/ui": "^4.0.18",
-		"jsdom": "^28.1.0",
+		"@vitejs/plugin-react": "^6.0.1",
+		"@vitest/coverage-v8": "^4.1.0",
+		"@vitest/ui": "^4.1.0",
+		"jsdom": "^29.0.1",
 		"knip": "^5.85.0",
 		"orval": "^8.5.1",
 		"postcss": "^8.5.8",
@@ -51,7 +51,7 @@
 		"tailwindcss": "^4.2.2",
 		"typescript": "5.9.3",
 		"vite-tsconfig-paths": "^6.1.1",
-		"vitest": "^4.0.18",
+		"vitest": "^4.1.0",
 		"wrangler": "^4.69.0"
 	},
 	"overrides": {
