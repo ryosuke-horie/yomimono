@@ -2,7 +2,7 @@ import type { BookmarkWithFavorite, InsertBookmark } from "../../db/schema";
 
 export interface IBookmarkRepository {
 	createMany(bookmarks: InsertBookmark[]): Promise<void>;
-	findUnread(): Promise<BookmarkWithFavorite[]>;
+	findUnread(limit?: number): Promise<BookmarkWithFavorite[]>;
 	findByUrls(urls: string[]): Promise<BookmarkWithFavorite[]>;
 	markAsRead(id: number): Promise<boolean>;
 	markAsUnread(id: number): Promise<boolean>;

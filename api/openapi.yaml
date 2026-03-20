@@ -156,6 +156,15 @@ openapi: 3.1.0
 paths:
   /api/bookmarks:
     get:
+      parameters:
+        - description: 取得件数の上限（1-100）。未指定時は全件取得
+          in: query
+          name: limit
+          required: false
+          schema:
+            maximum: 100
+            minimum: 1
+            type: integer
       responses:
         "200":
           content:

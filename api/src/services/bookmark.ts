@@ -19,8 +19,8 @@ export class DefaultBookmarkService implements IBookmarkService {
 		return await this.repository.countTodayRead();
 	}
 
-	async getUnreadBookmarks(): Promise<BookmarkWithFavorite[]> {
-		return await this.repository.findUnread();
+	async getUnreadBookmarks(limit?: number): Promise<BookmarkWithFavorite[]> {
+		return await this.repository.findUnread(limit);
 	}
 
 	async addToFavorites(bookmarkId: number): Promise<void> {

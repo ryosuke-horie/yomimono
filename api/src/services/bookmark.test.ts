@@ -218,7 +218,17 @@ describe("DefaultBookmarkService", () => {
 
 			const result = await service.getUnreadBookmarks();
 
-			expect(mockFindUnread).toHaveBeenCalled();
+			expect(mockFindUnread).toHaveBeenCalledWith(undefined);
+			expect(result).toEqual(mockBookmarks);
+		});
+
+		it("limitを指定した場合、リポジトリにlimitを渡すこと", async () => {
+			const mockBookmarks: BookmarkWithFavorite[] = [expectedResult1];
+			mockFindUnread.mockResolvedValue(mockBookmarks);
+
+			const result = await service.getUnreadBookmarks(3);
+
+			expect(mockFindUnread).toHaveBeenCalledWith(3);
 			expect(result).toEqual(mockBookmarks);
 		});
 

@@ -4,7 +4,7 @@ export interface IBookmarkService {
 	createBookmarksFromData(
 		bookmarks: Array<{ url: string; title: string }>,
 	): Promise<void>;
-	getUnreadBookmarks(): Promise<BookmarkWithFavorite[]>;
+	getUnreadBookmarks(limit?: number): Promise<BookmarkWithFavorite[]>;
 	markBookmarkAsRead(id: number): Promise<void>;
 	markBookmarkAsUnread(id: number): Promise<void>;
 	getUnreadBookmarksCount(): Promise<number>;

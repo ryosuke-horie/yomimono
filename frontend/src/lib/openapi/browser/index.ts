@@ -30,6 +30,7 @@ import type {
   BulkBookmarksRequest,
   ErrorResponse,
   FavoriteBookmarksResponse,
+  GetApiBookmarksParams,
   MessageResponse,
   RecentBookmarksResponse,
   SuccessResponse
@@ -57,17 +58,24 @@ export type getApiBookmarksResponseError = (getApiBookmarksResponse500) & {
 
 export type getApiBookmarksResponse = (getApiBookmarksResponseSuccess | getApiBookmarksResponseError)
 
-export const getGetApiBookmarksUrl = () => {
+export const getGetApiBookmarksUrl = (params?: GetApiBookmarksParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/bookmarks`
+  return stringifiedParams.length > 0 ? `/api/bookmarks?${stringifiedParams}` : `/api/bookmarks`
 }
 
-export const getApiBookmarks = async ( options?: RequestInit): Promise<getApiBookmarksResponse> => {
+export const getApiBookmarks = async (params?: GetApiBookmarksParams, options?: RequestInit): Promise<getApiBookmarksResponse> => {
   
-  const res = await fetch(getGetApiBookmarksUrl(),
+  const res = await fetch(getGetApiBookmarksUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -86,23 +94,23 @@ export const getApiBookmarks = async ( options?: RequestInit): Promise<getApiBoo
 
 
 
-export const getGetApiBookmarksQueryKey = () => {
+export const getGetApiBookmarksQueryKey = (params?: GetApiBookmarksParams,) => {
     return [
-    `/api/bookmarks`
+    `/api/bookmarks`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetApiBookmarksQueryOptions = <TData = Awaited<ReturnType<typeof getApiBookmarks>>, TError = ErrorResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiBookmarksQueryOptions = <TData = Awaited<ReturnType<typeof getApiBookmarks>>, TError = ErrorResponse>(params?: GetApiBookmarksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiBookmarksQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetApiBookmarksQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBookmarks>>> = ({ signal }) => getApiBookmarks({ signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBookmarks>>> = ({ signal }) => getApiBookmarks(params, { signal, ...fetchOptions });
 
       
 
@@ -116,7 +124,7 @@ export type GetApiBookmarksQueryError = ErrorResponse
 
 
 export function useGetApiBookmarks<TData = Awaited<ReturnType<typeof getApiBookmarks>>, TError = ErrorResponse>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>> & Pick<
+ params: undefined |  GetApiBookmarksParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiBookmarks>>,
           TError,
@@ -126,7 +134,7 @@ export function useGetApiBookmarks<TData = Awaited<ReturnType<typeof getApiBookm
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiBookmarks<TData = Awaited<ReturnType<typeof getApiBookmarks>>, TError = ErrorResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>> & Pick<
+ params?: GetApiBookmarksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiBookmarks>>,
           TError,
@@ -136,7 +144,7 @@ export function useGetApiBookmarks<TData = Awaited<ReturnType<typeof getApiBookm
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiBookmarks<TData = Awaited<ReturnType<typeof getApiBookmarks>>, TError = ErrorResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>>, fetch?: RequestInit}
+ params?: GetApiBookmarksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -144,11 +152,11 @@ export function useGetApiBookmarks<TData = Awaited<ReturnType<typeof getApiBookm
  */
 
 export function useGetApiBookmarks<TData = Awaited<ReturnType<typeof getApiBookmarks>>, TError = ErrorResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>>, fetch?: RequestInit}
+ params?: GetApiBookmarksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBookmarks>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiBookmarksQueryOptions(options)
+  const queryOptions = getGetApiBookmarksQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
