@@ -15,6 +15,7 @@ describe("DefaultBookmarkService", () => {
 		url: "https://example.com/1",
 		title: "Example 1",
 		isRead: false,
+		feedId: null,
 		createdAt: new Date(),
 		updatedAt: new Date(),
 	};
@@ -23,6 +24,7 @@ describe("DefaultBookmarkService", () => {
 		url: "https://example.com/2",
 		title: "Example 2",
 		isRead: false,
+		feedId: null,
 		createdAt: new Date(),
 		updatedAt: new Date(),
 	};

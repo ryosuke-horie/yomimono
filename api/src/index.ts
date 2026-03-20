@@ -4,6 +4,8 @@ import { HTTPException } from "hono/http-exception";
 import { DrizzleBookmarkRepository } from "./repositories/bookmark";
 import { createBookmarksRouter } from "./routes/bookmarks";
 import { DefaultBookmarkService } from "./services/bookmark";
+import { FeedFetcher } from "./services/feed-fetcher";
+import { RssFeedService } from "./services/rss-feed";
 
 export interface Env {
 	DB: D1Database;
@@ -60,5 +62,25 @@ export default {
 	fetch: (request: Request, env: Env) => {
 		const app = createApp(env);
 		return app.fetch(request, env);
+	},
+	scheduled: async (
+		_event: ScheduledEvent,
+		env: Env,
+		ctx: ExecutionContext,
+	) => {
+		const task = (async () => {
+			try {
+				const bookmarkRepository = new DrizzleBookmarkRepository(env.DB);
+				const feedFetcher = new FeedFetcher();
+				const rssFeedService = new RssFeedService(
+					feedFetcher,
+					bookmarkRepository,
+				);
+				await rssFeedService.fetchAndSaveAllFeeds();
+			} catch (error) {
+				console.error("RSS scheduled ジョブ失敗:", error);
+			}
+		})();
+		ctx.waitUntil(task);
 	},
 };
