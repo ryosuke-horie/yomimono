@@ -129,7 +129,7 @@ updates:
           - "@testing-library/*"
           - "jsdom"
           # ビルドツール
-          - "vite-tsconfig-paths"
+          - "vite"
           - "@vitejs/plugin-react"
         update-types:
           - "major"
