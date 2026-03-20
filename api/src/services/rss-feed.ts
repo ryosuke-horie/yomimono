@@ -8,7 +8,7 @@ import { FEED_DEFINITIONS } from "../config/feeds";
 import type { IBookmarkRepository } from "../interfaces/repository/bookmark";
 import type { FeedArticle, IFeedFetcher } from "./feed-fetcher";
 
-export interface IRssFeedService {
+interface IRssFeedService {
 	fetchAndSaveAllFeeds(): Promise<void>;
 }
 
