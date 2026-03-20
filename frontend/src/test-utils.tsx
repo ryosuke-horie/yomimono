@@ -14,7 +14,7 @@ import { expect, test, vi } from "vitest";
 
 // Re-export everything
 export * from "@testing-library/react";
-export { userEvent, vi, test, expect };
+export { expect, test, userEvent, vi };
 
 // テスト用のQueryClientを作成する関数
 function createTestQueryClient() {
