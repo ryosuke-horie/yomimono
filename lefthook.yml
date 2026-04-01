@@ -20,7 +20,6 @@ pre-commit:
       glob: "extension/**/*.{ts,tsx,js,jsx,css,html}"
       run: cd extension && pnpm run lint
 
-
 pre-push:
   parallel: true
   jobs:
@@ -75,7 +74,6 @@ pre-push:
         test -f dist/manifest.json || (echo "manifest.json not found in dist/" && exit 1)
         test -f dist/popup/popup.html || (echo "popup.html not found in dist/popup/" && exit 1)
         test -f dist/popup/popup.js || (echo "popup.js not found in dist/popup/" && exit 1)
-
 
     - name: root dependency check
       glob: "{package.json,pnpm-lock.yaml}"
