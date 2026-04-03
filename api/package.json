@@ -19,7 +19,7 @@
 	"dependencies": {
 		"dotenv": "^17.4.0",
 		"drizzle-orm": "^0.45.2",
-		"fast-xml-parser": "^5.5.9",
+		"fast-xml-parser": "^5.5.10",
 		"hono": "^4.12.9"
 	},
 	"devDependencies": {
