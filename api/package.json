@@ -17,10 +17,10 @@
 		"seed": "pnpm run ensure:better-sqlite3 && pnpm run d1:reset:local && pnpm run migrate:dev:local && NODE_ENV=development SEED_PRESET=clear pnpm exec tsx src/db/seed/seed-runner.ts && NODE_ENV=development pnpm exec tsx src/db/seed/seed-runner.ts"
 	},
 	"dependencies": {
-		"dotenv": "^17.3.1",
-		"drizzle-orm": "^0.45.1",
-		"fast-xml-parser": "^5.5.8",
-		"hono": "^4.12.8"
+		"dotenv": "^17.4.0",
+		"drizzle-orm": "^0.45.2",
+		"fast-xml-parser": "^5.5.9",
+		"hono": "^4.12.9"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.8",
