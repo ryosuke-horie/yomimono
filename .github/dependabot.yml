@@ -2,7 +2,7 @@ version: 2
 updates:
   # ルート（モノレポ共通）の依存関係を管理
   # pnpm workspace 全体を対象とし、複数ディレクトリで共通するパッケージを一括管理する
-  # allow で shared-tools のパッケージのみに限定し、サブディレクトリ固有パッケージの重複 PR を防止する
+  # サブディレクトリ固有パッケージの重複 PR を防止するため、ルート管理対象を共通ツールのみに絞る
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -40,6 +40,7 @@ updates:
 
   # apiディレクトリ固有の依存関係を管理
   # 共通パッケージはルート設定の shared-tools グループで一括管理するため、ここでは除外する
+  # ignore リストはルート設定の allow リストと対応する。共通ツール追加時は両方を更新���ること
   - package-ecosystem: "npm"
     directory: "/api"
     schedule:
@@ -90,6 +91,7 @@ updates:
 
   # frontendディレクトリ固有の依存関係を管理
   # 共通パッケージはルート設定の shared-tools グループで一括管理するため、ここでは除外する
+  # ignore リストはルート設定の allow リストと対応する。共通ツール追加時は両方を更新すること
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
