@@ -23,21 +23,21 @@
 		"hono": "^4.12.10"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.4.8",
-		"@cloudflare/workers-types": "^4.20260317.1",
+		"@biomejs/biome": "^2.4.10",
+		"@cloudflare/workers-types": "^4.20260404.1",
 		"@types/better-sqlite3": "^7.6.13",
-		"@types/node": "^25.5.0",
+		"@types/node": "^25.5.2",
 		"@vitest/coverage-v8": "4.1.2",
 		"better-sqlite3": "^12.8.0",
 		"drizzle-kit": "^0.31.10",
 		"happy-dom": "^20.8.9",
-		"knip": "^6.0.0",
+		"knip": "^6.3.0",
 		"only-allow": "^1.2.2",
 		"openapi3-ts": "^4.5.0",
 		"tsx": "^4.21.0",
-		"typescript": "^5.9.3",
+		"typescript": "^6.0.2",
 		"vitest": "4.1.2",
-		"wrangler": "^4.76.0",
+		"wrangler": "^4.80.0",
 		"yaml": "^2.8.3"
 	},
 	"overrides": {
