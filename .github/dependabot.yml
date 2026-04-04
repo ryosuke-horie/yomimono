@@ -2,6 +2,7 @@ version: 2
 updates:
   # ルート（モノレポ共通）の依存関係を管理
   # pnpm workspace 全体を対象とし、複数ディレクトリで共通するパッケージを一括管理する
+  # allow で shared-tools のパッケージのみに限定し、サブディレクトリ固有パッケージの重複 PR を防止する
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -14,6 +15,14 @@ updates:
       - "ryosuke-horie"
     assignees:
       - "ryosuke-horie"
+    allow:
+      - dependency-name: "lefthook"
+      - dependency-name: "@biomejs/biome"
+      - dependency-name: "knip"
+      - dependency-name: "typescript"
+      - dependency-name: "wrangler"
+      - dependency-name: "@cloudflare/workers-types"
+      - dependency-name: "@types/node"
     groups:
       shared-tools:
         patterns:
