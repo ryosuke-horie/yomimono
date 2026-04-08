@@ -13,10 +13,10 @@
 		"typecheck": "pnpm -r --if-present run typecheck"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.4.8",
-		"knip": "^6.0.0",
+		"@biomejs/biome": "^2.4.10",
+		"knip": "^6.3.0",
 		"lefthook": "^2.1.4",
-		"typescript": "^5.9.3"
+		"typescript": "^6.0.2"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
