@@ -143,5 +143,5 @@ export function distance(a: Point, b: Point): number {
 
 以下のスキルは `/skill-name` コマンドでトリガーできます。
 
-- `/deploy`: yomimono プロジェクトの本番デプロイを実行する。D1 バックアップ → マイグレーション → API デプロイ → Frontend デプロイ の順に処理し、Extension の手動提出手順を案内する。
+- `/runbook-deploy`: yomimono プロジェクトの本番デプロイを実行する。D1 バックアップ → マイグレーション → API デプロイ → Frontend デプロイ の順に処理し、Extension の手動提出手順を案内する。
 - `/rss-add <URL>`: RSSフィード定義を追加する。指定URLのRSSフィードを検証し、api/src/config/feeds.ts に新しいフィード定義を追記する。
