@@ -1,6 +1,6 @@
 ---
-name: deploy
-description: yomimono プロジェクトの本番デプロイを実行する。API → Frontend の順にデプロイし、Extension の手動提出手順を案内する。/deploy コマンドでトリガーする。
+name: runbook-deploy
+description: yomimono プロジェクトの本番デプロイを実行する。API → Frontend の順にデプロイし、Extension の手動提出手順を案内する。/runbook-deploy コマンドでトリガーする。
 disable-model-invocation: true
 ---
 
