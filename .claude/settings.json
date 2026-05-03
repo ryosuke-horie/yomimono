@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git fetch:*)",
+      "Bash(node -e:*)",
+      "Bash(npx vitest:*)",
+      "Bash(git stash:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(gh pr comment:*)",
+      "Bash(git reset:*)",
+      "Bash(git merge:*)",
+      "WebFetch(domain:opennext.js.org)",
+      "Bash(npm info:*)",
+      "Bash(NEXT_PUBLIC_API_BASE_URL=\"https://api-yomimono.workers.dev\" pnpm run build:*)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "chrome-devtools"
+  ],
+  "enableAllProjectMcpServers": true
+}
