@@ -123,9 +123,10 @@ export function distance(a: Point, b: Point): number {
 
 ## 依存関係管理
 - **Dependabot**: `.github/dependabot.yml`で設定
-  - 各ディレクトリごと（ルート, api, frontend, extension）に個別に依存関係を管理
-  - 依存パッケージはグループ化されており、関連パッケージは一括で更新される
-  - テスト関連パッケージ（vitest, @vitest/*）は同時に更新する必要があるためグループ化
+  - ルート, api, frontend, extension の npm/pnpm 依存関係を1つの設定で管理する
+  - 本番ビルド、デプロイ、実行互換性に関わる依存は `runtime-dependencies` として一括更新する
+  - テスト、静的解析、型チェック、コード生成などの開発補助ツールは `development-tooling` として一括更新する
+  - version updates は月1回実行し、通常の依存更新 PR を2系統に集約する
 
 ## 言語設定
 - 日本語での解答生成を優先する
