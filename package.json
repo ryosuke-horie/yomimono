@@ -13,9 +13,9 @@
 		"typecheck": "pnpm -r --if-present run typecheck"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.4.14",
-		"knip": "^6.11.0",
-		"lefthook": "^2.1.6",
+		"@biomejs/biome": "^2.4.16",
+		"knip": "^6.15.0",
+		"lefthook": "^2.1.9",
 		"typescript": "^6.0.3"
 	},
 	"pnpm": {
