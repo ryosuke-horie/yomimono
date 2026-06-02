@@ -19,16 +19,16 @@
 	"dependencies": {
 		"dotenv": "^17.4.2",
 		"drizzle-orm": "^0.45.2",
-		"fast-xml-parser": "^5.7.2",
-		"hono": "^4.12.16"
+		"fast-xml-parser": "^5.8.0",
+		"hono": "^4.12.23"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.14",
-		"@cloudflare/workers-types": "^4.20260503.1",
+		"@cloudflare/workers-types": "^4.20260602.1",
 		"@types/better-sqlite3": "^7.6.13",
 		"@types/node": "^25.6.0",
 		"@vitest/coverage-v8": "4.1.5",
-		"better-sqlite3": "^12.9.0",
+		"better-sqlite3": "^12.10.0",
 		"drizzle-kit": "^0.31.10",
 		"happy-dom": "^20.9.0",
 		"knip": "^6.11.0",
@@ -37,7 +37,7 @@
 		"tsx": "^4.21.0",
 		"typescript": "^6.0.3",
 		"vitest": "4.1.5",
-		"wrangler": "^4.87.0",
+		"wrangler": "^4.96.0",
 		"yaml": "^2.8.4"
 	},
 	"overrides": {
